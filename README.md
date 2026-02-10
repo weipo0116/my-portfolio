@@ -6,14 +6,25 @@ Personal portfolio website showcasing my projects and information.
 
 **GitHub Pages**: [https://weipo0116.github.io/my-portfolio/](https://weipo0116.github.io/my-portfolio/)
 
-## Tech Stack
+## Project Structure
 
-This project is built with the following technologies:
-
-- **React 18** - Frontend framework
-- **Vite** - Build tool and development server
-- **D3.js** - Data visualization library
-- **ESLint** - Code quality linter
+```
+my-portfolio/
+├── public/              # Static assets
+│   └── vite.svg        # Vite logo
+├── src/                 # Source code
+│   ├── assets/         # Images and media files
+│   ├── App.jsx         # Main application component
+│   ├── App.css         # Application styles
+│   ├── data.js         # Data configuration
+│   ├── main.jsx        # Application entry point
+│   └── index.css       # Global styles
+├── index.html           # HTML template
+├── vite.config.js      # Vite configuration
+├── eslint.config.js    # ESLint configuration
+├── package.json        # Project dependencies
+└── README.md           # This file
+```
 
 ## Local Development
 
@@ -38,25 +49,14 @@ npm run preview
 npm run deploy
 ```
 
-## Project Structure
+## Tech Stack
 
-```
-my-portfolio/
-├── public/              # Static assets
-│   └── vite.svg        # Vite logo
-├── src/                 # Source code
-│   ├── assets/         # Images and media files
-│   ├── App.jsx         # Main application component
-│   ├── App.css         # Application styles
-│   ├── data.js         # Data configuration
-│   ├── main.jsx        # Application entry point
-│   └── index.css       # Global styles
-├── index.html           # HTML template
-├── vite.config.js      # Vite configuration
-├── eslint.config.js    # ESLint configuration
-├── package.json        # Project dependencies
-└── README.md           # This file
-```
+This project is built with the following technologies:
+
+- **React 18** - Frontend framework
+- **Vite** - Build tool and development server
+- **D3.js** - Data visualization library
+- **ESLint** - Code quality linter
 
 <!-- ### Where to Modify
 
