@@ -1,14 +1,6 @@
-# My Portfolio
+# Webber's Portfolio
 
 Personal portfolio website showcasing my projects and information.
-
-## Table of Contents
-
-- [Live Demo](#live-demo)
-- [Tech Stack](#tech-stack)
-- [Local Development](#local-development)
-- [Deploy to GitHub Pages](#deploy-to-github-pages)
-- [Project Structure](#project-structure)
 
 ## Live Demo
 
@@ -54,8 +46,6 @@ my-portfolio/
 │   └── vite.svg        # Vite logo
 ├── src/                 # Source code
 │   ├── assets/         # Images and media files
-│   │   ├── raccoon.png # Image assets
-│   │   └── self.jpg    # Profile photo
 │   ├── App.jsx         # Main application component
 │   ├── App.css         # Application styles
 │   ├── data.js         # Data configuration
@@ -68,11 +58,11 @@ my-portfolio/
 └── README.md           # This file
 ```
 
-### Where to Modify
+<!-- ### Where to Modify
 
 - **Content & Data**: Edit `src/data.js` to update project information, skills, and other data
 - **Main Component**: Modify `src/App.jsx` to change the layout and structure
 - **Styling**: Update `src/App.css` for component-specific styles or `src/index.css` for global styles
 - **Images**: Place new images in `src/assets/` folder
 - **Static Files**: Add favicon, robots.txt, etc. to `public/` folder
-- **Configuration**: Adjust build settings in `vite.config.js`
+- **Configuration**: Adjust build settings in `vite.config.js` -->
