@@ -1,16 +1,78 @@
-# React + Vite
+# My Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal portfolio website showcasing my projects and information.
 
-Currently, two official plugins are available:
+## Table of Contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Live Demo](#live-demo)
+- [Tech Stack](#tech-stack)
+- [Local Development](#local-development)
+- [Deploy to GitHub Pages](#deploy-to-github-pages)
+- [Project Structure](#project-structure)
 
-## React Compiler
+## Live Demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**GitHub Pages**: [https://weipo0116.github.io/my-portfolio/](https://weipo0116.github.io/my-portfolio/)
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This project is built with the following technologies:
+
+- **React 18** - Frontend framework
+- **Vite** - Build tool and development server
+- **D3.js** - Data visualization library
+- **ESLint** - Code quality linter
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+## Deploy to GitHub Pages
+
+```bash
+# Build and deploy to gh-pages branch
+npm run deploy
+```
+
+## Project Structure
+
+```
+my-portfolio/
+├── public/              # Static assets
+│   └── vite.svg        # Vite logo
+├── src/                 # Source code
+│   ├── assets/         # Images and media files
+│   │   ├── raccoon.png # Image assets
+│   │   └── self.jpg    # Profile photo
+│   ├── App.jsx         # Main application component
+│   ├── App.css         # Application styles
+│   ├── data.js         # Data configuration
+│   ├── main.jsx        # Application entry point
+│   └── index.css       # Global styles
+├── index.html           # HTML template
+├── vite.config.js      # Vite configuration
+├── eslint.config.js    # ESLint configuration
+├── package.json        # Project dependencies
+└── README.md           # This file
+```
+
+### Where to Modify
+
+- **Content & Data**: Edit `src/data.js` to update project information, skills, and other data
+- **Main Component**: Modify `src/App.jsx` to change the layout and structure
+- **Styling**: Update `src/App.css` for component-specific styles or `src/index.css` for global styles
+- **Images**: Place new images in `src/assets/` folder
+- **Static Files**: Add favicon, robots.txt, etc. to `public/` folder
+- **Configuration**: Adjust build settings in `vite.config.js`
