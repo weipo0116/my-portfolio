@@ -199,10 +199,10 @@ function App() {
               "--carousel-columns": carouselPerPage,
             }}
           >
-            {otherExperiences.length > carouselPerPage && (
-              <div className="carousel-controls">
+            <div className="carousel-shell">
+              {otherExperiences.length > carouselPerPage && (
                 <button
-                  className="carousel-button"
+                  className="carousel-button carousel-button-left"
                   onClick={() =>
                     setCarouselIndex((prev) => Math.max(0, prev - 1))
                   }
@@ -213,8 +213,31 @@ function App() {
                     <path d="M15.5 19 8.5 12l7-7" />
                   </svg>
                 </button>
+              )}
+              <div className="carousel-viewport" ref={carouselViewportRef}>
+                <div className="carousel-track">
+                  {otherExperiences.map((item) => (
+                    <article key={item.title} className="photo-card">
+                      <div
+                        className="photo"
+                        aria-hidden="true"
+                        style={
+                          item.image
+                            ? { backgroundImage: `url(${item.image})` }
+                            : undefined
+                        }
+                      />
+                      <div className="photo-info">
+                        <h3>{item.title}</h3>
+                        <p>{item.caption}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+              {otherExperiences.length > carouselPerPage && (
                 <button
-                  className="carousel-button"
+                  className="carousel-button carousel-button-right"
                   onClick={() =>
                     setCarouselIndex((prev) =>
                       Math.min(carouselMaxIndex, prev + 1)
@@ -227,8 +250,8 @@ function App() {
                     <path d="M8.5 5 15.5 12l-7 7" />
                   </svg>
                 </button>
-              </div>
-            )}
+              )}
+            </div>
             {carouselPageCount > 1 && (
               <div className="carousel-dots" role="tablist" aria-label="Slides">
                 {Array.from({ length: carouselPageCount }).map((_, index) => (
@@ -246,27 +269,6 @@ function App() {
                 ))}
               </div>
             )}
-            <div className="carousel-viewport" ref={carouselViewportRef}>
-              <div className="carousel-track">
-                {otherExperiences.map((item) => (
-                  <article key={item.title} className="photo-card">
-                    <div
-                      className="photo"
-                      aria-hidden="true"
-                      style={
-                        item.image
-                          ? { backgroundImage: `url(${item.image})` }
-                          : undefined
-                      }
-                    />
-                    <div className="photo-info">
-                      <h3>{item.title}</h3>
-                      <p>{item.caption}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
       </main>
