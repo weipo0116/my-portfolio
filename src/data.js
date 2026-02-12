@@ -99,7 +99,7 @@ export const siteData = {
     {
       name: "Interactive Semantic Segmentation for Large-Scale Aerial 3D Gaussian Splatting",
       description:
-        "Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining. \nEnables interactive labeling and open-vocabulary queries with real-time rendering.",
+        "Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining. Enables interactive labeling and open-vocabulary queries with real-time rendering.",
       repo: "https://github.com/weipo0116/saga",
       image: samplePhoto,
     },
