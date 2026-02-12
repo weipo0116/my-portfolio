@@ -21,12 +21,22 @@ const IconMail = () => (
   </svg>
 );
 
+const getInitials = (value = "") =>
+  value
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
 function App() {
   const avatarStyle = siteData.avatarImage
     ? { backgroundImage: `url(${siteData.avatarImage})` }
     : undefined;
   const carouselViewportRef = useRef(null);
   const carouselGap = 20;
+  const [activeSection, setActiveSection] = useState("home");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [carouselPerPage, setCarouselPerPage] = useState(3);
 
@@ -54,7 +64,7 @@ function App() {
   }, [otherExperiences.length, carouselPerPage]);
   const carouselPageCount = useMemo(
     () => (otherExperiences.length ? carouselMaxIndex + 1 : 0),
-    [otherExperiences.length, carouselMaxIndex]
+    [otherExperiences.length, carouselMaxIndex],
   );
 
   useEffect(() => {
@@ -72,17 +82,69 @@ function App() {
     viewport.scrollTo({ left: carouselIndex * step, behavior: "smooth" });
   }, [carouselIndex, carouselPerPage, carouselGap]);
 
+  useEffect(() => {
+    const sectionIds = ["home", "about", "experience", "projects", "others"];
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    if (!sections.length) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target?.id) {
+          setActiveSection(visible.target.id);
+        }
+      },
+      {
+        root: null,
+        rootMargin: "-20% 0px -60% 0px",
+        threshold: [0.1, 0.25, 0.5, 0.75],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="page">
       <header className="hero" id="home">
         <nav className="nav">
           <div className="brand">{siteData.name}</div>
           <div className="nav-links">
-            <a href="#home">Home</a>
-            <a href="#about">About</a>
-            <a href="#experience">Experience</a>
-            <a href="#projects">Selected Projects</a>
-            <a href="#others">Other Experience</a>
+            <a
+              href="#home"
+              className={activeSection === "home" ? "is-active" : ""}
+            >
+              Home
+            </a>
+            <a
+              href="#about"
+              className={activeSection === "about" ? "is-active" : ""}
+            >
+              About
+            </a>
+            <a
+              href="#experience"
+              className={activeSection === "experience" ? "is-active" : ""}
+            >
+              Experience
+            </a>
+            <a
+              href="#projects"
+              className={activeSection === "projects" ? "is-active" : ""}
+            >
+              Projects
+            </a>
+            <a
+              href="#others"
+              className={activeSection === "others" ? "is-active" : ""}
+            >
+              Others
+            </a>
           </div>
         </nav>
 
@@ -98,15 +160,15 @@ function App() {
             <div className="contact-row">
               <a className="icon-link" href={siteData.contacts.github}>
                 <IconGithub />
-                <span>GitHub</span>
+                {/* <span>GitHub</span> */}
               </a>
               <a className="icon-link" href={siteData.contacts.linkedin}>
                 <IconLinkedIn />
-                <span>LinkedIn</span>
+                {/* <span>LinkedIn</span> */}
               </a>
               <a className="icon-link" href={siteData.contacts.email}>
                 <IconMail />
-                <span>Email</span>
+                {/* <span>Email</span> */}
               </a>
             </div>
           </div>
@@ -118,25 +180,31 @@ function App() {
             style={avatarStyle}
           >
             <div className="avatar-ring" />
-            {!siteData.avatarImage && (
-              <div className="avatar-initials">WL</div>
-            )}
+            {!siteData.avatarImage && <div className="avatar-initials">WL</div>}
           </div>
         </div>
       </header>
 
       <main className="main">
-        <section className="section" id="about">
-          <div className="section-header">
+        <section className="section about-section" id="about">
+          <div className="section-header about-header">
             <h2>About Me</h2>
-            {/* <p>個人簡介與目前狀態</p> */}
           </div>
-          <div className="about-grid">
-            <div className="about-card">
+          <div className="about-layout">
+            <div
+              className="about-photo"
+              aria-hidden="true"
+              style={
+                siteData.avatarImage
+                  ? { backgroundImage: `url(${siteData.avatarImage})` }
+                  : undefined
+              }
+            />
+            <div className="about-content">
               <p className="about-text">{siteData.about.intro}</p>
               <p className="about-status">{siteData.about.status}</p>
-              <div className="about-spacer" />
-              <br></br>
+              <br />
+              <div className="about-inline-skills-gap" />
               <div className="tag-list">
                 {siteData.skills.map((skill) => (
                   <span key={skill} className="tag">
@@ -145,6 +213,40 @@ function App() {
                 ))}
               </div>
             </div>
+            {siteData.education?.length ? (
+              <div className="education-block education-side">
+                <p className="education-title">Education</p>
+                <div className="education-timeline">
+                  {siteData.education.map((item) => (
+                    <div
+                      key={`${item.degree}-${item.school}`}
+                      className="education-timeline-item"
+                    >
+                      <div className="education-timeline-marker" />
+                      <div className="education-timeline-content">
+                        <div className="education-header-row">
+                          <p className="education-degree">{item.degree}</p>
+                          <p className="education-period">{item.period}</p>
+                        </div>
+                        <p className="education-meta">{item.school}</p>
+                        {item.note ? (
+                          <p className="education-note">
+                            {item.note.split("\n").map((line, index) => (
+                              <span key={`${item.school}-note-${index}`}>
+                                {line}
+                                {index < item.note.split("\n").length - 1 ? (
+                                  <br />
+                                ) : null}
+                              </span>
+                            ))}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -153,15 +255,39 @@ function App() {
             <h2>Experience</h2>
             <p>Work history</p>
           </div>
-          <div className="card-grid">
+          <div className="experience-list">
             {siteData.experience.map((item) => (
-              <article key={`${item.role}-${item.company}`} className="info-card">
-                <div className="card-top">
-                  <h3>{item.role}</h3>
-                  <span className="card-period">{item.period}</span>
+              <article
+                key={`${item.role}-${item.company}`}
+                className="info-card experience-card"
+              >
+                <div className="experience-row">
+                  <div className="company-logo" aria-hidden="true">
+                    {item.logo ? (
+                      <img src={item.logo} alt="" />
+                    ) : (
+                      <span className="company-initials">
+                        {getInitials(item.company)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="experience-body">
+                    <div className="card-top">
+                      <h3>{item.role}</h3>
+                    </div>
+                    <p className="card-company">{item.company}</p>
+                    <p className="card-period">{item.period}</p>
+                    {Array.isArray(item.summary) ? (
+                      <ul className="card-summary-list">
+                        {item.summary.map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="card-summary">{item.summary}</p>
+                    )}
+                  </div>
                 </div>
-                <p className="card-company">{item.company}</p>
-                <p className="card-summary">{item.summary}</p>
               </article>
             ))}
           </div>
@@ -172,16 +298,34 @@ function App() {
             <h2>Selected Projects</h2>
             <p>Projects in Class</p>
           </div>
-          <div className="card-grid">
+          <div className="project-list">
             {siteData.projects.map((project) => (
-              <article key={project.name} className="info-card project-card">
-                <div className="card-top">
-                  <h3>{project.name}</h3>
-                  <a className="repo-link" href={project.repo}>
-                    {project.repo.replace("https://", "")}
+              <article key={project.name} className="info-card project-row">
+                <div
+                  className="project-thumb"
+                  aria-hidden="true"
+                  style={
+                    project.image
+                      ? { backgroundImage: `url(${project.image})` }
+                      : undefined
+                  }
+                />
+                <div className="project-body">
+                  <h3 className="project-title">{project.name}</h3>
+                  <a className="repo-link project-link" href={project.repo}>
+                    Check on GitHub
                   </a>
+                  <p className="card-summary">
+                    {project.description.split("\n").map((line, index) => (
+                      <span key={`${project.name}-line-${index}`}>
+                        {line}
+                        {index < project.description.split("\n").length - 1 ? (
+                          <br />
+                        ) : null}
+                      </span>
+                    ))}
+                  </p>
                 </div>
-                <p className="card-summary">{project.description}</p>
               </article>
             ))}
           </div>
@@ -229,7 +373,15 @@ function App() {
                       />
                       <div className="photo-info">
                         <h3>{item.title}</h3>
-                        <p>{item.caption}</p>
+                        {Array.isArray(item.caption) ? (
+                          <ul className="photo-caption-list">
+                            {item.caption.map((line) => (
+                              <li key={line}>{line}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p>{item.caption}</p>
+                        )}
                       </div>
                     </article>
                   ))}
@@ -240,7 +392,7 @@ function App() {
                   className="carousel-button carousel-button-right"
                   onClick={() =>
                     setCarouselIndex((prev) =>
-                      Math.min(carouselMaxIndex, prev + 1)
+                      Math.min(carouselMaxIndex, prev + 1),
                     )
                   }
                   disabled={carouselIndex === carouselMaxIndex}
@@ -275,7 +427,8 @@ function App() {
 
       <footer className="footer">
         <p>
-          &copy; {new Date().getFullYear()} {siteData.name}. All rights reserved.
+          &copy; {new Date().getFullYear()} {siteData.name}. All rights
+          reserved.
         </p>
       </footer>
     </div>
