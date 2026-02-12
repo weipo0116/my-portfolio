@@ -237,7 +237,7 @@
 }
 
 .about-header {
-  max-width: 1240px;
+  max-width: 1300px;
   margin: 0 auto 32px;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -268,7 +268,7 @@
 }
 
 .about-layout {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 30% 40% 30%;
