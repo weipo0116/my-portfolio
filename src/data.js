@@ -1,6 +1,8 @@
 // src/data.js
 import selfImage from "./assets/self.jpg";
 import samplePhoto from "./assets/raccoon.png";
+import thesisTeaser from "./assets/project_img/thesis_teaser.png";
+import vangoph_teaser from "./assets/project_img/vangoph_teaser.png";
 
 export const siteData = {
   name: "Webber Lai",
@@ -101,6 +103,27 @@ export const siteData = {
       description:
         "Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining. Enables interactive labeling and open-vocabulary queries with real-time rendering.",
       repo: "https://github.com/weipo0116/saga",
+      image: thesisTeaser,
+    },
+    {
+      name: "VanGoph Visualization",
+      description:
+        "An interactive visualization project that explores Vincent van Gogh-related data with custom charts and insights.",
+      repo: "https://github.com/weipo0116/VanGoph_Visualization",
+      image: vangoph_teaser,
+    },
+    {
+      name: "Prediction of Ecommerce Transaction Fraud",
+      description:
+        "Team-based data science project featuring end-to-end analysis, modeling, and a presentation-ready narrative.",
+      repo: "https://github.com/112-2-dataScience/finalproject-group6",
+      image: samplePhoto,
+    },
+    {
+      name: "PR Garbage Detection",
+      description:
+        "Computer vision project for garbage detection with model training, evaluation, and deployment-ready inference.",
+      repo: "https://github.com/weipo0116/PR_Garbage-Detection",
       image: samplePhoto,
     },
   ],

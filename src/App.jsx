@@ -83,7 +83,14 @@ function App() {
   }, [carouselIndex, carouselPerPage, carouselGap]);
 
   useEffect(() => {
-    const sectionIds = ["home", "about", "experience", "projects", "others"];
+    const sectionIds = [
+      "home",
+      "about",
+      "education",
+      "experience",
+      "projects",
+      "others",
+    ];
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean);
@@ -132,6 +139,12 @@ function App() {
               className={activeSection === "experience" ? "is-active" : ""}
             >
               Experience
+            </a>
+            <a
+              href="#education"
+              className={activeSection === "education" ? "is-active" : ""}
+            >
+              Education
             </a>
             <a
               href="#projects"
@@ -213,42 +226,48 @@ function App() {
                 ))}
               </div>
             </div>
-            {siteData.education?.length ? (
-              <div className="education-block education-side">
-                <p className="education-title">Education</p>
-                <div className="education-timeline">
-                  {siteData.education.map((item) => (
-                    <div
-                      key={`${item.degree}-${item.school}`}
-                      className="education-timeline-item"
-                    >
-                      <div className="education-timeline-marker" />
-                      <div className="education-timeline-content">
-                        <div className="education-header-row">
-                          <p className="education-degree">{item.degree}</p>
-                          <p className="education-period">{item.period}</p>
-                        </div>
-                        <p className="education-meta">{item.school}</p>
-                        {item.note ? (
-                          <p className="education-note">
-                            {item.note.split("\n").map((line, index) => (
-                              <span key={`${item.school}-note-${index}`}>
-                                {line}
-                                {index < item.note.split("\n").length - 1 ? (
-                                  <br />
-                                ) : null}
-                              </span>
-                            ))}
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
           </div>
         </section>
+
+        {siteData.education?.length ? (
+          <section className="section education-section" id="education">
+            <div className="section-header">
+              <h2>Education</h2>
+              <p>Academic background</p>
+            </div>
+            <div className="education-block education-standalone">
+              <div className="education-timeline">
+                {siteData.education.map((item) => (
+                  <div
+                    key={`${item.degree}-${item.school}`}
+                    className="education-timeline-item"
+                  >
+                    <div className="education-timeline-marker" />
+                    <div className="education-timeline-content">
+                      <div className="education-header-row">
+                        <p className="education-degree">{item.degree}</p>
+                        <p className="education-period">{item.period}</p>
+                      </div>
+                      <p className="education-meta">{item.school}</p>
+                      {item.note ? (
+                        <p className="education-note">
+                          {item.note.split("\n").map((line, index) => (
+                            <span key={`${item.school}-note-${index}`}>
+                              {line}
+                              {index < item.note.split("\n").length - 1 ? (
+                                <br />
+                              ) : null}
+                            </span>
+                          ))}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="section" id="experience">
           <div className="section-header">
@@ -301,15 +320,11 @@ function App() {
           <div className="project-list">
             {siteData.projects.map((project) => (
               <article key={project.name} className="info-card project-row">
-                <div
-                  className="project-thumb"
-                  aria-hidden="true"
-                  style={
-                    project.image
-                      ? { backgroundImage: `url(${project.image})` }
-                      : undefined
-                  }
-                />
+                <div className="project-thumb">
+                  {project.image ? (
+                    <img src={project.image} alt={project.name} />
+                  ) : null}
+                </div>
                 <div className="project-body">
                   <h3 className="project-title">{project.name}</h3>
                   <a className="repo-link project-link" href={project.repo}>
