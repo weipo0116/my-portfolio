@@ -3,6 +3,10 @@ import selfImage from "./assets/self.jpg";
 import samplePhoto from "./assets/raccoon.png";
 import thesisTeaser from "./assets/project_img/thesis_teaser.png";
 import vangoph_teaser from "./assets/project_img/vangoph_teaser.png";
+import HCI_teaser from "./assets/project_img/HCI_teaser.png";
+import chros_img from "./assets/others_img/chros.jpg";
+import pg_img from "./assets/others_img/PG.jpg";
+import nccu_img from "./assets/others_img/nccu.png";
 
 export const siteData = {
   name: "Webber Lai",
@@ -80,13 +84,34 @@ export const siteData = {
   otherExperiences: [
     {
       title: "NCCU Dormitory Resident Assistant (RA)",
+      photoClass: "photo-nccu",
       caption: [
         "Handled night shifts for daily dormitory operations, including key desk support, visitor check-in, and parcel processing.",
         "Performed routine facility checks for water heaters, electricity usage, and shared-space equipment.",
         "Supported residents with issue clarification and coordinated with related units for follow-up actions.",
       ],
-      period: "2024/06 - 2026/02",
-      image: samplePhoto,
+      period: "2024/06 - present",
+      image: nccu_img,
+    },
+    {
+      title: "Pacific Graphics Conference - Technical Team Lead",
+      website: "https://pg2025.nccu.edu.tw/",
+      caption: [
+        "Led the online livestream for hybrid sessions, connecting on-site and remote speakers/audience through Microsoft Teams.",
+        "Handled pre-event preparation, including organizing speaker participation modes and collecting presentation files.",
+        "Oversaw on-site equipment operations and staff allocation to keep sessions and transitions running smoothly.",
+      ],
+      period: "2025/10/14 - 17",
+      image: pg_img,
+    },
+    {
+      title: "NCCU Chen Sheng Chorus (Tenor)",
+      caption: [
+        "Participated as a tenor during master's studies at NCCU.",
+        "Performed in a public concert at Eslite Performance Hall (誠品廳).",
+      ],
+      period: "2024 - 2025",
+      image: chros_img,
     },
     {
       title: "Portfolio v2",
@@ -125,6 +150,13 @@ export const siteData = {
         "Computer vision project for garbage detection with model training, evaluation, and deployment-ready inference.",
       repo: "https://github.com/weipo0116/PR_Garbage-Detection",
       image: samplePhoto,
+    },
+    {
+      name: "HCI Webgazer Shop",
+      description:
+        "An HCI-focused web shopping experience using gaze interaction concepts to explore attention-aware interface design.",
+      repo: "https://github.com/weipo0116/HCI_Webgazer_shop",
+      image: HCI_teaser,
     },
   ],
 };

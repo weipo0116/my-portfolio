@@ -135,16 +135,16 @@ function App() {
               About
             </a>
             <a
-              href="#experience"
-              className={activeSection === "experience" ? "is-active" : ""}
-            >
-              Experience
-            </a>
-            <a
               href="#education"
               className={activeSection === "education" ? "is-active" : ""}
             >
               Education
+            </a>
+            <a
+              href="#experience"
+              className={activeSection === "experience" ? "is-active" : ""}
+            >
+              Experience
             </a>
             <a
               href="#projects"
@@ -233,7 +233,7 @@ function App() {
           <section className="section education-section" id="education">
             <div className="section-header">
               <h2>Education</h2>
-              <p>Academic background</p>
+              {/* <p>Academic background</p> */}
             </div>
             <div className="education-block education-standalone">
               <div className="education-timeline">
@@ -377,17 +377,33 @@ function App() {
                 <div className="carousel-track">
                   {otherExperiences.map((item) => (
                     <article key={item.title} className="photo-card">
-                      <div
-                        className="photo"
-                        aria-hidden="true"
-                        style={
-                          item.image
-                            ? { backgroundImage: `url(${item.image})` }
-                            : undefined
-                        }
-                      />
+                      <div className="photo-media">
+                        <div
+                          className={`photo ${item.photoClass || ""}`}
+                          aria-hidden="true"
+                          style={
+                            item.image
+                              ? { backgroundImage: `url(${item.image})` }
+                              : undefined
+                          }
+                        />
+                        {item.period ? (
+                          <p className="photo-period-overlay">{item.period}</p>
+                        ) : null}
+                      </div>
                       <div className="photo-info">
-                        <h3>{item.title}</h3>
+                        <div className="photo-header">
+                          <h3>
+                            {item.title.split("\n").map((line, index) => (
+                              <React.Fragment key={`${item.title}-${index}`}>
+                                {line}
+                                {index < item.title.split("\n").length - 1 ? (
+                                  <br />
+                                ) : null}
+                              </React.Fragment>
+                            ))}
+                          </h3>
+                        </div>
                         {Array.isArray(item.caption) ? (
                           <ul className="photo-caption-list">
                             {item.caption.map((line) => (
@@ -397,6 +413,16 @@ function App() {
                         ) : (
                           <p>{item.caption}</p>
                         )}
+                        {item.website ? (
+                          <a
+                            className="photo-link"
+                            href={item.website}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Official Site
+                          </a>
+                        ) : null}
                       </div>
                     </article>
                   ))}

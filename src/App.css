@@ -237,7 +237,7 @@
 }
 
 .about-header {
-  max-width: 1200px;
+  max-width: 1080px;
   margin: 0 auto 32px;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -714,6 +714,9 @@
   border: 1px solid var(--border);
   overflow: hidden;
   box-shadow: var(--shadow);
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
   flex: 0 0
     calc(
       (100% - (var(--carousel-gap) * (var(--carousel-columns) - 1))) /
@@ -722,25 +725,84 @@
 }
 
 .photo {
-  height: 200px;
+  height: 220px;
   background: linear-gradient(120deg, #7bd4ff, #5a7bff, #8ff0ff);
   background-size: cover;
   background-position: center;
 }
 
+.photo-nccu {
+  background-size: 50% auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.photo-media {
+  position: relative;
+}
+
 .photo-info {
-  padding: 16px;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.photo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .photo-info h3 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  flex: 1;
+}
+
+.photo-link {
+  color: var(--primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  width: fit-content;
+  margin-left: auto;
+  /* margin-right: auto; */
+}
+
+.photo-link:hover {
+  color: var(--accent);
+}
+
+.photo-period-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin: 0;
+  color: #eef4ff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(15, 27, 59, 0.55);
+  border: 1px solid rgba(234, 246, 255, 0.35);
+  border-radius: 999px;
+  padding: 4px 9px;
+  backdrop-filter: blur(3px);
 }
 
 .photo-info p {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
+  overflow: auto;
+  min-height: 0;
 }
 
 .photo-caption-list {
@@ -748,11 +810,14 @@
   padding-left: 18px;
   color: var(--muted);
   font-size: 0.9rem;
-  line-height: 1.6;
+  line-height: 1.55;
+  overflow: auto;
+  min-height: 0;
+  padding-right: 4px;
 }
 
 .photo-caption-list li {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .footer {
