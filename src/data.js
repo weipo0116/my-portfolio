@@ -23,9 +23,9 @@ export const siteData = {
   },
   about: {
     intro:
-      "Hi, I'm Webber Lai, currently pursuing a master's degree in Computer Science at NCCU, with plans to graduate in February 2026.",
+      "Hi, I'm Webber Lai. I just completed my master's degree in Computer Science at NCCU in January 2026. I enjoy building end-to-end web products, from data processing and API design to frontend interaction and UX details.",
     status:
-      "Currently open to frontend roles and collaboration on product-focused web apps.",
+      "Currently open to full stack roles, and also very interested in Product Manager (PM) opportunities where I can connect user needs, engineering execution, and data analysis.",
   },
   skills: [
     "Python",
@@ -85,16 +85,18 @@ export const siteData = {
     {
       title: "NCCU Dormitory Resident Assistant (RA)",
       photoClass: "photo-nccu",
+      expandIcon: "more-circle",
       caption: [
         "Handled night shifts for daily dormitory operations, including key desk support, visitor check-in, and parcel processing.",
         "Performed routine facility checks for water heaters, electricity usage, and shared-space equipment.",
         "Supported residents with issue clarification and coordinated with related units for follow-up actions.",
       ],
-      period: "2024/06 - present",
+      period: "2024/06 - 2025/03",
       image: nccu_img,
     },
     {
-      title: "Pacific Graphics Conference - Technical Team Lead",
+      title: "Pacific Graphics Conference \n- Technical Team Lead",
+      expandIcon: "more-circle",
       website: "https://pg2025.nccu.edu.tw/",
       caption: [
         "Led the online livestream for hybrid sessions, connecting on-site and remote speakers/audience through Microsoft Teams.",
@@ -106,6 +108,7 @@ export const siteData = {
     },
     {
       title: "NCCU Chen Sheng Chorus (Tenor)",
+      expandIcon: "more-circle",
       caption: [
         "Participated as a tenor during master's studies at NCCU.",
         "Performed in a public concert at Eslite Performance Hall (誠品廳).",
@@ -114,7 +117,8 @@ export const siteData = {
       image: chros_img,
     },
     {
-      title: "Portfolio v2",
+      title: "Portfolio",
+      expandIcon: "more-circle",
       caption: [
         "Built an interactive one-page portfolio with custom section navigation.",
         "Implemented responsive layout, carousel interactions, and data-driven content rendering.",

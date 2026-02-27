@@ -39,6 +39,8 @@ function App() {
   const [activeSection, setActiveSection] = useState("home");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [carouselPerPage, setCarouselPerPage] = useState(3);
+  const [expandedProject, setExpandedProject] = useState(null);
+  const [expandedOtherExperience, setExpandedOtherExperience] = useState(null);
 
   useEffect(() => {
     const updatePerPage = () => {
@@ -51,36 +53,64 @@ function App() {
         setCarouselPerPage(3);
       }
     };
-
     updatePerPage();
     window.addEventListener("resize", updatePerPage);
     return () => window.removeEventListener("resize", updatePerPage);
   }, []);
 
   const otherExperiences = siteData.otherExperiences || [];
-  const carouselMaxIndex = useMemo(() => {
-    const max = otherExperiences.length - carouselPerPage;
-    return max > 0 ? max : 0;
-  }, [otherExperiences.length, carouselPerPage]);
-  const carouselPageCount = useMemo(
-    () => (otherExperiences.length ? carouselMaxIndex + 1 : 0),
-    [otherExperiences.length, carouselMaxIndex],
-  );
+  const useTwoRows = otherExperiences.length > 6;
+  const carouselColumns = useMemo(() => {
+    if (!useTwoRows) {
+      return otherExperiences.map((item) => [item]);
+    }
+    const columns = [];
+    for (let i = 0; i < otherExperiences.length; i += 2) {
+      columns.push(otherExperiences.slice(i, i + 2));
+    }
+    return columns;
+  }, [otherExperiences, useTwoRows]);
+
+  const carouselMaxIndex = Math.max(0, carouselColumns.length - carouselPerPage);
+  const carouselPageCount = carouselMaxIndex + 1;
 
   useEffect(() => {
     if (carouselIndex > carouselMaxIndex) {
       setCarouselIndex(carouselMaxIndex);
     }
   }, [carouselIndex, carouselMaxIndex]);
+
   useEffect(() => {
     const viewport = carouselViewportRef.current;
     if (!viewport) return;
     const viewportWidth = viewport.clientWidth;
-    const cardWidth =
+    const columnWidth =
       (viewportWidth - carouselGap * (carouselPerPage - 1)) / carouselPerPage;
-    const step = cardWidth + carouselGap;
+    const step = columnWidth + carouselGap;
     viewport.scrollTo({ left: carouselIndex * step, behavior: "smooth" });
   }, [carouselIndex, carouselPerPage, carouselGap]);
+
+  const moveCarouselBy = (delta) => {
+    const nextIndex = Math.min(
+      carouselMaxIndex,
+      Math.max(0, carouselIndex + delta),
+    );
+    if (nextIndex !== carouselIndex) {
+      setCarouselIndex(nextIndex);
+    }
+  };
+
+  useEffect(() => {
+    if (!expandedOtherExperience && !expandedProject) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setExpandedOtherExperience(null);
+        setExpandedProject(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [expandedOtherExperience, expandedProject]);
 
   useEffect(() => {
     const sectionIds = [
@@ -122,16 +152,10 @@ function App() {
         <nav className="nav">
           <div className="brand">{siteData.name}</div>
           <div className="nav-links">
-            <a
-              href="#home"
-              className={activeSection === "home" ? "is-active" : ""}
-            >
+            <a href="#home" className={activeSection === "home" ? "is-active" : ""}>
               Home
             </a>
-            <a
-              href="#about"
-              className={activeSection === "about" ? "is-active" : ""}
-            >
+            <a href="#about" className={activeSection === "about" ? "is-active" : ""}>
               About
             </a>
             <a
@@ -152,10 +176,7 @@ function App() {
             >
               Projects
             </a>
-            <a
-              href="#others"
-              className={activeSection === "others" ? "is-active" : ""}
-            >
+            <a href="#others" className={activeSection === "others" ? "is-active" : ""}>
               Others
             </a>
           </div>
@@ -173,15 +194,12 @@ function App() {
             <div className="contact-row">
               <a className="icon-link" href={siteData.contacts.github}>
                 <IconGithub />
-                {/* <span>GitHub</span> */}
               </a>
               <a className="icon-link" href={siteData.contacts.linkedin}>
                 <IconLinkedIn />
-                {/* <span>LinkedIn</span> */}
               </a>
               <a className="icon-link" href={siteData.contacts.email}>
                 <IconMail />
-                {/* <span>Email</span> */}
               </a>
             </div>
           </div>
@@ -233,15 +251,12 @@ function App() {
           <section className="section education-section" id="education">
             <div className="section-header">
               <h2>Education</h2>
-              {/* <p>Academic background</p> */}
+              <p>Academic background</p>
             </div>
             <div className="education-block education-standalone">
               <div className="education-timeline">
                 {siteData.education.map((item) => (
-                  <div
-                    key={`${item.degree}-${item.school}`}
-                    className="education-timeline-item"
-                  >
+                  <div key={`${item.degree}-${item.school}`} className="education-timeline-item">
                     <div className="education-timeline-marker" />
                     <div className="education-timeline-content">
                       <div className="education-header-row">
@@ -254,9 +269,7 @@ function App() {
                           {item.note.split("\n").map((line, index) => (
                             <span key={`${item.school}-note-${index}`}>
                               {line}
-                              {index < item.note.split("\n").length - 1 ? (
-                                <br />
-                              ) : null}
+                              {index < item.note.split("\n").length - 1 ? <br /> : null}
                             </span>
                           ))}
                         </p>
@@ -276,18 +289,13 @@ function App() {
           </div>
           <div className="experience-list">
             {siteData.experience.map((item) => (
-              <article
-                key={`${item.role}-${item.company}`}
-                className="info-card experience-card"
-              >
+              <article key={`${item.role}-${item.company}`} className="info-card experience-card">
                 <div className="experience-row">
                   <div className="company-logo" aria-hidden="true">
                     {item.logo ? (
                       <img src={item.logo} alt="" />
                     ) : (
-                      <span className="company-initials">
-                        {getInitials(item.company)}
-                      </span>
+                      <span className="company-initials">{getInitials(item.company)}</span>
                     )}
                   </div>
                   <div className="experience-body">
@@ -319,24 +327,36 @@ function App() {
           </div>
           <div className="project-list">
             {siteData.projects.map((project) => (
-              <article key={project.name} className="info-card project-row">
+              <article
+                key={project.name}
+                className="info-card project-row project-row-preview"
+                role="button"
+                tabIndex={0}
+                onClick={() => setExpandedProject(project)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setExpandedProject(project);
+                  }
+                }}
+              >
                 <div className="project-thumb">
-                  {project.image ? (
-                    <img src={project.image} alt={project.name} />
-                  ) : null}
+                  {project.image ? <img src={project.image} alt={project.name} /> : null}
                 </div>
                 <div className="project-body">
                   <h3 className="project-title">{project.name}</h3>
-                  <a className="repo-link project-link" href={project.repo}>
+                  <a
+                    className="repo-link project-link"
+                    href={project.repo}
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     Check on GitHub
                   </a>
                   <p className="card-summary">
                     {project.description.split("\n").map((line, index) => (
                       <span key={`${project.name}-line-${index}`}>
                         {line}
-                        {index < project.description.split("\n").length - 1 ? (
-                          <br />
-                        ) : null}
+                        {index < project.description.split("\n").length - 1 ? <br /> : null}
                       </span>
                     ))}
                   </p>
@@ -344,6 +364,51 @@ function App() {
               </article>
             ))}
           </div>
+          {expandedProject ? (
+            <div
+              className="project-modal-backdrop"
+              onClick={() => setExpandedProject(null)}
+            >
+              <article
+                className="info-card project-row project-row-expanded"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <button
+                  className="project-modal-close"
+                  onClick={() => setExpandedProject(null)}
+                  aria-label="Close project preview"
+                  type="button"
+                >
+                  ×
+                </button>
+                <div className="project-head-expanded">
+                  <h3 className="project-title">{expandedProject.name}</h3>
+                  <a
+                    className="repo-link project-link"
+                    href={expandedProject.repo}
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    Check on GitHub
+                  </a>
+                </div>
+                <p className="card-summary project-summary-expanded">
+                  {expandedProject.description.split("\n").map((line, index) => (
+                    <span key={`${expandedProject.name}-line-${index}`}>
+                      {line}
+                      {index < expandedProject.description.split("\n").length - 1 ? (
+                        <br />
+                      ) : null}
+                    </span>
+                  ))}
+                </p>
+                <div className="project-thumb project-thumb-expanded">
+                  {expandedProject.image ? (
+                    <img src={expandedProject.image} alt={expandedProject.name} />
+                  ) : null}
+                </div>
+              </article>
+            </div>
+          ) : null}
         </section>
 
         <section className="section" id="others">
@@ -359,12 +424,10 @@ function App() {
             }}
           >
             <div className="carousel-shell">
-              {otherExperiences.length > carouselPerPage && (
+              {carouselPageCount > 1 ? (
                 <button
                   className="carousel-button carousel-button-left"
-                  onClick={() =>
-                    setCarouselIndex((prev) => Math.max(0, prev - 1))
-                  }
+                  onClick={() => moveCarouselBy(-1)}
                   disabled={carouselIndex === 0}
                   aria-label="Previous"
                 >
@@ -372,70 +435,71 @@ function App() {
                     <path d="M15.5 19 8.5 12l7-7" />
                   </svg>
                 </button>
-              )}
+              ) : null}
+
               <div className="carousel-viewport" ref={carouselViewportRef}>
                 <div className="carousel-track">
-                  {otherExperiences.map((item) => (
-                    <article key={item.title} className="photo-card">
-                      <div className="photo-media">
-                        <div
-                          className={`photo ${item.photoClass || ""}`}
-                          aria-hidden="true"
-                          style={
-                            item.image
-                              ? { backgroundImage: `url(${item.image})` }
-                              : undefined
-                          }
-                        />
-                        {item.period ? (
-                          <p className="photo-period-overlay">{item.period}</p>
-                        ) : null}
-                      </div>
-                      <div className="photo-info">
-                        <div className="photo-header">
-                          <h3>
-                            {item.title.split("\n").map((line, index) => (
-                              <React.Fragment key={`${item.title}-${index}`}>
-                                {line}
-                                {index < item.title.split("\n").length - 1 ? (
-                                  <br />
+                  {carouselColumns.map((columnItems, columnIndex) => (
+                    <div
+                      key={`column-${columnIndex}`}
+                      className={`other-column ${useTwoRows ? "is-two-rows" : "is-one-row"}`}
+                    >
+                      {columnItems.map((item) => (
+                        <article
+                          key={item.title}
+                          className="photo-card photo-card-preview"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => setExpandedOtherExperience(item)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              setExpandedOtherExperience(item);
+                            }
+                          }}
+                        >
+                          <div className="photo-media">
+                            <div
+                              className={`photo ${item.photoClass || ""}`}
+                              aria-hidden="true"
+                              style={
+                                item.image
+                                  ? { backgroundImage: `url(${item.image})` }
+                                  : undefined
+                              }
+                            />
+                            {item.period ? (
+                              <p className="photo-period-overlay">{item.period}</p>
+                            ) : null}
+                          </div>
+                          <div className="photo-info">
+                            <div className="photo-header">
+                              <h3>
+                                {item.title}
+                                {item.subtitle ? (
+                                  <span className="photo-subtitle">{item.subtitle}</span>
                                 ) : null}
-                              </React.Fragment>
-                            ))}
-                          </h3>
-                        </div>
-                        {Array.isArray(item.caption) ? (
-                          <ul className="photo-caption-list">
-                            {item.caption.map((line) => (
-                              <li key={line}>{line}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p>{item.caption}</p>
-                        )}
-                        {item.website ? (
-                          <a
-                            className="photo-link"
-                            href={item.website}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Official Site
-                          </a>
-                        ) : null}
-                      </div>
-                    </article>
+                              </h3>
+                            </div>
+                            <div className="photo-expand-hint" aria-hidden="true">
+                              <span>more</span>
+                              <svg viewBox="0 0 24 24">
+                                <path d="M8 16 16 8" />
+                                <path d="M10 8h6v6" />
+                              </svg>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>
-              {otherExperiences.length > carouselPerPage && (
+
+              {carouselPageCount > 1 ? (
                 <button
                   className="carousel-button carousel-button-right"
-                  onClick={() =>
-                    setCarouselIndex((prev) =>
-                      Math.min(carouselMaxIndex, prev + 1),
-                    )
-                  }
+                  onClick={() => moveCarouselBy(1)}
                   disabled={carouselIndex === carouselMaxIndex}
                   aria-label="Next"
                 >
@@ -443,16 +507,15 @@ function App() {
                     <path d="M8.5 5 15.5 12l-7 7" />
                   </svg>
                 </button>
-              )}
+              ) : null}
             </div>
-            {carouselPageCount > 1 && (
+
+            {carouselPageCount > 1 ? (
               <div className="carousel-dots" role="tablist" aria-label="Slides">
                 {Array.from({ length: carouselPageCount }).map((_, index) => (
                   <button
                     key={`dot-${index}`}
-                    className={`carousel-dot ${
-                      index === carouselIndex ? "is-active" : ""
-                    }`}
+                    className={`carousel-dot ${index === carouselIndex ? "is-active" : ""}`}
                     onClick={() => setCarouselIndex(index)}
                     aria-label={`Go to slide ${index + 1}`}
                     aria-current={index === carouselIndex}
@@ -461,15 +524,72 @@ function App() {
                   />
                 ))}
               </div>
-            )}
+            ) : null}
           </div>
+
+          {expandedOtherExperience ? (
+            <div className="other-modal-backdrop" onClick={() => setExpandedOtherExperience(null)}>
+              <article className="photo-card-expanded" onClick={(event) => event.stopPropagation()}>
+                <button
+                  className="other-modal-close"
+                  onClick={() => setExpandedOtherExperience(null)}
+                  aria-label="Close details"
+                  type="button"
+                >
+                  ×
+                </button>
+                <div className="photo-media photo-media-expanded">
+                  <div
+                    className={`photo photo-expanded ${expandedOtherExperience.photoClass || ""}`}
+                    aria-hidden="true"
+                    style={
+                      expandedOtherExperience.image
+                        ? { backgroundImage: `url(${expandedOtherExperience.image})` }
+                        : undefined
+                    }
+                  />
+                  {expandedOtherExperience.period ? (
+                    <p className="photo-period-overlay">{expandedOtherExperience.period}</p>
+                  ) : null}
+                  <h3 className="photo-title-overlay">
+                    {expandedOtherExperience.title}
+                    {expandedOtherExperience.subtitle ? (
+                      <span className="photo-subtitle-overlay">
+                        {expandedOtherExperience.subtitle}
+                      </span>
+                    ) : null}
+                  </h3>
+                </div>
+                <div className="photo-info">
+                  {Array.isArray(expandedOtherExperience.caption) ? (
+                    <ul className="photo-caption-list">
+                      {expandedOtherExperience.caption.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{expandedOtherExperience.caption}</p>
+                  )}
+                  {expandedOtherExperience.website ? (
+                    <a
+                      className="photo-link"
+                      href={expandedOtherExperience.website}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Official Site
+                    </a>
+                  ) : null}
+                </div>
+              </article>
+            </div>
+          ) : null}
         </section>
       </main>
 
       <footer className="footer">
         <p>
-          &copy; {new Date().getFullYear()} {siteData.name}. All rights
-          reserved.
+          &copy; {new Date().getFullYear()} {siteData.name}. All rights reserved.
         </p>
       </footer>
     </div>
