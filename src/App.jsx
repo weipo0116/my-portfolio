@@ -71,7 +71,10 @@ function App() {
     return columns;
   }, [otherExperiences, useTwoRows]);
 
-  const carouselMaxIndex = Math.max(0, carouselColumns.length - carouselPerPage);
+  const carouselMaxIndex = Math.max(
+    0,
+    carouselColumns.length - carouselPerPage,
+  );
   const carouselPageCount = carouselMaxIndex + 1;
 
   useEffect(() => {
@@ -152,10 +155,16 @@ function App() {
         <nav className="nav">
           <div className="brand">{siteData.name}</div>
           <div className="nav-links">
-            <a href="#home" className={activeSection === "home" ? "is-active" : ""}>
+            <a
+              href="#home"
+              className={activeSection === "home" ? "is-active" : ""}
+            >
               Home
             </a>
-            <a href="#about" className={activeSection === "about" ? "is-active" : ""}>
+            <a
+              href="#about"
+              className={activeSection === "about" ? "is-active" : ""}
+            >
               About
             </a>
             <a
@@ -176,7 +185,10 @@ function App() {
             >
               Projects
             </a>
-            <a href="#others" className={activeSection === "others" ? "is-active" : ""}>
+            <a
+              href="#others"
+              className={activeSection === "others" ? "is-active" : ""}
+            >
               Others
             </a>
           </div>
@@ -226,8 +238,10 @@ function App() {
               className="about-photo"
               aria-hidden="true"
               style={
-                siteData.avatarImage
-                  ? { backgroundImage: `url(${siteData.avatarImage})` }
+                siteData.aboutImage || siteData.avatarImage
+                  ? {
+                      backgroundImage: `url(${siteData.aboutImage || siteData.avatarImage})`,
+                    }
                   : undefined
               }
             />
@@ -256,7 +270,10 @@ function App() {
             <div className="education-block education-standalone">
               <div className="education-timeline">
                 {siteData.education.map((item) => (
-                  <div key={`${item.degree}-${item.school}`} className="education-timeline-item">
+                  <div
+                    key={`${item.degree}-${item.school}`}
+                    className="education-timeline-item"
+                  >
                     <div className="education-timeline-marker" />
                     <div className="education-timeline-content">
                       <div className="education-header-row">
@@ -269,7 +286,9 @@ function App() {
                           {item.note.split("\n").map((line, index) => (
                             <span key={`${item.school}-note-${index}`}>
                               {line}
-                              {index < item.note.split("\n").length - 1 ? <br /> : null}
+                              {index < item.note.split("\n").length - 1 ? (
+                                <br />
+                              ) : null}
                             </span>
                           ))}
                         </p>
@@ -289,13 +308,18 @@ function App() {
           </div>
           <div className="experience-list">
             {siteData.experience.map((item) => (
-              <article key={`${item.role}-${item.company}`} className="info-card experience-card">
+              <article
+                key={`${item.role}-${item.company}`}
+                className="info-card experience-card"
+              >
                 <div className="experience-row">
                   <div className="company-logo" aria-hidden="true">
                     {item.logo ? (
                       <img src={item.logo} alt="" />
                     ) : (
-                      <span className="company-initials">{getInitials(item.company)}</span>
+                      <span className="company-initials">
+                        {getInitials(item.company)}
+                      </span>
                     )}
                   </div>
                   <div className="experience-body">
@@ -341,22 +365,30 @@ function App() {
                 }}
               >
                 <div className="project-thumb">
-                  {project.image ? <img src={project.image} alt={project.name} /> : null}
+                  {project.image ? (
+                    <img src={project.image} alt={project.name} />
+                  ) : null}
                 </div>
                 <div className="project-body">
                   <h3 className="project-title">{project.name}</h3>
-                  <a
-                    className="repo-link project-link"
-                    href={project.repo}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    Check on GitHub
-                  </a>
+                  {project.repo?.startsWith("http") ? (
+                    <a
+                      className="repo-link project-link"
+                      href={project.repo}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      Check on GitHub
+                    </a>
+                  ) : (
+                    <span className="repo-link project-link">{project.repo}</span>
+                  )}
                   <p className="card-summary">
                     {project.description.split("\n").map((line, index) => (
                       <span key={`${project.name}-line-${index}`}>
                         {line}
-                        {index < project.description.split("\n").length - 1 ? <br /> : null}
+                        {index < project.description.split("\n").length - 1 ? (
+                          <br />
+                        ) : null}
                       </span>
                     ))}
                   </p>
@@ -383,27 +415,37 @@ function App() {
                 </button>
                 <div className="project-head-expanded">
                   <h3 className="project-title">{expandedProject.name}</h3>
-                  <a
-                    className="repo-link project-link"
-                    href={expandedProject.repo}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    Check on GitHub
-                  </a>
+                  {expandedProject.repo?.startsWith("http") ? (
+                    <a
+                      className="repo-link project-link"
+                      href={expandedProject.repo}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      Check on GitHub
+                    </a>
+                  ) : (
+                    <span className="repo-link project-link">{expandedProject.repo}</span>
+                  )}
                 </div>
                 <p className="card-summary project-summary-expanded">
-                  {expandedProject.description.split("\n").map((line, index) => (
-                    <span key={`${expandedProject.name}-line-${index}`}>
-                      {line}
-                      {index < expandedProject.description.split("\n").length - 1 ? (
-                        <br />
-                      ) : null}
-                    </span>
-                  ))}
+                  {expandedProject.description
+                    .split("\n")
+                    .map((line, index) => (
+                      <span key={`${expandedProject.name}-line-${index}`}>
+                        {line}
+                        {index <
+                        expandedProject.description.split("\n").length - 1 ? (
+                          <br />
+                        ) : null}
+                      </span>
+                    ))}
                 </p>
                 <div className="project-thumb project-thumb-expanded">
                   {expandedProject.image ? (
-                    <img src={expandedProject.image} alt={expandedProject.name} />
+                    <img
+                      src={expandedProject.image}
+                      alt={expandedProject.name}
+                    />
                   ) : null}
                 </div>
               </article>
@@ -469,7 +511,9 @@ function App() {
                               }
                             />
                             {item.period ? (
-                              <p className="photo-period-overlay">{item.period}</p>
+                              <p className="photo-period-overlay">
+                                {item.period}
+                              </p>
                             ) : null}
                           </div>
                           <div className="photo-info">
@@ -477,11 +521,16 @@ function App() {
                               <h3>
                                 {item.title}
                                 {item.subtitle ? (
-                                  <span className="photo-subtitle">{item.subtitle}</span>
+                                  <span className="photo-subtitle">
+                                    {item.subtitle}
+                                  </span>
                                 ) : null}
                               </h3>
                             </div>
-                            <div className="photo-expand-hint" aria-hidden="true">
+                            <div
+                              className="photo-expand-hint"
+                              aria-hidden="true"
+                            >
                               <span>more</span>
                               <svg viewBox="0 0 24 24">
                                 <path d="M8 16 16 8" />
@@ -528,8 +577,14 @@ function App() {
           </div>
 
           {expandedOtherExperience ? (
-            <div className="other-modal-backdrop" onClick={() => setExpandedOtherExperience(null)}>
-              <article className="photo-card-expanded" onClick={(event) => event.stopPropagation()}>
+            <div
+              className="other-modal-backdrop"
+              onClick={() => setExpandedOtherExperience(null)}
+            >
+              <article
+                className="photo-card-expanded"
+                onClick={(event) => event.stopPropagation()}
+              >
                 <button
                   className="other-modal-close"
                   onClick={() => setExpandedOtherExperience(null)}
@@ -544,12 +599,16 @@ function App() {
                     aria-hidden="true"
                     style={
                       expandedOtherExperience.image
-                        ? { backgroundImage: `url(${expandedOtherExperience.image})` }
+                        ? {
+                            backgroundImage: `url(${expandedOtherExperience.image})`,
+                          }
                         : undefined
                     }
                   />
                   {expandedOtherExperience.period ? (
-                    <p className="photo-period-overlay">{expandedOtherExperience.period}</p>
+                    <p className="photo-period-overlay">
+                      {expandedOtherExperience.period}
+                    </p>
                   ) : null}
                   <h3 className="photo-title-overlay">
                     {expandedOtherExperience.title}
@@ -589,7 +648,8 @@ function App() {
 
       <footer className="footer">
         <p>
-          &copy; {new Date().getFullYear()} {siteData.name}. All rights reserved.
+          &copy; {new Date().getFullYear()} {siteData.name}. All rights
+          reserved.
         </p>
       </footer>
     </div>

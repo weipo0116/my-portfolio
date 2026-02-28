@@ -1,9 +1,12 @@
 // src/data.js
 import selfImage from "./assets/self.jpg";
+import selfImage2 from "./assets/MIT_me.jpg";
 import samplePhoto from "./assets/raccoon.png";
 import thesisTeaser from "./assets/project_img/thesis_teaser.png";
 import vangoph_teaser from "./assets/project_img/vangoph_teaser.png";
 import HCI_teaser from "./assets/project_img/HCI_teaser.png";
+import ds_poster from "./assets/project_img/ds_poster.png";
+import PR_img from "./assets/project_img/PR_img.png";
 import chros_img from "./assets/others_img/chros.jpg";
 import pg_img from "./assets/others_img/PG.jpg";
 import nccu_img from "./assets/others_img/nccu.png";
@@ -16,6 +19,7 @@ export const siteData = {
   location: "Taipei, Taiwan",
   avatarAlt: "Webber Lai portrait",
   avatarImage: selfImage,
+  aboutImage: selfImage2,
   contacts: {
     github: "https://github.com/weipo0116",
     linkedin: "https://www.linkedin.com/in/weipo-lai-webber/",
@@ -23,9 +27,9 @@ export const siteData = {
   },
   about: {
     intro:
-      "Hi, I'm Webber Lai. I just completed my master's degree in Computer Science at NCCU in January 2026. I enjoy building end-to-end web products, from data processing and API design to frontend interaction and UX details.",
+      "Hi, I'm Webber Lai. I recently completed my master's degree in Computer Science at NCCU (Jan 2026).",
     status:
-      "Currently open to full stack roles, and also very interested in Product Manager (PM) opportunities where I can connect user needs, engineering execution, and data analysis.",
+      "I’m currently open to full stack roles, and I’m also very interested in Product Manager (PM) opportunities where I can bridge user needs, engineering execution, and data insights.",
   },
   skills: [
     "Python",
@@ -43,16 +47,16 @@ export const siteData = {
       degree: "M.S. in Computer Science",
       school: "National Chengchi University (NCCU)",
       period: "Sep 2023 - Feb 2026",
-      note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Professor: Ming-Te Chi",
+      note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Advisor: Ming-Te Chi",
     },
     {
-      degree: "B.S. in Big Data Management",
+      degree: "B.S. in Big Data Management (Data Science)",
       school: "Soochow University (SCU)",
       period: "Sep 2019 - Jun 2023",
       note: "",
     },
     {
-      degree: "Exchange Student, CS & Engineering",
+      degree: "Exchange Program, CS & Engineering",
       school: "Fudan University",
       period: "Sep 2021 - Jan 2022",
       note: "",
@@ -95,7 +99,8 @@ export const siteData = {
       image: nccu_img,
     },
     {
-      title: "Pacific Graphics Conference \n- Technical Team Lead",
+      title: "Pacific Graphics Conference",
+      subtitle: "Technical Team Lead",
       expandIcon: "more-circle",
       website: "https://pg2025.nccu.edu.tw/",
       caption: [
@@ -131,29 +136,29 @@ export const siteData = {
       name: "Interactive Semantic Segmentation for Large-Scale Aerial 3D Gaussian Splatting",
       description:
         "Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining. Enables interactive labeling and open-vocabulary queries with real-time rendering.",
-      repo: "https://github.com/weipo0116/saga",
+      repo: "Unreleased",
       image: thesisTeaser,
     },
     {
       name: "VanGoph Visualization",
       description:
-        "An interactive visualization project that explores Vincent van Gogh-related data with custom charts and insights.",
+        "An interactive visualization project on Vincent van Gogh artworks that uses image feature dimensionality reduction to cluster paintings and help users discover visually similar works.",
       repo: "https://github.com/weipo0116/VanGoph_Visualization",
       image: vangoph_teaser,
     },
     {
-      name: "Prediction of Ecommerce Transaction Fraud",
+      name: "DS Prediction of Ecommerce Transaction Fraud",
       description:
-        "Team-based data science project featuring end-to-end analysis, modeling, and a presentation-ready narrative.",
+        "Machine learning project for ecommerce fraud detection, using customer and transaction data to flag high-risk activities.",
       repo: "https://github.com/112-2-dataScience/finalproject-group6",
-      image: samplePhoto,
+      image: ds_poster,
     },
     {
       name: "PR Garbage Detection",
       description:
-        "Computer vision project for garbage detection with model training, evaluation, and deployment-ready inference.",
+        "Computer vision project for garbage detection, with trained models, evaluation, and a ready-to-use inference pipeline.",
       repo: "https://github.com/weipo0116/PR_Garbage-Detection",
-      image: samplePhoto,
+      image: PR_img,
     },
     {
       name: "HCI Webgazer Shop",

@@ -17,6 +17,7 @@
   box-sizing: border-box;
 }
 
+/* Layout */
 .page {
   background: radial-gradient(circle at 20% 20%, #dff1ff, #f2f7ff 55%);
   color: var(--text);
@@ -29,7 +30,6 @@
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   padding: 140px 5vw 80px;
-  /* border-bottom: 1px solid var(--border); */
   position: relative;
   overflow: hidden;
   display: flex;
@@ -112,6 +112,7 @@
   font-weight: 600;
 }
 
+/* Hero */
 .hero-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -170,7 +171,6 @@
   color: var(--text);
   font-size: 14px;
   transition: all 0.2s ease;
-  /* opacity: 0.5; */
   background: rgba(255, 255, 255, 0.3);
 }
 
@@ -206,7 +206,6 @@
   position: absolute;
   inset: -10px;
   border-radius: 50%;
-  /* border: 1px solid rgba(255, 255, 255, 0.2); */
 }
 
 .avatar-initials {
@@ -262,8 +261,6 @@
   margin-left: 0;
   margin-right: 0;
   padding: 56px 5vw;
-  /* background: #ffffff; */
-  /* border-top: 1px solid var(--border); */
   border-bottom: 1px solid var(--border);
 }
 
@@ -281,8 +278,8 @@
   aspect-ratio: 4 / 3;
   border-radius: 18px;
   background: linear-gradient(135deg, #dbe9ff, #eef6ff);
-  background-size: cover;
-  background-position: center;
+  background-size: 125%;
+  background-position: center 100%;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
   align-self: center;
@@ -334,31 +331,17 @@
   border: 1px solid rgba(34, 211, 238, 0.4);
 }
 
+/* Education */
 .education-block {
   margin-top: 0;
 }
 
-.education-side {
-  align-self: start;
-}
-
 .education-standalone {
-  max-width: 1120px;
-  margin: 0 auto;
   padding: 24px;
   border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--surface-light);
   box-shadow: var(--shadow);
-}
-
-.education-title {
-  margin: 0 0 10px;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  font-weight: 700;
 }
 
 .education-timeline {
@@ -433,15 +416,15 @@
   line-height: 1.5;
 }
 
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+/* Shared cards */
+.education-standalone,
+.experience-list,
+.project-list {
+  max-width: 1120px;
+  margin: 0 auto;
 }
 
 .experience-list {
-  max-width: 1120px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -494,8 +477,6 @@
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 3;
-  /* background: #ffffff; */
-  /* border: 1px solid var(--border); */
   border-radius: 10%;
   display: grid;
   place-items: center;
@@ -551,7 +532,7 @@
   margin-bottom: 10px;
 }
 
-.project-card .repo-link,
+/* Projects */
 .project-row .repo-link {
   color: var(--accent);
   font-size: 0.85rem;
@@ -559,8 +540,6 @@
 }
 
 .project-list {
-  max-width: 1120px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -595,7 +574,6 @@
   min-width: 280px;
   height: 300px;
   border-radius: 12px;
-  /* border: 1px solid var(--border); */
   background: transparent;
   overflow: hidden;
   display: flex;
@@ -684,6 +662,7 @@
   font-weight: 600;
 }
 
+/* Other experience carousel */
 .carousel {
   --carousel-gap: 20px;
   --carousel-columns: 3;
@@ -748,7 +727,7 @@
 
 .carousel-viewport {
   overflow: hidden;
-  padding: 8px, 0px, 8px, 8px;
+  padding: 8px 0;
   border-radius: 12px;
 }
 
@@ -923,6 +902,14 @@
   flex: 1;
 }
 
+.photo-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--text);
+}
+
 .photo-link {
   color: var(--primary);
   font-size: 0.82rem;
@@ -977,6 +964,7 @@
   margin-bottom: 5px;
 }
 
+/* Other experience modal */
 .other-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1007,7 +995,7 @@
 
 .photo-media-expanded .photo-period-overlay {
   right: 52px;
-  top: 14px; /* 往下移 */
+  top: 14px;
 }
 
 .photo-title-overlay {
@@ -1022,9 +1010,15 @@
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
   z-index: 1;
   max-width: calc(100% - 28px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.photo-subtitle-overlay {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.88em;
+  font-weight: 600;
+  color: #9fcbff;
 }
 
 .photo-media-expanded::after {
@@ -1070,6 +1064,7 @@
   font-size: 0.9rem;
 }
 
+/* Responsive */
 @media (max-width: 1024px) {
   .experience-row {
     align-items: center;
