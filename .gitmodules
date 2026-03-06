@@ -1,0 +1,3 @@
+[submodule "resumx"]
+	path = resumx
+	url = https://github.com/resumx/resumx.git
