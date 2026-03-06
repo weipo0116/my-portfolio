@@ -13,7 +13,7 @@ style:
 
 # Webber Lai
 
-[weipo900116@gmail.com](mailto:weipo900116@gmail.com) | [linkedin.com/in/webber](https://www.linkedin.com/in/weipo-lai-webber/) | [github.com/weipo0116](https://github.com/weipo0116)
+[weipo900116@gmail.com](mailto:weipo900116@gmail.com) | [Webber Lai](https://www.linkedin.com/in/weipo-lai-webber/) | [weipo0116](https://github.com/weipo0116)
 
 ## Education
 
@@ -67,18 +67,6 @@ _Data Science Consulting Intern_
 - Machine learning project for ecommerce fraud detection
 - Uses customer and transaction data to flag high-risk activities
 - [GitHub](https://github.com/112-2-dataScience/finalproject-group6)
-
-### PR Garbage Detection _(Individual)_
-
-- Computer vision project for garbage detection
-- Includes trained models, evaluation, and a ready-to-use inference pipeline
-- [GitHub](https://github.com/weipo0116/PR_Garbage-Detection)
-
-### HCI Webgazer Shop _(Team)_
-
-- HCI-focused web shopping experience using gaze interaction concepts
-- Explores attention-aware interface design
-- [GitHub](https://github.com/weipo0116/HCI_Webgazer_shop)
 
 ## Technical Skills
 

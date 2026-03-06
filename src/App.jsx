@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { siteData } from "./data";
 import "./App.css";
+import resumePdf from "./resume/resume.pdf";
 
 const IconGithub = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -41,6 +42,11 @@ function App() {
   const [carouselPerPage, setCarouselPerPage] = useState(3);
   const [expandedProject, setExpandedProject] = useState(null);
   const [expandedOtherExperience, setExpandedOtherExperience] = useState(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [typedTitle, setTypedTitle] = useState("");
+  const isRepoLink = (value) => value?.startsWith("http");
+  const isRepoUnreleased = (value) => value?.trim().toLowerCase() === "unreleased";
 
   useEffect(() => {
     const updatePerPage = () => {
@@ -129,19 +135,48 @@ function App() {
       .filter(Boolean);
     if (!sections.length) return undefined;
 
+    const visibleSections = new Map();
+
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target?.id) {
-          setActiveSection(visible.target.id);
+        entries.forEach((entry) => {
+          const id = entry.target?.id;
+          if (!id) return;
+          if (entry.isIntersecting) {
+            visibleSections.set(id, entry.intersectionRatio);
+          } else {
+            visibleSections.delete(id);
+          }
+        });
+
+        let nextActive = null;
+        let maxRatio = -1;
+        visibleSections.forEach((ratio, id) => {
+          if (ratio > maxRatio) {
+            maxRatio = ratio;
+            nextActive = id;
+          }
+        });
+
+        if (!nextActive) {
+          const marker = window.innerHeight * 0.35;
+          const fallback = sections
+            .map((section) => ({
+              id: section.id,
+              distance: Math.abs(section.getBoundingClientRect().top - marker),
+            }))
+            .sort((a, b) => a.distance - b.distance)[0];
+          nextActive = fallback?.id ?? null;
+        }
+
+        if (nextActive) {
+          setActiveSection(nextActive);
         }
       },
       {
         root: null,
         rootMargin: "-20% 0px -60% 0px",
-        threshold: [0.1, 0.25, 0.5, 0.75],
+        threshold: [0, 0.1, 0.25, 0.5, 0.75],
       },
     );
 
@@ -149,45 +184,97 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > window.innerHeight);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const reveals = document.querySelectorAll(".reveal");
+    if (!reveals.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-revealed");
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -50px 0px" },
+    );
+    reveals.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const fullTitle = siteData.title;
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setTypedTitle(fullTitle.slice(0, i));
+      if (i >= fullTitle.length) clearInterval(timer);
+    }, 80);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="page">
       <header className="hero" id="home">
         <nav className="nav">
           <div className="brand">{siteData.name}</div>
-          <div className="nav-links">
+          <button
+            className={`hamburger ${mobileMenuOpen ? "is-open" : ""}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+            type="button"
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className={`nav-links ${mobileMenuOpen ? "is-open" : ""}`}>
             <a
               href="#home"
               className={activeSection === "home" ? "is-active" : ""}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Home
             </a>
             <a
               href="#about"
               className={activeSection === "about" ? "is-active" : ""}
+              onClick={() => setMobileMenuOpen(false)}
             >
               About
             </a>
             <a
               href="#education"
               className={activeSection === "education" ? "is-active" : ""}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Education
             </a>
             <a
               href="#experience"
               className={activeSection === "experience" ? "is-active" : ""}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Experience
             </a>
             <a
               href="#projects"
               className={activeSection === "projects" ? "is-active" : ""}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Projects
             </a>
             <a
               href="#others"
               className={activeSection === "others" ? "is-active" : ""}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Others
             </a>
@@ -199,7 +286,7 @@ function App() {
             <p className="hero-kicker">{siteData.location}</p>
             <h1>
               {siteData.name}
-              <span className="hero-title">{siteData.title}</span>
+              <span className="hero-title">{typedTitle}<span className="typewriter-cursor" aria-hidden="true" /></span>
             </h1>
             <p className="hero-tagline">{siteData.tagline}</p>
 
@@ -229,7 +316,7 @@ function App() {
       </header>
 
       <main className="main">
-        <section className="section about-section" id="about">
+        <section className="section about-section reveal" id="about">
           <div className="section-header about-header">
             <h2>About Me</h2>
           </div>
@@ -240,8 +327,8 @@ function App() {
               style={
                 siteData.aboutImage || siteData.avatarImage
                   ? {
-                      backgroundImage: `url(${siteData.aboutImage || siteData.avatarImage})`,
-                    }
+                    backgroundImage: `url(${siteData.aboutImage || siteData.avatarImage})`,
+                  }
                   : undefined
               }
             />
@@ -262,7 +349,7 @@ function App() {
         </section>
 
         {siteData.education?.length ? (
-          <section className="section education-section" id="education">
+          <section className="section education-section reveal" id="education">
             <div className="section-header">
               <h2>Education</h2>
               <p>Academic background</p>
@@ -301,11 +388,22 @@ function App() {
           </section>
         ) : null}
 
-        <section className="section" id="experience">
+        <section className="section reveal" id="experience">
           <div className="section-header">
-            <h2>Experience</h2>
+            <div className="experience-heading-block">
+              <h2>Experience</h2>
+            </div>
             <p>Work history</p>
           </div>
+          <p className="resume-link">
+            <a className="resume-link-anchor" href={resumePdf} download>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+              </svg>
+              Download my Résumé
+            </a>
+          </p>
+          <br></br>
           <div className="experience-list">
             {siteData.experience.map((item) => (
               <article
@@ -344,7 +442,7 @@ function App() {
           </div>
         </section>
 
-        <section className="section" id="projects">
+        <section className="section reveal" id="projects">
           <div className="section-header">
             <h2>Selected Projects</h2>
             <p>Projects in Class</p>
@@ -371,7 +469,7 @@ function App() {
                 </div>
                 <div className="project-body">
                   <h3 className="project-title">{project.name}</h3>
-                  {project.repo?.startsWith("http") ? (
+                  {isRepoLink(project.repo) ? (
                     <a
                       className="repo-link project-link"
                       href={project.repo}
@@ -380,7 +478,11 @@ function App() {
                       Check on GitHub
                     </a>
                   ) : (
-                    <span className="repo-link project-link">{project.repo}</span>
+                    <span
+                      className={`repo-link project-link ${isRepoUnreleased(project.repo) ? "is-unreleased" : ""}`}
+                    >
+                      {project.repo}
+                    </span>
                   )}
                   <p className="card-summary">
                     {project.description.split("\n").map((line, index) => (
@@ -396,64 +498,9 @@ function App() {
               </article>
             ))}
           </div>
-          {expandedProject ? (
-            <div
-              className="project-modal-backdrop"
-              onClick={() => setExpandedProject(null)}
-            >
-              <article
-                className="info-card project-row project-row-expanded"
-                onClick={(event) => event.stopPropagation()}
-              >
-                <button
-                  className="project-modal-close"
-                  onClick={() => setExpandedProject(null)}
-                  aria-label="Close project preview"
-                  type="button"
-                >
-                  ×
-                </button>
-                <div className="project-head-expanded">
-                  <h3 className="project-title">{expandedProject.name}</h3>
-                  {expandedProject.repo?.startsWith("http") ? (
-                    <a
-                      className="repo-link project-link"
-                      href={expandedProject.repo}
-                      onClick={(event) => event.stopPropagation()}
-                    >
-                      Check on GitHub
-                    </a>
-                  ) : (
-                    <span className="repo-link project-link">{expandedProject.repo}</span>
-                  )}
-                </div>
-                <p className="card-summary project-summary-expanded">
-                  {expandedProject.description
-                    .split("\n")
-                    .map((line, index) => (
-                      <span key={`${expandedProject.name}-line-${index}`}>
-                        {line}
-                        {index <
-                        expandedProject.description.split("\n").length - 1 ? (
-                          <br />
-                        ) : null}
-                      </span>
-                    ))}
-                </p>
-                <div className="project-thumb project-thumb-expanded">
-                  {expandedProject.image ? (
-                    <img
-                      src={expandedProject.image}
-                      alt={expandedProject.name}
-                    />
-                  ) : null}
-                </div>
-              </article>
-            </div>
-          ) : null}
         </section>
 
-        <section className="section" id="others">
+        <section className="section reveal" id="others">
           <div className="section-header">
             <h2>Other Experience</h2>
             <p>Some interests and works</p>
@@ -576,82 +623,164 @@ function App() {
             ) : null}
           </div>
 
-          {expandedOtherExperience ? (
-            <div
-              className="other-modal-backdrop"
-              onClick={() => setExpandedOtherExperience(null)}
-            >
-              <article
-                className="photo-card-expanded"
-                onClick={(event) => event.stopPropagation()}
-              >
-                <button
-                  className="other-modal-close"
-                  onClick={() => setExpandedOtherExperience(null)}
-                  aria-label="Close details"
-                  type="button"
-                >
-                  ×
-                </button>
-                <div className="photo-media photo-media-expanded">
-                  <div
-                    className={`photo photo-expanded ${expandedOtherExperience.photoClass || ""}`}
-                    aria-hidden="true"
-                    style={
-                      expandedOtherExperience.image
-                        ? {
-                            backgroundImage: `url(${expandedOtherExperience.image})`,
-                          }
-                        : undefined
-                    }
-                  />
-                  {expandedOtherExperience.period ? (
-                    <p className="photo-period-overlay">
-                      {expandedOtherExperience.period}
-                    </p>
-                  ) : null}
-                  <h3 className="photo-title-overlay">
-                    {expandedOtherExperience.title}
-                    {expandedOtherExperience.subtitle ? (
-                      <span className="photo-subtitle-overlay">
-                        {expandedOtherExperience.subtitle}
-                      </span>
-                    ) : null}
-                  </h3>
-                </div>
-                <div className="photo-info">
-                  {Array.isArray(expandedOtherExperience.caption) ? (
-                    <ul className="photo-caption-list">
-                      {expandedOtherExperience.caption.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>{expandedOtherExperience.caption}</p>
-                  )}
-                  {expandedOtherExperience.website ? (
-                    <a
-                      className="photo-link"
-                      href={expandedOtherExperience.website}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Official Site
-                    </a>
-                  ) : null}
-                </div>
-              </article>
-            </div>
-          ) : null}
         </section>
       </main>
 
+      {expandedProject ? (
+        <div
+          className="project-modal-backdrop"
+          onClick={() => setExpandedProject(null)}
+        >
+          <article
+            className="info-card project-row-expanded"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="project-modal-close"
+              onClick={() => setExpandedProject(null)}
+              aria-label="Close project preview"
+              type="button"
+            >
+              ×
+            </button>
+            <div className="project-thumb project-thumb-expanded">
+              {expandedProject.image ? (
+                <img src={expandedProject.image} alt={expandedProject.name} />
+              ) : null}
+            </div>
+            <div className="project-modal-content">
+              <div className="project-head-expanded">
+                <h3 className="project-title">{expandedProject.name}</h3>
+                {isRepoLink(expandedProject.repo) ? (
+                  <a
+                    className="repo-link project-link project-link-expanded"
+                    href={expandedProject.repo}
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    Check on GitHub
+                  </a>
+                ) : (
+                  <span
+                    className={`repo-link project-link ${isRepoUnreleased(expandedProject.repo) ? "is-unreleased" : ""}`}
+                  >
+                    {expandedProject.repo}
+                  </span>
+                )}
+              </div>
+              <p className="card-summary project-summary-expanded">
+                {expandedProject.description.split("\n").map((line, index) => (
+                  <span key={`${expandedProject.name}-line-${index}`}>
+                    {line}
+                    {index < expandedProject.description.split("\n").length - 1 ? (
+                      <br />
+                    ) : null}
+                  </span>
+                ))}
+              </p>
+            </div>
+          </article>
+        </div>
+      ) : null}
+
+      {expandedOtherExperience ? (
+        <div
+          className="other-modal-backdrop"
+          onClick={() => setExpandedOtherExperience(null)}
+        >
+          <article
+            className="photo-card-expanded"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="other-modal-close"
+              onClick={() => setExpandedOtherExperience(null)}
+              aria-label="Close details"
+              type="button"
+            >
+              ×
+            </button>
+            <div className="photo-media photo-media-expanded">
+              <div
+                className={`photo photo-expanded ${expandedOtherExperience.photoClass || ""}`}
+                aria-hidden="true"
+                style={
+                  expandedOtherExperience.image
+                    ? {
+                        backgroundImage: `url(${expandedOtherExperience.image})`,
+                      }
+                    : undefined
+                }
+              />
+              {expandedOtherExperience.period ? (
+                <p className="photo-period-overlay">
+                  {expandedOtherExperience.period}
+                </p>
+              ) : null}
+              <h3 className="photo-title-overlay">
+                {expandedOtherExperience.title}
+                {expandedOtherExperience.subtitle ? (
+                  <span className="photo-subtitle-overlay">
+                    {expandedOtherExperience.subtitle}
+                  </span>
+                ) : null}
+              </h3>
+            </div>
+            <div className="photo-info">
+              {Array.isArray(expandedOtherExperience.caption) ? (
+                <ul className="photo-caption-list">
+                  {expandedOtherExperience.caption.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{expandedOtherExperience.caption}</p>
+              )}
+              {expandedOtherExperience.website ? (
+                <a
+                  className="photo-link"
+                  href={expandedOtherExperience.website}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Official Site
+                </a>
+              ) : null}
+            </div>
+          </article>
+        </div>
+      ) : null}
+
       <footer className="footer">
-        <p>
-          &copy; {new Date().getFullYear()} {siteData.name}. All rights
-          reserved.
-        </p>
+        <div className="footer-content">
+          <h3 className="footer-heading">Let's Connect</h3>
+          <div className="footer-icons">
+            <a className="footer-icon-link" href={siteData.contacts.github} aria-label="GitHub">
+              <IconGithub />
+            </a>
+            <a className="footer-icon-link" href={siteData.contacts.linkedin} aria-label="LinkedIn">
+              <IconLinkedIn />
+            </a>
+            <a className="footer-icon-link" href={siteData.contacts.email} aria-label="Email">
+              <IconMail />
+            </a>
+          </div>
+          <p>
+            &copy; {new Date().getFullYear()} {siteData.name}. All rights
+            reserved.
+          </p>
+        </div>
       </footer>
+
+      <button
+        className={`back-to-top ${showBackToTop ? "is-visible" : ""}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Back to top"
+        type="button"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 15l-6-6-6 6" />
+        </svg>
+      </button>
     </div>
   );
 }
