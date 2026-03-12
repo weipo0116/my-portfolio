@@ -31,10 +31,53 @@ const getInitials = (value = "") =>
     .join("")
     .toUpperCase();
 
+const joinClasses = (...values) => values.filter(Boolean).join(" ");
+
+const ProgressiveImage = ({
+  src,
+  alt = "",
+  className = "",
+  imgClassName = "",
+  eager = false,
+  objectFit = "cover",
+  objectPosition = "center",
+  children,
+  ...rest
+}) => {
+  const [isLoaded, setIsLoaded] = useState(() => !src);
+
+  useEffect(() => {
+    setIsLoaded(!src);
+  }, [src]);
+
+  return (
+    <div
+      className={joinClasses(
+        "progressive-image",
+        isLoaded ? "is-loaded" : "is-loading",
+        className,
+      )}
+      {...rest}
+    >
+      {src ? (
+        <img
+          src={src}
+          alt={alt}
+          className={joinClasses("progressive-image-asset", imgClassName)}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={eager ? "high" : "auto"}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setIsLoaded(true)}
+          style={{ objectFit, objectPosition }}
+        />
+      ) : null}
+      {children}
+    </div>
+  );
+};
+
 function App() {
-  const avatarStyle = siteData.avatarImage
-    ? { backgroundImage: `url(${siteData.avatarImage})` }
-    : undefined;
   const carouselViewportRef = useRef(null);
   const carouselGap = 20;
   const [activeSection, setActiveSection] = useState("home");
@@ -46,7 +89,50 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [typedTitle, setTypedTitle] = useState("");
   const isRepoLink = (value) => value?.startsWith("http");
-  const isRepoUnreleased = (value) => value?.trim().toLowerCase() === "unreleased";
+  const isRepoUnreleased = (value) =>
+    value?.trim().toLowerCase() === "unreleased";
+  const projectHighlights = siteData.heroHighlights || [];
+
+  const scrollToId = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const getProjectLinks = (project) => {
+    const links = project?.links ? { ...project.links } : {};
+    if (project?.repo && links.repo == null) links.repo = project.repo;
+    return links;
+  };
+
+  const renderProjectLink = (label, href) => {
+    if (!href) return null;
+    if (isRepoUnreleased(href)) {
+      return (
+        <span className="project-meta-link is-unreleased" key={label}>
+          {label}: {href}
+        </span>
+      );
+    }
+    if (isRepoLink(href)) {
+      return (
+        <a
+          className="project-meta-link"
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          key={label}
+        >
+          {label}
+        </a>
+      );
+    }
+    return (
+      <span className="project-meta-link" key={label}>
+        {label}: {href}
+      </span>
+    );
+  };
 
   useEffect(() => {
     const updatePerPage = () => {
@@ -210,14 +296,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const fullTitle = siteData.title;
-    let i = 0;
-    const timer = setInterval(() => {
-      i++;
-      setTypedTitle(fullTitle.slice(0, i));
-      if (i >= fullTitle.length) clearInterval(timer);
-    }, 80);
-    return () => clearInterval(timer);
+    setTypedTitle(siteData.title);
   }, []);
 
   return (
@@ -286,32 +365,88 @@ function App() {
             <p className="hero-kicker">{siteData.location}</p>
             <h1>
               {siteData.name}
-              <span className="hero-title">{typedTitle}<span className="typewriter-cursor" aria-hidden="true" /></span>
+              <span className="hero-title">
+                {typedTitle}
+                <span className="typewriter-cursor" aria-hidden="true" />
+              </span>
             </h1>
-            <p className="hero-tagline">{siteData.tagline}</p>
+            <p className="hero-tagline" style={{ whiteSpace: "pre-line" }}>
+              {siteData.tagline}
+            </p>
+
+            {projectHighlights.length ? (
+              <ul className="hero-highlights">
+                {projectHighlights.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            ) : null}
+
+            <div className="hero-actions">
+              <button
+                className="hero-cta hero-cta-primary"
+                type="button"
+                onClick={() => scrollToId("projects")}
+              >
+                View Projects
+              </button>
+              <a
+                className="hero-cta hero-cta-secondary"
+                href={resumePdf}
+                download="Webber_Lai_Resume.pdf"
+              >
+                Download résumé
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                </svg>
+              </a>
+            </div>
 
             <div className="contact-row">
-              <a className="icon-link" href={siteData.contacts.github}>
+              <a
+                className="icon-link"
+                href={siteData.contacts.github}
+                aria-label="GitHub"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <IconGithub />
               </a>
-              <a className="icon-link" href={siteData.contacts.linkedin}>
+              <a
+                className="icon-link"
+                href={siteData.contacts.linkedin}
+                aria-label="LinkedIn"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <IconLinkedIn />
               </a>
-              <a className="icon-link" href={siteData.contacts.email}>
+              <a
+                className="icon-link"
+                href={siteData.contacts.email}
+                aria-label="Email"
+              >
                 <IconMail />
               </a>
             </div>
           </div>
 
-          <div
+          <ProgressiveImage
             className="hero-avatar"
             role="img"
             aria-label={siteData.avatarAlt}
-            style={avatarStyle}
+            src={siteData.avatarImage}
+            alt=""
+            eager
+            imgClassName="hero-avatar-image"
           >
             <div className="avatar-ring" />
-            {!siteData.avatarImage && <div className="avatar-initials">WL</div>}
-          </div>
+            {!siteData.avatarImage && (
+              <div className="avatar-initials">
+                {getInitials(siteData.name)}
+              </div>
+            )}
+          </ProgressiveImage>
         </div>
       </header>
 
@@ -321,16 +456,12 @@ function App() {
             <h2>About Me</h2>
           </div>
           <div className="about-layout">
-            <div
+            <ProgressiveImage
               className="about-photo"
               aria-hidden="true"
-              style={
-                siteData.aboutImage || siteData.avatarImage
-                  ? {
-                    backgroundImage: `url(${siteData.aboutImage || siteData.avatarImage})`,
-                  }
-                  : undefined
-              }
+              src={siteData.aboutImage || siteData.avatarImage}
+              alt=""
+              imgClassName="about-photo-image"
             />
             <div className="about-content">
               <p className="about-text">{siteData.about.intro}</p>
@@ -396,7 +527,11 @@ function App() {
             <p>Work history</p>
           </div>
           <p className="resume-link">
-            <a className="resume-link-anchor" href={resumePdf} download>
+            <a
+              className="resume-link-anchor"
+              href={resumePdf}
+              download="Webber_Lai_Resume.pdf"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
               </svg>
@@ -405,15 +540,22 @@ function App() {
           </p>
           <br></br>
           <div className="experience-list">
-            {siteData.experience.map((item) => (
+            {siteData.experience.map((item, index) => (
               <article
                 key={`${item.role}-${item.company}`}
-                className="info-card experience-card"
+                className="info-card experience-card reveal-card"
+                style={{ "--card-delay": `${index * 90}ms` }}
               >
                 <div className="experience-row">
                   <div className="company-logo" aria-hidden="true">
                     {item.logo ? (
-                      <img src={item.logo} alt="" />
+                      <ProgressiveImage
+                        className="company-logo-shell"
+                        src={item.logo}
+                        alt=""
+                        imgClassName="company-logo-image"
+                        objectFit="contain"
+                      />
                     ) : (
                       <span className="company-initials">
                         {getInitials(item.company)}
@@ -448,12 +590,13 @@ function App() {
             <p>Projects in Class</p>
           </div>
           <div className="project-list">
-            {siteData.projects.map((project) => (
+            {siteData.projects.map((project, index) => (
               <article
                 key={project.name}
-                className="info-card project-row project-row-preview"
+                className="info-card project-row project-row-preview reveal-card"
                 role="button"
                 tabIndex={0}
+                style={{ "--card-delay": `${index * 100}ms` }}
                 onClick={() => setExpandedProject(project)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
@@ -462,17 +605,40 @@ function App() {
                   }
                 }}
               >
-                <div className="project-thumb">
+                <ProgressiveImage
+                  className="project-thumb"
+                  src={project.image}
+                  alt={project.name}
+                  imgClassName="project-thumb-image"
+                  objectFit="contain"
+                >
                   {project.image ? (
-                    <img src={project.image} alt={project.name} />
+                    <div className="project-thumb-glow" aria-hidden="true" />
                   ) : null}
-                </div>
+                </ProgressiveImage>
                 <div className="project-body">
                   <h3 className="project-title">{project.name}</h3>
+                  {project.role ? (
+                    <p className="project-role">{project.role}</p>
+                  ) : null}
+                  {Array.isArray(project.stack) && project.stack.length ? (
+                    <div className="project-stack">
+                      {project.stack.slice(0, 6).map((item) => (
+                        <span
+                          className="project-chip"
+                          key={`${project.name}-${item}`}
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                   {isRepoLink(project.repo) ? (
                     <a
                       className="repo-link project-link"
                       href={project.repo}
+                      target="_blank"
+                      rel="noreferrer"
                       onClick={(event) => event.stopPropagation()}
                     >
                       Check on GitHub
@@ -533,12 +699,15 @@ function App() {
                       key={`column-${columnIndex}`}
                       className={`other-column ${useTwoRows ? "is-two-rows" : "is-one-row"}`}
                     >
-                      {columnItems.map((item) => (
+                      {columnItems.map((item, itemIndex) => (
                         <article
                           key={item.title}
-                          className="photo-card photo-card-preview"
+                          className="photo-card photo-card-preview reveal-card"
                           role="button"
                           tabIndex={0}
+                          style={{
+                            "--card-delay": `${(columnIndex * (useTwoRows ? 2 : 1) + itemIndex) * 90}ms`,
+                          }}
                           onClick={() => setExpandedOtherExperience(item)}
                           onKeyDown={(event) => {
                             if (event.key === "Enter" || event.key === " ") {
@@ -548,14 +717,12 @@ function App() {
                           }}
                         >
                           <div className="photo-media">
-                            <div
+                            <ProgressiveImage
                               className={`photo ${item.photoClass || ""}`}
                               aria-hidden="true"
-                              style={
-                                item.image
-                                  ? { backgroundImage: `url(${item.image})` }
-                                  : undefined
-                              }
+                              src={item.image}
+                              alt=""
+                              imgClassName="photo-image"
                             />
                             {item.period ? (
                               <p className="photo-period-overlay">
@@ -622,7 +789,6 @@ function App() {
               </div>
             ) : null}
           </div>
-
         </section>
       </main>
 
@@ -643,35 +809,51 @@ function App() {
             >
               ×
             </button>
-            <div className="project-thumb project-thumb-expanded">
+            <ProgressiveImage
+              className="project-thumb project-thumb-expanded"
+              src={expandedProject.image}
+              alt={expandedProject.name}
+              imgClassName="project-thumb-image"
+              eager
+              objectFit="contain"
+            >
               {expandedProject.image ? (
-                <img src={expandedProject.image} alt={expandedProject.name} />
+                <div className="project-thumb-glow" aria-hidden="true" />
               ) : null}
-            </div>
+            </ProgressiveImage>
             <div className="project-modal-content">
               <div className="project-head-expanded">
                 <h3 className="project-title">{expandedProject.name}</h3>
-                {isRepoLink(expandedProject.repo) ? (
-                  <a
-                    className="repo-link project-link project-link-expanded"
-                    href={expandedProject.repo}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    Check on GitHub
-                  </a>
-                ) : (
-                  <span
-                    className={`repo-link project-link ${isRepoUnreleased(expandedProject.repo) ? "is-unreleased" : ""}`}
-                  >
-                    {expandedProject.repo}
-                  </span>
-                )}
+                {expandedProject.role ? (
+                  <p className="project-role project-role-expanded">
+                    {expandedProject.role}
+                  </p>
+                ) : null}
+                {Array.isArray(expandedProject.stack) &&
+                expandedProject.stack.length ? (
+                  <div className="project-stack project-stack-expanded">
+                    {expandedProject.stack.map((item) => (
+                      <span
+                        className="project-chip"
+                        key={`${expandedProject.name}-expanded-${item}`}
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <div className="project-links">
+                  {Object.entries(getProjectLinks(expandedProject)).map(
+                    ([key, value]) => renderProjectLink(key, value),
+                  )}
+                </div>
               </div>
               <p className="card-summary project-summary-expanded">
                 {expandedProject.description.split("\n").map((line, index) => (
                   <span key={`${expandedProject.name}-line-${index}`}>
                     {line}
-                    {index < expandedProject.description.split("\n").length - 1 ? (
+                    {index <
+                    expandedProject.description.split("\n").length - 1 ? (
                       <br />
                     ) : null}
                   </span>
@@ -700,16 +882,13 @@ function App() {
               ×
             </button>
             <div className="photo-media photo-media-expanded">
-              <div
+              <ProgressiveImage
                 className={`photo photo-expanded ${expandedOtherExperience.photoClass || ""}`}
                 aria-hidden="true"
-                style={
-                  expandedOtherExperience.image
-                    ? {
-                        backgroundImage: `url(${expandedOtherExperience.image})`,
-                      }
-                    : undefined
-                }
+                src={expandedOtherExperience.image}
+                alt=""
+                imgClassName="photo-image"
+                eager
               />
               {expandedOtherExperience.period ? (
                 <p className="photo-period-overlay">
@@ -754,13 +933,29 @@ function App() {
         <div className="footer-content">
           <h3 className="footer-heading">Let's Connect</h3>
           <div className="footer-icons">
-            <a className="footer-icon-link" href={siteData.contacts.github} aria-label="GitHub">
+            <a
+              className="footer-icon-link"
+              href={siteData.contacts.github}
+              aria-label="GitHub"
+              target="_blank"
+              rel="noreferrer"
+            >
               <IconGithub />
             </a>
-            <a className="footer-icon-link" href={siteData.contacts.linkedin} aria-label="LinkedIn">
+            <a
+              className="footer-icon-link"
+              href={siteData.contacts.linkedin}
+              aria-label="LinkedIn"
+              target="_blank"
+              rel="noreferrer"
+            >
               <IconLinkedIn />
             </a>
-            <a className="footer-icon-link" href={siteData.contacts.email} aria-label="Email">
+            <a
+              className="footer-icon-link"
+              href={siteData.contacts.email}
+              aria-label="Email"
+            >
               <IconMail />
             </a>
           </div>

@@ -15,11 +15,16 @@ export const siteData = {
   name: "Webber Lai",
   title: "Full Stack Developer",
   tagline:
-    "Building clean, fast, and human-centered web experiences. 無法想像的畫面，就無法靠魔力實現 -《葬送的芙莉蓮》",
+    "It's easy to be different, but difficult to be better. \n 無法想像的畫面，就無法靠魔力實現 -《葬送的芙莉蓮》",
   location: "Taipei, Taiwan",
   avatarAlt: "Webber Lai portrait",
   avatarImage: selfImage,
   aboutImage: selfImage2,
+  heroHighlights: [
+    "M.S. CS @ NCCU — Computer Graphics & Data Visualization.",
+    "Built interactive visual/data experiences (React, D3.js) end-to-end.",
+    "Worked across product, design, and engineering to turn ideas into shipped features.",
+  ],
   contacts: {
     github: "https://github.com/weipo0116",
     linkedin: "https://www.linkedin.com/in/weipo-lai-webber/",
@@ -27,9 +32,9 @@ export const siteData = {
   },
   about: {
     intro:
-      "Hi, I'm Webber Lai. I recently completed my master's degree in Computer Science at NCCU (Jan 2026).",
+      "Hi, I'm Webber Lai. I recently completed my M.S. in Computer Science at NCCU (Jan 2026).",
     status:
-      "I’m currently open to full stack roles, and I’m also very interested in Product Manager (PM) opportunities where I can bridge user needs, engineering execution, and data insights.",
+      "Open to full stack roles. I’m also interested in Product Manager (PM) opportunities where I can bridge user needs, engineering execution, and data insights.",
   },
   skills: [
     "Python",
@@ -136,6 +141,15 @@ export const siteData = {
       name: "Interactive Semantic Segmentation for Large-Scale Aerial 3D Gaussian Splatting",
       description:
         "Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining. Enables interactive labeling and open-vocabulary queries with real-time rendering.",
+      role: "Research (thesis)",
+      stack: [
+        "3D Gaussian Splatting",
+        "Semantic segmentation",
+        "Interactive GUI",
+      ],
+      links: {
+        repo: "Unreleased",
+      },
       repo: "Unreleased",
       image: thesisTeaser,
     },
@@ -143,6 +157,11 @@ export const siteData = {
       name: "VanGoph Visualization",
       description:
         "An interactive visualization project on Vincent van Gogh artworks that uses image feature dimensionality reduction to cluster paintings and help users discover visually similar works.",
+      role: "Full-stack (data processing + interactive visualization)",
+      stack: ["React", "D3.js", "Dimensionality reduction"],
+      links: {
+        repo: "https://github.com/weipo0116/VanGoph_Visualization",
+      },
       repo: "https://github.com/weipo0116/VanGoph_Visualization",
       image: vangoph_teaser,
     },
@@ -150,6 +169,11 @@ export const siteData = {
       name: "DS Prediction of Ecommerce Transaction Fraud",
       description:
         "Machine learning project for ecommerce fraud detection, using customer and transaction data to flag high-risk activities.",
+      role: "Data science (modeling + evaluation)",
+      stack: ["Python", "Machine learning"],
+      links: {
+        repo: "https://github.com/112-2-dataScience/finalproject-group6",
+      },
       repo: "https://github.com/112-2-dataScience/finalproject-group6",
       image: ds_poster,
     },
@@ -157,6 +181,11 @@ export const siteData = {
       name: "PR Garbage Detection",
       description:
         "Computer vision project for garbage detection, with trained models, evaluation, and a ready-to-use inference pipeline.",
+      role: "Computer vision (finetuning + evaluation)",
+      stack: ["Python", "Computer vision"],
+      links: {
+        repo: "https://github.com/weipo0116/PR_Garbage-Detection",
+      },
       repo: "https://github.com/weipo0116/PR_Garbage-Detection",
       image: PR_img,
     },
@@ -164,6 +193,11 @@ export const siteData = {
       name: "HCI Webgazer Shop",
       description:
         "An HCI-focused web shopping experience using gaze interaction concepts to explore attention-aware interface design.",
+      role: "Backend / HCI prototyping",
+      stack: ["JavaScript", "Web interaction", "HCI"],
+      links: {
+        repo: "https://github.com/weipo0116/HCI_Webgazer_shop",
+      },
       repo: "https://github.com/weipo0116/HCI_Webgazer_shop",
       image: HCI_teaser,
     },
