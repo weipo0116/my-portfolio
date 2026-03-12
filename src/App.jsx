@@ -44,10 +44,21 @@ const ProgressiveImage = ({
   children,
   ...rest
 }) => {
+  const imageRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(() => !src);
 
   useEffect(() => {
-    setIsLoaded(!src);
+    if (!src) {
+      setIsLoaded(true);
+      return;
+    }
+
+    setIsLoaded(false);
+
+    const image = imageRef.current;
+    if (image?.complete && image.naturalWidth > 0) {
+      setIsLoaded(true);
+    }
   }, [src]);
 
   return (
@@ -61,6 +72,7 @@ const ProgressiveImage = ({
     >
       {src ? (
         <img
+          ref={imageRef}
           src={src}
           alt={alt}
           className={joinClasses("progressive-image-asset", imgClassName)}
