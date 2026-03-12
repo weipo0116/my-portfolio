@@ -20,13 +20,14 @@ style:
 ### National Chengchi University (NCCU) || Sep 2023 - Jan 2026
 
 _M.S. in Computer Science_
-
 - Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting
 - Advisor: Ming-Te Chi
+- GPA: 4.06/4.3
 
 ### Soochow University (SCU) || Sep 2019 - Jun 2023
 
 _B.S. in Big Data Management (Data Science)_
+- GPA: 3.76/4
 
 ### Fudan University || Sep 2021 - Jan 2022
 
