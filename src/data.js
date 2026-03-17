@@ -52,7 +52,7 @@ export const siteData = {
       degree: "M.S. in Computer Science",
       school: "National Chengchi University (NCCU)",
       period: "Sep 2023 - Feb 2026",
-      note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Advisor: Ming-Te Chi",
+      note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Advisor: Ming-Te Chi.",
     },
     {
       degree: "B.S. in Big Data Management (Data Science)",

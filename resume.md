@@ -20,8 +20,8 @@ style:
 ### National Chengchi University (NCCU) || Sep 2023 - Jan 2026
 
 _M.S. in Computer Science_
-- Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting
-- Advisor: Ming-Te Chi
+- Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.
+- Advisor: Ming-Te Chi.
 - GPA: 4.06/4.3
 
 ### Soochow University (SCU) || Sep 2019 - Jun 2023
@@ -39,34 +39,34 @@ _Exchange Program, CS & Engineering_
 
 _Social Content BD Team Intern_
 
-- Monthly performance analysis and report writing, providing insights
-- Assisted in planning events and tracking execution for smooth progress
-- Reviewed platform content and analyzed user reactions and preferences
+- Monthly performance analysis and report writing, providing insights.
+- Assisted in planning events and tracking execution for smooth progress.
+- Reviewed platform content and analyzed user reactions and preferences.
 
 ### Advant Analytics Tactics Ltd., AAT || Apr 2022 - Sep 2022
 
 _Data Science Consulting Intern_
 
-- Tested frontend packages in the KNIME platform
-- Built web templates for finance and semiconductor clients
+- Tested frontend packages in the KNIME platform.
+- Built web templates for finance and semiconductor clients.
 
 ## Projects
 
 ### Interactive Semantic Segmentation for Large-Scale Aerial 3D Gaussian Splatting _(Individual)_
 
-- Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining
-- Enables interactive labeling and open-vocabulary queries with real-time rendering
+- Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining.
+- Enables interactive labeling and open-vocabulary queries with real-time rendering.
 
 ### VanGoph Visualization _(Individual)_
 
-- Interactive visualization project on Vincent van Gogh artworks
-- Uses image feature dimensionality reduction to cluster paintings and discover visually similar works
+- Interactive visualization project on Vincent van Gogh artworks.
+- Uses image feature dimensionality reduction to cluster paintings and discover visually similar works.
 - [GitHub](https://github.com/weipo0116/VanGoph_Visualization)
 
 ### DS Prediction of Ecommerce Transaction Fraud _(Team)_
 
-- Machine learning project for ecommerce fraud detection
-- Uses customer and transaction data to flag high-risk activities
+- Machine learning project for ecommerce fraud detection.
+- Uses customer and transaction data to flag high-risk activities.
 - [GitHub](https://github.com/112-2-dataScience/finalproject-group6)
 
 ## Technical Skills
