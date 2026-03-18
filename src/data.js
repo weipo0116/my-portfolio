@@ -69,14 +69,16 @@ export const siteData = {
   ],
   experience: [
     {
-      role: "Social Content BD Team Intern",
+      role: "Social Content BD Team Intern | Social Content Strategy & Analytics",
       company: "LINE Taiwan Limited",
       logo: "https://vos.line-scdn.net/landpress-content-v2-tqq6mwxs5qlx5cg0nutma2bg/1c7f9ad5a0d2415cab739ae6e9f71e35-large.png?updatedAt=1752734110000",
       period: "Oct 2022 - Aug 2023",
       summary: [
-        "Monthly performance analysis and report writing, providing insights.",
-        "Assisted in planning events and tracking execution for smooth progress.",
-        "Reviewed platform content and analyzed user reactions and preferences.",
+        "Built and owned monthly performance reporting, translating data into actionable insights for management.",
+        "Increased LINE VOOM first-screen VTR by approximately 100% through content and placement optimization.",
+        "Tracked performance and execution across 5+ major BD initiatives, including UBA, The Rappers 2, P. LEAGUE+, MAMA, and the LINE VOOM Creators Contest.",
+        "Consolidated multiple reports with the data team into a centralized dashboard, saving approximately 1 hour of manual work per day.",
+        "Evaluated creator proposals and provided tailored performance recommendations for 10+ partner creators.",
       ],
     },
     {
@@ -85,8 +87,10 @@ export const siteData = {
       logo: "https://system.netsuite.com/core/media/media.nl?id=14523301&c=835472&h=IG4EQfcTtnBchNGzUxALv1tVswtgqcyE8vTxEwOoFw9ekkQs",
       period: "Apr 2022 - Sep 2022",
       summary: [
-        "Tested frontend packages in the KNIME platform.",
-        "Built web templates for finance and semiconductor clients.",
+        "Researched and documented front-end development workflows in KNIME, covering HTML, CSS, JavaScript, Bootstrap, and reusable web nodes.",
+        "Tested interactive web capabilities in KNIME, including jQuery UI, DataTables, carousel, and lightbox integrations.",
+        "Built dashboard-style web templates and workflows for finance and semiconductor use cases, turning data outputs into interactive visual presentations.",
+        "Created internal reference materials and demos to help streamline future KNIME web development and experimentation.",
       ],
     },
   ],

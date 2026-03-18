@@ -37,18 +37,22 @@ _Exchange Program, CS & Engineering_
 
 ### LINE Taiwan Limited || Oct 2022 - Aug 2023
 
-_Social Content BD Team Intern_
+_Social Content BD Team Intern | Social Content Strategy & Analytics_
 
-- Monthly performance analysis and report writing, providing insights.
-- Assisted in planning events and tracking execution for smooth progress.
-- Reviewed platform content and analyzed user reactions and preferences.
+- Built and owned monthly performance reporting, translating data into actionable insights for management.
+- Increased LINE VOOM first-screen VTR by approximately 100% through content and placement optimization, sustaining results above 35%.
+- Tracked performance and execution across 5+ major BD initiatives, including UBA, The Rappers 2, P. LEAGUE+, MAMA, and the LINE VOOM Creators Contest.
+- Consolidated multiple reports with the data team into a centralized dashboard, saving approximately 1 hour of manual work per day.
+- Evaluated creator proposals and provided tailored performance recommendations for 10+ partner creators.
 
 ### Advant Analytics Tactics Ltd., AAT || Apr 2022 - Sep 2022
 
 _Data Science Consulting Intern_
 
-- Tested frontend packages in the KNIME platform.
-- Built web templates for finance and semiconductor clients.
+- Researched and documented front-end development workflows in KNIME, covering HTML, CSS, JavaScript, Bootstrap, and reusable web nodes.
+- Tested interactive web capabilities in KNIME, including jQuery UI, DataTables, carousel, and lightbox integrations.
+- Built dashboard-style web templates and workflows for finance and semiconductor use cases, turning data outputs into interactive visual presentations.
+- Created internal reference materials and demos to help streamline future KNIME web development and experimentation.
 
 ## Projects
 
