@@ -74,15 +74,18 @@ const createModalPanelVariants = (reducedMotion) => ({
 });
 
 const createContentSwapVariants = (reducedMotion) => ({
-  enter: () => ({
+  enter: (direction = 0) => ({
     opacity: reducedMotion ? 1 : 0.92,
+    x: reducedMotion ? 0 : direction > 0 ? 12 : -12,
   }),
   center: {
     opacity: 1,
+    x: 0,
     transition: { duration: reducedMotion ? 0 : 0.14, ease: "easeOut" },
   },
-  exit: () => ({
+  exit: (direction = 0) => ({
     opacity: reducedMotion ? 1 : 0.92,
+    x: reducedMotion ? 0 : direction > 0 ? -12 : 12,
     transition: { duration: reducedMotion ? 0 : 0.1, ease: "easeIn" },
   }),
 });
@@ -379,12 +382,24 @@ function App() {
   useEffect(() => {
     const viewport = carouselViewportRef.current;
     if (!viewport) return;
-    const viewportWidth = viewport.clientWidth;
-    const columnWidth =
-      (viewportWidth - carouselGap * (carouselPerPage - 1)) / carouselPerPage;
-    const step = columnWidth + carouselGap;
-    viewport.scrollTo({ left: carouselIndex * step, behavior: "smooth" });
-  }, [carouselIndex, carouselPerPage, carouselGap]);
+    const track = viewport.querySelector(".carousel-track");
+    const columns = viewport.querySelectorAll(".other-column");
+    const targetColumn = columns[carouselIndex];
+    if (!targetColumn) return;
+    const trackPaddingLeft = track
+      ? Number.parseFloat(window.getComputedStyle(track).paddingLeft) || 0
+      : 0;
+    const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+    const edgeInset =
+      carouselPerPage === 1 ? 0 : carouselIndex === carouselMaxIndex ? 0 : 0;
+    viewport.scrollTo({
+      left: Math.min(
+        maxScrollLeft,
+        Math.max(0, targetColumn.offsetLeft - trackPaddingLeft - edgeInset),
+      ),
+      behavior: "smooth",
+    });
+  }, [carouselIndex, carouselPerPage, carouselGap, carouselMaxIndex]);
 
   const moveCarouselBy = (delta) => {
     const nextIndex = Math.min(
@@ -1304,6 +1319,13 @@ function App() {
       <footer className="footer">
         <div className="footer-content">
           <h3 className="footer-heading">Let's Connect</h3>
+          <div className="footer-tech-list" aria-label="Website tech stack">
+            <span className="footer-tech-pill">React</span>
+            <span className="footer-tech-pill">Vite</span>
+            <span className="footer-tech-pill">Framer Motion</span>
+            <span className="footer-tech-pill">Git</span>
+            <span className="footer-tech-pill">Codex</span>
+          </div>
           <div className="footer-icons">
             <a
               className="footer-icon-link"

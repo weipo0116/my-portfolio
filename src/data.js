@@ -38,9 +38,8 @@ export const siteData = {
   },
   skills: [
     "Python",
-    "R",
     "JavaScript",
-    "Bootstrap",
+    "R",
     "React",
     "D3.js",
     "Flask API",
@@ -150,11 +149,7 @@ export const siteData = {
       description:
         "Post-hoc semantic 3DGS editing for large-scale aerial scenes without retraining. Enables interactive labeling and open-vocabulary queries with real-time rendering.",
       role: "Research (thesis)",
-      stack: [
-        "3D Gaussian Splatting",
-        "Semantic segmentation",
-        "Interactive GUI",
-      ],
+      stack: ["3D Gaussian Splatting", "SAM", "CLIP", "DearPy GUI"],
       links: {
         repo: "Unreleased",
       },
@@ -166,7 +161,7 @@ export const siteData = {
       description:
         "An interactive visualization project on Vincent van Gogh artworks that uses image feature dimensionality reduction to cluster paintings and help users discover visually similar works.",
       role: "Full-stack (data processing + interactive visualization)",
-      stack: ["React", "D3.js", "Dimensionality reduction"],
+      stack: ["D3.js", "Flask", "Dimensionality reduction"],
       links: {
         repo: "https://github.com/weipo0116/VanGoph_Visualization",
       },
@@ -190,7 +185,7 @@ export const siteData = {
       description:
         "Computer vision project for garbage detection, with trained models, evaluation, and a ready-to-use inference pipeline.",
       role: "Computer vision (finetuning + evaluation)",
-      stack: ["Python", "Computer vision"],
+      stack: ["Python", "Computer vision", "PR"],
       links: {
         repo: "https://github.com/weipo0116/PR_Garbage-Detection",
       },
@@ -202,7 +197,7 @@ export const siteData = {
       description:
         "An HCI-focused web shopping experience using gaze interaction concepts to explore attention-aware interface design.",
       role: "Backend / HCI prototyping",
-      stack: ["JavaScript", "Web interaction", "HCI"],
+      stack: ["WebGazer.js", "Web interaction", "HCI"],
       links: {
         repo: "https://github.com/weipo0116/HCI_Webgazer_shop",
       },
