@@ -1,8 +1,91 @@
 // src/App.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { siteData } from "./data";
 import "./App.css";
 import resumePdf from "./resume/resume.pdf";
+
+const MOTION_EASE = [0.22, 1, 0.36, 1];
+
+const createFadeUpVariants = (reducedMotion, distance = 32) => ({
+  hidden: { opacity: 0, y: reducedMotion ? 0 : distance },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.72, ease: MOTION_EASE },
+  },
+});
+
+const createCardVariants = (reducedMotion) => ({
+  hidden: {
+    opacity: 0,
+    y: reducedMotion ? 0 : 24,
+    scale: reducedMotion ? 1 : 0.985,
+  },
+  visible: (index = 0) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.56,
+      ease: MOTION_EASE,
+      delay: reducedMotion ? 0 : index * 0.08,
+    },
+  }),
+});
+
+const createNavVariants = (reducedMotion) => ({
+  hidden: { opacity: 0, y: reducedMotion ? 0 : -18 },
+  visible: (index = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.42,
+      ease: MOTION_EASE,
+      delay: reducedMotion ? 0 : 0.12 + index * 0.05,
+    },
+  }),
+});
+
+const createModalBackdropVariants = () => ({
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2, ease: "easeOut" } },
+  exit: { opacity: 0, transition: { duration: 0.18, ease: "easeIn" } },
+});
+
+const createModalPanelVariants = (reducedMotion) => ({
+  hidden: {
+    opacity: 0,
+    y: reducedMotion ? 0 : 28,
+    scale: reducedMotion ? 1 : 0.96,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.34, ease: MOTION_EASE },
+  },
+  exit: {
+    opacity: 0,
+    y: reducedMotion ? 0 : 18,
+    scale: reducedMotion ? 1 : 0.98,
+    transition: { duration: 0.2, ease: "easeInOut" },
+  },
+});
+
+const createContentSwapVariants = (reducedMotion) => ({
+  enter: () => ({
+    opacity: reducedMotion ? 1 : 0.92,
+  }),
+  center: {
+    opacity: 1,
+    transition: { duration: reducedMotion ? 0 : 0.14, ease: "easeOut" },
+  },
+  exit: () => ({
+    opacity: reducedMotion ? 1 : 0.92,
+    transition: { duration: reducedMotion ? 0 : 0.1, ease: "easeIn" },
+  }),
+});
 
 const IconGithub = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -78,7 +161,7 @@ const ProgressiveImage = ({
           className={joinClasses("progressive-image-asset", imgClassName)}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          fetchPriority={eager ? "high" : "auto"}
+          fetchpriority={eager ? "high" : "auto"}
           onLoad={() => setIsLoaded(true)}
           onError={() => setIsLoaded(true)}
           style={{ objectFit, objectPosition }}
@@ -90,6 +173,7 @@ const ProgressiveImage = ({
 };
 
 function App() {
+  const shouldReduceMotion = useReducedMotion();
   const carouselViewportRef = useRef(null);
   const carouselGap = 20;
   const [activeSection, setActiveSection] = useState("home");
@@ -97,18 +181,120 @@ function App() {
   const [carouselPerPage, setCarouselPerPage] = useState(3);
   const [expandedProject, setExpandedProject] = useState(null);
   const [expandedOtherExperience, setExpandedOtherExperience] = useState(null);
+  const [otherExperienceDirection, setOtherExperienceDirection] = useState(0);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [typedTitle, setTypedTitle] = useState("");
+  const navItems = [
+    "home",
+    "about",
+    "education",
+    "experience",
+    "projects",
+    "others",
+  ];
   const isRepoLink = (value) => value?.startsWith("http");
   const isRepoUnreleased = (value) =>
     value?.trim().toLowerCase() === "unreleased";
   const projectHighlights = siteData.heroHighlights || [];
+  const heroContainerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: shouldReduceMotion
+        ? { duration: 0 }
+        : { staggerChildren: 0.12, delayChildren: 0.06 },
+    },
+  };
+  const heroItemVariants = createFadeUpVariants(shouldReduceMotion, 30);
+  const sectionVariants = createFadeUpVariants(shouldReduceMotion, 34);
+  const cardVariants = createCardVariants(shouldReduceMotion);
+  const navItemVariants = createNavVariants(shouldReduceMotion);
+  const modalBackdropVariants = createModalBackdropVariants();
+  const modalPanelVariants = createModalPanelVariants(shouldReduceMotion);
+  const otherExperienceSwapVariants =
+    createContentSwapVariants(shouldReduceMotion);
+  const mobileMenuVariants = {
+    hidden: {
+      opacity: 0,
+      height: 0,
+      y: shouldReduceMotion ? 0 : -10,
+    },
+    visible: {
+      opacity: 1,
+      height: "auto",
+      y: 0,
+      transition: shouldReduceMotion
+        ? { duration: 0 }
+        : {
+            duration: 0.34,
+            ease: MOTION_EASE,
+            staggerChildren: 0.05,
+            delayChildren: 0.04,
+          },
+    },
+    exit: {
+      opacity: 0,
+      height: 0,
+      y: shouldReduceMotion ? 0 : -8,
+      transition: { duration: 0.22, ease: "easeInOut" },
+    },
+  };
+  const mobileMenuItemVariants = {
+    hidden: { opacity: 0, x: shouldReduceMotion ? 0 : -16 },
+    visible: (index = 0) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.28,
+        ease: MOTION_EASE,
+        delay: shouldReduceMotion ? 0 : index * 0.035,
+      },
+    }),
+  };
+  const heroBadgeFloat = shouldReduceMotion
+    ? {}
+    : {
+        y: [0, -14, 0, 10, 0],
+        rotate: [0, -1.6, 0, 1.6, 0],
+        scale: [1, 1.016, 1, 0.996, 1],
+        transition: {
+          duration: 8.5,
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatType: "mirror",
+        },
+      };
+  const heroButtonHover = shouldReduceMotion
+    ? undefined
+    : {
+        y: -5,
+        scale: 1.04,
+        boxShadow: "0 18px 38px rgba(76, 111, 255, 0.28)",
+        transition: { duration: 0.22, ease: MOTION_EASE },
+      };
+  const iconHover = shouldReduceMotion
+    ? undefined
+    : {
+        y: -5,
+        scale: 1.08,
+        rotate: -4,
+        transition: { duration: 0.2, ease: MOTION_EASE },
+      };
 
   const scrollToId = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleNavSelect = (id, closeMobileMenu = false) => {
+    if (closeMobileMenu) {
+      setMobileMenuOpen(false);
+      window.setTimeout(() => scrollToId(id), 180);
+      return;
+    }
+    scrollToId(id);
   };
 
   const getProjectLinks = (project) => {
@@ -164,6 +350,9 @@ function App() {
 
   const otherExperiences = siteData.otherExperiences || [];
   const useTwoRows = otherExperiences.length > 6;
+  const expandedOtherExperienceIndex = otherExperiences.findIndex(
+    (item) => item.title === expandedOtherExperience?.title,
+  );
   const carouselColumns = useMemo(() => {
     if (!useTwoRows) {
       return otherExperiences.map((item) => [item]);
@@ -207,17 +396,32 @@ function App() {
     }
   };
 
+  const moveOtherExperienceBy = (delta) => {
+    if (!otherExperiences.length || expandedOtherExperienceIndex < 0) return;
+    const nextIndex = expandedOtherExperienceIndex + delta;
+    if (nextIndex < 0 || nextIndex >= otherExperiences.length) return;
+    setOtherExperienceDirection(delta);
+    setExpandedOtherExperience(otherExperiences[nextIndex]);
+  };
+
   useEffect(() => {
     if (!expandedOtherExperience && !expandedProject) return undefined;
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
         setExpandedOtherExperience(null);
         setExpandedProject(null);
+        return;
+      }
+      if (expandedOtherExperience && event.key === "ArrowLeft") {
+        moveOtherExperienceBy(-1);
+      }
+      if (expandedOtherExperience && event.key === "ArrowRight") {
+        moveOtherExperienceBy(1);
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [expandedOtherExperience, expandedProject]);
+  }, [expandedOtherExperience, expandedProject, expandedOtherExperienceIndex]);
 
   useEffect(() => {
     const sectionIds = [
@@ -233,53 +437,37 @@ function App() {
       .filter(Boolean);
     if (!sections.length) return undefined;
 
-    const visibleSections = new Map();
+    const updateActiveSection = () => {
+      const marker = window.innerHeight * 0.32;
+      const current = sections.find((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= marker && rect.bottom >= marker;
+      });
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target?.id;
-          if (!id) return;
-          if (entry.isIntersecting) {
-            visibleSections.set(id, entry.intersectionRatio);
-          } else {
-            visibleSections.delete(id);
-          }
-        });
+      if (current) {
+        setActiveSection(current.id);
+        return;
+      }
 
-        let nextActive = null;
-        let maxRatio = -1;
-        visibleSections.forEach((ratio, id) => {
-          if (ratio > maxRatio) {
-            maxRatio = ratio;
-            nextActive = id;
-          }
-        });
+      const fallback = sections
+        .map((section) => ({
+          id: section.id,
+          distance: Math.abs(section.getBoundingClientRect().top - marker),
+        }))
+        .sort((a, b) => a.distance - b.distance)[0];
 
-        if (!nextActive) {
-          const marker = window.innerHeight * 0.35;
-          const fallback = sections
-            .map((section) => ({
-              id: section.id,
-              distance: Math.abs(section.getBoundingClientRect().top - marker),
-            }))
-            .sort((a, b) => a.distance - b.distance)[0];
-          nextActive = fallback?.id ?? null;
-        }
+      if (fallback) {
+        setActiveSection(fallback.id);
+      }
+    };
 
-        if (nextActive) {
-          setActiveSection(nextActive);
-        }
-      },
-      {
-        root: null,
-        rootMargin: "-20% 0px -60% 0px",
-        threshold: [0, 0.1, 0.25, 0.5, 0.75],
-      },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+    return () => {
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
   }, []);
 
   useEffect(() => {
@@ -291,23 +479,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const reveals = document.querySelectorAll(".reveal");
-    if (!reveals.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-revealed");
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -50px 0px" },
-    );
-    reveals.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
     setTypedTitle(siteData.title);
   }, []);
 
@@ -315,65 +486,98 @@ function App() {
     <div className="page">
       <header className="hero" id="home">
         <nav className="nav">
-          <div className="brand">{siteData.name}</div>
-          <button
+          <motion.div
+            className="brand"
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: MOTION_EASE }}
+          >
+            {siteData.name}
+          </motion.div>
+          <motion.button
             className={`hamburger ${mobileMenuOpen ? "is-open" : ""}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
             type="button"
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: MOTION_EASE, delay: 0.1 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
           >
             <span />
             <span />
             <span />
-          </button>
-          <div className={`nav-links ${mobileMenuOpen ? "is-open" : ""}`}>
-            <a
-              href="#home"
-              className={activeSection === "home" ? "is-active" : ""}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </a>
-            <a
-              href="#about"
-              className={activeSection === "about" ? "is-active" : ""}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              About
-            </a>
-            <a
-              href="#education"
-              className={activeSection === "education" ? "is-active" : ""}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Education
-            </a>
-            <a
-              href="#experience"
-              className={activeSection === "experience" ? "is-active" : ""}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Experience
-            </a>
-            <a
-              href="#projects"
-              className={activeSection === "projects" ? "is-active" : ""}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Projects
-            </a>
-            <a
-              href="#others"
-              className={activeSection === "others" ? "is-active" : ""}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Others
-            </a>
+          </motion.button>
+          <div className="nav-links nav-links-desktop">
+            {navItems.map((item, index) => (
+              <motion.a
+                key={item}
+                href={`#${item}`}
+                className={activeSection === item ? "is-active" : ""}
+                custom={index}
+                initial="hidden"
+                animate="visible"
+                variants={navItemVariants}
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleNavSelect(item);
+                }}
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : { y: -2, scale: 1.04, transition: { duration: 0.18 } }
+                }
+              >
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </motion.a>
+            ))}
           </div>
+          <AnimatePresence>
+            {mobileMenuOpen ? (
+              <motion.div
+                className="nav-links nav-links-mobile is-open"
+                variants={mobileMenuVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                {navItems.map((item, index) => (
+                  <motion.button
+                    key={item}
+                    className={activeSection === item ? "is-active" : ""}
+                    onClick={() => {
+                      handleNavSelect(item, true);
+                    }}
+                    custom={index}
+                    variants={mobileMenuItemVariants}
+                    whileHover={
+                      shouldReduceMotion
+                        ? undefined
+                        : { x: 6, transition: { duration: 0.16 } }
+                    }
+                    type="button"
+                  >
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                  </motion.button>
+                ))}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </nav>
 
-        <div className="hero-content">
-          <div className="hero-text">
+        <motion.div
+          className="hero-content"
+          variants={heroContainerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.p
+            className="hero-kicker hero-kicker-mobile"
+            variants={heroItemVariants}
+          >
+            {siteData.location}
+          </motion.p>
+          <motion.div className="hero-text" variants={heroItemVariants}>
             <p className="hero-kicker">{siteData.location}</p>
             <h1>
               {siteData.name}
@@ -395,75 +599,94 @@ function App() {
             ) : null}
 
             <div className="hero-actions">
-              <button
+              <motion.button
                 className="hero-cta hero-cta-primary"
                 type="button"
                 onClick={() => scrollToId("projects")}
+                whileHover={heroButtonHover}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
               >
                 View Projects
-              </button>
-              <a
+              </motion.button>
+              <motion.a
                 className="hero-cta hero-cta-secondary"
                 href={resumePdf}
                 download="Webber_Lai_Resume.pdf"
+                whileHover={heroButtonHover}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
               >
                 Download résumé
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
-              </a>
+              </motion.a>
             </div>
 
             <div className="contact-row">
-              <a
+              <motion.a
                 className="icon-link"
                 href={siteData.contacts.github}
                 aria-label="GitHub"
                 target="_blank"
                 rel="noreferrer"
+                whileHover={iconHover}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
               >
                 <IconGithub />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 className="icon-link"
                 href={siteData.contacts.linkedin}
                 aria-label="LinkedIn"
                 target="_blank"
                 rel="noreferrer"
+                whileHover={iconHover}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
               >
                 <IconLinkedIn />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
                 className="icon-link"
                 href={siteData.contacts.email}
                 aria-label="Email"
+                whileHover={iconHover}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
               >
                 <IconMail />
-              </a>
+              </motion.a>
             </div>
-          </div>
+          </motion.div>
 
-          <ProgressiveImage
-            className="hero-avatar"
-            role="img"
-            aria-label={siteData.avatarAlt}
-            src={siteData.avatarImage}
-            alt=""
-            eager
-            imgClassName="hero-avatar-image"
-          >
-            <div className="avatar-ring" />
-            {!siteData.avatarImage && (
-              <div className="avatar-initials">
-                {getInitials(siteData.name)}
-              </div>
-            )}
-          </ProgressiveImage>
-        </div>
+          <motion.div variants={heroItemVariants} animate={heroBadgeFloat}>
+            <ProgressiveImage
+              className="hero-avatar"
+              role="img"
+              aria-label={siteData.avatarAlt}
+              src={siteData.avatarImage}
+              alt=""
+              eager
+              imgClassName="hero-avatar-image"
+            >
+              <div className="avatar-ring" />
+              {!siteData.avatarImage && (
+                <div className="avatar-initials">
+                  {getInitials(siteData.name)}
+                </div>
+              )}
+            </ProgressiveImage>
+          </motion.div>
+        </motion.div>
       </header>
 
       <main className="main">
-        <section className="section about-section reveal" id="about">
+        <motion.section
+          className="section about-section"
+          id="about"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={sectionVariants}
+        >
           <div className="section-header about-header">
             <h2>About Me</h2>
           </div>
@@ -489,10 +712,17 @@ function App() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {siteData.education?.length ? (
-          <section className="section education-section reveal" id="education">
+          <motion.section
+            className="section education-section"
+            id="education"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={sectionVariants}
+          >
             <div className="section-header">
               <h2>Education</h2>
               <p>Academic background</p>
@@ -528,10 +758,17 @@ function App() {
                 ))}
               </div>
             </div>
-          </section>
+          </motion.section>
         ) : null}
 
-        <section className="section reveal" id="experience">
+        <motion.section
+          className="section"
+          id="experience"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.16 }}
+          variants={sectionVariants}
+        >
           <div className="section-header">
             <div className="experience-heading-block">
               <h2>Experience</h2>
@@ -553,10 +790,14 @@ function App() {
           <br></br>
           <div className="experience-list">
             {siteData.experience.map((item, index) => (
-              <article
+              <motion.article
                 key={`${item.role}-${item.company}`}
-                className="info-card experience-card reveal-card"
-                style={{ "--card-delay": `${index * 90}ms` }}
+                className="info-card experience-card"
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
               >
                 <div className="experience-row">
                   <div className="company-logo" aria-hidden="true">
@@ -591,24 +832,47 @@ function App() {
                     )}
                   </div>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        <section className="section reveal" id="projects">
+        <motion.section
+          className="section"
+          id="projects"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.16 }}
+          variants={sectionVariants}
+        >
           <div className="section-header">
             <h2>Selected Projects</h2>
             <p>Projects in Class</p>
           </div>
           <div className="project-list">
             {siteData.projects.map((project, index) => (
-              <article
+              <motion.article
                 key={project.name}
-                className="info-card project-row project-row-preview reveal-card"
+                className="info-card project-row project-row-preview"
                 role="button"
                 tabIndex={0}
-                style={{ "--card-delay": `${index * 100}ms` }}
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        y: -10,
+                        scale: 1.018,
+                        rotateX: -4,
+                        rotateY: 2,
+                        transition: { duration: 0.24, ease: MOTION_EASE },
+                      }
+                }
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
                 onClick={() => setExpandedProject(project)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
@@ -673,12 +937,19 @@ function App() {
                     ))}
                   </p>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
-        </section>
+        </motion.section>
 
-        <section className="section reveal" id="others">
+        <motion.section
+          className="section"
+          id="others"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.16 }}
+          variants={sectionVariants}
+        >
           <div className="section-header">
             <h2>Other Experience</h2>
             <p>Some interests and works</p>
@@ -712,14 +983,32 @@ function App() {
                       className={`other-column ${useTwoRows ? "is-two-rows" : "is-one-row"}`}
                     >
                       {columnItems.map((item, itemIndex) => (
-                        <article
+                        <motion.article
                           key={item.title}
-                          className="photo-card photo-card-preview reveal-card"
+                          className="photo-card photo-card-preview"
                           role="button"
                           tabIndex={0}
-                          style={{
-                            "--card-delay": `${(columnIndex * (useTwoRows ? 2 : 1) + itemIndex) * 90}ms`,
-                          }}
+                          custom={
+                            columnIndex * (useTwoRows ? 2 : 1) + itemIndex
+                          }
+                          variants={cardVariants}
+                          initial="hidden"
+                          whileInView="visible"
+                          viewport={{ once: true, amount: 0.2 }}
+                          whileHover={
+                            shouldReduceMotion
+                              ? undefined
+                              : {
+                                  y: -10,
+                                  transition: {
+                                    duration: 0.24,
+                                    ease: MOTION_EASE,
+                                  },
+                                }
+                          }
+                          whileTap={
+                            shouldReduceMotion ? undefined : { scale: 0.995 }
+                          }
                           onClick={() => setExpandedOtherExperience(item)}
                           onKeyDown={(event) => {
                             if (event.key === "Enter" || event.key === " ") {
@@ -764,7 +1053,7 @@ function App() {
                               </svg>
                             </div>
                           </div>
-                        </article>
+                        </motion.article>
                       ))}
                     </div>
                   ))}
@@ -801,145 +1090,216 @@ function App() {
               </div>
             ) : null}
           </div>
-        </section>
+        </motion.section>
       </main>
 
-      {expandedProject ? (
-        <div
-          className="project-modal-backdrop"
-          onClick={() => setExpandedProject(null)}
-        >
-          <article
-            className="info-card project-row-expanded"
-            onClick={(event) => event.stopPropagation()}
+      <AnimatePresence>
+        {expandedProject ? (
+          <motion.div
+            className="project-modal-backdrop"
+            onClick={() => setExpandedProject(null)}
+            variants={modalBackdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           >
-            <button
-              className="project-modal-close"
-              onClick={() => setExpandedProject(null)}
-              aria-label="Close project preview"
-              type="button"
+            <motion.article
+              className="info-card project-row-expanded"
+              onClick={(event) => event.stopPropagation()}
+              variants={modalPanelVariants}
             >
-              ×
-            </button>
-            <ProgressiveImage
-              className="project-thumb project-thumb-expanded"
-              src={expandedProject.image}
-              alt={expandedProject.name}
-              imgClassName="project-thumb-image"
-              eager
-              objectFit="contain"
-            >
-              {expandedProject.image ? (
-                <div className="project-thumb-glow" aria-hidden="true" />
-              ) : null}
-            </ProgressiveImage>
-            <div className="project-modal-content">
-              <div className="project-head-expanded">
-                <h3 className="project-title">{expandedProject.name}</h3>
-                {expandedProject.role ? (
-                  <p className="project-role project-role-expanded">
-                    {expandedProject.role}
-                  </p>
+              <button
+                className="project-modal-close"
+                onClick={() => setExpandedProject(null)}
+                aria-label="Close project preview"
+                type="button"
+              >
+                ×
+              </button>
+              <ProgressiveImage
+                className="project-thumb project-thumb-expanded"
+                src={expandedProject.image}
+                alt={expandedProject.name}
+                imgClassName="project-thumb-image"
+                eager
+                objectFit="contain"
+              >
+                {expandedProject.image ? (
+                  <div className="project-thumb-glow" aria-hidden="true" />
                 ) : null}
-                {Array.isArray(expandedProject.stack) &&
-                expandedProject.stack.length ? (
-                  <div className="project-stack project-stack-expanded">
-                    {expandedProject.stack.map((item) => (
-                      <span
-                        className="project-chip"
-                        key={`${expandedProject.name}-expanded-${item}`}
-                      >
-                        {item}
+              </ProgressiveImage>
+              <div className="project-modal-content">
+                <div className="project-head-expanded">
+                  <h3 className="project-title">{expandedProject.name}</h3>
+                  {expandedProject.role ? (
+                    <p className="project-role project-role-expanded">
+                      {expandedProject.role}
+                    </p>
+                  ) : null}
+                  {Array.isArray(expandedProject.stack) &&
+                  expandedProject.stack.length ? (
+                    <div className="project-stack project-stack-expanded">
+                      {expandedProject.stack.map((item) => (
+                        <span
+                          className="project-chip"
+                          key={`${expandedProject.name}-expanded-${item}`}
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="project-links">
+                    {Object.entries(getProjectLinks(expandedProject)).map(
+                      ([key, value]) => renderProjectLink(key, value),
+                    )}
+                  </div>
+                </div>
+                <p className="card-summary project-summary-expanded">
+                  {expandedProject.description
+                    .split("\n")
+                    .map((line, index) => (
+                      <span key={`${expandedProject.name}-line-${index}`}>
+                        {line}
+                        {index <
+                        expandedProject.description.split("\n").length - 1 ? (
+                          <br />
+                        ) : null}
                       </span>
                     ))}
-                  </div>
-                ) : null}
-                <div className="project-links">
-                  {Object.entries(getProjectLinks(expandedProject)).map(
-                    ([key, value]) => renderProjectLink(key, value),
-                  )}
-                </div>
-              </div>
-              <p className="card-summary project-summary-expanded">
-                {expandedProject.description.split("\n").map((line, index) => (
-                  <span key={`${expandedProject.name}-line-${index}`}>
-                    {line}
-                    {index <
-                    expandedProject.description.split("\n").length - 1 ? (
-                      <br />
-                    ) : null}
-                  </span>
-                ))}
-              </p>
-            </div>
-          </article>
-        </div>
-      ) : null}
-
-      {expandedOtherExperience ? (
-        <div
-          className="other-modal-backdrop"
-          onClick={() => setExpandedOtherExperience(null)}
-        >
-          <article
-            className="photo-card-expanded"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              className="other-modal-close"
-              onClick={() => setExpandedOtherExperience(null)}
-              aria-label="Close details"
-              type="button"
-            >
-              ×
-            </button>
-            <div className="photo-media photo-media-expanded">
-              <ProgressiveImage
-                className={`photo photo-expanded ${expandedOtherExperience.photoClass || ""}`}
-                aria-hidden="true"
-                src={expandedOtherExperience.image}
-                alt=""
-                imgClassName="photo-image"
-                eager
-              />
-              {expandedOtherExperience.period ? (
-                <p className="photo-period-overlay">
-                  {expandedOtherExperience.period}
                 </p>
+              </div>
+            </motion.article>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {expandedOtherExperience ? (
+          <motion.div
+            className="other-modal-backdrop"
+            onClick={() => setExpandedOtherExperience(null)}
+            variants={modalBackdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div
+              className="other-modal-shell"
+              onClick={(event) => event.stopPropagation()}
+            >
+              {otherExperiences.length > 1 ? (
+                <>
+                  <button
+                    className="other-modal-nav other-modal-nav-left"
+                    onClick={() => moveOtherExperienceBy(-1)}
+                    aria-label="Previous experience"
+                    type="button"
+                    disabled={expandedOtherExperienceIndex <= 0}
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M15.5 19 8.5 12l7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    className="other-modal-nav other-modal-nav-right"
+                    onClick={() => moveOtherExperienceBy(1)}
+                    aria-label="Next experience"
+                    type="button"
+                    disabled={
+                      expandedOtherExperienceIndex >=
+                      otherExperiences.length - 1
+                    }
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8.5 5 15.5 12l-7 7" />
+                    </svg>
+                  </button>
+                </>
               ) : null}
-              <h3 className="photo-title-overlay">
-                {expandedOtherExperience.title}
-                {expandedOtherExperience.subtitle ? (
-                  <span className="photo-subtitle-overlay">
-                    {expandedOtherExperience.subtitle}
-                  </span>
-                ) : null}
-              </h3>
-            </div>
-            <div className="photo-info">
-              {Array.isArray(expandedOtherExperience.caption) ? (
-                <ul className="photo-caption-list">
-                  {expandedOtherExperience.caption.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>{expandedOtherExperience.caption}</p>
-              )}
-              {expandedOtherExperience.website ? (
-                <a
-                  className="photo-link"
-                  href={expandedOtherExperience.website}
-                  target="_blank"
-                  rel="noreferrer"
+              <motion.article
+                className="photo-card-expanded"
+                variants={modalPanelVariants}
+              >
+                <button
+                  className="other-modal-close"
+                  onClick={() => setExpandedOtherExperience(null)}
+                  aria-label="Close details"
+                  type="button"
                 >
-                  Official Site
-                </a>
-              ) : null}
+                  ×
+                </button>
+                <AnimatePresence
+                  custom={otherExperienceDirection}
+                  mode="wait"
+                  initial={false}
+                >
+                  <motion.div
+                    key={expandedOtherExperience.title}
+                    className="other-modal-stage"
+                    custom={otherExperienceDirection}
+                    variants={otherExperienceSwapVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                  >
+                    <div className="photo-media photo-media-expanded">
+                      <ProgressiveImage
+                        className={`photo photo-expanded ${expandedOtherExperience.photoClass || ""}`}
+                        aria-hidden="true"
+                        src={expandedOtherExperience.image}
+                        alt=""
+                        imgClassName="photo-image"
+                        eager
+                      />
+                      {otherExperiences.length > 1 ? (
+                        <p className="other-modal-progress">
+                          {expandedOtherExperienceIndex + 1} /{" "}
+                          {otherExperiences.length}
+                        </p>
+                      ) : null}
+                      {expandedOtherExperience.period ? (
+                        <p className="photo-period-overlay">
+                          {expandedOtherExperience.period}
+                        </p>
+                      ) : null}
+                      <h3 className="photo-title-overlay">
+                        {expandedOtherExperience.title}
+                        {expandedOtherExperience.subtitle ? (
+                          <span className="photo-subtitle-overlay">
+                            {expandedOtherExperience.subtitle}
+                          </span>
+                        ) : null}
+                      </h3>
+                    </div>
+                    <div className="photo-info">
+                      {Array.isArray(expandedOtherExperience.caption) ? (
+                        <ul className="photo-caption-list">
+                          {expandedOtherExperience.caption.map((line) => (
+                            <li key={line}>{line}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>{expandedOtherExperience.caption}</p>
+                      )}
+                      {expandedOtherExperience.website ? (
+                        <a
+                          className="photo-link"
+                          href={expandedOtherExperience.website}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Related Site
+                        </a>
+                      ) : null}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </motion.article>
             </div>
-          </article>
-        </div>
-      ) : null}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
 
       <footer className="footer">
         <div className="footer-content">
@@ -978,16 +1338,43 @@ function App() {
         </div>
       </footer>
 
-      <button
-        className={`back-to-top ${showBackToTop ? "is-visible" : ""}`}
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Back to top"
-        type="button"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M18 15l-6-6-6 6" />
-        </svg>
-      </button>
+      <AnimatePresence>
+        {showBackToTop ? (
+          <motion.button
+            className="back-to-top is-visible"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Back to top"
+            type="button"
+            initial={{
+              opacity: 0,
+              y: shouldReduceMotion ? 0 : 14,
+              scale: shouldReduceMotion ? 1 : 0.92,
+            }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: shouldReduceMotion ? 0 : 10,
+              scale: shouldReduceMotion ? 1 : 0.96,
+            }}
+            transition={{ duration: 0.24, ease: MOTION_EASE }}
+            whileHover={
+              shouldReduceMotion
+                ? undefined
+                : {
+                    y: -6,
+                    scale: 1.08,
+                    rotate: -6,
+                    transition: { duration: 0.18 },
+                  }
+            }
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 15l-6-6-6 6" />
+            </svg>
+          </motion.button>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

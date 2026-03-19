@@ -121,7 +121,8 @@ export const siteData = {
       image: pg_img,
     },
     {
-      title: "NCCU Chen Sheng Chorus (Tenor)",
+      title: "NCCU Chen Sheng Chorus",
+      subtitle: "Tenor",
       expandIcon: "more-circle",
       caption: [
         "Participated as a tenor during master's studies at NCCU.",
@@ -131,8 +132,11 @@ export const siteData = {
       image: chros_img,
     },
     {
-      title: "Portfolio",
+      title: "Portfolio Website",
+      subtitle: "(this page)",
+      photoClass: "photo-portfolio",
       expandIcon: "more-circle",
+      website: "https://weipo0116.github.io/my-portfolio/",
       caption: [
         "Built an interactive one-page portfolio with custom section navigation.",
         "Implemented responsive layout, carousel interactions, and data-driven content rendering.",
