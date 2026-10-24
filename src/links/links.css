@@ -1,0 +1,258 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap");
+
+/* Same palette as the main site */
+.links-page {
+  --primary: #4c6fff;
+  --accent: #22d3ee;
+  --text: #111b3d;
+  --muted: #4b5b86;
+  --border: #cfe6ff;
+  --card: rgba(255, 255, 255, 0.72);
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  padding: 56px 16px 40px;
+  color: var(--text);
+  background: radial-gradient(circle at 20% 0%, #dff1ff, #f2f7ff 60%);
+}
+
+.links-shell {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Header */
+.links-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.links-avatar {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 18px 40px rgba(27, 58, 120, 0.2);
+}
+
+.links-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid #fff;
+}
+
+.links-name {
+  margin: 20px 0 6px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.9rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.links-role {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.links-org {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.links-bio {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+/* Cards */
+.links-list {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.links-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  box-shadow: 0 10px 28px rgba(27, 58, 120, 0.08);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.links-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(76, 111, 255, 0.45);
+  box-shadow: 0 16px 36px rgba(27, 58, 120, 0.14);
+}
+
+.links-card:focus-visible,
+.links-pill:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.links-card-icon {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  background: rgba(76, 111, 255, 0.1);
+}
+
+.links-card-icon.is-lab {
+  color: #0f8a5f;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.links-card-icon.is-resume {
+  color: #0e7490;
+  background: rgba(34, 211, 238, 0.14);
+}
+
+.links-card-icon svg,
+.links-card-arrow svg,
+.links-pill svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.links-pill svg.fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.links-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.links-card-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.links-card-subtitle {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.links-card-arrow {
+  flex: 0 0 auto;
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.links-card-arrow svg {
+  width: 20px;
+  height: 20px;
+}
+
+.links-card:hover .links-card-arrow {
+  color: var(--primary);
+  transform: translateX(3px);
+}
+
+/* Social pills */
+.links-social {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.links-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.links-pill svg {
+  width: 16px;
+  height: 16px;
+}
+
+.links-pill:hover {
+  border-color: rgba(76, 111, 255, 0.45);
+  color: var(--primary);
+}
+
+.links-footer {
+  margin: 28px 0 0;
+  text-align: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+/* On roomy desktop screens, sit the column in the optical center */
+@media (min-width: 721px) and (min-height: 760px) {
+  .links-page {
+    align-items: center;
+    padding-top: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .links-card,
+  .links-card-arrow {
+    transition: none;
+  }
+  .links-card:hover {
+    transform: none;
+  }
+}
