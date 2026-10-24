@@ -30,3 +30,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Private drafts — keep out of the public repo
+面試履歷/
