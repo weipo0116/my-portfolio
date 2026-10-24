@@ -2056,10 +2056,35 @@ body {
     text-align: center;
   }
 
-  .card-period,
   .card-summary,
   .card-summary-list {
     display: none;
+  }
+
+  /* Keep dates visible on phones so each role still reads as a timeline */
+  .card-period {
+    margin: 4px 0 0;
+    text-align: center;
+  }
+
+  .hamburger {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .nav-links-mobile a,
+  .nav-links-mobile button {
+    min-height: 44px;
+  }
+
+  .back-to-top {
+    right: 16px;
+    bottom: 20px;
+  }
+
+  .footer {
+    padding-bottom: 96px;
   }
 
   .project-list,

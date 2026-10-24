@@ -11,6 +11,8 @@ import chros_img from "./assets/others_img/chros.jpg";
 import pg_img from "./assets/others_img/PG.jpg";
 import nccu_img from "./assets/others_img/nccu.png";
 import firstbankLogo from "./assets/firstbank_logo.svg";
+import lineLogoLocal from "./assets/icon/line_icon.png";
+import aatLogoLocal from "./assets/icon/aat_icon.png";
 
 export const siteData = {
   name: "Webber Lai",
@@ -24,7 +26,7 @@ export const siteData = {
   heroHighlights: [
     "AI Management Associate, Digital Banking Division @ First Bank.",
     "M.S. CS @ NCCU — Computer Graphics & Data Visualization.",
-    "Built interactive visual/data experiences (React, D3.js, Power BI) end-to-end.",
+    "Built interactive visual/data experiences (React, D3.js, Power BI) end‑to‑end.",
   ],
   contacts: {
     github: "https://github.com/weipo0116",
@@ -84,6 +86,7 @@ export const siteData = {
       role: "Social Content BD Team Intern | Social Content Strategy & Analytics",
       company: "LINE Taiwan Limited",
       logo: "https://vos.line-scdn.net/landpress-content-v2-tqq6mwxs5qlx5cg0nutma2bg/1c7f9ad5a0d2415cab739ae6e9f71e35-large.png?updatedAt=1752734110000",
+      logoFallback: lineLogoLocal,
       period: "Oct 2022 - Aug 2023",
       summary: [
         "Built and owned monthly performance reporting, translating data into actionable insights for management.",
@@ -97,6 +100,7 @@ export const siteData = {
       role: "Data Science Consulting Intern",
       company: "Advant Analytics Tactics Ltd., AAT",
       logo: "https://system.netsuite.com/core/media/media.nl?id=14523301&c=835472&h=IG4EQfcTtnBchNGzUxALv1tVswtgqcyE8vTxEwOoFw9ekkQs",
+      logoFallback: aatLogoLocal,
       period: "Apr 2022 - Sep 2022",
       summary: [
         "Researched and documented front-end development workflows in KNIME, covering HTML, CSS, JavaScript, Bootstrap, and reusable web nodes.",

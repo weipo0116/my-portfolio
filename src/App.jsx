@@ -127,13 +127,17 @@ const ProgressiveImage = ({
   eager = false,
   objectFit = "cover",
   objectPosition = "center",
+  fallbackSrc,
   children,
   ...rest
 }) => {
   const imageRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(() => !src);
+  const [failed, setFailed] = useState(false);
+  const currentSrc = failed && fallbackSrc ? fallbackSrc : src;
 
   useEffect(() => {
+    setFailed(false);
     if (!src) {
       setIsLoaded(true);
       return;
@@ -156,17 +160,24 @@ const ProgressiveImage = ({
       )}
       {...rest}
     >
-      {src ? (
+      {currentSrc ? (
         <img
           ref={imageRef}
-          src={src}
+          src={currentSrc}
           alt={alt}
           className={joinClasses("progressive-image-asset", imgClassName)}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
           fetchpriority={eager ? "high" : "auto"}
           onLoad={() => setIsLoaded(true)}
-          onError={() => setIsLoaded(true)}
+          onError={() => {
+            // External logos can disappear or block hotlinking; swap in the bundled copy once.
+            if (fallbackSrc && !failed) {
+              setFailed(true);
+              return;
+            }
+            setIsLoaded(true);
+          }}
           style={{ objectFit, objectPosition }}
         />
       ) : null}
@@ -291,6 +302,23 @@ function App() {
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  // Sections only exist after React renders, so the browser's native jump to
+  // a URL hash (e.g. /my-portfolio/#lab from the Links page) finds nothing.
+  useEffect(() => {
+    const jumpToHash = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ block: "start" });
+    };
+    const timer = window.setTimeout(jumpToHash, 120);
+    window.addEventListener("hashchange", jumpToHash);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("hashchange", jumpToHash);
+    };
+  }, []);
 
   const handleNavSelect = (id, closeMobileMenu = false) => {
     if (closeMobileMenu) {
@@ -824,6 +852,7 @@ function App() {
                       <ProgressiveImage
                         className="company-logo-shell"
                         src={item.logo}
+                        fallbackSrc={item.logoFallback}
                         alt=""
                         imgClassName="company-logo-image"
                         objectFit="contain"
