@@ -13,7 +13,7 @@ export const ui = {
       education: "Education",
       experience: "Experience",
       others: "Others",
-      projects: "Projects",
+      projects: "Work",
       lab: "Lab",
     },
     navAria: "Main navigation",

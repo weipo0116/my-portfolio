@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap");
 
 :root {
   --bg: #f2f7ff;
@@ -85,7 +85,7 @@ body {
 }
 
 .brand {
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   font-weight: 700;
   font-size: 20px;
   letter-spacing: 0.04em;
@@ -95,7 +95,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
-  font-family: "Instrument Sans", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
 }
 
 .nav-links-mobile {
@@ -171,7 +171,7 @@ body {
 }
 
 .hero-text h1 {
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   font-size: clamp(2.6rem, 4vw, 4.2rem);
   margin: 0 0 16px;
   line-height: 1.05;
@@ -186,7 +186,7 @@ body {
 }
 
 .hero-kicker {
-  font-family: "Instrument Sans", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   text-transform: uppercase;
   letter-spacing: 0.3em;
   font-size: 12px;
@@ -384,7 +384,7 @@ body {
 }
 
 .avatar-initials {
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   font-weight: 700;
   font-size: 48px;
   color: #fff;
@@ -407,7 +407,7 @@ body {
   align-items: baseline;
   gap: 12px;
   margin-bottom: 32px;
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
 }
 
 .about-header {
@@ -515,7 +515,7 @@ body {
 }
 
 .about-content h2 {
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   font-size: clamp(2rem, 2.8vw, 2.8rem);
   margin: 0 0 16px;
 }
@@ -1695,7 +1695,7 @@ body {
 }
 
 .footer-heading {
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 20px;
@@ -2269,7 +2269,7 @@ body {
 
 .work-kicker {
   margin: 0 0 14px;
-  font-family: "Instrument Sans", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   text-transform: uppercase;
   letter-spacing: 0.3em;
   font-size: 12px;
@@ -2278,7 +2278,7 @@ body {
 
 .work-hero-title {
   margin: 0;
-  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--font);
   font-size: clamp(2.4rem, 5.6vw, 4.4rem);
   line-height: 1.04;
   letter-spacing: -0.035em;

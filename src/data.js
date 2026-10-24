@@ -1,18 +1,18 @@
 // src/data.js
-import selfImage from "./assets/self.jpg";
-import selfImage2 from "./assets/MIT_me.jpg";
-import samplePhoto from "./assets/raccoon.png";
-import thesisTeaser from "./assets/project_img/thesis_teaser.png";
-import vangoph_teaser from "./assets/project_img/vangoph_teaser.png";
-import HCI_teaser from "./assets/project_img/HCI_teaser.png";
-import ds_poster from "./assets/project_img/ds_poster.png";
-import PR_img from "./assets/project_img/PR_img.png";
-import chros_img from "./assets/others_img/chros.jpg";
-import pg_img from "./assets/others_img/PG.jpg";
-import nccu_img from "./assets/others_img/nccu.png";
+import selfImage from "./assets/opt/self.webp";
+import selfImage2 from "./assets/opt/mit_me.webp";
+import samplePhoto from "./assets/opt/raccoon.webp";
+import thesisTeaser from "./assets/opt/thesis_teaser.webp";
+import vangoph_teaser from "./assets/opt/vangoph_teaser.webp";
+import HCI_teaser from "./assets/opt/hci_teaser.webp";
+import ds_poster from "./assets/opt/ds_poster.webp";
+import PR_img from "./assets/opt/pr_img.webp";
+import chros_img from "./assets/opt/chorus.webp";
+import pg_img from "./assets/opt/pg.webp";
+import nccu_img from "./assets/opt/nccu.webp";
 import firstbankLogo from "./assets/firstbank_logo.svg";
-import lineLogoLocal from "./assets/icon/line_icon.png";
-import aatLogoLocal from "./assets/icon/aat_icon.png";
+import lineLogoLocal from "./assets/opt/line_icon.webp";
+import aatLogoLocal from "./assets/opt/aat_icon.webp";
 
 export const siteData = {
   name: "Webber Lai",

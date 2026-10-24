@@ -20,7 +20,7 @@
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
-  font: 600 14px/1 "Instrument Sans", system-ui, "PingFang TC", "Noto Sans TC", sans-serif;
+  font: 600 14px/1 var(--font);
   letter-spacing: 0.02em;
   cursor: pointer;
   transition:

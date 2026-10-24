@@ -1,0 +1,494 @@
+/* src/system.css — design system layer (loaded after App.css).
+   Neutral surfaces, one accent, one type family, very few boxes. */
+
+:root {
+  --font: "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei",
+    system-ui, -apple-system, sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.2s;
+  --dur: 0.45s;
+
+  --bg: #fbfbfd;
+  --bg-soft: #f5f5f7;
+  --surface: #ffffff;
+  --surface-light: #f2f2f5;
+  --primary: #2456d6;
+  --accent: #2456d6;
+  --text: #1d1d1f;
+  --muted: #6e6e73;
+  --border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+  --chip-bg: rgba(0, 0, 0, 0.05);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+}
+
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --bg-soft: #0b0b0c;
+  --surface: #161617;
+  --surface-light: #141415;
+  --primary: #5b8cff;
+  --accent: #5b8cff;
+  --text: #f5f5f7;
+  --muted: #a1a1a6;
+  --border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  --chip-bg: rgba(255, 255, 255, 0.08);
+  background-color: #000;
+}
+
+body,
+:root[data-theme="dark"] body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  letter-spacing: -0.005em;
+}
+
+.page,
+:root[data-theme="dark"] .page {
+  background: var(--bg);
+}
+
+/* ── Nav: thin, translucent, sentence case ── */
+.nav,
+:root[data-theme="dark"] .nav {
+  padding: 12px 5vw;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.nav-links {
+  gap: 26px;
+}
+
+.nav-links a,
+.nav-links button {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  color: color-mix(in srgb, var(--text) 78%, transparent);
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  color: var(--text);
+}
+
+.nav-links a.is-active,
+.nav-links button.is-active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Hero: big statement, no photo wash ── */
+.hero,
+:root[data-theme="dark"] .hero {
+  background: var(--bg);
+  min-height: 100svh;
+}
+
+.hero::before,
+.hero::after,
+:root[data-theme="dark"] .hero::before,
+:root[data-theme="dark"] .hero::after {
+  display: none;
+}
+
+.hero h1 {
+  font-size: clamp(3.2rem, 7.4vw, 6.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+.hero-title,
+:root[data-theme="dark"] .hero-title {
+  margin-top: 14px;
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--primary);
+}
+
+.hero-kicker,
+.work-kicker {
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.hero-tagline {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.hero-highlights {
+  color: color-mix(in srgb, var(--text) 85%, transparent);
+  font-size: 1.02rem;
+}
+
+.hero-avatar {
+  width: min(340px, 72vw);
+  height: min(340px, 72vw);
+  background: var(--surface-light);
+  box-shadow: none;
+}
+
+.avatar-ring {
+  display: none;
+}
+
+/* Buttons: one solid pill + one text link */
+.hero-cta {
+  padding: 12px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.hero-cta-primary,
+:root[data-theme="dark"] .hero-cta-primary,
+.resume-link-anchor,
+:root[data-theme="dark"] .resume-link-anchor {
+  background: var(--primary);
+  color: #fff;
+  opacity: 1;
+  box-shadow: none;
+}
+
+.hero-cta-primary:hover,
+.resume-link-anchor:hover {
+  background: color-mix(in srgb, var(--primary) 88%, #000);
+  box-shadow: none;
+  transform: none;
+}
+
+.hero-cta-secondary,
+:root[data-theme="dark"] .hero-cta-secondary {
+  background: transparent;
+  color: var(--primary);
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.hero-cta-secondary:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.icon-link,
+:root[data-theme="dark"] .icon-link {
+  background: var(--chip-bg);
+  border: 0;
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+}
+
+.icon-link:hover {
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+/* ── Sections: more air, larger titles ── */
+.main {
+  padding-top: 40px;
+}
+
+.section {
+  margin-bottom: clamp(96px, 12vw, 160px);
+}
+
+.section-header {
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+/* ── Surfaces: soft fills instead of bordered, shadowed boxes ── */
+.info-card,
+.education-standalone,
+.photo-card-preview {
+  background: var(--surface-light);
+  border: 0;
+  box-shadow: none;
+  border-radius: var(--radius-lg);
+}
+
+.info-card {
+  padding: clamp(24px, 3vw, 40px);
+}
+
+.education-standalone {
+  padding: clamp(24px, 3vw, 40px);
+}
+
+.experience-card {
+  min-height: 0;
+}
+
+/* Logos become small marks, not big white tiles */
+.company-logo {
+  flex: 0 0 88px;
+  max-width: 88px;
+  aspect-ratio: 1;
+  align-self: flex-start;
+  border-radius: 22px;
+}
+
+.company-logo-shell,
+:root[data-theme="dark"] .company-logo-shell {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 1px var(--border);
+  padding: 14px;
+}
+
+.experience-row {
+  gap: clamp(20px, 3vw, 36px);
+}
+
+.card-top h3 {
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.card-company {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.card-period,
+.education-period {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.card-summary-list li,
+.card-summary {
+  color: color-mix(in srgb, var(--text) 82%, transparent);
+  line-height: 1.65;
+}
+
+/* Chips & tags: neutral */
+.tag,
+.project-chip,
+:root[data-theme="dark"] .tag,
+:root[data-theme="dark"] .project-chip {
+  background: var(--chip-bg);
+  color: var(--text);
+  border: 0;
+  font-weight: 500;
+}
+
+.lab-status,
+:root[data-theme="dark"] .lab-status {
+  background: var(--chip-bg);
+  border: 0;
+}
+
+.lab-status.is-live {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+
+:root[data-theme="dark"] .lab-status.is-live {
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80;
+}
+
+.lab-detail dt {
+  color: var(--muted);
+}
+
+/* Projects: large media, quiet frame */
+.project-thumb,
+.project-thumb-expanded,
+:root[data-theme="dark"] .project-thumb-expanded {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+}
+
+.project-thumb-glow {
+  display: none;
+}
+
+/* Others carousel cards */
+.photo-card-preview {
+  overflow: hidden;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 22%, transparent);
+  transition:
+    width var(--dur) var(--ease-out),
+    background-color var(--dur-fast) ease;
+}
+
+.carousel-dot.is-active {
+  width: 24px;
+  background: var(--text);
+}
+
+.carousel-button {
+  width: 44px;
+  height: 44px;
+  background: var(--surface);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 0;
+}
+
+/* Modals */
+.project-row-expanded,
+.photo-card-expanded {
+  border: 0;
+  border-radius: var(--radius-lg);
+}
+
+/* Footer: quiet */
+.footer {
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.footer-heading {
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.footer-icon-link {
+  border: 0;
+  background: var(--chip-bg);
+}
+
+/* Work page title scale matches the hero */
+.work-hero-title {
+  font-size: clamp(3rem, 7vw, 5.8rem);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+/* Lab hover: no coloured glow, just lift */
+@media (hover: hover) {
+  .lab-card:hover,
+  :root[data-theme="dark"] .lab-card:hover {
+    border-color: transparent;
+    box-shadow: var(--shadow);
+  }
+}
+
+/* ── Mobile: full-screen menu with large type ── */
+@media (max-width: 720px) {
+  .nav-links-mobile.is-open {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    height: calc(100svh - 68px) !important;
+    margin: 0;
+    padding: 28px 28px 40px;
+    gap: 6px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    overflow-y: auto;
+  }
+
+  .nav-links-mobile button {
+    min-height: 56px;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--text);
+  }
+
+  .nav-links-mobile button.is-active {
+    color: var(--primary);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 13vw, 3.6rem);
+  }
+
+  .company-logo {
+    flex-basis: 72px;
+    max-width: 72px;
+    width: 72px;
+    align-self: center;
+  }
+}
+
+/* ── Page-to-page: cross-fade instead of a hard cut (supporting browsers) ── */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* Others modal: tall enough for the longest slide so paging never jumps */
+@media (min-width: 721px) {
+  .other-modal-stage {
+    min-height: min(620px, 80vh);
+  }
+}
+
+html[lang^="zh"] .education-degree {
+  word-break: keep-all;
+}
+
+.photo-card-preview .photo-info h3,
+:root[data-theme="dark"] .photo-card-preview .photo-info h3 {
+  color: var(--text);
+}
+
+.photo-subtitle {
+  color: var(--muted);
+}
+
+.about-photo {
+  box-shadow: none;
+  border-radius: var(--radius-lg);
+}
+
+.about-section + * {
+  border-top: 0;
+}
