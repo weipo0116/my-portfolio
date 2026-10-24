@@ -29,7 +29,8 @@ export const siteData = {
   contacts: {
     github: "https://github.com/weipo0116",
     linkedin: "https://www.linkedin.com/in/weipo-lai-webber/",
-    email: "mailto:weipo900116@gmail.com",
+    // Assembled at runtime so the plain address isn't sitting in the source for scrapers.
+    email: `mailto:${["weipo900116", "gmail.com"].join(String.fromCharCode(64))}`,
   },
   about: {
     intro:

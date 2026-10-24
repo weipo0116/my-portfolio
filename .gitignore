@@ -25,3 +25,8 @@ dist-ssr
 
 # Local resume files
 # resume.md
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
