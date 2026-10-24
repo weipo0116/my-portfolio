@@ -2489,7 +2489,6 @@ body {
 }
 
 /* Chinese: avoid single-character widows in short lines */
-html[lang^="zh"] .hero-highlights li,
 html[lang^="zh"] .education-degree,
 html[lang^="zh"] .card-top h3,
 html[lang^="zh"] .lab-title,
@@ -2505,4 +2504,28 @@ html[lang^="zh"] .work-hero-intro {
 
 :root[data-theme="dark"] {
   background-color: #07090f;
+}
+
+html[lang^="zh"] .hero-highlights li {
+  text-wrap: pretty;
+}
+
+/* Light-mode CTAs: deeper cyan end so white text stays legible across the gradient */
+.hero-cta-primary,
+.resume-link-anchor {
+  background: linear-gradient(135deg, #3d5ae6, #0e7fa3);
+  opacity: 1;
+}
+
+.other-modal-close {
+  width: 44px;
+  height: 44px;
+}
+
+.lab-status.is-live {
+  color: #0b7a52;
+}
+
+:root[data-theme="dark"] .lab-status.is-live {
+  color: #4ade9a;
 }
