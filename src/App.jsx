@@ -340,7 +340,7 @@ function App() {
     if (isRepoUnreleased(href)) {
       return (
         <span className="project-meta-link is-unreleased" key={label}>
-          {label}: {href}
+          {label === "repo" ? href : `${label}: ${href}`}
         </span>
       );
     }
@@ -353,7 +353,7 @@ function App() {
           rel="noreferrer"
           key={label}
         >
-          {label}
+          {label === "repo" ? "Check on GitHub" : label}
         </a>
       );
     }
@@ -466,6 +466,37 @@ function App() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [expandedOtherExperience, expandedProject, expandedOtherExperienceIndex]);
+
+  // Lock page scroll behind an open modal so the wheel/touch stays inside it.
+  const isModalOpen = Boolean(expandedOtherExperience || expandedProject);
+  useEffect(() => {
+    if (!isModalOpen) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [isModalOpen]);
+
+  // Mobile menu: close on Escape, outside tap, or page scroll.
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const close = () => setMobileMenuOpen(false);
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") close();
+    };
+    const onPointerDown = (event) => {
+      if (!event.target.closest?.(".nav")) close();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("scroll", close, { passive: true });
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("scroll", close);
+    };
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     const sectionIds = [

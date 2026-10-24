@@ -2061,6 +2061,17 @@ body {
     display: none;
   }
 
+  /* ...but the expanded project modal must still show its description */
+  .card-summary.project-summary-expanded {
+    display: block;
+  }
+
+  .project-modal-close,
+  .other-modal-close {
+    width: 44px;
+    height: 44px;
+  }
+
   /* Keep dates visible on phones so each role still reads as a timeline */
   .card-period {
     margin: 4px 0 0;
@@ -2190,10 +2201,6 @@ body {
     right: 8px;
   }
 
-  .back-to-top {
-    right: 16px;
-    bottom: 16px;
-  }
 }
 
 @media (max-aspect-ratio: 1 / 1) {
