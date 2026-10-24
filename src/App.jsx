@@ -706,104 +706,112 @@ function App({ page = "profile" }) {
               {siteData.location}
             </motion.p>
             <motion.div className="hero-text" variants={heroItemVariants}>
-              <p className="hero-kicker">{siteData.location}</p>
-              <h1>
-                {siteData.name}
-                <span className="hero-title">
-                  {typedTitle}
-                  <span className="typewriter-cursor" aria-hidden="true" />
-                </span>
-              </h1>
-              <p className="hero-tagline" style={{ whiteSpace: "pre-line" }}>
-                {siteData.tagline}
-              </p>
+              <div className="hero-text-inner">
+                <p className="hero-kicker">{siteData.location}</p>
+                <h1>
+                  {siteData.name}
+                  <span className="hero-title">
+                    {typedTitle}
+                    <span className="typewriter-cursor" aria-hidden="true" />
+                  </span>
+                </h1>
+                <p className="hero-tagline" style={{ whiteSpace: "pre-line" }}>
+                  {siteData.tagline}
+                </p>
 
-              {projectHighlights.length ? (
-                <ul className="hero-highlights">
-                  {projectHighlights.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-              ) : null}
+                {projectHighlights.length ? (
+                  <ul className="hero-highlights">
+                    {projectHighlights.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : null}
 
-              <div className="hero-actions">
-                <motion.button
-                  className="hero-cta hero-cta-primary"
-                  type="button"
-                  onClick={() => {
-                    window.location.href = PAGE_PATH.work;
-                  }}
-                  whileHover={heroButtonHover}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                >
-                  {t.viewWork}
-                </motion.button>
-                <motion.a
-                  className="hero-cta hero-cta-secondary"
-                  href={resumePdf}
-                  download="Webber_Lai_Resume.pdf"
-                  whileHover={heroButtonHover}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-                >
-                  {t.downloadResume}
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                  </svg>
-                </motion.a>
-              </div>
+                <div className="hero-actions">
+                  <motion.button
+                    className="hero-cta hero-cta-primary"
+                    type="button"
+                    onClick={() => {
+                      window.location.href = PAGE_PATH.work;
+                    }}
+                    whileHover={heroButtonHover}
+                    whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                  >
+                    {t.viewWork}
+                  </motion.button>
+                  <motion.a
+                    className="hero-cta hero-cta-secondary"
+                    href={resumePdf}
+                    download="Webber_Lai_Resume.pdf"
+                    whileHover={heroButtonHover}
+                    whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+                  >
+                    {t.downloadResume}
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                    </svg>
+                  </motion.a>
+                </div>
 
-              <div className="contact-row">
-                <motion.a
-                  className="icon-link"
-                  href={siteData.contacts.github}
-                  aria-label="GitHub"
-                  target="_blank"
-                  rel="noreferrer"
-                  whileHover={iconHover}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
-                >
-                  <IconGithub />
-                </motion.a>
-                <motion.a
-                  className="icon-link"
-                  href={siteData.contacts.linkedin}
-                  aria-label="LinkedIn"
-                  target="_blank"
-                  rel="noreferrer"
-                  whileHover={iconHover}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
-                >
-                  <IconLinkedIn />
-                </motion.a>
-                <motion.a
-                  className="icon-link"
-                  href={siteData.contacts.email}
-                  aria-label="Email"
-                  whileHover={iconHover}
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
-                >
-                  <IconMail />
-                </motion.a>
+                <div className="contact-row">
+                  <motion.a
+                    className="icon-link"
+                    href={siteData.contacts.github}
+                    aria-label="GitHub"
+                    target="_blank"
+                    rel="noreferrer"
+                    whileHover={iconHover}
+                    whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+                  >
+                    <IconGithub />
+                  </motion.a>
+                  <motion.a
+                    className="icon-link"
+                    href={siteData.contacts.linkedin}
+                    aria-label="LinkedIn"
+                    target="_blank"
+                    rel="noreferrer"
+                    whileHover={iconHover}
+                    whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+                  >
+                    <IconLinkedIn />
+                  </motion.a>
+                  <motion.a
+                    className="icon-link"
+                    href={siteData.contacts.email}
+                    aria-label="Email"
+                    whileHover={iconHover}
+                    whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+                  >
+                    <IconMail />
+                  </motion.a>
+                </div>
               </div>
             </motion.div>
 
             <motion.div className="hero-visual" variants={heroItemVariants}>
-              <ProgressiveImage
-                className="hero-avatar"
-                role="img"
-                aria-label={siteData.avatarAlt}
-                src={siteData.avatarImage}
-                alt=""
-                eager
-                imgClassName="hero-avatar-image"
-              >
-                <div className="avatar-ring" />
-                {!siteData.avatarImage && (
-                  <div className="avatar-initials">
-                    {getInitials(siteData.name)}
-                  </div>
-                )}
-              </ProgressiveImage>
+              <div className="hero-visual-inner">
+                <ProgressiveImage
+                  className="hero-avatar"
+                  role="img"
+                  aria-label={siteData.avatarAlt}
+                  src={siteData.avatarImage}
+                  alt=""
+                  eager
+                  imgClassName="hero-avatar-image"
+                >
+                  <div className="avatar-ring" />
+                  {!siteData.avatarImage && (
+                    <div className="avatar-initials">
+                      {getInitials(siteData.name)}
+                    </div>
+                  )}
+                </ProgressiveImage>
+              </div>
             </motion.div>
           </motion.div>
         </header>
@@ -1582,7 +1590,7 @@ function App({ page = "profile" }) {
       </footer>
 
       <AnimatePresence>
-        {showBackToTop ? (
+        {showBackToTop && !mobileMenuOpen ? (
           <motion.button
             className="back-to-top is-visible"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

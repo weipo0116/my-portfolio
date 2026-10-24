@@ -17,65 +17,56 @@ export const useScrollMotion = (scopeRef, deps) => {
     () => {
       const mm = gsap.matchMedia();
 
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // Hero recedes as you scroll past it: drifts up, softens, scales back.
-        // On large screens it is pinned for a beat so the portrait can open up
-        // before the page moves on (one deliberate "moment", not many).
-        const heroContent = scopeRef.current?.querySelector(".hero-content");
-        const heroVisual = scopeRef.current?.querySelector(".hero-visual");
-        const heroText = scopeRef.current?.querySelector(".hero-text");
-        if (heroContent) {
-          const wide = window.matchMedia("(min-width: 960px)").matches;
-          if (wide && heroVisual && heroText) {
-            const tl = gsap.timeline({
-              defaults: { ease: "none" },
-              scrollTrigger: {
-                trigger: ".hero",
-                start: "top top",
-                end: "+=55%",
-                scrub: 0.6,
-                pin: true,
-                anticipatePin: 1,
-              },
-            });
-            // fromTo + immediateRender:false: these elements also run a Framer
-            // entrance, so the scroll start state must be their *final* state,
-            // not whatever they were mid-entrance when this was created.
-            const settled = { immediateRender: false };
-            tl.fromTo(
-              heroText,
-              { y: 0, opacity: 1 },
-              { y: -48, opacity: 0, duration: 1, ...settled },
-              0,
-            )
-              .fromTo(
-                heroVisual,
-                { scale: 1, x: 0 },
-                { scale: 1.18, x: "-18vw", duration: 1, ...settled },
-                0,
-              )
-              .fromTo(
-                heroVisual,
-                { opacity: 1 },
-                { opacity: 0, duration: 0.35, ...settled },
-                0.75,
-              );
+      // Hero: one pinned "moment" on wide screens, a simple recede elsewhere.
+      // Targets are inner wrappers Framer never animates, so React re-renders
+      // (active nav, language) can't snap them back.
+      mm.add(
+        {
+          wide: "(min-width: 960px) and (prefers-reduced-motion: no-preference)",
+          narrow:
+            "(max-width: 959px) and (prefers-reduced-motion: no-preference)",
+        },
+        (context) => {
+          const root = scopeRef.current;
+          const hero = root?.querySelector(".hero");
+          if (!hero) return;
+          const text = root.querySelector(".hero-text-inner");
+          const visual = root.querySelector(".hero-visual-inner");
+          if (context.conditions.wide && text && visual) {
+            gsap
+              .timeline({
+                defaults: { ease: "none" },
+                scrollTrigger: {
+                  trigger: hero,
+                  start: "top top",
+                  end: "+=45%",
+                  scrub: 0.6,
+                  pin: true,
+                  anticipatePin: 1,
+                },
+              })
+              // Text lifts away; the portrait moves to centre and grows,
+              // then simply scrolls off with the page (no blank screen).
+              .to(text, { y: -56, opacity: 0, duration: 0.8 }, 0)
+              .to(visual, { x: "-20vw", scale: 1.22, duration: 1 }, 0);
           } else {
-            gsap.to(heroContent, {
+            const content = root.querySelector(".hero-content");
+            gsap.to(content, {
               yPercent: -10,
-              scale: 0.96,
               opacity: 0.25,
               ease: "none",
               scrollTrigger: {
-                trigger: ".hero",
+                trigger: hero,
                 start: "top top",
                 end: "bottom top",
                 scrub: 0.6,
               },
             });
           }
-        }
+        },
+      );
 
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
         // Work page title does the same, a little faster.
         const workHero = scopeRef.current?.querySelector(".work-hero-inner");
         if (workHero) {

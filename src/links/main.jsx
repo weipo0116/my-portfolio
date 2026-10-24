@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "../index.css";
+import "../tokens.css";
 import "./links.css";
 import LinksPage from "./LinksPage.jsx";
 import { applyInitialPrefs } from "../prefs.js";

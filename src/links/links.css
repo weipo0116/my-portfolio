@@ -2,14 +2,8 @@
 
 /* Same palette as the main site */
 .links-page {
-  --primary: #4c6fff;
-  --accent: #22d3ee;
-  --text: #111b3d;
-  --muted: #4b5b86;
-  --border: #cfe6ff;
-  --card: rgba(255, 255, 255, 0.72);
-  --chip-bg: rgba(76, 111, 255, 0.08);
-  --page-bg: radial-gradient(circle at 20% 0%, #dff1ff, #f2f7ff 60%);
+  --card: var(--surface-light);
+  --page-bg: var(--bg);
   position: relative;
 
   min-height: 100vh;
@@ -21,16 +15,6 @@
   background: var(--page-bg);
 }
 
-:root[data-theme="dark"] .links-page {
-  --primary: #8ea2ff;
-  --accent: #4fe3ff;
-  --text: #eef1f8;
-  --muted: #9aa5bf;
-  --border: rgba(255, 255, 255, 0.09);
-  --card: rgba(17, 22, 34, 0.72);
-  --chip-bg: rgba(142, 162, 255, 0.1);
-  --page-bg: radial-gradient(circle at 20% 0%, #10172a, #07090f 60%);
-}
 
 :root[data-theme="dark"] body {
   background-color: #07090f;
@@ -291,4 +275,65 @@
   .links-card:hover {
     transform: none;
   }
+}
+
+/* System alignment: quiet avatar, filled cards, neutral icons */
+.links-avatar {
+  background: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+.links-avatar img,
+:root[data-theme="dark"] .links-avatar img {
+  border: 0;
+}
+
+.links-name {
+  font-size: 2.2rem;
+  letter-spacing: -0.035em;
+}
+
+.links-role {
+  color: var(--text);
+}
+
+.links-org,
+.links-bio,
+.links-footer {
+  color: var(--muted);
+}
+
+.links-footer {
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.links-card {
+  border: 0;
+  background: var(--card);
+  box-shadow: none;
+  border-radius: 22px;
+  backdrop-filter: none;
+}
+
+.links-card:hover {
+  border-color: transparent;
+  box-shadow: var(--shadow);
+}
+
+.links-card-icon,
+.links-card-icon.is-lab,
+.links-card-icon.is-resume,
+:root[data-theme="dark"] .links-card-icon.is-lab,
+:root[data-theme="dark"] .links-card-icon.is-resume {
+  background: var(--chip-bg);
+  color: var(--text);
+}
+
+.links-pill {
+  border: 0;
+  background: var(--chip-bg);
 }
