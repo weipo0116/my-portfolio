@@ -807,7 +807,6 @@ function App() {
           >
             <div className="section-header">
               <h2>Education</h2>
-              <p>Academic background</p>
             </div>
             <div className="education-block education-standalone">
               <div className="education-timeline">
@@ -1033,7 +1032,6 @@ function App() {
           >
             <div className="section-header">
               <h2>Lab</h2>
-              <p>AI tools I&apos;m building</p>
             </div>
             {siteData.lab.intro ? (
               <p className="lab-intro">{siteData.lab.intro}</p>
@@ -1096,7 +1094,6 @@ function App() {
         >
           <div className="section-header">
             <h2>Other Experience</h2>
-            <p>Some interests and works</p>
           </div>
           <div
             className="carousel"
