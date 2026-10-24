@@ -10,10 +10,11 @@ import PR_img from "./assets/project_img/PR_img.png";
 import chros_img from "./assets/others_img/chros.jpg";
 import pg_img from "./assets/others_img/PG.jpg";
 import nccu_img from "./assets/others_img/nccu.png";
+import firstbankLogo from "./assets/firstbank_logo.svg";
 
 export const siteData = {
   name: "Webber Lai",
-  title: "Full Stack Developer",
+  title: "AI Management Associate",
   tagline:
     "It's easy to be different, but difficult to be better. \n 無法想像的畫面，就無法靠魔力實現 -《葬送的芙莉蓮》",
   location: "Taipei, Taiwan",
@@ -21,9 +22,9 @@ export const siteData = {
   avatarImage: selfImage,
   aboutImage: selfImage2,
   heroHighlights: [
+    "AI Management Associate, Digital Banking Division @ First Bank.",
     "M.S. CS @ NCCU — Computer Graphics & Data Visualization.",
-    "Built interactive visual/data experiences (React, D3.js) end-to-end.",
-    "Worked across product, design, and engineering to turn ideas into shipped features.",
+    "Built interactive visual/data experiences (React, D3.js, Power BI) end-to-end.",
   ],
   contacts: {
     github: "https://github.com/weipo0116",
@@ -32,9 +33,7 @@ export const siteData = {
   },
   about: {
     intro:
-      "Hi, I'm Webber Lai. I recently completed my M.S. in Computer Science at NCCU (Jan 2026).",
-    status:
-      "Open to full stack roles. I’m also interested in Product Manager (PM) opportunities where I can bridge user needs, engineering execution, and data insights.",
+      "Hi, I'm Webber Lai. I completed my M.S. in Computer Science at NCCU (Jan 2026), and joined First Bank as an AI Management Associate in the Digital Banking Division in Aug 2026.",
   },
   skills: [
     "Python",
@@ -45,12 +44,13 @@ export const siteData = {
     "Flask API",
     "Figma",
     "Docker",
+    "Power BI",
   ],
   education: [
     {
       degree: "M.S. in Computer Science",
       school: "National Chengchi University (NCCU)",
-      period: "Sep 2023 - Feb 2026",
+      period: "Sep 2023 - Jan 2026",
       note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Advisor: Ming-Te Chi.",
     },
     {
@@ -67,6 +67,18 @@ export const siteData = {
     },
   ],
   experience: [
+    {
+      role: "AI Management Associate | Digital Banking Division",
+      company: "First Commercial Bank (First Bank)",
+      logo: firstbankLogo,
+      period: "Aug 2026 - Present",
+      summary: [
+        "Joined the AI Management Associate program on Aug 10, 2026, rotating within the Digital Banking Division.",
+        "Building a monthly Power BI report on fraud-alert (警示) accounts, with Python preprocessing, so management can track trends and quickly pinpoint where increases come from.",
+        "Benchmarked digital account-opening journeys across multiple Taiwanese banks — UI flow, identity verification, and document resubmission — and presented key findings to leadership in Figma.",
+        "Turned customer-journey observations into concrete recommendations to reduce onboarding drop-off.",
+      ],
+    },
     {
       role: "Social Content BD Team Intern | Social Content Strategy & Analytics",
       company: "LINE Taiwan Limited",

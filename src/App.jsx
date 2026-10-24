@@ -715,7 +715,9 @@ function App() {
             />
             <div className="about-content">
               <p className="about-text">{siteData.about.intro}</p>
-              <p className="about-status">{siteData.about.status}</p>
+              {siteData.about.status ? (
+                <p className="about-status">{siteData.about.status}</p>
+              ) : null}
               <br />
               <div className="about-inline-skills-gap" />
               <div className="tag-list">
