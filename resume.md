@@ -35,6 +35,14 @@ _Exchange Program, CS & Engineering_
 
 ## Work Experience
 
+### First Commercial Bank (First Bank) || Aug 2026 - Present
+
+_AI Management Associate | Digital Banking Division_
+
+- Joined the AI Management Associate program on Aug 10, 2026, rotating within the Digital Banking Division.
+- Building a monthly Power BI report on fraud-alert accounts with Python preprocessing, helping management pinpoint sources of increase.
+- Benchmarked digital account-opening journeys across Taiwanese banks (UI, ID verification, resubmission); presented findings in Figma.
+
 ### LINE Taiwan Limited || Oct 2022 - Aug 2023
 
 _Social Content BD Team Intern | Social Content Strategy & Analytics_
@@ -82,4 +90,4 @@ Frameworks
 : React, Node.js, Flask API, Bootstrap, D3.js
 
 Tools & Cloud
-: Git, Docker, Figma
+: Git, Docker, Figma, Power BI
