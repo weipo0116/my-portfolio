@@ -471,10 +471,16 @@ function App() {
   const isModalOpen = Boolean(expandedOtherExperience || expandedProject);
   useEffect(() => {
     if (!isModalOpen) return undefined;
-    const previous = document.body.style.overflow;
+    // html, body both set overflow-x: hidden, so the window scrolls on <html>;
+    // lock both elements.
+    const root = document.documentElement;
+    const previousRoot = root.style.overflow;
+    const previousBody = document.body.style.overflow;
+    root.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = previous;
+      root.style.overflow = previousRoot;
+      document.body.style.overflow = previousBody;
     };
   }, [isModalOpen]);
 
@@ -779,8 +785,6 @@ function App() {
               {siteData.about.status ? (
                 <p className="about-status">{siteData.about.status}</p>
               ) : null}
-              <br />
-              <div className="about-inline-skills-gap" />
               <div className="tag-list">
                 {siteData.skills.map((skill) => (
                   <span key={skill} className="tag">
@@ -851,7 +855,6 @@ function App() {
             <div className="experience-heading-block">
               <h2>Experience</h2>
             </div>
-            <p>Work history</p>
           </div>
           <p className="resume-link">
             <a
@@ -865,7 +868,6 @@ function App() {
               Download my Résumé
             </a>
           </p>
-          <br></br>
           <div className="experience-list">
             {siteData.experience.map((item, index) => (
               <motion.article
@@ -926,7 +928,6 @@ function App() {
         >
           <div className="section-header">
             <h2>Selected Projects</h2>
-            <p>Projects in Class</p>
           </div>
           <div className="project-list">
             {siteData.projects.map((project, index) => (

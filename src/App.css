@@ -433,7 +433,7 @@ body {
 
 .resume-link {
   text-align: center;
-  margin: 0;
+  margin: 0 0 32px;
 }
 
 .resume-link-anchor {
@@ -541,6 +541,10 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.about-content .tag-list {
+  margin-top: 28px;
 }
 
 .tag {
@@ -1555,7 +1559,12 @@ body {
 }
 
 .photo-media-expanded {
-  height: 320px;
+  height: auto;
+  flex: 0 0 auto;
+}
+
+.photo-media-expanded .photo-expanded {
+  height: min(320px, 38vh);
 }
 
 .photo-media-expanded .photo-period-overlay {
@@ -1587,15 +1596,21 @@ body {
   color: #9fcbff;
 }
 
-.photo-media-expanded::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 42%;
-  background: linear-gradient(to top, rgba(8, 14, 30, 0.6), transparent);
-  pointer-events: none;
+/* No grey wash over the photo: in the expanded modal the title moves out of
+   the image and reads as a normal heading under it. */
+.photo-media-expanded .photo-title-overlay {
+  position: static;
+  max-width: none;
+  /* line up with the caption text (info padding 16px + list indent 18px) */
+  padding: 20px 24px 0 34px;
+  color: var(--text);
+  text-shadow: none;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.photo-media-expanded .photo-subtitle-overlay {
+  color: var(--primary);
 }
 
 .photo-expanded {
@@ -2182,6 +2197,10 @@ body {
 
   .photo-card-expanded .photo {
     height: 180px;
+  }
+
+  .photo-media-expanded .photo-title-overlay {
+    padding: 16px 16px 0 30px;
   }
 
   .photo-card-expanded .photo-info {
