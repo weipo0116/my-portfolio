@@ -802,7 +802,7 @@ function App({ page = "profile" }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.72, ease: MOTION_EASE }}
           >
-            <p className="hero-kicker">{t.work.kicker}</p>
+            <p className="work-kicker">{t.work.kicker}</p>
             <h1 className="work-hero-title">{t.work.title}</h1>
             <p className="work-hero-intro">{t.work.intro}</p>
           </motion.div>

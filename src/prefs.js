@@ -74,6 +74,10 @@ export const usePrefs = () => {
   }, []);
 
   const toggleTheme = useCallback(() => {
+    // Animate colours only while switching, so normal page loads stay instant.
+    const root = document.documentElement;
+    root.classList.add("theme-transition");
+    window.setTimeout(() => root.classList.remove("theme-transition"), 450);
     setTheme((current) => {
       const next = current === "dark" ? "light" : "dark";
       writeStored(THEME_KEY, next);

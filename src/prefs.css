@@ -1,0 +1,106 @@
+/* Language + theme toggles (shared by every page) */
+.prefs-toggles {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-end .prefs-toggles {
+  padding-left: 18px;
+  border-left: 1px solid var(--border);
+}
+
+.prefs-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font: 600 13px/1 "Instrument Sans", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.prefs-button:hover {
+  color: var(--text);
+  background: var(--chip-bg);
+  border-color: var(--border);
+}
+
+.prefs-button:active {
+  transform: scale(0.94);
+}
+
+.prefs-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Swap animation: label/icon crossfades with a small rotate, never a jump */
+.prefs-lang-label {
+  display: inline-block;
+  animation: prefs-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.prefs-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: rotate(-60deg) scale(0.6);
+  transition:
+    opacity 0.28s ease,
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.prefs-icon.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+.prefs-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes prefs-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Smooth theme change without animating every element on first paint */
+html.theme-transition,
+html.theme-transition * {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease !important;
+}
+
+@media (max-width: 720px) {
+  .prefs-button {
+    width: 44px;
+    height: 44px;
+  }
+}

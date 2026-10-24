@@ -1,5 +1,6 @@
 // src/PrefsToggles.jsx — language + light/dark switches for the top-right corner.
 import { ui } from "./i18n.js";
+import "./prefs.css";
 
 const SunIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

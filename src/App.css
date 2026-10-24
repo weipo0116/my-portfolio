@@ -85,7 +85,7 @@ body {
 }
 
 .brand {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   font-weight: 700;
   font-size: 20px;
   letter-spacing: 0.04em;
@@ -95,7 +95,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
-  font-family: "Instrument Sans", sans-serif;
+  font-family: "Instrument Sans", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
 .nav-links-mobile {
@@ -171,7 +171,7 @@ body {
 }
 
 .hero-text h1 {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   font-size: clamp(2.6rem, 4vw, 4.2rem);
   margin: 0 0 16px;
   line-height: 1.05;
@@ -186,7 +186,7 @@ body {
 }
 
 .hero-kicker {
-  font-family: "Instrument Sans", sans-serif;
+  font-family: "Instrument Sans", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.3em;
   font-size: 12px;
@@ -384,7 +384,7 @@ body {
 }
 
 .avatar-initials {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   font-weight: 700;
   font-size: 48px;
   color: #fff;
@@ -407,11 +407,11 @@ body {
   align-items: baseline;
   gap: 12px;
   margin-bottom: 32px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
 .about-header {
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto 32px;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -482,7 +482,7 @@ body {
 }
 
 .about-layout {
-  max-width: 1100px;
+  max-width: 1120px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 45% 55%;
@@ -515,7 +515,7 @@ body {
 }
 
 .about-content h2 {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   font-size: clamp(2rem, 2.8vw, 2.8rem);
   margin: 0 0 16px;
 }
@@ -1695,7 +1695,7 @@ body {
 }
 
 .footer-heading {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 20px;
@@ -2242,4 +2242,213 @@ body {
     height: auto;
     min-height: 0;
   }
+}
+
+/* ───────────────────────── Nav end: links + preferences ───────────────────────── */
+.brand a {
+  color: inherit;
+}
+
+.nav-end {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+/* ───────────────────────── Work page header ───────────────────────── */
+.work-hero {
+  padding: 168px 5vw 8px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.work-hero-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.work-kicker {
+  margin: 0 0 14px;
+  font-family: "Instrument Sans", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  font-size: 12px;
+  color: var(--primary);
+}
+
+.work-hero-title {
+  margin: 0;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: clamp(2.4rem, 5.6vw, 4.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--text);
+}
+
+.work-hero-intro {
+  margin: 20px 0 0;
+  max-width: 46ch;
+  font-size: clamp(1.02rem, 1.4vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.page-work .main {
+  padding-top: 48px;
+}
+
+@media (max-width: 720px) {
+  .nav-end {
+    gap: 4px;
+  }
+
+  .nav-end .prefs-toggles {
+    order: -1;
+    padding-left: 0;
+    border-left: 0;
+    gap: 2px;
+  }
+
+  .work-hero {
+    padding: 132px 20px 0;
+  }
+
+  .page-work .main {
+    padding-top: 36px;
+  }
+}
+
+/* ───────────────────────── Dark theme ───────────────────────── */
+:root {
+  --chip-bg: rgba(76, 111, 255, 0.08);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #07090f;
+  --bg-soft: #0b0f18;
+  --surface: #111622;
+  --surface-light: #0f1420;
+  --primary: #8ea2ff;
+  --accent: #4fe3ff;
+  --text: #eef1f8;
+  --muted: #9aa5bf;
+  --border: rgba(255, 255, 255, 0.09);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --chip-bg: rgba(142, 162, 255, 0.1);
+}
+
+:root[data-theme="dark"] body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .page {
+  background: radial-gradient(circle at 20% 0%, #10172a, var(--bg) 60%);
+}
+
+:root[data-theme="dark"] .nav {
+  background: rgba(7, 9, 15, 0.72);
+}
+
+:root[data-theme="dark"] .hero::before {
+  opacity: 0.35;
+  filter: blur(12px) brightness(0.55) saturate(0.8);
+}
+
+:root[data-theme="dark"] .hero::after {
+  background: linear-gradient(
+    180deg,
+    rgba(7, 9, 15, 0.55),
+    rgba(7, 9, 15, 0.92)
+  );
+}
+
+:root[data-theme="dark"] .hero-cta-secondary,
+:root[data-theme="dark"] .icon-link {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .progressive-image::before {
+  background:
+    linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0) 20%,
+      rgba(255, 255, 255, 0.06) 48%,
+      rgba(255, 255, 255, 0) 72%
+    ),
+    linear-gradient(135deg, rgba(142, 162, 255, 0.08), rgba(79, 227, 255, 0.06));
+}
+
+:root[data-theme="dark"] .about-photo {
+  background: linear-gradient(135deg, #141b2c, #0f1420);
+}
+
+:root[data-theme="dark"] .tag {
+  color: var(--text);
+  background: rgba(79, 227, 255, 0.1);
+  border-color: rgba(79, 227, 255, 0.28);
+}
+
+:root[data-theme="dark"] .project-chip {
+  color: var(--text);
+  background: var(--chip-bg);
+  border-color: rgba(142, 162, 255, 0.24);
+}
+
+:root[data-theme="dark"] .project-thumb-expanded {
+  background: linear-gradient(180deg, #141b2c, #0f1420);
+}
+
+:root[data-theme="dark"] .lab-status {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] .lab-status.is-live {
+  color: #4ade9a;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.32);
+}
+
+:root[data-theme="dark"] .photo-card-preview,
+:root[data-theme="dark"] .photo-card-preview .photo-info h3 {
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .photo-expand-hint {
+  color: var(--muted);
+}
+
+:root[data-theme="dark"] .footer-tech-pill {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+/* One content column for every section: header, body and carousel share the
+   same 1120px edge so the page reads as a single grid. */
+.section-header,
+.carousel {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.about-header {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.section-header h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+:root[data-theme="dark"] .hero-cta-primary {
+  background: linear-gradient(135deg, #5b6cff, #1aa9cc);
+  opacity: 1;
 }

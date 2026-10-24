@@ -10,6 +10,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
+        work: resolve(__dirname, "work/index.html"), // → /my-portfolio/work/
         links: resolve(__dirname, "links/index.html"), // → /my-portfolio/links/
       },
     },

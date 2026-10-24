@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Content Security Policy: only allow scripts from this site + Google Analytics.
+      If you edit the inline gtag script below, its sha256 hash here must be updated.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://www.googletagmanager.com 'sha256-kaUpIzkzZmMtKk3iNVxq7YRfy2Akhj+1iyQRCsRKbnk='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-FKFJ5S8GCE"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-FKFJ5S8GCE");
+    </script>
+    <link rel="icon" type="image/png" href="../src/assets/raccoon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webber Lai · Projects &amp; Lab</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/work/main.jsx"></script>
+  </body>
+</html>

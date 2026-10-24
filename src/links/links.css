@@ -8,6 +8,9 @@
   --muted: #4b5b86;
   --border: #cfe6ff;
   --card: rgba(255, 255, 255, 0.72);
+  --chip-bg: rgba(76, 111, 255, 0.08);
+  --page-bg: radial-gradient(circle at 20% 0%, #dff1ff, #f2f7ff 60%);
+  position: relative;
 
   min-height: 100vh;
   min-height: 100dvh;
@@ -15,7 +18,40 @@
   justify-content: center;
   padding: 56px 16px 40px;
   color: var(--text);
-  background: radial-gradient(circle at 20% 0%, #dff1ff, #f2f7ff 60%);
+  background: var(--page-bg);
+}
+
+:root[data-theme="dark"] .links-page {
+  --primary: #8ea2ff;
+  --accent: #4fe3ff;
+  --text: #eef1f8;
+  --muted: #9aa5bf;
+  --border: rgba(255, 255, 255, 0.09);
+  --card: rgba(17, 22, 34, 0.72);
+  --chip-bg: rgba(142, 162, 255, 0.1);
+  --page-bg: radial-gradient(circle at 20% 0%, #10172a, #07090f 60%);
+}
+
+:root[data-theme="dark"] body {
+  background-color: #07090f;
+}
+
+:root[data-theme="dark"] .links-card-icon.is-lab {
+  color: #4ade9a;
+}
+
+:root[data-theme="dark"] .links-card-icon.is-resume {
+  color: #4fe3ff;
+}
+
+:root[data-theme="dark"] .links-avatar img {
+  border-color: #07090f;
+}
+
+.links-prefs {
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }
 
 .links-shell {
@@ -54,7 +90,7 @@
 
 .links-name {
   margin: 20px 0 6px;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Space Grotesk", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   font-size: 1.9rem;
   line-height: 1.1;
   letter-spacing: -0.02em;
