@@ -106,7 +106,7 @@ export default function LinksPage() {
           </div>
           <h1 className="links-name">{siteData.name}</h1>
           <p className="links-role">
-            {lang === "zh" ? "AI MA 儲備核心人才" : "AI Management Associate"}
+            {lang === "zh" ? "AI MA 儲備幹部" : "AI Management Associate"}
             <span className="links-org">
               {lang === "zh"
                 ? "第一銀行・數位通路處"

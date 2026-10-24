@@ -136,17 +136,17 @@ export const ui = {
 };
 
 const zhData = {
-  title: "AI MA 儲備核心人才",
+  title: "AI MA 儲備幹部",
   location: "台灣・台北",
   avatarAlt: "Webber Lai 的照片",
   heroHighlights: [
-    "第一銀行 數位通路處 AI MA（儲備核心人才）。",
+    "第一銀行 數位通路處 AI MA（儲備幹部）。",
     "政大資訊科學碩士，專攻電腦圖學與資料視覺化。",
     "從頭到尾打造互動式視覺與資料體驗（React、D3.js、Power BI）。",
   ],
   about: {
     intro:
-      "嗨，我是 Webber。2026 年 1 月取得政治大學資訊科學碩士，並於 2026 年 8 月加入第一銀行數位通路處，擔任 AI MA（儲備核心人才）。",
+      "嗨，我是 Webber。2026 年 1 月取得政治大學資訊科學碩士，並於 2026 年 8 月加入第一銀行數位通路處，擔任 AI MA（儲備幹部）。",
   },
   education: [
     {
@@ -168,7 +168,7 @@ const zhData = {
   ],
   experience: [
     {
-      role: "AI MA 儲備核心人才｜數位通路處",
+      role: "AI MA 儲備幹部｜數位通路處",
       company: "第一商業銀行",
       period: "2026.08 – 至今",
       summary: [
@@ -192,7 +192,7 @@ const zhData = {
     },
     {
       role: "資料科學顧問實習生",
-      company: "Advant Analytics Tactics（AAT）",
+      company: "析數智慧股份有限公司（AAT）",
       period: "2022.04 – 2022.09",
       summary: [
         "研究並整理 KNIME 前端開發流程，涵蓋 HTML、CSS、JavaScript、Bootstrap 與可重複使用的 Web 節點。",
