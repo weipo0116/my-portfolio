@@ -2529,3 +2529,64 @@ html[lang^="zh"] .hero-highlights li {
 :root[data-theme="dark"] .lab-status.is-live {
   color: #4ade9a;
 }
+
+/* ───────────────────────── Motion design pass ───────────────────────── */
+/* Section titles are revealed from below; clip the overshoot. */
+.section-header {
+  overflow: hidden;
+  padding-bottom: 4px;
+}
+
+.hero-content,
+.work-hero-inner {
+  will-change: transform, opacity;
+  transform-origin: center top;
+}
+
+/* Lab cards lift like the other cards, with a soft accent edge. */
+.lab-card {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.3s ease;
+}
+
+@media (hover: hover) {
+  .lab-card:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+    box-shadow:
+      0 30px 70px rgba(27, 58, 120, 0.18),
+      0 0 0 1px color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+
+  :root[data-theme="dark"] .lab-card:hover {
+    box-shadow:
+      0 30px 70px rgba(0, 0, 0, 0.5),
+      0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent);
+  }
+}
+
+/* Carousel: touch swipes are handled in JS; keep vertical scroll native. */
+.carousel-viewport {
+  touch-action: pan-y;
+}
+
+/* Others modal keeps one height while paging, so arrows and close stay put. */
+.other-modal-stage {
+  min-height: min(560px, 76vh);
+}
+
+@media (max-width: 720px) {
+  .other-modal-stage {
+    min-height: min(540px, 74vh);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-card,
+  .lab-card:hover {
+    transition: none;
+    transform: none;
+  }
+}

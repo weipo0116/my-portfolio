@@ -10,6 +10,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getSiteData, ui } from "./i18n.js";
 import { usePrefs } from "./prefs.js";
 import PrefsToggles from "./PrefsToggles.jsx";
+import { useScrollMotion } from "./useScrollMotion.js";
 import "./App.css";
 import resumePdf from "./resume/resume.pdf";
 
@@ -213,6 +214,8 @@ function App({ page = "profile" }) {
   const siteData = getSiteData(lang);
   const t = ui[lang];
   const isWork = page === "work";
+  const pageRef = useRef(null);
+  useScrollMotion(pageRef, [lang, page]);
 
   // Switching language changes text length above the reader; keep whatever
   // card/section they were looking at pinned to the same spot on screen.
@@ -236,6 +239,7 @@ function App({ page = "profile" }) {
     langAnchorRef.current = null;
   }, [lang]);
   const carouselViewportRef = useRef(null);
+  const swipeStartRef = useRef(null);
   const carouselGap = 20;
   const [activeSection, setActiveSection] = useState(
     isWork ? "projects" : "home",
@@ -609,7 +613,10 @@ function App({ page = "profile" }) {
   }, [siteData.title]);
 
   return (
-    <div className={`page ${isWork ? "page-work" : "page-profile"}`}>
+    <div
+      ref={pageRef}
+      className={`page ${isWork ? "page-work" : "page-profile"}`}
+    >
         <nav className="nav" aria-label={t.navAria}>
           <motion.div
             className="brand"
@@ -1202,7 +1209,20 @@ function App({ page = "profile" }) {
                 </button>
               ) : null}
 
-              <div className="carousel-viewport" ref={carouselViewportRef}>
+              <div
+                className="carousel-viewport"
+                ref={carouselViewportRef}
+                onTouchStart={(event) => {
+                  swipeStartRef.current = event.touches[0].clientX;
+                }}
+                onTouchEnd={(event) => {
+                  const start = swipeStartRef.current;
+                  swipeStartRef.current = null;
+                  if (start == null) return;
+                  const dx = event.changedTouches[0].clientX - start;
+                  if (Math.abs(dx) > 40) moveCarouselBy(dx < 0 ? 1 : -1);
+                }}
+              >
                 <div className="carousel-track">
                   {carouselColumns.map((columnItems, columnIndex) => (
                     <div
