@@ -156,6 +156,39 @@ export const siteData = {
       image: samplePhoto,
     },
   ],
+  lab: {
+    intro:
+      "Small AI tools I build for my own workflow — from systems I use every day to early experiments.",
+    items: [
+      {
+        name: "SI — AI Project Workspace",
+        status: "In use",
+        problem:
+          "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
+        approach:
+          "A Notion idea inbox that AI turns into tasks, works on, and reports back with a 3-line summary. Each task is routed to cloud AI, a local browser, or a local coding agent.",
+        stack: ["Claude", "Notion", "Agent workflow"],
+      },
+      {
+        name: "Screen Recording → Step Extractor",
+        status: "Exploring",
+        problem:
+          "Comparing app flows from screen recordings means scrubbing video by hand.",
+        approach:
+          "Detect key frames and turn a recording into an ordered list of annotated steps — designed to run fully on-device.",
+        stack: ["Python", "Computer vision", "Local-first"],
+      },
+      {
+        name: "Resume ↔ Portfolio Sync",
+        status: "Exploring",
+        problem:
+          "Updating my résumé and this site separately keeps them drifting apart.",
+        approach:
+          "One source of truth that regenerates both the PDF résumé and the site content.",
+        stack: ["Markdown", "React", "Automation"],
+      },
+    ],
+  },
   projects: [
     {
       name: "Interactive Semantic Segmentation for Large-Scale Aerial 3D Gaussian Splatting",

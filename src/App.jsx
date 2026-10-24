@@ -194,6 +194,7 @@ function App() {
     "education",
     "experience",
     "projects",
+    "lab",
     "others",
   ];
   const isRepoLink = (value) => value?.startsWith("http");
@@ -445,6 +446,7 @@ function App() {
       "education",
       "experience",
       "projects",
+      "lab",
       "others",
     ];
     const sections = sectionIds
@@ -958,6 +960,70 @@ function App() {
             ))}
           </div>
         </motion.section>
+
+        {siteData.lab?.items?.length ? (
+          <motion.section
+            className="section"
+            id="lab"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.16 }}
+            variants={sectionVariants}
+          >
+            <div className="section-header">
+              <h2>Lab</h2>
+              <p>AI tools I&apos;m building</p>
+            </div>
+            {siteData.lab.intro ? (
+              <p className="lab-intro">{siteData.lab.intro}</p>
+            ) : null}
+            <div className="lab-grid">
+              {siteData.lab.items.map((item, index) => (
+                <motion.article
+                  key={item.name}
+                  className="info-card lab-card"
+                  custom={index}
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                >
+                  <div className="lab-card-top">
+                    <span
+                      className={`lab-status ${item.status === "In use" ? "is-live" : ""}`}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+                  <h3 className="lab-title">{item.name}</h3>
+                  <dl className="lab-detail">
+                    <dt>Problem</dt>
+                    <dd>{item.problem}</dd>
+                    <dt>Approach</dt>
+                    <dd>{item.approach}</dd>
+                  </dl>
+                  <div className="project-stack lab-stack">
+                    {item.stack.map((tag) => (
+                      <span className="project-chip" key={`${item.name}-${tag}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {item.link ? (
+                    <a
+                      className="repo-link project-link"
+                      href={item.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Try it
+                    </a>
+                  ) : null}
+                </motion.article>
+              ))}
+            </div>
+          </motion.section>
+        ) : null}
 
         <motion.section
           className="section"

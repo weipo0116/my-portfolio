@@ -956,6 +956,125 @@ body {
   background: rgba(76, 111, 255, 0.08);
 }
 
+/* Lab */
+.lab-intro {
+  max-width: 1120px;
+  margin: 0 auto 24px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.lab-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.lab-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+}
+
+.lab-card-top {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.lab-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  background: rgba(75, 91, 134, 0.08);
+  border: 1px solid rgba(75, 91, 134, 0.18);
+}
+
+.lab-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.lab-status.is-live {
+  color: #0f8a5f;
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.lab-title {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.lab-detail {
+  margin: 0;
+  flex: 1;
+}
+
+.lab-detail dt {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.lab-detail dd {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.lab-detail dd:last-child {
+  margin-bottom: 0;
+}
+
+.lab-stack {
+  margin-top: auto;
+}
+
+@media (max-width: 1024px) {
+  .lab-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Odd count on two columns: let the first (featured) card span the row */
+  .lab-card:first-child:nth-last-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .lab-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .lab-card {
+    padding: 20px;
+  }
+}
+
 .project-links {
   display: flex;
   flex-wrap: wrap;
