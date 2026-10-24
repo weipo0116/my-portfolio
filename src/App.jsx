@@ -1,11 +1,26 @@
 // src/App.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { siteData } from "./data";
+import { getSiteData, ui } from "./i18n.js";
+import { usePrefs } from "./prefs.js";
+import PrefsToggles from "./PrefsToggles.jsx";
 import "./App.css";
 import resumePdf from "./resume/resume.pdf";
 
 const MOTION_EASE = [0.22, 1, 0.36, 1];
+
+const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
+const PAGE_PATH = { profile: BASE, work: `${BASE}work/` };
+// One nav for both pages, so moving between them never changes the menu.
+const NAV_ITEMS = [
+  { id: "home", page: "profile" },
+  { id: "about", page: "profile" },
+  { id: "education", page: "profile" },
+  { id: "experience", page: "profile" },
+  { id: "others", page: "profile" },
+  { id: "projects", page: "work" },
+  { id: "lab", page: "work" },
+];
 
 const createFadeUpVariants = (reducedMotion, distance = 32) => ({
   hidden: { opacity: 0, y: reducedMotion ? 0 : distance },
@@ -186,11 +201,17 @@ const ProgressiveImage = ({
   );
 };
 
-function App() {
+function App({ page = "profile" }) {
   const shouldReduceMotion = useReducedMotion();
+  const { lang, theme, toggleLang, toggleTheme } = usePrefs();
+  const siteData = getSiteData(lang);
+  const t = ui[lang];
+  const isWork = page === "work";
   const carouselViewportRef = useRef(null);
   const carouselGap = 20;
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState(
+    isWork ? "projects" : "home",
+  );
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [carouselPerPage, setCarouselPerPage] = useState(3);
   const [expandedProject, setExpandedProject] = useState(null);
@@ -199,15 +220,14 @@ function App() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [typedTitle, setTypedTitle] = useState("");
-  const navItems = [
-    "home",
-    "about",
-    "education",
-    "experience",
-    "projects",
-    "lab",
-    "others",
-  ];
+  const navItems = NAV_ITEMS;
+  const pageSectionIds = NAV_ITEMS.filter((item) => item.page === page).map(
+    (item) => item.id,
+  );
+  const navHref = (item) =>
+    item.page === page
+      ? `#${item.id}`
+      : `${PAGE_PATH[item.page]}${item.id === "home" ? "" : `#${item.id}`}`;
   const isRepoLink = (value) => value?.startsWith("http");
   const isRepoUnreleased = (value) =>
     value?.trim().toLowerCase() === "unreleased";
@@ -320,13 +340,17 @@ function App() {
     };
   }, []);
 
-  const handleNavSelect = (id, closeMobileMenu = false) => {
-    if (closeMobileMenu) {
-      setMobileMenuOpen(false);
-      window.setTimeout(() => scrollToId(id), 180);
+  const handleNavSelect = (item, closeMobileMenu = false) => {
+    if (item.page !== page) {
+      window.location.href = navHref(item);
       return;
     }
-    scrollToId(id);
+    if (closeMobileMenu) {
+      setMobileMenuOpen(false);
+      window.setTimeout(() => scrollToId(item.id), 180);
+      return;
+    }
+    scrollToId(item.id);
   };
 
   const getProjectLinks = (project) => {
@@ -340,7 +364,7 @@ function App() {
     if (isRepoUnreleased(href)) {
       return (
         <span className="project-meta-link is-unreleased" key={label}>
-          {label === "repo" ? href : `${label}: ${href}`}
+          {label === "repo" ? t.unreleased : `${label}: ${href}`}
         </span>
       );
     }
@@ -353,7 +377,7 @@ function App() {
           rel="noreferrer"
           key={label}
         >
-          {label === "repo" ? "Check on GitHub" : label}
+          {label === "repo" ? t.checkOnGithub : label}
         </a>
       );
     }
@@ -505,16 +529,7 @@ function App() {
   }, [mobileMenuOpen]);
 
   useEffect(() => {
-    const sectionIds = [
-      "home",
-      "about",
-      "education",
-      "experience",
-      "projects",
-      "lab",
-      "others",
-    ];
-    const sections = sectionIds
+    const sections = pageSectionIds
       .map((id) => document.getElementById(id))
       .filter(Boolean);
     if (!sections.length) return undefined;
@@ -550,7 +565,8 @@ function App() {
       window.removeEventListener("scroll", updateActiveSection);
       window.removeEventListener("resize", updateActiveSection);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -562,24 +578,24 @@ function App() {
 
   useEffect(() => {
     setTypedTitle(siteData.title);
-  }, []);
+  }, [siteData.title]);
 
   return (
-    <div className="page">
-      <header className="hero" id="home">
-        <nav className="nav">
+    <div className={`page ${isWork ? "page-work" : "page-profile"}`}>
+        <nav className="nav" aria-label={t.navAria}>
           <motion.div
             className="brand"
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: MOTION_EASE }}
           >
-            {siteData.name}
+            <a href={PAGE_PATH.profile}>{siteData.name}</a>
           </motion.div>
+          <div className="nav-end">
           <motion.button
             className={`hamburger ${mobileMenuOpen ? "is-open" : ""}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={t.menuToggle}
             type="button"
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -593,9 +609,13 @@ function App() {
           <div className="nav-links nav-links-desktop">
             {navItems.map((item, index) => (
               <motion.a
-                key={item}
-                href={`#${item}`}
-                className={activeSection === item ? "is-active" : ""}
+                key={item.id}
+                href={navHref(item)}
+                className={
+                  item.page === page && activeSection === item.id
+                    ? "is-active"
+                    : ""
+                }
                 custom={index}
                 initial="hidden"
                 animate="visible"
@@ -610,9 +630,16 @@ function App() {
                     : { y: -2, scale: 1.04, transition: { duration: 0.18 } }
                 }
               >
-                {item.charAt(0).toUpperCase() + item.slice(1)}
+                {t.nav[item.id]}
               </motion.a>
             ))}
+          </div>
+          <PrefsToggles
+            lang={lang}
+            theme={theme}
+            onToggleLang={toggleLang}
+            onToggleTheme={toggleTheme}
+          />
           </div>
           <AnimatePresence>
             {mobileMenuOpen ? (
@@ -625,8 +652,12 @@ function App() {
               >
                 {navItems.map((item, index) => (
                   <motion.button
-                    key={item}
-                    className={activeSection === item ? "is-active" : ""}
+                    key={item.id}
+                    className={
+                      item.page === page && activeSection === item.id
+                        ? "is-active"
+                        : ""
+                    }
                     onClick={() => {
                       handleNavSelect(item, true);
                     }}
@@ -639,7 +670,7 @@ function App() {
                     }
                     type="button"
                   >
-                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                    {t.nav[item.id]}
                   </motion.button>
                 ))}
               </motion.div>
@@ -647,6 +678,8 @@ function App() {
           </AnimatePresence>
         </nav>
 
+      {!isWork ? (
+      <header className="hero" id="home">
         <motion.div
           className="hero-content"
           variants={heroContainerVariants}
@@ -684,11 +717,13 @@ function App() {
               <motion.button
                 className="hero-cta hero-cta-primary"
                 type="button"
-                onClick={() => scrollToId("projects")}
+                onClick={() => {
+                  window.location.href = PAGE_PATH.work;
+                }}
                 whileHover={heroButtonHover}
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
               >
-                View Projects
+                {t.viewWork}
               </motion.button>
               <motion.a
                 className="hero-cta hero-cta-secondary"
@@ -697,7 +732,7 @@ function App() {
                 whileHover={heroButtonHover}
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
               >
-                Download résumé
+                {t.downloadResume}
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
@@ -759,8 +794,24 @@ function App() {
           </motion.div>
         </motion.div>
       </header>
+      ) : (
+        <header className="work-hero" id="projects-top">
+          <motion.div
+            className="work-hero-inner"
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.72, ease: MOTION_EASE }}
+          >
+            <p className="hero-kicker">{t.work.kicker}</p>
+            <h1 className="work-hero-title">{t.work.title}</h1>
+            <p className="work-hero-intro">{t.work.intro}</p>
+          </motion.div>
+        </header>
+      )}
 
       <main className="main">
+        {!isWork ? (
+        <>
         <motion.section
           className="section about-section"
           id="about"
@@ -770,7 +821,7 @@ function App() {
           variants={sectionVariants}
         >
           <div className="section-header about-header">
-            <h2>About Me</h2>
+            <h2>{t.sections.about}</h2>
           </div>
           <div className="about-layout">
             <ProgressiveImage
@@ -806,7 +857,7 @@ function App() {
             variants={sectionVariants}
           >
             <div className="section-header">
-              <h2>Education</h2>
+              <h2>{t.sections.education}</h2>
             </div>
             <div className="education-block education-standalone">
               <div className="education-timeline">
@@ -852,7 +903,7 @@ function App() {
         >
           <div className="section-header">
             <div className="experience-heading-block">
-              <h2>Experience</h2>
+              <h2>{t.sections.experience}</h2>
             </div>
           </div>
           <p className="resume-link">
@@ -864,7 +915,7 @@ function App() {
               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
               </svg>
-              Download my Résumé
+              {t.downloadMyResume}
             </a>
           </p>
           <div className="experience-list">
@@ -916,7 +967,11 @@ function App() {
             ))}
           </div>
         </motion.section>
+        </>
+        ) : null}
 
+        {isWork ? (
+        <>
         <motion.section
           className="section"
           id="projects"
@@ -926,7 +981,7 @@ function App() {
           variants={sectionVariants}
         >
           <div className="section-header">
-            <h2>Selected Projects</h2>
+            <h2>{t.sections.projects}</h2>
           </div>
           <div className="project-list">
             {siteData.projects.map((project, index) => (
@@ -996,13 +1051,13 @@ function App() {
                       rel="noreferrer"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      Check on GitHub
+                      {t.checkOnGithub}
                     </a>
                   ) : (
                     <span
                       className={`repo-link project-link ${isRepoUnreleased(project.repo) ? "is-unreleased" : ""}`}
                     >
-                      {project.repo}
+                      {isRepoUnreleased(project.repo) ? t.unreleased : project.repo}
                     </span>
                   )}
                   <p className="card-summary">
@@ -1031,7 +1086,7 @@ function App() {
             variants={sectionVariants}
           >
             <div className="section-header">
-              <h2>Lab</h2>
+              <h2>{t.sections.lab}</h2>
             </div>
             {siteData.lab.intro ? (
               <p className="lab-intro">{siteData.lab.intro}</p>
@@ -1051,14 +1106,14 @@ function App() {
                     <span
                       className={`lab-status ${item.status === "In use" ? "is-live" : ""}`}
                     >
-                      {item.status}
+                      {t.labStatus[item.status] ?? item.status}
                     </span>
                   </div>
                   <h3 className="lab-title">{item.name}</h3>
                   <dl className="lab-detail">
-                    <dt>Problem</dt>
+                    <dt>{t.lab.problem}</dt>
                     <dd>{item.problem}</dd>
-                    <dt>Approach</dt>
+                    <dt>{t.lab.approach}</dt>
                     <dd>{item.approach}</dd>
                   </dl>
                   <div className="project-stack lab-stack">
@@ -1075,7 +1130,7 @@ function App() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Try it
+                      {t.lab.tryIt}
                     </a>
                   ) : null}
                 </motion.article>
@@ -1083,7 +1138,10 @@ function App() {
             </div>
           </motion.section>
         ) : null}
+        </>
+        ) : null}
 
+        {!isWork ? (
         <motion.section
           className="section"
           id="others"
@@ -1093,7 +1151,7 @@ function App() {
           variants={sectionVariants}
         >
           <div className="section-header">
-            <h2>Other Experience</h2>
+            <h2>{t.sections.others}</h2>
           </div>
           <div
             className="carousel"
@@ -1108,7 +1166,7 @@ function App() {
                   className="carousel-button carousel-button-left"
                   onClick={() => moveCarouselBy(-1)}
                   disabled={carouselIndex === 0}
-                  aria-label="Previous"
+                  aria-label={t.prev}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M15.5 19 8.5 12l7-7" />
@@ -1187,7 +1245,7 @@ function App() {
                               className="photo-expand-hint"
                               aria-hidden="true"
                             >
-                              <span>more</span>
+                              <span>{t.more}</span>
                               <svg viewBox="0 0 24 24">
                                 <path d="M8 16 16 8" />
                                 <path d="M10 8h6v6" />
@@ -1206,7 +1264,7 @@ function App() {
                   className="carousel-button carousel-button-right"
                   onClick={() => moveCarouselBy(1)}
                   disabled={carouselIndex === carouselMaxIndex}
-                  aria-label="Next"
+                  aria-label={t.next}
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M8.5 5 15.5 12l-7 7" />
@@ -1216,13 +1274,13 @@ function App() {
             </div>
 
             {carouselPageCount > 1 ? (
-              <div className="carousel-dots" role="tablist" aria-label="Slides">
+              <div className="carousel-dots" role="tablist" aria-label={t.slides}>
                 {Array.from({ length: carouselPageCount }).map((_, index) => (
                   <button
                     key={`dot-${index}`}
                     className={`carousel-dot ${index === carouselIndex ? "is-active" : ""}`}
                     onClick={() => setCarouselIndex(index)}
-                    aria-label={`Go to slide ${index + 1}`}
+                    aria-label={t.goToSlide(index + 1)}
                     aria-current={index === carouselIndex}
                     role="tab"
                     type="button"
@@ -1232,6 +1290,7 @@ function App() {
             ) : null}
           </div>
         </motion.section>
+        ) : null}
       </main>
 
       <AnimatePresence>
@@ -1252,7 +1311,7 @@ function App() {
               <button
                 className="project-modal-close"
                 onClick={() => setExpandedProject(null)}
-                aria-label="Close project preview"
+                aria-label={t.closeProject}
                 type="button"
               >
                 ×
@@ -1334,7 +1393,7 @@ function App() {
                   <button
                     className="other-modal-nav other-modal-nav-left"
                     onClick={() => moveOtherExperienceBy(-1)}
-                    aria-label="Previous experience"
+                    aria-label={t.prevExperience}
                     type="button"
                     disabled={expandedOtherExperienceIndex <= 0}
                   >
@@ -1345,7 +1404,7 @@ function App() {
                   <button
                     className="other-modal-nav other-modal-nav-right"
                     onClick={() => moveOtherExperienceBy(1)}
-                    aria-label="Next experience"
+                    aria-label={t.nextExperience}
                     type="button"
                     disabled={
                       expandedOtherExperienceIndex >=
@@ -1365,7 +1424,7 @@ function App() {
                 <button
                   className="other-modal-close"
                   onClick={() => setExpandedOtherExperience(null)}
-                  aria-label="Close details"
+                  aria-label={t.closeDetails}
                   type="button"
                 >
                   ×
@@ -1430,7 +1489,7 @@ function App() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Related Site
+                          {t.relatedSite}
                         </a>
                       ) : null}
                     </div>
@@ -1444,8 +1503,8 @@ function App() {
 
       <footer className="footer">
         <div className="footer-content">
-          <h3 className="footer-heading">Let's Connect</h3>
-          <div className="footer-tech-list" aria-label="Website tech stack">
+          <h3 className="footer-heading">{t.letsConnect}</h3>
+          <div className="footer-tech-list" aria-label={t.techStack}>
             <span className="footer-tech-pill">React</span>
             <span className="footer-tech-pill">Vite</span>
             <span className="footer-tech-pill">Framer Motion</span>
@@ -1480,8 +1539,7 @@ function App() {
             </a>
           </div>
           <p>
-            &copy; {new Date().getFullYear()} {siteData.name}. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} {siteData.name}. {t.rights}
           </p>
         </div>
       </footer>
@@ -1491,7 +1549,7 @@ function App() {
           <motion.button
             className="back-to-top is-visible"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            aria-label="Back to top"
+            aria-label={t.backToTop}
             type="button"
             initial={{
               opacity: 0,
