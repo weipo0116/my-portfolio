@@ -52,7 +52,10 @@ export const usePrefs = () => {
   }, [lang]);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    // theme-init.js paints <html> before CSS loads; hand control back to CSS.
+    root.style.backgroundColor = "";
   }, [theme]);
 
   // Follow the OS until the visitor picks a theme themselves.

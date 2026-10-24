@@ -98,7 +98,7 @@ export const ui = {
       others: "其他經歷",
     },
     work: {
-      kicker: "Work",
+      kicker: "作品",
       title: "作品與 Lab",
       intro: "研究、課堂專題，以及我正在打造的 AI 工具——從互動式 3D 到日常工作流程自動化。",
       backToProfile: "回到個人介紹",

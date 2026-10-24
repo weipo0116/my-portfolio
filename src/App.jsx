@@ -1,5 +1,11 @@
 // src/App.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getSiteData, ui } from "./i18n.js";
 import { usePrefs } from "./prefs.js";
@@ -207,6 +213,28 @@ function App({ page = "profile" }) {
   const siteData = getSiteData(lang);
   const t = ui[lang];
   const isWork = page === "work";
+
+  // Switching language changes text length above the reader; keep whatever
+  // card/section they were looking at pinned to the same spot on screen.
+  const langAnchorRef = useRef(null);
+  const handleToggleLang = () => {
+    const probe = document.elementFromPoint(
+      window.innerWidth / 2,
+      Math.min(window.innerHeight * 0.4, 360),
+    );
+    const anchor = probe?.closest?.("article, section, header");
+    langAnchorRef.current = anchor
+      ? { el: anchor, top: anchor.getBoundingClientRect().top }
+      : null;
+    toggleLang();
+  };
+  useLayoutEffect(() => {
+    const saved = langAnchorRef.current;
+    if (!saved?.el?.isConnected) return;
+    const drift = saved.el.getBoundingClientRect().top - saved.top;
+    if (Math.abs(drift) > 1) window.scrollBy(0, drift);
+    langAnchorRef.current = null;
+  }, [lang]);
   const carouselViewportRef = useRef(null);
   const carouselGap = 20;
   const [activeSection, setActiveSection] = useState(
@@ -637,7 +665,7 @@ function App({ page = "profile" }) {
           <PrefsToggles
             lang={lang}
             theme={theme}
-            onToggleLang={toggleLang}
+            onToggleLang={handleToggleLang}
             onToggleTheme={toggleTheme}
           />
           </div>
@@ -861,9 +889,9 @@ function App({ page = "profile" }) {
             </div>
             <div className="education-block education-standalone">
               <div className="education-timeline">
-                {siteData.education.map((item) => (
+                {siteData.education.map((item, eduIndex) => (
                   <div
-                    key={`${item.degree}-${item.school}`}
+                    key={`edu-${eduIndex}`}
                     className="education-timeline-item"
                   >
                     <div className="education-timeline-marker" />
@@ -876,7 +904,7 @@ function App({ page = "profile" }) {
                       {item.note ? (
                         <p className="education-note">
                           {item.note.split("\n").map((line, index) => (
-                            <span key={`${item.school}-note-${index}`}>
+                            <span key={`edu-${eduIndex}-note-${index}`}>
                               {line}
                               {index < item.note.split("\n").length - 1 ? (
                                 <br />
@@ -921,7 +949,7 @@ function App({ page = "profile" }) {
           <div className="experience-list">
             {siteData.experience.map((item, index) => (
               <motion.article
-                key={`${item.role}-${item.company}`}
+                key={`exp-${index}`}
                 className="info-card experience-card"
                 custom={index}
                 variants={cardVariants}
@@ -1094,7 +1122,7 @@ function App({ page = "profile" }) {
             <div className="lab-grid">
               {siteData.lab.items.map((item, index) => (
                 <motion.article
-                  key={item.name}
+                  key={`lab-${index}`}
                   className="info-card lab-card"
                   custom={index}
                   variants={cardVariants}
@@ -1118,7 +1146,7 @@ function App({ page = "profile" }) {
                   </dl>
                   <div className="project-stack lab-stack">
                     {item.stack.map((tag) => (
-                      <span className="project-chip" key={`${item.name}-${tag}`}>
+                      <span className="project-chip" key={`lab-${index}-${tag}`}>
                         {tag}
                       </span>
                     ))}
@@ -1183,7 +1211,7 @@ function App({ page = "profile" }) {
                     >
                       {columnItems.map((item, itemIndex) => (
                         <motion.article
-                          key={item.title}
+                          key={`other-${columnIndex}-${itemIndex}`}
                           className="photo-card photo-card-preview"
                           role="button"
                           tabIndex={0}

@@ -2452,3 +2452,57 @@ body {
   background: linear-gradient(135deg, #5b6cff, #1aa9cc);
   opacity: 1;
 }
+
+/* ── QA round 6 fixes ── */
+:root {
+  /* slightly deeper accent so small blue text clears 4.5:1 on the light surfaces */
+  --primary: #3d5ae6;
+}
+
+.hero-title {
+  color: #0891b2;
+}
+
+:root[data-theme="dark"] .hero-title {
+  color: var(--accent);
+}
+
+:root[data-theme="dark"] .resume-link-anchor,
+:root[data-theme="dark"] .hero-cta-primary {
+  background: linear-gradient(135deg, #3b4fd8, #12809e);
+  color: #fff;
+  opacity: 1;
+}
+
+:root[data-theme="dark"] .company-logo-shell {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .photo-expand-hint {
+  color: var(--muted);
+}
+
+.project-modal-close {
+  width: 44px;
+  height: 44px;
+}
+
+/* Chinese: avoid single-character widows in short lines */
+html[lang^="zh"] .hero-highlights li,
+html[lang^="zh"] .education-degree,
+html[lang^="zh"] .card-top h3,
+html[lang^="zh"] .lab-title,
+html[lang^="zh"] .work-hero-intro {
+  text-wrap: balance;
+}
+
+@media (max-width: 720px) {
+  .photo-media-expanded .photo-period-overlay {
+    right: 64px;
+  }
+}
+
+:root[data-theme="dark"] {
+  background-color: #07090f;
+}

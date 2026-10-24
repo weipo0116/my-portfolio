@@ -14,13 +14,13 @@
   position: relative;
   display: inline-grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);
-  font: 600 13px/1 "Instrument Sans", system-ui, sans-serif;
+  font: 600 14px/1 "Instrument Sans", system-ui, "PingFang TC", "Noto Sans TC", sans-serif;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition:
