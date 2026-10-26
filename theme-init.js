@@ -18,7 +18,7 @@
   }
   root.setAttribute("data-theme", theme);
   root.lang = lang === "zh" ? "zh-Hant-TW" : "en";
-  root.style.backgroundColor = theme === "dark" ? "#000" : "#fbfbfd";
+  root.style.backgroundColor = theme === "dark" ? "#111215" : "#fbfbfd";
 
   // Cross-page view transitions reject their promises when a navigation is
   // interrupted (e.g. a hash jump mid-transition); that is expected, not an error.
