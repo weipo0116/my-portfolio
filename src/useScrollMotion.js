@@ -103,7 +103,7 @@ export const useScrollMotion = (scopeRef, deps) => {
               },
               end: () => `+=${distance()}`,
               scrub: 0.8,
-              pin: true,
+              pin: section.querySelector(".others-pin") || true,
               anticipatePin: 1,
               invalidateOnRefresh: true,
               snap: {

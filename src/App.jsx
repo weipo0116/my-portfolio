@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getSiteData, ui } from "./i18n.js";
 import { usePrefs } from "./prefs.js";
 import PrefsToggles from "./PrefsToggles.jsx";
@@ -228,7 +229,11 @@ function App({ page = "profile" }) {
       window.innerWidth / 2,
       Math.min(window.innerHeight * 0.4, 360),
     );
-    const anchor = probe?.closest?.("article, section, header");
+    // Inside a pinned section the element itself is fixed on screen, so its
+    // position says nothing about scroll; anchor to the in-flow spacer instead.
+    const anchor =
+      probe?.closest?.(".pin-spacer") ||
+      probe?.closest?.("article, section, header");
     langAnchorRef.current = anchor
       ? { el: anchor, top: anchor.getBoundingClientRect().top }
       : null;
@@ -337,11 +342,34 @@ function App({ page = "profile" }) {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ block: "start" });
     };
-    const timer = window.setTimeout(jumpToHash, 120);
+    // Fonts and ScrollTrigger pin spacers change the layout after first
+    // paint, so re-aim a few times while the page settles — but stop as soon
+    // as the reader scrolls on their own.
+    let userMoved = false;
+    const stopAiming = () => {
+      userMoved = true;
+    };
+    const aim = () => {
+      if (!userMoved) jumpToHash();
+    };
+    const timer = window.setTimeout(aim, 120);
+    const settle = window.setTimeout(stopAiming, 2500);
+    document.fonts?.ready.then(() => requestAnimationFrame(aim));
+    ScrollTrigger.addEventListener("refresh", aim);
+    window.addEventListener("load", aim);
     window.addEventListener("hashchange", jumpToHash);
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach((type) =>
+      window.addEventListener(type, stopAiming, { passive: true, once: true }),
+    );
     return () => {
       window.clearTimeout(timer);
+      window.clearTimeout(settle);
+      ScrollTrigger.removeEventListener("refresh", aim);
+      window.removeEventListener("load", aim);
       window.removeEventListener("hashchange", jumpToHash);
+      ["wheel", "touchstart", "keydown", "pointerdown"].forEach((type) =>
+        window.removeEventListener(type, stopAiming),
+      );
     };
   }, []);
 
@@ -1134,6 +1162,9 @@ function App({ page = "profile" }) {
             viewport={{ once: true, amount: 0.16 }}
             variants={sectionVariants}
           >
+            {/* Plain wrapper: GSAP pins this, never the Framer-animated section
+                (Framer rewrites the section's transform on re-render). */}
+            <div className="others-pin">
             <div className="section-header">
               <h2>{t.sections.others}</h2>
             </div>
@@ -1211,6 +1242,7 @@ function App({ page = "profile" }) {
                 </motion.article>
                 ))}
               </div>
+            </div>
             </div>
           </motion.section>
         ) : null}
