@@ -1,0 +1,1 @@
+import{a as e,c as t,j as r,r as o}from"./resume-p2nWEl1d.js";import{A as a}from"./App-BlhBeD-K.js";e();t(document.getElementById("root")).render(r.jsx(o.StrictMode,{children:r.jsx(a,{page:"profile"})}));
