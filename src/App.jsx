@@ -23,13 +23,13 @@ const PAGE_PATH = { profile: BASE, work: `${BASE}work/` };
 const NAV_ITEMS = [
   { id: "about", page: "profile" },
   { id: "experience", page: "profile" },
-  { id: "projects", page: "work" },
   { id: "lab", page: "work" },
+  { id: "projects", page: "work" },
 ];
 // Every section on each page, for the scroll-spy (nav shows only the main four).
 const PAGE_SECTIONS = {
   profile: ["home", "about", "education", "experience", "others"],
-  work: ["projects", "lab"],
+  work: ["lab", "projects"],
 };
 
 const createFadeUpVariants = (reducedMotion, distance = 32) => ({
@@ -944,6 +944,14 @@ function App({ page = "profile" }) {
                   <motion.article
                     key={`exp-${index}`}
                     className="info-card experience-card"
+                    style={
+                      item.brand
+                        ? {
+                            "--brand": item.brand,
+                            "--brand-mark": `url("${item.logoFallback || item.logo}")`,
+                          }
+                        : undefined
+                    }
                     custom={index}
                     variants={cardVariants}
                     initial="hidden"
@@ -993,6 +1001,80 @@ function App({ page = "profile" }) {
 
         {isWork ? (
           <>
+            {siteData.lab?.items?.length ? (
+              <motion.section
+                className="section"
+                id="lab"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.16 }}
+                variants={sectionVariants}
+              >
+                <div className="section-header">
+                  <h2>{t.sections.lab}</h2>
+                </div>
+                {siteData.lab.intro ? (
+                  <p className="lab-intro">{siteData.lab.intro}</p>
+                ) : null}
+                <div className="lab-grid">
+                  {siteData.lab.items.map((item, index) => (
+                    <motion.article
+                      key={`lab-${index}`}
+                      className="info-card lab-card"
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={
+                        shouldReduceMotion
+                          ? undefined
+                          : {
+                              y: -6,
+                              transition: { duration: 0.45, ease: MOTION_EASE },
+                            }
+                      }
+                    >
+                      <div className="lab-card-top">
+                        <span
+                          className={`lab-status ${item.status === "In use" ? "is-live" : ""}`}
+                        >
+                          {t.labStatus[item.status] ?? item.status}
+                        </span>
+                      </div>
+                      <h3 className="lab-title">{item.name}</h3>
+                      <dl className="lab-detail">
+                        <dt>{t.lab.problem}</dt>
+                        <dd>{item.problem}</dd>
+                        <dt>{t.lab.approach}</dt>
+                        <dd>{item.approach}</dd>
+                      </dl>
+                      <div className="project-stack lab-stack">
+                        {item.stack.map((tag) => (
+                          <span
+                            className="project-chip"
+                            key={`lab-${index}-${tag}`}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      {item.link ? (
+                        <a
+                          className="repo-link project-link"
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {t.lab.tryIt}
+                        </a>
+                      ) : null}
+                    </motion.article>
+                  ))}
+                </div>
+              </motion.section>
+            ) : null}
+
             <motion.section
               className="section"
               id="projects"
@@ -1099,80 +1181,6 @@ function App({ page = "profile" }) {
                 ))}
               </div>
             </motion.section>
-
-            {siteData.lab?.items?.length ? (
-              <motion.section
-                className="section"
-                id="lab"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.16 }}
-                variants={sectionVariants}
-              >
-                <div className="section-header">
-                  <h2>{t.sections.lab}</h2>
-                </div>
-                {siteData.lab.intro ? (
-                  <p className="lab-intro">{siteData.lab.intro}</p>
-                ) : null}
-                <div className="lab-grid">
-                  {siteData.lab.items.map((item, index) => (
-                    <motion.article
-                      key={`lab-${index}`}
-                      className="info-card lab-card"
-                      custom={index}
-                      variants={cardVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.2 }}
-                      whileHover={
-                        shouldReduceMotion
-                          ? undefined
-                          : {
-                              y: -6,
-                              transition: { duration: 0.45, ease: MOTION_EASE },
-                            }
-                      }
-                    >
-                      <div className="lab-card-top">
-                        <span
-                          className={`lab-status ${item.status === "In use" ? "is-live" : ""}`}
-                        >
-                          {t.labStatus[item.status] ?? item.status}
-                        </span>
-                      </div>
-                      <h3 className="lab-title">{item.name}</h3>
-                      <dl className="lab-detail">
-                        <dt>{t.lab.problem}</dt>
-                        <dd>{item.problem}</dd>
-                        <dt>{t.lab.approach}</dt>
-                        <dd>{item.approach}</dd>
-                      </dl>
-                      <div className="project-stack lab-stack">
-                        {item.stack.map((tag) => (
-                          <span
-                            className="project-chip"
-                            key={`lab-${index}-${tag}`}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      {item.link ? (
-                        <a
-                          className="repo-link project-link"
-                          href={item.link}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {t.lab.tryIt}
-                        </a>
-                      ) : null}
-                    </motion.article>
-                  ))}
-                </div>
-              </motion.section>
-            ) : null}
           </>
         ) : null}
 

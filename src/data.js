@@ -10,6 +10,7 @@ import PR_img from "./assets/opt/pr_img.webp";
 import chros_img from "./assets/opt/chorus.webp";
 import pg_img from "./assets/opt/pg.webp";
 import nccu_img from "./assets/opt/nccu.webp";
+import clc_img from "./assets/opt/clc.webp";
 import firstbankLogo from "./assets/firstbank_logo.svg";
 import lineLogoLocal from "./assets/opt/line_icon.webp";
 import aatLogoLocal from "./assets/opt/aat_icon.webp";
@@ -74,6 +75,7 @@ export const siteData = {
       role: "AI Management Associate | Digital Banking Division",
       company: "First Commercial Bank (First Bank)",
       logo: firstbankLogo,
+      brand: "#B3863B",
       period: "Aug 2026 - Present",
       summary: [
         "Joined the AI Management Associate program on Aug 10, 2026, rotating within the Digital Banking Division.",
@@ -87,6 +89,7 @@ export const siteData = {
       company: "LINE Taiwan Limited",
       logo: "https://vos.line-scdn.net/landpress-content-v2-tqq6mwxs5qlx5cg0nutma2bg/1c7f9ad5a0d2415cab739ae6e9f71e35-large.png?updatedAt=1752734110000",
       logoFallback: lineLogoLocal,
+      brand: "#06C755",
       period: "Oct 2022 - Aug 2023",
       summary: [
         "Supported business development and performance growth for social content; owned monthly performance and overall traffic reporting, turning data into actionable insights for management.",
@@ -101,6 +104,7 @@ export const siteData = {
       company: "Advant Analytics Tactics Ltd., AAT",
       logo: "https://system.netsuite.com/core/media/media.nl?id=14523301&c=835472&h=IG4EQfcTtnBchNGzUxALv1tVswtgqcyE8vTxEwOoFw9ekkQs",
       logoFallback: aatLogoLocal,
+      brand: "#D01025",
       period: "Apr 2022 - Sep 2022",
       summary: [
         "Researched and documented front-end development workflows in KNIME, covering HTML, CSS, JavaScript, Bootstrap, and reusable web nodes.",
@@ -111,18 +115,6 @@ export const siteData = {
     },
   ],
   otherExperiences: [
-    {
-      title: "NCCU Dormitory Resident Assistant (RA)",
-      photoClass: "photo-nccu",
-      expandIcon: "more-circle",
-      caption: [
-        "Handled night shifts for daily dormitory operations, including key desk support, visitor check-in, and parcel processing.",
-        "Performed routine facility checks for water heaters, electricity usage, and shared-space equipment.",
-        "Supported residents with issue clarification and coordinated with related units for follow-up actions.",
-      ],
-      period: "2024/06 - 2025/03",
-      image: nccu_img,
-    },
     {
       title: "Pacific Graphics Conference",
       subtitle: "Technical Team Lead",
@@ -137,12 +129,36 @@ export const siteData = {
       image: pg_img,
     },
     {
-      title: "NCCU Chen Sheng Chorus",
+      title: "NCCU Chinese Language Center (CLC)",
+      subtitle: "Project Assistant",
+      expandIcon: "more-circle",
+      caption: [
+        "Ran three teacher-training lectures for the Ministry of Education's Mandarin Proficiency Enhancement Program — speaker invitations, venue and hybrid (on-site + online) logistics, promotion, and on-the-day hosting.",
+        "Launched the Mandarin Buddy Program with the Office of International Cooperation, pairing NCCU students with international students for real-life Mandarin practice.",
+        "Coordinated three instructors teaching the program's Mandarin-teaching courses.",
+      ],
+      period: "2026/05 - 2026/07",
+      image: clc_img,
+    },
+    {
+      title: "NCCU Dormitory Resident Assistant (RA)",
+      photoClass: "photo-nccu",
+      expandIcon: "more-circle",
+      caption: [
+        "Handled night shifts for daily dormitory operations, including key desk support, visitor check-in, and parcel processing.",
+        "Performed routine facility checks for water heaters, electricity usage, and shared-space equipment.",
+        "Supported residents with issue clarification and coordinated with related units for follow-up actions.",
+      ],
+      period: "2024/06 - 2025/03",
+      image: nccu_img,
+    },
+    {
+      title: "NCCU Zhen Sheng Chorus",
       subtitle: "Tenor",
       expandIcon: "more-circle",
       caption: [
         "Participated as a tenor during master's studies at NCCU.",
-        "Performed in a public concert at Eslite Performance Hall (誠品廳).",
+        "Performed in the concert \"Yao Yuan\" (謠遠) at Eslite Performance Hall.",
       ],
       period: "2024 - 2025",
       image: chros_img,

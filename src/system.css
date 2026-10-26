@@ -539,3 +539,61 @@ button,
     opacity: 0.1;
   }
 }
+
+/* ── Experience cards: each carries its company's colour, very quietly ── */
+.experience-card[style] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.experience-card[style]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--brand) 13%, transparent), transparent 55%),
+    radial-gradient(60% 60% at 100% 100%, color-mix(in srgb, var(--brand) 7%, transparent), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.experience-card[style]::after {
+  content: "";
+  position: absolute;
+  right: -48px;
+  bottom: -56px;
+  width: clamp(200px, 26vw, 320px);
+  aspect-ratio: 1;
+  background: var(--brand-mark) center / contain no-repeat;
+  opacity: 0.07;
+  transform: rotate(-12deg);
+  -webkit-mask-image: radial-gradient(circle at 40% 40%, #000 35%, transparent 72%);
+  mask-image: radial-gradient(circle at 40% 40%, #000 35%, transparent 72%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+:root[data-theme="dark"] .experience-card[style]::before {
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--brand) 20%, transparent), transparent 55%),
+    radial-gradient(60% 60% at 100% 100%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 70%);
+}
+
+:root[data-theme="dark"] .experience-card[style]::after {
+  opacity: 0.1;
+}
+
+.experience-card[style] .company-logo-shell {
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    0 10px 30px -12px color-mix(in srgb, var(--brand) 55%, transparent);
+}
+
+@media (max-width: 720px) {
+  .experience-card[style]::after {
+    right: -60px;
+    bottom: -70px;
+    width: 220px;
+  }
+}

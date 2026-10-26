@@ -336,3 +336,27 @@
   border: 0;
   background: var(--chip-bg);
 }
+
+/* Faint skyline behind the links page, same idea as the home hero */
+.links-page {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.links-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../assets/opt/hero_bg.webp") center 70% / cover no-repeat;
+  opacity: 0.13;
+  filter: grayscale(0.35) blur(1px);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 75%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 75%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+:root[data-theme="dark"] .links-page::before {
+  opacity: 0.22;
+  filter: grayscale(0.5) brightness(0.75) blur(1px);
+}
