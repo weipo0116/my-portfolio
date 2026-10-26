@@ -67,7 +67,7 @@ export const siteData = {
       degree: "B.S. · Big Data Management (Data Science)",
       school: "Soochow University (SCU)",
       period: "Sep 2019 - Jun 2023",
-      note: "Capstone: 「覓」境 — Instagram restaurant finder LINE Bot.\nIndustry–academia: E.SUN Securities program, beginner-investor risk chatbot — Winner (2021).",
+      note: "Capstone: Mijing (覓境), an Instagram restaurant finder LINE Bot.\nIndustry–academia: E.SUN Securities program, beginner-investor risk chatbot — Winner (2021).",
     },
     {
       degree: "Exchange Student · School of Data Science",
@@ -242,7 +242,7 @@ export const siteData = {
       image: vangoph_teaser,
     },
     {
-      name: "「覓」境 — Instagram Restaurant Finder (LINE Bot)",
+      name: "Mijing (覓境) — Instagram Restaurant Finder (LINE Bot)",
       description:
         "Undergraduate capstone (team of 5). We crawled about 4,000 #台北美食 Instagram posts with Selenium, narrowed them to 65 Taipei restaurants verified on Google Maps, and scored each one by combining sentiment on posts (CKIP + CopeOpi) and Google reviews (SnowNLP) with star ratings. Recommendations are served through a LINE Bot (Flask, PostgreSQL on Railway, Dialogflow small talk).",
       role: "Undergraduate capstone (team, 2022)",
@@ -265,7 +265,7 @@ export const siteData = {
     {
       name: "Personal Investment Risk Butler — E.SUN Securities Industry–Academia Program",
       description:
-        "A LINE chatbot for first-time investors, built after studying settlement-default cases that often involved beginners. It looks up daily Taiwan stock quotes, explains terms like opening price or P/E in plain language, and adds gentle risk reminders. Our cross-university team won first place in the E.SUN Securities program (2021).",
+        "A LINE chatbot for first-time investors, built after studying settlement-default cases that often involved beginners. It looks up daily Taiwan stock quotes, explains terms like opening price or P/E in plain language, and adds gentle risk reminders. Our cross-university team was named a winner in the E.SUN Securities program (2021).",
       role: "Team project — Winner (2021)",
       stack: ["Python", "LINE Bot", "FinTech"],
       image: esunImg,
