@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,900;1,6..96,500;1,6..96,900&family=Archivo:wght@400;600;800;900&family=Noto+Serif+TC:wght@600;900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Cinq Éléments · 五行穿搭</title>
+    <meta name="description" content="依當日五行與台北天氣，生成大膽配色的每日穿搭。五行屬文化娛樂參考。" />
+  </head>
+  <body>
+    <div id="wipe" aria-hidden="true"></div>
+    <main id="app">
+      <header class="hero">
+        <div class="topbar">
+          <span>CINQ ÉLÉMENTS</span>
+          <span id="dateLine">—</span>
+          <a href="../../work/">LAB ↗</a>
+        </div>
+        <p class="kicker">LOOK DU JOUR · 今日主色</p>
+        <h1 class="mega" id="mega" aria-live="polite"><span class="mega-zh" id="elZh">木</span><span class="mega-en" id="elEn">WOOD</span></h1>
+        <p class="sub" id="sub"></p>
+        <div class="chips" id="chips"></div>
+      </header>
+
+      <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
+
+      <section class="weather reveal" aria-labelledby="h-w">
+        <h2 id="h-w">MÉTÉO <span>台北 · 即時天氣</span></h2>
+        <div class="wgrid" id="wgrid"></div>
+      </section>
+
+      <section class="looks" aria-labelledby="h-l">
+        <div class="looks-head reveal">
+          <h2 id="h-l">LES LOOKS <span>選擇場合</span></h2>
+          <div class="tabs" role="tablist" id="tabs"></div>
+        </div>
+        <div class="look-grid" id="lookGrid"></div>
+      </section>
+
+      <section class="rules reveal" aria-labelledby="h-r">
+        <h2 id="h-r">LA RÈGLE <span>配色邏輯</span></h2>
+        <div class="rule-grid" id="rules"></div>
+      </section>
+
+      <footer class="foot">
+        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市目前固定為台北。</p>
+        <p>五行穿搭屬傳統文化與時尚遊戲，僅供娛樂與搭配靈感，不是科學預測。</p>
+      </footer>
+    </main>
+    <script type="module" src="/src/lab/outfit/main.js"></script>
+  </body>
+</html>

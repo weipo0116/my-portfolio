@@ -191,6 +191,26 @@ export const siteData = {
           "One source of truth that regenerates both the PDF resume and the site content.",
         stack: ["Markdown", "React", "Automation"],
       },
+      {
+        name: "Astra Dies — Daily Astrology",
+        status: "In use",
+        problem:
+          "Daily horoscopes are vague; I wanted planet positions I can verify, explained in plain language.",
+        approach:
+          "Computes real planetary longitudes, aspects and moon phase in the browser, then renders a Roman armillary-style chart with a short reading.",
+        stack: ["astronomy-engine", "SVG", "Motion"],
+        link: `${import.meta.env.BASE_URL}lab/astro/`,
+      },
+      {
+        name: "Cinq Éléments — Five-Element Outfit",
+        status: "In use",
+        problem:
+          "Deciding what to wear means juggling weather, occasion and colour with no fixed logic.",
+        approach:
+          "Derives the day's Five Element from the lunar calendar, reads Taipei weather, and builds three bold, runway-style looks per occasion.",
+        stack: ["lunar-javascript", "Open-Meteo", "Editorial design"],
+        link: `${import.meta.env.BASE_URL}lab/outfit/`,
+      },
     ],
   },
   projects: [

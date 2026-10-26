@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07080f" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+TC:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>Astra Dies · 每日星盤</title>
+    <meta
+      name="description"
+      content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。"
+    />
+  </head>
+  <body>
+    <canvas id="stars" aria-hidden="true"></canvas>
+    <main id="app">
+      <header class="hero">
+        <p class="eyebrow" id="romanDate">&nbsp;</p>
+        <h1 class="title"><span>ASTRA</span><span class="title-sub">DIES</span></h1>
+        <p class="lede" id="dateLine">&nbsp;</p>
+        <div class="stepper" role="group" aria-label="切換日期">
+          <button id="prev" type="button" aria-label="前一天">‹ 昨日</button>
+          <button id="today" type="button">今日</button>
+          <button id="next" type="button" aria-label="後一天">明日 ›</button>
+        </div>
+        <div class="wheel-wrap"><svg id="wheel" viewBox="-400 -400 800 800" role="img" aria-label="今日行星黃道輪盤"></svg></div>
+      </header>
+
+      <section class="block reveal" aria-labelledby="h-energy">
+        <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
+        <blockquote id="headline" class="headline"></blockquote>
+        <div id="energy" class="prose"></div>
+      </section>
+
+      <section class="block reveal" aria-labelledby="h-planets">
+        <h2 id="h-planets"><span class="num">II</span> 行星位置 <em>Loci Planetarum</em></h2>
+        <ul id="planets" class="planets"></ul>
+      </section>
+
+      <section class="block reveal" aria-labelledby="h-aspects">
+        <h2 id="h-aspects"><span class="num">III</span> 重要相位 <em>Aspectus</em></h2>
+        <div id="aspects" class="aspects"></div>
+      </section>
+
+      <section class="block reveal moon-block" aria-labelledby="h-moon">
+        <h2 id="h-moon"><span class="num">IV</span> 月相 <em>Luna</em></h2>
+        <div class="moon-row">
+          <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相"></svg>
+          <div id="moonText" class="prose"></div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <p>行星位置以天文曆算（astronomy-engine, MIT）於瀏覽器內即時計算；以台北時間為準。</p>
+        <p>星座解讀為占星娛樂與自我反思的參考，不是科學預測，也不構成醫療、財務或法律建議。</p>
+        <p><a href="../../work/">← 回到 Lab</a></p>
+      </footer>
+    </main>
+    <script type="module" src="/src/lab/astro/main.js"></script>
+  </body>
+</html>

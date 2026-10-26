@@ -12,6 +12,8 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         work: resolve(__dirname, "work/index.html"), // → /my-portfolio/work/
         links: resolve(__dirname, "links/index.html"), // → /my-portfolio/links/
+        labAstro: resolve(__dirname, "lab/astro/index.html"), // → /my-portfolio/lab/astro/
+        labOutfit: resolve(__dirname, "lab/outfit/index.html"), // → /my-portfolio/lab/outfit/
       },
     },
   },
