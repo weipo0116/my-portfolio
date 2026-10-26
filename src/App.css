@@ -1977,7 +1977,7 @@ body {
     align-items: center;
   }
 
-  .hero-text > .hero-kicker {
+  .hero-text .hero-kicker {
     display: none;
   }
 

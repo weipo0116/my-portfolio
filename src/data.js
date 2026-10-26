@@ -183,12 +183,12 @@ export const siteData = {
         stack: ["Python", "Computer vision", "Local-first"],
       },
       {
-        name: "Resume ↔ Portfolio Sync",
+        name: "Resume & Portfolio Sync",
         status: "Exploring",
         problem:
-          "Updating my résumé and this site separately keeps them drifting apart.",
+          "Updating my resume and this site separately keeps them drifting apart.",
         approach:
-          "One source of truth that regenerates both the PDF résumé and the site content.",
+          "One source of truth that regenerates both the PDF resume and the site content.",
         stack: ["Markdown", "React", "Automation"],
       },
     ],

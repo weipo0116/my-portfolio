@@ -109,7 +109,7 @@ export default function LinksPage() {
             {lang === "zh" ? "AI MA 儲備幹部" : "AI Management Associate"}
             <span className="links-org">
               {lang === "zh"
-                ? "第一銀行・數位通路處"
+                ? "第一銀行 · 數位通路處"
                 : "First Bank · Digital Banking Division"}
             </span>
           </p>

@@ -23,8 +23,8 @@ export const ui = {
     themeToLight: "Switch to light mode",
     themeToDark: "Switch to dark mode",
     viewWork: "View Work",
-    downloadResume: "Download résumé",
-    downloadMyResume: "Download my Résumé",
+    downloadResume: "Download resume",
+    downloadMyResume: "Download my Resume",
     sections: {
       about: "About Me",
       education: "Education",
@@ -64,7 +64,7 @@ export const ui = {
       portfolioSub: "Background & experience",
       work: "Projects & Lab",
       workSub: "Research, projects and AI tools",
-      resume: "Résumé",
+      resume: "Resume",
       resumeSub: "One-page PDF",
       contact: "Contact",
       mainLinks: "Main links",
@@ -137,7 +137,7 @@ export const ui = {
 
 const zhData = {
   title: "AI MA 儲備幹部",
-  location: "台灣・台北",
+  location: "台灣 · 台北",
   avatarAlt: "Webber Lai 的照片",
   heroHighlights: [
     "第一銀行 數位通路處 AI MA（儲備幹部）。",
@@ -252,7 +252,7 @@ const zhData = {
         approach: "自動偵測關鍵畫面，把錄影轉成有標註、依序排列的步驟清單，設計成完全在本機執行。",
       },
       {
-        name: "履歷 ↔ 作品集同步",
+        name: "履歷與作品集同步",
         problem: "履歷和網站分開更新，內容越來越不一致。",
         approach: "以單一資料來源，同時產生 PDF 履歷與網站內容。",
       },
