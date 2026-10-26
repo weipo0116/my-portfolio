@@ -2,7 +2,6 @@
 import React, {
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -242,14 +241,10 @@ function App({ page = "profile" }) {
     if (Math.abs(drift) > 1) window.scrollBy(0, drift);
     langAnchorRef.current = null;
   }, [lang]);
-  const carouselViewportRef = useRef(null);
-  const swipeStartRef = useRef(null);
-  const carouselGap = 20;
+  const othersScrollRef = useRef(null);
   const [activeSection, setActiveSection] = useState(
     isWork ? "projects" : "home",
   );
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [carouselPerPage, setCarouselPerPage] = useState(3);
   const [expandedProject, setExpandedProject] = useState(null);
   const [expandedOtherExperience, setExpandedOtherExperience] = useState(null);
   const [otherExperienceDirection, setOtherExperienceDirection] = useState(0);
@@ -398,82 +393,10 @@ function App({ page = "profile" }) {
     );
   };
 
-  useEffect(() => {
-    const updatePerPage = () => {
-      const width = window.innerWidth;
-      if (width < 720) {
-        setCarouselPerPage(1);
-      } else if (width < 1024) {
-        setCarouselPerPage(2);
-      } else {
-        setCarouselPerPage(3);
-      }
-    };
-    updatePerPage();
-    window.addEventListener("resize", updatePerPage);
-    return () => window.removeEventListener("resize", updatePerPage);
-  }, []);
-
   const otherExperiences = siteData.otherExperiences || [];
-  const useTwoRows = otherExperiences.length > 6;
   const expandedOtherExperienceIndex = otherExperiences.findIndex(
     (item) => item.title === expandedOtherExperience?.title,
   );
-  const carouselColumns = useMemo(() => {
-    if (!useTwoRows) {
-      return otherExperiences.map((item) => [item]);
-    }
-    const columns = [];
-    for (let i = 0; i < otherExperiences.length; i += 2) {
-      columns.push(otherExperiences.slice(i, i + 2));
-    }
-    return columns;
-  }, [otherExperiences, useTwoRows]);
-
-  const carouselMaxIndex = Math.max(
-    0,
-    carouselColumns.length - carouselPerPage,
-  );
-  const carouselPageCount = carouselMaxIndex + 1;
-
-  useEffect(() => {
-    if (carouselIndex > carouselMaxIndex) {
-      setCarouselIndex(carouselMaxIndex);
-    }
-  }, [carouselIndex, carouselMaxIndex]);
-
-  useEffect(() => {
-    const viewport = carouselViewportRef.current;
-    if (!viewport) return;
-    const track = viewport.querySelector(".carousel-track");
-    const columns = viewport.querySelectorAll(".other-column");
-    const targetColumn = columns[carouselIndex];
-    if (!targetColumn) return;
-    const trackPaddingLeft = track
-      ? Number.parseFloat(window.getComputedStyle(track).paddingLeft) || 0
-      : 0;
-    const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-    const edgeInset =
-      carouselPerPage === 1 ? 0 : carouselIndex === carouselMaxIndex ? 0 : 0;
-    viewport.scrollTo({
-      left: Math.min(
-        maxScrollLeft,
-        Math.max(0, targetColumn.offsetLeft - trackPaddingLeft - edgeInset),
-      ),
-      behavior: "smooth",
-    });
-  }, [carouselIndex, carouselPerPage, carouselGap, carouselMaxIndex]);
-
-  const moveCarouselBy = (delta) => {
-    const nextIndex = Math.min(
-      carouselMaxIndex,
-      Math.max(0, carouselIndex + delta),
-    );
-    if (nextIndex !== carouselIndex) {
-      setCarouselIndex(nextIndex);
-    }
-  };
-
   const moveOtherExperienceBy = (delta) => {
     if (!otherExperiences.length || expandedOtherExperienceIndex < 0) return;
     const nextIndex = expandedOtherExperienceIndex + delta;
@@ -595,6 +518,7 @@ function App({ page = "profile" }) {
       ref={pageRef}
       className={`page ${isWork ? "page-work" : "page-profile"}`}
     >
+      <div className="scroll-progress" aria-hidden="true" />
       <nav className="nav" aria-label={t.navAria}>
         <motion.div
           className="brand"
@@ -893,10 +817,10 @@ function App({ page = "profile" }) {
                         <div className="education-timeline-marker" />
                         <div className="education-timeline-content">
                           <div className="education-header-row">
-                            <p className="education-degree">{item.degree}</p>
+                            <p className="education-degree">{item.school}</p>
                             <p className="education-period">{item.period}</p>
                           </div>
-                          <p className="education-meta">{item.school}</p>
+                          <p className="education-meta">{item.degree}</p>
                           {item.note ? (
                             <p className="education-note">
                               {item.note.split("\n").map((line, index) => (
@@ -1213,158 +1137,80 @@ function App({ page = "profile" }) {
             <div className="section-header">
               <h2>{t.sections.others}</h2>
             </div>
-            <div
-              className="carousel"
-              style={{
-                "--carousel-gap": `${carouselGap}px`,
-                "--carousel-columns": carouselPerPage,
-              }}
-            >
-              <div className="carousel-shell">
-                {carouselPageCount > 1 ? (
-                  <button
-                    className="carousel-button carousel-button-left"
-                    onClick={() => moveCarouselBy(-1)}
-                    disabled={carouselIndex === 0}
-                    aria-label={t.prev}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M15.5 19 8.5 12l7-7" />
-                    </svg>
-                  </button>
-                ) : null}
-
-                <div
-                  className="carousel-viewport"
-                  ref={carouselViewportRef}
-                  onTouchStart={(event) => {
-                    swipeStartRef.current = event.touches[0].clientX;
-                  }}
-                  onTouchEnd={(event) => {
-                    const start = swipeStartRef.current;
-                    swipeStartRef.current = null;
-                    if (start == null) return;
-                    const dx = event.changedTouches[0].clientX - start;
-                    if (Math.abs(dx) > 40) moveCarouselBy(dx < 0 ? 1 : -1);
+            <div className="hscroll" ref={othersScrollRef}>
+              <div className="hscroll-track">
+                {otherExperiences.map((item, index) => (
+                <motion.article
+                  key={`other-${index}`}
+                  className="photo-card photo-card-preview hscroll-card"
+                  role="button"
+                  tabIndex={0}
+                  custom={index}
+                  variants={cardVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.2 }}
+                  whileHover={
+                    shouldReduceMotion
+                      ? undefined
+                      : {
+                          y: -4,
+                          transition: {
+                            duration: 0.4,
+                            ease: MOTION_EASE,
+                          },
+                        }
+                  }
+                  whileTap={
+                    shouldReduceMotion ? undefined : { scale: 0.995 }
+                  }
+                  onClick={() => setExpandedOtherExperience(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setExpandedOtherExperience(item);
+                    }
                   }}
                 >
-                  <div className="carousel-track">
-                    {carouselColumns.map((columnItems, columnIndex) => (
-                      <div
-                        key={`column-${columnIndex}`}
-                        className={`other-column ${useTwoRows ? "is-two-rows" : "is-one-row"}`}
-                      >
-                        {columnItems.map((item, itemIndex) => (
-                          <motion.article
-                            key={`other-${columnIndex}-${itemIndex}`}
-                            className="photo-card photo-card-preview"
-                            role="button"
-                            tabIndex={0}
-                            custom={
-                              columnIndex * (useTwoRows ? 2 : 1) + itemIndex
-                            }
-                            variants={cardVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.2 }}
-                            whileHover={
-                              shouldReduceMotion
-                                ? undefined
-                                : {
-                                    y: -4,
-                                    transition: {
-                                      duration: 0.4,
-                                      ease: MOTION_EASE,
-                                    },
-                                  }
-                            }
-                            whileTap={
-                              shouldReduceMotion ? undefined : { scale: 0.995 }
-                            }
-                            onClick={() => setExpandedOtherExperience(item)}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                setExpandedOtherExperience(item);
-                              }
-                            }}
-                          >
-                            <div className="photo-media">
-                              <ProgressiveImage
-                                className={`photo ${item.photoClass || ""}`}
-                                aria-hidden="true"
-                                src={item.image}
-                                alt=""
-                                imgClassName="photo-image"
-                              />
-                              {item.period ? (
-                                <p className="photo-period-overlay">
-                                  {item.period}
-                                </p>
-                              ) : null}
-                            </div>
-                            <div className="photo-info">
-                              <div className="photo-header">
-                                <h3>
-                                  {item.title}
-                                  {item.subtitle ? (
-                                    <span className="photo-subtitle">
-                                      {item.subtitle}
-                                    </span>
-                                  ) : null}
-                                </h3>
-                              </div>
-                              <div
-                                className="photo-expand-hint"
-                                aria-hidden="true"
-                              >
-                                <span>{t.more}</span>
-                                <svg viewBox="0 0 24 24">
-                                  <path d="M8 16 16 8" />
-                                  <path d="M10 8h6v6" />
-                                </svg>
-                              </div>
-                            </div>
-                          </motion.article>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {carouselPageCount > 1 ? (
-                  <button
-                    className="carousel-button carousel-button-right"
-                    onClick={() => moveCarouselBy(1)}
-                    disabled={carouselIndex === carouselMaxIndex}
-                    aria-label={t.next}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M8.5 5 15.5 12l-7 7" />
-                    </svg>
-                  </button>
-                ) : null}
-              </div>
-
-              {carouselPageCount > 1 ? (
-                <div
-                  className="carousel-dots"
-                  role="tablist"
-                  aria-label={t.slides}
-                >
-                  {Array.from({ length: carouselPageCount }).map((_, index) => (
-                    <button
-                      key={`dot-${index}`}
-                      className={`carousel-dot ${index === carouselIndex ? "is-active" : ""}`}
-                      onClick={() => setCarouselIndex(index)}
-                      aria-label={t.goToSlide(index + 1)}
-                      aria-current={index === carouselIndex}
-                      role="tab"
-                      type="button"
+                  <div className="photo-media">
+                    <ProgressiveImage
+                      className={`photo ${item.photoClass || ""}`}
+                      aria-hidden="true"
+                      src={item.image}
+                      alt=""
+                      imgClassName="photo-image"
                     />
-                  ))}
-                </div>
-              ) : null}
+                    {item.period ? (
+                      <p className="photo-period-overlay">
+                        {item.period}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="photo-info">
+                    <div className="photo-header">
+                      <h3>
+                        {item.title}
+                        {item.subtitle ? (
+                          <span className="photo-subtitle">
+                            {item.subtitle}
+                          </span>
+                        ) : null}
+                      </h3>
+                    </div>
+                    <div
+                      className="photo-expand-hint"
+                      aria-hidden="true"
+                    >
+                      <span>{t.more}</span>
+                      <svg viewBox="0 0 24 24">
+                        <path d="M8 16 16 8" />
+                        <path d="M10 8h6v6" />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.article>
+                ))}
+              </div>
             </div>
           </motion.section>
         ) : null}

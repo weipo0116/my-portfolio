@@ -54,19 +54,19 @@ export const siteData = {
   ],
   education: [
     {
-      degree: "M.S. in Computer Science",
+      degree: "M.S. · Computer Science",
       school: "National Chengchi University (NCCU)",
       period: "Sep 2023 - Jan 2026",
       note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Advisor: Ming-Te Chi.",
     },
     {
-      degree: "B.S. in Big Data Management (Data Science)",
+      degree: "B.S. · Big Data Management (Data Science)",
       school: "Soochow University (SCU)",
       period: "Sep 2019 - Jun 2023",
       note: "",
     },
     {
-      degree: "Exchange Program, School of Data Science",
+      degree: "Exchange Student · School of Data Science",
       school: "Fudan University",
       period: "Sep 2021 - Jan 2022",
       note: "",

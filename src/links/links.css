@@ -336,27 +336,3 @@
   border: 0;
   background: var(--chip-bg);
 }
-
-/* Portrait backdrop: Toronto, CN Tower — vertical photo for a vertical page */
-.links-page {
-  isolation: isolate;
-  overflow: hidden;
-}
-
-.links-page::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("../assets/images/backgrounds/links_bg.webp") center 20% / cover no-repeat;
-  opacity: 0.16;
-  filter: grayscale(0.2);
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 40%, transparent 92%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 40%, transparent 92%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-:root[data-theme="dark"] .links-page::before {
-  opacity: 0.24;
-  filter: grayscale(0.35) brightness(0.7);
-}

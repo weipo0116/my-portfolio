@@ -152,18 +152,18 @@ const zhData = {
   },
   education: [
     {
-      degree: "資訊科學碩士",
+      degree: "碩士｜資訊科學系",
       school: "國立政治大學",
       period: "2023.09 – 2026.01",
       note: "論文：大型空拍場景之 3D Gaussian Splatting 互動式語意分割。\n指導教授：紀明德。",
     },
     {
-      degree: "巨量資料管理學士（資料科學）",
+      degree: "學士｜巨量資料管理（資料科學）",
       school: "東吳大學",
       period: "2019.09 – 2023.06",
     },
     {
-      degree: "交換學生，大數據學院",
+      degree: "交換學生｜大數據學院",
       school: "復旦大學",
       period: "2021.09 – 2022.01",
     },
