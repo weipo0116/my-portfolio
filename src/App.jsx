@@ -1125,7 +1125,7 @@ function App({ page = "profile" }) {
                         >
                           {t.checkOnGithub}
                         </a>
-                      ) : (
+                      ) : project.repo ? (
                         <span
                           className={`repo-link project-link ${isRepoUnreleased(project.repo) ? "is-unreleased" : ""}`}
                         >
@@ -1133,7 +1133,7 @@ function App({ page = "profile" }) {
                             ? t.unreleased
                             : project.repo}
                         </span>
-                      )}
+                      ) : null}
                       <p className="card-summary">
                         {project.description.split("\n").map((line, index) => (
                           <span key={`${project.name}-line-${index}`}>

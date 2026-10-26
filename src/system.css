@@ -734,8 +734,8 @@ button,
 /* ── Other experiences: horizontal scroll ── */
 .hscroll {
   --hs-edge: max(5vw, calc((100vw - 1120px) / 2));
-  --hs-card: min(560px, 42vw);
-  --hs-gap: 24px;
+  --hs-card: min(400px, 30vw);
+  --hs-gap: 20px;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   overflow-x: auto;
@@ -765,7 +765,7 @@ button,
 
 .hscroll-card .photo {
   height: auto;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
 }
 
@@ -774,7 +774,7 @@ button,
 }
 
 .hscroll-card .photo-info {
-  padding: 20px 24px 22px;
+  padding: 14px 18px 16px;
 }
 
 /* GSAP drives the track on wide screens: no native scrolling there */
@@ -785,12 +785,12 @@ button,
 
 @media (max-width: 959px) {
   .hscroll {
-    --hs-card: min(82vw, 440px);
-    --hs-gap: 14px;
+    --hs-card: min(72vw, 340px);
+    --hs-gap: 12px;
   }
 }
 
 .hscroll-card .photo-nccu .photo-image,
 .hscroll-card .photo-portfolio .photo-image {
-  height: 64%;
+  height: 70%;
 }

@@ -28,6 +28,8 @@ _M.S. in Computer Science_
 
 _B.S. in Big Data Management (Data Science)_
 - GPA: 3.76/4
+- Capstone: Instagram restaurant finder LINE Bot; owned sentiment analysis (CKIP, CopeOpi, SnowNLP).
+- E.SUN Securities industry–academia program: beginner-investor risk chatbot, Winner (2021).
 
 ### Fudan University || Sep 2021 - Jan 2022
 

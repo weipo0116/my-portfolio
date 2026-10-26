@@ -6,9 +6,12 @@ import thesisTeaser from "./assets/images/projects/thesis_teaser.webp";
 import vangoph_teaser from "./assets/images/projects/vangoph_teaser.webp";
 import HCI_teaser from "./assets/images/projects/hci_teaser.webp";
 import ds_poster from "./assets/images/projects/ds_poster.webp";
+import mijingImg from "./assets/images/projects/mijing.webp";
+import esunImg from "./assets/images/projects/esun_chatbot.webp";
 import PR_img from "./assets/images/projects/pr_img.webp";
 import chros_img from "./assets/images/others/chorus.webp";
 import pg_img from "./assets/images/others/pg.webp";
+import clcLogo from "./assets/logos/nccu_clc.webp";
 import nccu_img from "./assets/logos/nccu.webp";
 import graduationPhoto from "./assets/images/profile/graduation.webp";
 import firstbankEsg from "./assets/images/backgrounds/firstbank_esg.webp";
@@ -63,7 +66,7 @@ export const siteData = {
       degree: "B.S. · Big Data Management (Data Science)",
       school: "Soochow University (SCU)",
       period: "Sep 2019 - Jun 2023",
-      note: "",
+      note: "Capstone: 「覓」境 — Instagram restaurant finder LINE Bot (owned sentiment analysis).\nIndustry–academia: E.SUN Securities program, beginner-investor risk chatbot — Winner (2021).",
     },
     {
       degree: "Exchange Student · School of Data Science",
@@ -90,8 +93,8 @@ export const siteData = {
     {
       role: "Project Assistant | Chinese Language Center (CLC)",
       company: "National Chengchi University (NCCU)",
-      logo: nccu_img,
-      brand: "#19338E",
+      logo: clcLogo,
+      brand: "#1E2A8A",
       period: "May 2026 - Jul 2026",
       summary: [
         "Ran three teacher-training lectures for the Ministry of Education's Mandarin Proficiency Enhancement Program — speaker invitations, venue and hybrid (on-site + online) logistics, promotion, and on-the-day hosting.",
@@ -238,6 +241,14 @@ export const siteData = {
       image: vangoph_teaser,
     },
     {
+      name: "「覓」境 — Instagram Restaurant Finder (LINE Bot)",
+      description:
+        "Undergraduate capstone (team of 5). We crawled about 4,000 #台北美食 Instagram posts with Selenium, narrowed them to 65 Taipei restaurants verified on Google Maps, and scored each one by combining sentiment on posts (CKIP + CopeOpi) and Google reviews (SnowNLP) with star ratings. Recommendations are served through a LINE Bot (Flask, PostgreSQL on Railway, Dialogflow small talk).",
+      role: "Text mining & sentiment analysis (team capstone, 2022)",
+      stack: ["Python", "Selenium", "CKIP", "SnowNLP", "Flask", "LINE Bot"],
+      image: mijingImg,
+    },
+    {
       name: "DS Prediction of Ecommerce Transaction Fraud",
       description:
         "Machine learning project for ecommerce fraud detection, using customer and transaction data to flag high-risk activities.",
@@ -248,6 +259,14 @@ export const siteData = {
       },
       repo: "https://github.com/112-2-dataScience/finalproject-group6",
       image: ds_poster,
+    },
+    {
+      name: "Personal Investment Risk Butler — E.SUN Securities Industry–Academia Program",
+      description:
+        "A LINE chatbot for first-time investors, built after studying settlement-default cases that often involved beginners. It looks up daily Taiwan stock quotes, explains terms like opening price or P/E in plain language, and adds gentle risk reminders. Our cross-university team won first place in the E.SUN Securities program (2021).",
+      role: "Team project — Winner (2021)",
+      stack: ["Python", "LINE Bot", "FinTech"],
+      image: esunImg,
     },
     {
       name: "PR Garbage Detection",

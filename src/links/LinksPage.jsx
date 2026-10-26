@@ -101,12 +101,27 @@ export default function LinksPage() {
       </div>
       <div className="links-shell">
         <header className="links-header">
-          <div className="links-avatar">
-            <img src={avatar} alt="Webber Lai" width="112" height="112" />
+          <div className="links-avatar-wrap">
+            <svg className="links-ring" viewBox="0 0 200 200" aria-hidden="true">
+              <defs>
+                <path
+                  id="links-ring-path"
+                  d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"
+                />
+              </defs>
+              <text>
+                <textPath href="#links-ring-path" textLength="538">
+                  WEBBER LAI · AI MA · DATA × DESIGN · TAIPEI ·
+                </textPath>
+              </text>
+            </svg>
+            <div className="links-avatar">
+              <img src={avatar} alt="Webber Lai" width="112" height="112" />
+            </div>
           </div>
           <h1 className="links-name">{siteData.name}</h1>
           <p className="links-role">
-            {lang === "zh" ? "AI MA 儲備幹部" : "AI Management Associate"}
+            {lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
             <span className="links-org">
               {lang === "zh"
                 ? "第一銀行 · 數位通路處"
@@ -114,13 +129,30 @@ export default function LinksPage() {
             </span>
           </p>
           <p className="links-bio">{L.bio}</p>
+          <a className="links-now" href={`${BASE}work/#lab`}>
+            <span className="links-now-dot" aria-hidden="true" />
+            <span className="links-now-label">{L.now}</span>
+            <span className="links-now-text">{L.nowText}</span>
+          </a>
         </header>
 
         <nav className="links-list" aria-label={L.mainLinks}>
-          {links.map((link) => (
+          {links.map((link, index) => (
             <a
               key={link.key}
               className="links-card"
+              style={{ "--i": index }}
+              onPointerMove={(event) => {
+                const box = event.currentTarget.getBoundingClientRect();
+                event.currentTarget.style.setProperty(
+                  "--mx",
+                  `${event.clientX - box.left}px`,
+                );
+                event.currentTarget.style.setProperty(
+                  "--my",
+                  `${event.clientY - box.top}px`,
+                );
+              }}
               href={link.href}
               {...(link.download ? { download: link.download } : {})}
             >

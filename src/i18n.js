@@ -69,6 +69,8 @@ export const ui = {
       resumeSub: "One-page PDF",
       contact: "Contact",
       mainLinks: "Main links",
+      now: "Now",
+      nowText: "Building SI, an AI project workspace",
     },
   },
   zh: {
@@ -133,12 +135,14 @@ export const ui = {
       resumeSub: "一頁 PDF（英文）",
       contact: "聯絡方式",
       mainLinks: "主要連結",
+      now: "最近在做",
+      nowText: "SI — AI 專案工作台",
     },
   },
 };
 
 const zhData = {
-  title: "AI MA 儲備幹部",
+  title: "AI MA（儲備幹部）",
   location: "台灣 · 台北",
   avatarAlt: "Webber Lai 的照片",
   heroHighlights: [
@@ -161,6 +165,7 @@ const zhData = {
       degree: "學士｜巨量資料管理（資料科學）",
       school: "東吳大學",
       period: "2019.09 – 2023.06",
+      note: "畢業專題：「覓」境 — Instagram 餐廳查詢 LINE Bot（負責文本情緒分析）\n產學合作：玉山證券「個人投資風險管家」聊天機器人，獲優勝（2021）",
     },
     {
       degree: "交換學生｜大數據學院",
@@ -170,7 +175,7 @@ const zhData = {
   ],
   experience: [
     {
-      role: "AI MA 儲備幹部｜數位通路處",
+      role: "AI MA（儲備幹部）｜數位通路處",
       company: "第一商業銀行",
       period: "2026.08 – 至今",
       summary: [
@@ -281,8 +286,20 @@ const zhData = {
       role: "全端（資料處理＋互動視覺化）",
     },
     {
+      name: "「覓」境 — Instagram 餐廳查詢 LINE Bot",
+      description:
+        "大學畢業專題（5 人團隊）。以 Selenium 爬取約 4,000 篇 #台北美食 Instagram 貼文，經 Google Maps 驗證篩出 65 間台北餐廳；結合貼文情緒（CKIP＋CopeOpi）、Google 評論情緒（SnowNLP）與星等加權計算推薦分數，再透過 LINE Bot（Flask、Railway PostgreSQL、Dialogflow 閒聊）提供查詢與推薦。",
+      role: "文本探勘與情緒分析（團隊專題，2022）",
+    },
+    {
       description: "電商交易詐欺偵測的機器學習專題，運用顧客與交易資料標記高風險行為。",
       role: "資料科學（建模＋評估）",
+    },
+    {
+      name: "個人投資風險管家 — 玉山證券產學合作",
+      description:
+        "觀察違約交割案例多發生在投資新手，因此打造給股市小白的 LINE 聊天機器人：查詢當日台股資訊、用白話解釋開盤價、本益比等名詞，並適時提醒風險。跨校團隊於玉山證券產學合作中獲得優勝（2021）。",
+      role: "團隊專題 — 優勝（2021）",
     },
     {
       description: "垃圾偵測的電腦視覺專題，包含模型訓練、評估與可直接使用的推論流程。",
