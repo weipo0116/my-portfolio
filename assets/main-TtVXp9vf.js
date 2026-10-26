@@ -1,0 +1,1 @@
+import{a as e,c as t,j as r,r as o}from"./resume-CvZGeSZl.js";import{A as a}from"./App-zJ1w0rjE.js";e();t(document.getElementById("root")).render(r.jsx(o.StrictMode,{children:r.jsx(a,{page:"profile"})}));

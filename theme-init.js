@@ -18,5 +18,17 @@
   }
   root.setAttribute("data-theme", theme);
   root.lang = lang === "zh" ? "zh-Hant-TW" : "en";
-  root.style.backgroundColor = theme === "dark" ? "#07090f" : "#f2f7ff";
+  root.style.backgroundColor = theme === "dark" ? "#000" : "#fbfbfd";
+
+  // Cross-page view transitions reject their promises when a navigation is
+  // interrupted (e.g. a hash jump mid-transition); that is expected, not an error.
+  var quiet = function (event) {
+    var vt = event && event.viewTransition;
+    if (!vt) return;
+    ["ready", "finished", "updateCallbackDone"].forEach(function (key) {
+      if (vt[key] && vt[key].catch) vt[key].catch(function () {});
+    });
+  };
+  window.addEventListener("pagereveal", quiet);
+  window.addEventListener("pageswap", quiet);
 })();
