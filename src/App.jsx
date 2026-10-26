@@ -880,6 +880,9 @@ function App({ page = "profile" }) {
                 <div className="section-header">
                   <h2>{t.sections.education}</h2>
                 </div>
+                <div
+                  className={`education-layout ${siteData.educationImage ? "has-photo" : ""}`}
+                >
                 <div className="education-block education-standalone">
                   <div className="education-timeline">
                     {siteData.education.map((item, eduIndex) => (
@@ -910,6 +913,17 @@ function App({ page = "profile" }) {
                       </div>
                     ))}
                   </div>
+                </div>
+                {siteData.educationImage ? (
+                  <figure className="education-photo">
+                    <img
+                      src={siteData.educationImage}
+                      alt={t.educationPhotoAlt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </figure>
+                ) : null}
                 </div>
               </motion.section>
             ) : null}
@@ -946,9 +960,15 @@ function App({ page = "profile" }) {
                     className="info-card experience-card"
                     style={
                       item.brand
-                        ? { "--brand": item.brand }
+                        ? {
+                            "--brand": item.brand,
+                            ...(item.backdrop
+                              ? { "--card-photo": `url("${item.backdrop}")` }
+                              : {}),
+                          }
                         : undefined
                     }
+                    data-photo={item.backdrop ? "" : undefined}
                     custom={index}
                     variants={cardVariants}
                     initial="hidden"

@@ -1,18 +1,20 @@
 // src/data.js
-import selfImage from "./assets/opt/self.webp";
-import selfImage2 from "./assets/opt/mit_me.webp";
-import samplePhoto from "./assets/opt/raccoon.webp";
-import thesisTeaser from "./assets/opt/thesis_teaser.webp";
-import vangoph_teaser from "./assets/opt/vangoph_teaser.webp";
-import HCI_teaser from "./assets/opt/hci_teaser.webp";
-import ds_poster from "./assets/opt/ds_poster.webp";
-import PR_img from "./assets/opt/pr_img.webp";
-import chros_img from "./assets/opt/chorus.webp";
-import pg_img from "./assets/opt/pg.webp";
-import nccu_img from "./assets/opt/nccu.webp";
-import firstbankLogo from "./assets/firstbank_logo.svg";
-import lineLogoLocal from "./assets/opt/line_icon.webp";
-import aatLogoLocal from "./assets/opt/aat_icon.webp";
+import selfImage from "./assets/images/profile/self.webp";
+import selfImage2 from "./assets/images/profile/mit_me.webp";
+import samplePhoto from "./assets/images/others/raccoon.webp";
+import thesisTeaser from "./assets/images/projects/thesis_teaser.webp";
+import vangoph_teaser from "./assets/images/projects/vangoph_teaser.webp";
+import HCI_teaser from "./assets/images/projects/hci_teaser.webp";
+import ds_poster from "./assets/images/projects/ds_poster.webp";
+import PR_img from "./assets/images/projects/pr_img.webp";
+import chros_img from "./assets/images/others/chorus.webp";
+import pg_img from "./assets/images/others/pg.webp";
+import nccu_img from "./assets/logos/nccu.webp";
+import graduationPhoto from "./assets/images/profile/graduation.webp";
+import firstbankEsg from "./assets/images/backgrounds/firstbank_esg.webp";
+import firstbankLogo from "./assets/logos/firstbank.svg";
+import lineLogoLocal from "./assets/logos/line.webp";
+import aatLogoLocal from "./assets/logos/aat.webp";
 
 export const siteData = {
   name: "Webber Lai",
@@ -23,6 +25,7 @@ export const siteData = {
   avatarAlt: "Webber Lai portrait",
   avatarImage: selfImage,
   aboutImage: selfImage2,
+  educationImage: graduationPhoto,
   heroHighlights: [
     "AI Management Associate, Digital Banking Division @ First Bank.",
     "M.S. CS @ NCCU — Computer Graphics & Data Visualization.",
@@ -75,6 +78,7 @@ export const siteData = {
       company: "First Commercial Bank (First Bank)",
       logo: firstbankLogo,
       brand: "#B3863B",
+      backdrop: firstbankEsg,
       period: "Aug 2026 - Present",
       summary: [
         "Joined the AI Management Associate program on Aug 10, 2026, rotating within the Digital Banking Division.",

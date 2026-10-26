@@ -1,7 +1,7 @@
 import { getSiteData, ui } from "../i18n.js";
 import { usePrefs } from "../prefs.js";
 import PrefsToggles from "../PrefsToggles.jsx";
-import avatar from "../assets/avatar_480.jpg";
+import avatar from "../assets/images/profile/avatar_480.jpg";
 import resumePdf from "../resume/resume.pdf";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"

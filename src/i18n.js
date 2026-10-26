@@ -25,6 +25,7 @@ export const ui = {
     viewWork: "View Work",
     downloadResume: "Download resume",
     downloadMyResume: "Download my Resume",
+    educationPhotoAlt: "Receiving my M.S. diploma at the 2026 NCCU commencement",
     sections: {
       about: "About Me",
       education: "Education",
@@ -89,6 +90,7 @@ export const ui = {
     viewWork: "看作品",
     downloadResume: "下載履歷",
     downloadMyResume: "下載我的履歷",
+    educationPhotoAlt: "2026 年政大畢業典禮，領取碩士學位證書",
     sections: {
       about: "關於我",
       education: "學歷",
