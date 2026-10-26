@@ -31,7 +31,7 @@ _B.S. in Big Data Management (Data Science)_
 
 ### Fudan University || Sep 2021 - Jan 2022
 
-_Exchange Program, CS & Engineering_
+_Exchange Program, School of Data Science_
 
 ## Work Experience
 
@@ -45,9 +45,9 @@ _AI Management Associate | Digital Banking Division_
 
 ### LINE Taiwan Limited || Oct 2022 - Aug 2023
 
-_Social Content BD Team Intern | Social Content Strategy & Analytics_
+_Business Development Intern | Social Content BD Team_
 
-- Built and owned monthly performance reporting, translating data into actionable insights for management.
+- Supported business development and performance growth; owned monthly performance and traffic reporting for management.
 - Increased LINE VOOM first-screen VTR by approximately 100% through content and placement optimization, sustaining results above 35%.
 - Tracked performance and execution across 5+ major BD initiatives, including UBA, The Rappers 2, P. LEAGUE+, MAMA, and the LINE VOOM Creators Contest.
 - Consolidated multiple reports with the data team into a centralized dashboard, saving approximately 1 hour of manual work per day.

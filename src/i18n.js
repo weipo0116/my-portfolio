@@ -34,7 +34,7 @@ export const ui = {
       others: "Other Experience",
     },
     work: {
-      kicker: "Work",
+      kicker: "Portfolio",
       title: "Projects & Lab",
       intro:
         "Research, class projects, and the AI tools I'm building — from interactive 3D to everyday workflow automation.",
@@ -98,7 +98,7 @@ export const ui = {
       others: "其他經歷",
     },
     work: {
-      kicker: "作品",
+      kicker: "作品集",
       title: "作品與 Lab",
       intro: "研究、課堂專題，以及我正在打造的 AI 工具——從互動式 3D 到日常工作流程自動化。",
       backToProfile: "回到個人介紹",
@@ -161,7 +161,7 @@ const zhData = {
       period: "2019.09 – 2023.06",
     },
     {
-      degree: "交換學生，計算機科學與技術",
+      degree: "交換學生，大數據學院",
       school: "復旦大學",
       period: "2021.09 – 2022.01",
     },
@@ -179,11 +179,11 @@ const zhData = {
       ],
     },
     {
-      role: "社群內容 BD 實習生｜社群內容策略與分析",
+      role: "商業開發實習生｜社群內容 BD 團隊",
       company: "台灣連線股份有限公司（LINE Taiwan）",
       period: "2022.10 – 2023.08",
       summary: [
-        "負責每月成效報告，將數據轉化為管理層可採取行動的洞察。",
+        "協助社群內容的商業開發與成效成長，負責每月成效與整體流量報告，將數據轉化為管理層可採取行動的洞察。",
         "透過內容與版位優化，讓 LINE VOOM 首屏 VTR 提升約 100%。",
         "追蹤 5 個以上大型 BD 專案的成效與執行，包括 UBA、大嘻哈時代 2、P. LEAGUE+、MAMA 及 LINE VOOM 創作者大賽。",
         "與數據團隊整合多份報表為集中式儀表板，每天省下約 1 小時人工作業。",

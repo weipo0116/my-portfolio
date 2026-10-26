@@ -63,7 +63,7 @@ export const siteData = {
       note: "",
     },
     {
-      degree: "Exchange Program, CS & Engineering",
+      degree: "Exchange Program, School of Data Science",
       school: "Fudan University",
       period: "Sep 2021 - Jan 2022",
       note: "",
@@ -83,13 +83,13 @@ export const siteData = {
       ],
     },
     {
-      role: "Social Content BD Team Intern | Social Content Strategy & Analytics",
+      role: "Business Development Intern | Social Content BD Team",
       company: "LINE Taiwan Limited",
       logo: "https://vos.line-scdn.net/landpress-content-v2-tqq6mwxs5qlx5cg0nutma2bg/1c7f9ad5a0d2415cab739ae6e9f71e35-large.png?updatedAt=1752734110000",
       logoFallback: lineLogoLocal,
       period: "Oct 2022 - Aug 2023",
       summary: [
-        "Built and owned monthly performance reporting, translating data into actionable insights for management.",
+        "Supported business development and performance growth for social content; owned monthly performance and overall traffic reporting, turning data into actionable insights for management.",
         "Increased LINE VOOM first-screen VTR by approximately 100% through content and placement optimization.",
         "Tracked performance and execution across 5+ major BD initiatives, including UBA, The Rappers 2, P. LEAGUE+, MAMA, and the LINE VOOM Creators Contest.",
         "Consolidated multiple reports with the data team into a centralized dashboard, saving approximately 1 hour of manual work per day.",
