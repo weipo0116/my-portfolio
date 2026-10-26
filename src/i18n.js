@@ -45,6 +45,7 @@ export const ui = {
     labStatus: { "In use": "In use", Exploring: "Exploring" },
     checkOnGithub: "Check on GitHub",
     unreleased: "Unreleased",
+    viewPoster: "View full poster",
     more: "more",
     relatedSite: "Related Site",
     prev: "Previous",
@@ -111,6 +112,7 @@ export const ui = {
     labStatus: { "In use": "使用中", Exploring: "探索中" },
     checkOnGithub: "在 GitHub 查看",
     unreleased: "尚未公開",
+    viewPoster: "查看完整海報",
     more: "更多",
     relatedSite: "相關網站",
     prev: "上一頁",
@@ -165,7 +167,7 @@ const zhData = {
       degree: "學士｜巨量資料管理（資料科學）",
       school: "東吳大學",
       period: "2019.09 – 2023.06",
-      note: "畢業專題：「覓」境 — Instagram 餐廳查詢 LINE Bot（負責文本情緒分析）\n產學合作：玉山證券「個人投資風險管家」聊天機器人，獲優勝（2021）",
+      note: "畢業專題：「覓」境 — Instagram 餐廳查詢 LINE Bot\n產學合作：玉山證券「個人投資風險管家」聊天機器人，獲優勝（2021）",
     },
     {
       degree: "交換學生｜大數據學院",
@@ -289,7 +291,7 @@ const zhData = {
       name: "「覓」境 — Instagram 餐廳查詢 LINE Bot",
       description:
         "大學畢業專題（5 人團隊）。以 Selenium 爬取約 4,000 篇 #台北美食 Instagram 貼文，經 Google Maps 驗證篩出 65 間台北餐廳；結合貼文情緒（CKIP＋CopeOpi）、Google 評論情緒（SnowNLP）與星等加權計算推薦分數，再透過 LINE Bot（Flask、Railway PostgreSQL、Dialogflow 閒聊）提供查詢與推薦。",
-      role: "文本探勘與情緒分析（團隊專題，2022）",
+      role: "大學畢業專題（團隊，2022）",
     },
     {
       description: "電商交易詐欺偵測的機器學習專題，運用顧客與交易資料標記高風險行為。",

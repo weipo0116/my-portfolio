@@ -1272,8 +1272,8 @@ function App({ page = "profile" }) {
                 ×
               </button>
               <ProgressiveImage
-                className="project-thumb project-thumb-expanded"
-                src={expandedProject.image}
+                className={`project-thumb project-thumb-expanded ${expandedProject.poster ? "is-poster" : ""}`}
+                src={expandedProject.poster || expandedProject.image}
                 alt={expandedProject.name}
                 imgClassName="project-thumb-image"
                 eager
@@ -1308,6 +1308,16 @@ function App({ page = "profile" }) {
                     {Object.entries(getProjectLinks(expandedProject)).map(
                       ([key, value]) => renderProjectLink(key, value),
                     )}
+                    {expandedProject.poster ? (
+                      <a
+                        className="project-meta-link"
+                        href={expandedProject.poster}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t.viewPoster}
+                      </a>
+                    ) : null}
                   </div>
                 </div>
                 <p className="card-summary project-summary-expanded">

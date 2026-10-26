@@ -794,3 +794,15 @@ button,
 .hscroll-card .photo-portfolio .photo-image {
   height: 70%;
 }
+
+/* Project modal: a poster is shown whole, on a neutral mat */
+.project-thumb-expanded.is-poster,
+:root[data-theme="dark"] .project-thumb-expanded.is-poster {
+  background: var(--surface-light);
+}
+
+@media (max-width: 720px) {
+  .project-thumb-expanded.is-poster {
+    height: min(62vh, 520px);
+  }
+}

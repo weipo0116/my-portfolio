@@ -7,6 +7,7 @@ import vangoph_teaser from "./assets/images/projects/vangoph_teaser.webp";
 import HCI_teaser from "./assets/images/projects/hci_teaser.webp";
 import ds_poster from "./assets/images/projects/ds_poster.webp";
 import mijingImg from "./assets/images/projects/mijing.webp";
+import mijingPoster from "./assets/images/projects/mijing_poster.webp";
 import esunImg from "./assets/images/projects/esun_chatbot.webp";
 import PR_img from "./assets/images/projects/pr_img.webp";
 import chros_img from "./assets/images/others/chorus.webp";
@@ -66,7 +67,7 @@ export const siteData = {
       degree: "B.S. · Big Data Management (Data Science)",
       school: "Soochow University (SCU)",
       period: "Sep 2019 - Jun 2023",
-      note: "Capstone: 「覓」境 — Instagram restaurant finder LINE Bot (owned sentiment analysis).\nIndustry–academia: E.SUN Securities program, beginner-investor risk chatbot — Winner (2021).",
+      note: "Capstone: 「覓」境 — Instagram restaurant finder LINE Bot.\nIndustry–academia: E.SUN Securities program, beginner-investor risk chatbot — Winner (2021).",
     },
     {
       degree: "Exchange Student · School of Data Science",
@@ -244,9 +245,10 @@ export const siteData = {
       name: "「覓」境 — Instagram Restaurant Finder (LINE Bot)",
       description:
         "Undergraduate capstone (team of 5). We crawled about 4,000 #台北美食 Instagram posts with Selenium, narrowed them to 65 Taipei restaurants verified on Google Maps, and scored each one by combining sentiment on posts (CKIP + CopeOpi) and Google reviews (SnowNLP) with star ratings. Recommendations are served through a LINE Bot (Flask, PostgreSQL on Railway, Dialogflow small talk).",
-      role: "Text mining & sentiment analysis (team capstone, 2022)",
+      role: "Undergraduate capstone (team, 2022)",
       stack: ["Python", "Selenium", "CKIP", "SnowNLP", "Flask", "LINE Bot"],
       image: mijingImg,
+      poster: mijingPoster,
     },
     {
       name: "DS Prediction of Ecommerce Transaction Fraud",
