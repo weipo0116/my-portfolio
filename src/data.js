@@ -10,7 +10,6 @@ import PR_img from "./assets/opt/pr_img.webp";
 import chros_img from "./assets/opt/chorus.webp";
 import pg_img from "./assets/opt/pg.webp";
 import nccu_img from "./assets/opt/nccu.webp";
-import clc_img from "./assets/opt/clc.webp";
 import firstbankLogo from "./assets/firstbank_logo.svg";
 import lineLogoLocal from "./assets/opt/line_icon.webp";
 import aatLogoLocal from "./assets/opt/aat_icon.webp";
@@ -85,6 +84,18 @@ export const siteData = {
       ],
     },
     {
+      role: "Project Assistant | Chinese Language Center (CLC)",
+      company: "National Chengchi University (NCCU)",
+      logo: nccu_img,
+      brand: "#19338E",
+      period: "May 2026 - Jul 2026",
+      summary: [
+        "Ran three teacher-training lectures for the Ministry of Education's Mandarin Proficiency Enhancement Program — speaker invitations, venue and hybrid (on-site + online) logistics, promotion, and on-the-day hosting.",
+        "Launched the Mandarin Buddy Program with the Office of International Cooperation, pairing NCCU students with international students for real-life Mandarin practice.",
+        "Coordinated three instructors teaching the program's Mandarin-teaching courses.",
+      ],
+    },
+    {
       role: "Business Development Intern | Social Content BD Team",
       company: "LINE Taiwan Limited",
       logo: "https://vos.line-scdn.net/landpress-content-v2-tqq6mwxs5qlx5cg0nutma2bg/1c7f9ad5a0d2415cab739ae6e9f71e35-large.png?updatedAt=1752734110000",
@@ -127,18 +138,6 @@ export const siteData = {
       ],
       period: "2025/10/14 - 17",
       image: pg_img,
-    },
-    {
-      title: "NCCU Chinese Language Center (CLC)",
-      subtitle: "Project Assistant",
-      expandIcon: "more-circle",
-      caption: [
-        "Ran three teacher-training lectures for the Ministry of Education's Mandarin Proficiency Enhancement Program — speaker invitations, venue and hybrid (on-site + online) logistics, promotion, and on-the-day hosting.",
-        "Launched the Mandarin Buddy Program with the Office of International Cooperation, pairing NCCU students with international students for real-life Mandarin practice.",
-        "Coordinated three instructors teaching the program's Mandarin-teaching courses.",
-      ],
-      period: "2026/05 - 2026/07",
-      image: clc_img,
     },
     {
       title: "NCCU Dormitory Resident Assistant (RA)",

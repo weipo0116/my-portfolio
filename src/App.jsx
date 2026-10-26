@@ -946,10 +946,7 @@ function App({ page = "profile" }) {
                     className="info-card experience-card"
                     style={
                       item.brand
-                        ? {
-                            "--brand": item.brand,
-                            "--brand-mark": `url("${item.logoFallback || item.logo}")`,
-                          }
+                        ? { "--brand": item.brand }
                         : undefined
                     }
                     custom={index}
