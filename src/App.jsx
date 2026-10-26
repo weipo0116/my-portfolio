@@ -23,13 +23,13 @@ const PAGE_PATH = { profile: BASE, work: `${BASE}work/` };
 const NAV_ITEMS = [
   { id: "about", page: "profile" },
   { id: "experience", page: "profile" },
+  { id: "projects", page: "profile" },
   { id: "lab", page: "work" },
-  { id: "projects", page: "work" },
 ];
 // Every section on each page, for the scroll-spy (nav shows only the main four).
 const PAGE_SECTIONS = {
-  profile: ["home", "about", "education", "experience", "others"],
-  work: ["lab", "projects"],
+  profile: ["home", "about", "education", "experience", "projects"],
+  work: ["lab"],
 };
 
 const createFadeUpVariants = (reducedMotion, distance = 32) => ({
@@ -248,7 +248,7 @@ function App({ page = "profile" }) {
   }, [lang]);
   const othersScrollRef = useRef(null);
   const [activeSection, setActiveSection] = useState(
-    isWork ? "projects" : "home",
+    isWork ? "lab" : "home",
   );
   const [expandedProject, setExpandedProject] = useState(null);
   const [expandedOtherExperience, setExpandedOtherExperience] = useState(null);
@@ -683,9 +683,7 @@ function App({ page = "profile" }) {
                   <motion.button
                     className="hero-cta hero-cta-primary"
                     type="button"
-                    onClick={() => {
-                      window.location.href = PAGE_PATH.work;
-                    }}
+                    onClick={() => scrollToId("projects")}
                     whileHover={heroButtonHover}
                     whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                   >
@@ -979,12 +977,6 @@ function App({ page = "profile" }) {
                 viewport={{ once: true, amount: 0.16 }}
                 variants={sectionVariants}
               >
-                <div className="section-header">
-                  <h2>{t.sections.lab}</h2>
-                </div>
-                {siteData.lab.intro ? (
-                  <p className="lab-intro">{siteData.lab.intro}</p>
-                ) : null}
                 <div className="lab-grid">
                   {siteData.lab.items.map((item, index) => (
                     <motion.article
@@ -1043,208 +1035,161 @@ function App({ page = "profile" }) {
                 </div>
               </motion.section>
             ) : null}
-
-            <motion.section
-              className="section"
-              id="projects"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.16 }}
-              variants={sectionVariants}
-            >
-              <div className="section-header">
-                <h2>{t.sections.projects}</h2>
-              </div>
-              <div className="project-list">
-                {siteData.projects.map((project, index) => (
-                  <motion.article
-                    key={project.name}
-                    className="info-card project-row project-row-preview"
-                    role="button"
-                    tabIndex={0}
-                    custom={index}
-                    variants={cardVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                    whileHover={
-                      shouldReduceMotion
-                        ? undefined
-                        : {
-                            y: -4,
-                            transition: { duration: 0.4, ease: MOTION_EASE },
-                          }
-                    }
-                    whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
-                    onClick={() => setExpandedProject(project)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setExpandedProject(project);
-                      }
-                    }}
-                  >
-                    <ProgressiveImage
-                      className="project-thumb"
-                      src={project.image}
-                      alt={project.name}
-                      imgClassName="project-thumb-image"
-                      objectFit="contain"
-                    >
-                      {project.image ? (
-                        <div
-                          className="project-thumb-glow"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                    </ProgressiveImage>
-                    <div className="project-body">
-                      <h3 className="project-title">{project.name}</h3>
-                      {project.role ? (
-                        <p className="project-role">{project.role}</p>
-                      ) : null}
-                      {Array.isArray(project.stack) && project.stack.length ? (
-                        <div className="project-stack">
-                          {project.stack.slice(0, 6).map((item) => (
-                            <span
-                              className="project-chip"
-                              key={`${project.name}-${item}`}
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                      {isRepoLink(project.repo) ? (
-                        <a
-                          className="repo-link project-link"
-                          href={project.repo}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {t.checkOnGithub}
-                        </a>
-                      ) : project.repo ? (
-                        <span
-                          className={`repo-link project-link ${isRepoUnreleased(project.repo) ? "is-unreleased" : ""}`}
-                        >
-                          {isRepoUnreleased(project.repo)
-                            ? t.unreleased
-                            : project.repo}
-                        </span>
-                      ) : null}
-                      <p className="card-summary">
-                        {project.description.split("\n").map((line, index) => (
-                          <span key={`${project.name}-line-${index}`}>
-                            {line}
-                            {index <
-                            project.description.split("\n").length - 1 ? (
-                              <br />
-                            ) : null}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-            </motion.section>
           </>
         ) : null}
 
         {!isWork ? (
-          <motion.section
-            className="section"
-            id="others"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.16 }}
-            variants={sectionVariants}
-          >
-            {/* Plain wrapper: GSAP pins this, never the Framer-animated section
-                (Framer rewrites the section's transform on re-render). */}
-            <div className="others-pin">
-            <div className="section-header">
-              <h2>{t.sections.others}</h2>
-            </div>
-            <div className="hscroll" ref={othersScrollRef}>
-              <div className="hscroll-track">
-                {otherExperiences.map((item, index) => (
-                <motion.article
-                  key={`other-${index}`}
-                  className="photo-card photo-card-preview hscroll-card"
-                  role="button"
-                  tabIndex={0}
-                  custom={index}
-                  variants={cardVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.2 }}
-                  whileHover={
-                    shouldReduceMotion
-                      ? undefined
-                      : {
-                          y: -4,
-                          transition: {
-                            duration: 0.4,
-                            ease: MOTION_EASE,
-                          },
+          <section className="section" id="projects">
+            {/* Plain elements only: a transformed ancestor (Framer) would turn
+                GSAP's position:fixed pin into a moving box. Cards still animate. */}
+            <div className="works-pin">
+              <div className="section-header">
+                <h2>{t.sections.projects}</h2>
+              </div>
+              <div className="hscroll" ref={othersScrollRef}>
+                <p className="hscroll-row-label">{t.rows.projects}</p>
+                <div className="hscroll-row">
+                  <div className="hscroll-track">
+                    {siteData.projects.map((project, index) => (
+                    <motion.article
+                      key={`work-${index}`}
+                      className="photo-card photo-card-preview hscroll-card work-card"
+                      role="button"
+                      tabIndex={0}
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={
+                        shouldReduceMotion
+                          ? undefined
+                          : {
+                              y: -4,
+                              transition: { duration: 0.4, ease: MOTION_EASE },
+                            }
+                      }
+                      whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
+                      onClick={() => setExpandedProject(project)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setExpandedProject(project);
                         }
-                  }
-                  whileTap={
-                    shouldReduceMotion ? undefined : { scale: 0.995 }
-                  }
-                  onClick={() => setExpandedOtherExperience(item)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setExpandedOtherExperience(item);
-                    }
-                  }}
-                >
-                  <div className="photo-media">
-                    <ProgressiveImage
-                      className={`photo ${item.photoClass || ""}`}
-                      aria-hidden="true"
-                      src={item.image}
-                      alt=""
-                      imgClassName="photo-image"
-                    />
-                    {item.period ? (
-                      <p className="photo-period-overlay">
-                        {item.period}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="photo-info">
-                    <div className="photo-header">
-                      <h3>
-                        {item.title}
-                        {item.subtitle ? (
-                          <span className="photo-subtitle">
-                            {item.subtitle}
-                          </span>
-                        ) : null}
-                      </h3>
-                    </div>
-                    <div
-                      className="photo-expand-hint"
-                      aria-hidden="true"
+                      }}
                     >
-                      <span>{t.more}</span>
-                      <svg viewBox="0 0 24 24">
-                        <path d="M8 16 16 8" />
-                        <path d="M10 8h6v6" />
-                      </svg>
-                    </div>
+                      <div className="photo-media">
+                        <ProgressiveImage
+                          className="photo work-thumb"
+                          aria-hidden="true"
+                          src={project.image}
+                          alt=""
+                          imgClassName="photo-image"
+                          objectFit="contain"
+                        />
+                      </div>
+                      <div className="photo-info">
+                        <div className="photo-header">
+                          <h3>
+                            {project.name}
+                            {project.role ? (
+                              <span className="photo-subtitle">
+                                {project.role}
+                              </span>
+                            ) : null}
+                          </h3>
+                        </div>
+                        <div className="photo-expand-hint" aria-hidden="true">
+                          <span>{t.more}</span>
+                          <svg viewBox="0 0 24 24">
+                            <path d="M8 16 16 8" />
+                            <path d="M10 8h6v6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </motion.article>
+                    ))}
                   </div>
-                </motion.article>
-                ))}
+                </div>
+                <p className="hscroll-row-label">{t.rows.activities}</p>
+                <div className="hscroll-row">
+                  <div className="hscroll-track">
+                    {otherExperiences.map((item, index) => (
+                    <motion.article
+                      key={`other-${index}`}
+                      className="photo-card photo-card-preview hscroll-card"
+                      role="button"
+                      tabIndex={0}
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={
+                        shouldReduceMotion
+                          ? undefined
+                          : {
+                              y: -4,
+                              transition: {
+                                duration: 0.4,
+                                ease: MOTION_EASE,
+                              },
+                            }
+                      }
+                      whileTap={
+                        shouldReduceMotion ? undefined : { scale: 0.995 }
+                      }
+                      onClick={() => setExpandedOtherExperience(item)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setExpandedOtherExperience(item);
+                        }
+                      }}
+                    >
+                      <div className="photo-media">
+                        <ProgressiveImage
+                          className={`photo ${item.photoClass || ""}`}
+                          aria-hidden="true"
+                          src={item.image}
+                          alt=""
+                          imgClassName="photo-image"
+                        />
+                        {item.period ? (
+                          <p className="photo-period-overlay">
+                            {item.period}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="photo-info">
+                        <div className="photo-header">
+                          <h3>
+                            {item.title}
+                            {item.subtitle ? (
+                              <span className="photo-subtitle">
+                                {item.subtitle}
+                              </span>
+                            ) : null}
+                          </h3>
+                        </div>
+                        <div
+                          className="photo-expand-hint"
+                          aria-hidden="true"
+                        >
+                          <span>{t.more}</span>
+                          <svg viewBox="0 0 24 24">
+                            <path d="M8 16 16 8" />
+                            <path d="M10 8h6v6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </motion.article>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-            </div>
-          </motion.section>
+          </section>
         ) : null}
       </main>
 

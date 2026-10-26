@@ -73,74 +73,62 @@ export const useScrollMotion = (scopeRef, deps) => {
         },
       );
 
-      // Other experiences: vertical scroll drives the row sideways on wide
-      // screens, snapping card by card. Narrow screens keep native swipe +
-      // CSS scroll-snap.
+      // Home "Work": vertical scroll drives both rows sideways on wide screens.
+      // Each row travels its own length over the same scroll distance, so the
+      // shorter row drifts slower (a little depth). Narrow screens keep native
+      // swipe + CSS scroll-snap per row.
       mm.add(
         "(min-width: 960px) and (prefers-reduced-motion: no-preference)",
         () => {
           const root = scopeRef.current;
           const scroller = root?.querySelector(".hscroll");
-          const track = scroller?.querySelector(".hscroll-track");
-          const section = root?.querySelector("#others");
-          if (!scroller || !track || !section) return;
-          const cards = gsap.utils.toArray(".hscroll-card", track);
-          const distance = () =>
+          const section = scroller?.closest("section");
+          const pinTarget = section?.querySelector(".works-pin");
+          if (!scroller || !section || !pinTarget) return;
+          const rows = gsap.utils.toArray(".hscroll-row", scroller);
+          const tracks = rows.map((row) => row.querySelector(".hscroll-track"));
+          const travel = (track) =>
             Math.max(0, track.scrollWidth - scroller.clientWidth);
+          const distance = () => Math.max(...tracks.map(travel), 0);
           if (distance() < 40) return;
           scroller.classList.add("is-driven");
-          scroller.scrollLeft = 0;
+          rows.forEach((row) => {
+            row.scrollLeft = 0;
+          });
+          const lead = tracks.reduce((a, b) => (travel(b) > travel(a) ? b : a));
+          const leadCards = gsap.utils.toArray(".hscroll-card", lead);
 
-          const slide = gsap.to(track, {
-            x: () => -distance(),
-            ease: "none",
+          const timeline = gsap.timeline({
+            defaults: { ease: "none" },
             scrollTrigger: {
               trigger: section,
               // Pin just below the fixed nav so the title stays readable.
               start: () => {
                 const nav = document.querySelector(".nav");
-                return `top ${(nav ? nav.offsetHeight : 64) + 28}px`;
+                return `top ${(nav ? nav.offsetHeight : 64) + 20}px`;
               },
               end: () => `+=${distance()}`,
               scrub: 0.8,
-              pin: section.querySelector(".others-pin") || true,
+              pin: pinTarget,
               anticipatePin: 1,
               invalidateOnRefresh: true,
               snap: {
                 snapTo: (progress) => {
                   const d = distance() || 1;
-                  const stops = cards.map((card) =>
-                    Math.min(1, (card.offsetLeft - cards[0].offsetLeft) / d),
+                  const stops = leadCards.map((card) =>
+                    Math.min(1, (card.offsetLeft - leadCards[0].offsetLeft) / d),
                   );
+                  stops.push(1);
                   return gsap.utils.snap(stops, progress);
                 },
-                duration: { min: 0.2, max: 0.55 },
+                duration: { min: 0.2, max: 0.5 },
                 delay: 0.06,
                 ease: "power2.inOut",
               },
             },
           });
-
-          // Each photo drifts against the row's movement (horizontal parallax).
-          cards.forEach((card) => {
-            const image = card.querySelector(".photo-image");
-            if (!image) return;
-            gsap.fromTo(
-              image,
-              { xPercent: 5, scale: 1.14 },
-              {
-                xPercent: -5,
-                scale: 1.14,
-                ease: "none",
-                scrollTrigger: {
-                  trigger: card,
-                  containerAnimation: slide,
-                  start: "left right",
-                  end: "right left",
-                  scrub: true,
-                },
-              },
-            );
+          tracks.forEach((track) => {
+            timeline.to(track, { x: () => -travel(track), duration: 1 }, 0);
           });
 
           return () => scroller.classList.remove("is-driven");
@@ -166,7 +154,7 @@ export const useScrollMotion = (scopeRef, deps) => {
         // Section titles drift a little slower than the page (parallax).
         gsap.utils.toArray(".section-header").forEach((header) => {
           // The pinned row already moves; a drifting title there would fight it.
-          if (header.closest("#others")) return;
+          if (header.closest(".works-pin")) return;
           gsap.fromTo(
             header,
             { y: 36 },
@@ -185,7 +173,7 @@ export const useScrollMotion = (scopeRef, deps) => {
 
         // Large photos glide inside their frames.
         gsap.utils
-          .toArray(".education-photo img, .project-thumb-image")
+          .toArray(".education-photo img")
           .forEach((image) => {
             gsap.fromTo(
               image,

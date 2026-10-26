@@ -509,36 +509,6 @@ button,
   z-index: 1;
 }
 
-/* Work page: the same idea with project imagery, kept to the right edge */
-.work-hero {
-  position: relative;
-  isolation: isolate;
-}
-
-.work-hero::before {
-  content: "";
-  position: absolute;
-  inset: 40px 0 -40px 38%;
-  background: url("./assets/images/projects/vangoph_teaser.webp") center / cover no-repeat;
-  opacity: 0.14;
-  filter: grayscale(0.2);
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, #000 30%, transparent 75%);
-  mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, #000 30%, transparent 75%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-:root[data-theme="dark"] .work-hero::before {
-  opacity: 0.18;
-  filter: grayscale(0.3) brightness(0.8);
-}
-
-@media (max-width: 720px) {
-  .work-hero::before {
-    inset: 60px -20% 0 20%;
-    opacity: 0.1;
-  }
-}
 
 /* ── Experience cards: a quiet wash of each company's colour ── */
 .experience-card[style] {
@@ -731,13 +701,29 @@ button,
   pointer-events: none;
 }
 
-/* ── Other experiences: horizontal scroll ── */
+/* ── Work (home): two horizontally scrolling rows ── */
 .hscroll {
   --hs-edge: max(5vw, calc((100vw - 1120px) / 2));
-  --hs-card: min(400px, 30vw);
-  --hs-gap: 20px;
+  --hs-card: min(300px, 22vw);
+  --hs-gap: 16px;
   width: 100vw;
   margin-left: calc(50% - 50vw);
+}
+
+.hscroll-row-label {
+  margin: 0 0 10px;
+  padding: 0 var(--hs-edge);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.hscroll-row + .hscroll-row-label {
+  margin-top: 14px;
+}
+
+.hscroll-row {
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
@@ -745,7 +731,7 @@ button,
   scrollbar-width: none;
 }
 
-.hscroll::-webkit-scrollbar {
+.hscroll-row::-webkit-scrollbar {
   display: none;
 }
 
@@ -753,7 +739,7 @@ button,
   display: flex;
   gap: var(--hs-gap);
   width: max-content;
-  padding: 8px var(--hs-edge) 24px;
+  padding: 4px var(--hs-edge) 12px;
 }
 
 .hscroll-card {
@@ -765,27 +751,40 @@ button,
 
 .hscroll-card .photo {
   height: auto;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
 }
 
-.hscroll-card .photo-image {
-  will-change: transform;
-}
-
 .hscroll-card .photo-info {
-  padding: 14px 18px 16px;
+  padding: 12px 16px 14px;
 }
 
-/* GSAP drives the track on wide screens: no native scrolling there */
-.hscroll.is-driven {
+.hscroll-card .photo-info h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.work-card .photo.work-thumb,
+:root[data-theme="dark"] .work-card .photo.work-thumb {
+  background: var(--surface);
+}
+
+.work-card .photo-header h3 {
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+/* GSAP drives the rows on wide screens: no native scrolling there */
+.hscroll.is-driven .hscroll-row {
   overflow: hidden;
   scroll-snap-type: none;
 }
 
 @media (max-width: 959px) {
   .hscroll {
-    --hs-card: min(72vw, 340px);
+    --hs-card: min(68vw, 280px);
     --hs-gap: 12px;
   }
 }
@@ -804,5 +803,39 @@ button,
 @media (max-width: 720px) {
   .project-thumb-expanded.is-poster {
     height: min(62vh, 520px);
+  }
+}
+
+/* Two rows must fit one screen while pinned: tighter cards, no "more" hint */
+.hscroll {
+  --hs-card: min(270px, 20vw);
+}
+
+.works-pin .section-header {
+  margin-bottom: 20px;
+}
+
+.hscroll-card .photo-expand-hint {
+  display: none;
+}
+
+.hscroll-card .photo-info {
+  min-height: 0;
+}
+
+@media (max-width: 959px) {
+  .hscroll {
+    --hs-card: min(64vw, 260px);
+  }
+}
+
+.hscroll-card {
+  min-height: 0;
+}
+
+/* Short laptop screens: shrink a little more so both rows stay in view */
+@media (min-width: 960px) and (max-height: 820px) {
+  .hscroll {
+    --hs-card: min(230px, 18vw);
   }
 }
