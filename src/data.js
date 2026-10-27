@@ -1,18 +1,24 @@
 // src/data.js
-import selfImage from "./assets/opt/self.webp";
-import selfImage2 from "./assets/opt/mit_me.webp";
-import samplePhoto from "./assets/opt/raccoon.webp";
-import thesisTeaser from "./assets/opt/thesis_teaser.webp";
-import vangoph_teaser from "./assets/opt/vangoph_teaser.webp";
-import HCI_teaser from "./assets/opt/hci_teaser.webp";
-import ds_poster from "./assets/opt/ds_poster.webp";
-import PR_img from "./assets/opt/pr_img.webp";
-import chros_img from "./assets/opt/chorus.webp";
-import pg_img from "./assets/opt/pg.webp";
-import nccu_img from "./assets/opt/nccu.webp";
-import firstbankLogo from "./assets/firstbank_logo.svg";
-import lineLogoLocal from "./assets/opt/line_icon.webp";
-import aatLogoLocal from "./assets/opt/aat_icon.webp";
+import selfImage from "./assets/images/profile/self.webp";
+import selfImage2 from "./assets/images/profile/mit_me.webp";
+import samplePhoto from "./assets/images/others/raccoon.webp";
+import thesisTeaser from "./assets/images/projects/thesis_teaser.webp";
+import vangoph_teaser from "./assets/images/projects/vangoph_teaser.webp";
+import HCI_teaser from "./assets/images/projects/hci_teaser.webp";
+import ds_poster from "./assets/images/projects/ds_poster.webp";
+import mijingImg from "./assets/images/projects/mijing.webp";
+import mijingPoster from "./assets/images/projects/mijing_poster.webp";
+import esunImg from "./assets/images/projects/esun_chatbot.webp";
+import PR_img from "./assets/images/projects/pr_img.webp";
+import chros_img from "./assets/images/others/chorus.webp";
+import pg_img from "./assets/images/others/pg.webp";
+import clcLogo from "./assets/logos/nccu_clc.webp";
+import nccu_img from "./assets/logos/nccu.webp";
+import graduationPhoto from "./assets/images/profile/graduation.webp";
+import firstbankEsg from "./assets/images/backgrounds/firstbank_esg.webp";
+import firstbankLogo from "./assets/logos/firstbank.svg";
+import lineLogoLocal from "./assets/logos/line.webp";
+import aatLogoLocal from "./assets/logos/aat.webp";
 
 export const siteData = {
   name: "Webber Lai",
@@ -23,6 +29,7 @@ export const siteData = {
   avatarAlt: "Webber Lai portrait",
   avatarImage: selfImage,
   aboutImage: selfImage2,
+  educationImage: graduationPhoto,
   heroHighlights: [
     "AI Management Associate, Digital Banking Division @ First Bank.",
     "M.S. CS @ NCCU — Computer Graphics & Data Visualization.",
@@ -51,19 +58,19 @@ export const siteData = {
   ],
   education: [
     {
-      degree: "M.S. in Computer Science",
+      degree: "M.S. · Computer Science",
       school: "National Chengchi University (NCCU)",
       period: "Sep 2023 - Jan 2026",
       note: "Thesis: Interactive semantic segmentation for large-scale aerial Gaussian splatting.\n Advisor: Ming-Te Chi.",
     },
     {
-      degree: "B.S. in Big Data Management (Data Science)",
+      degree: "B.S. · Big Data Management (Data Science)",
       school: "Soochow University (SCU)",
       period: "Sep 2019 - Jun 2023",
-      note: "",
+      note: "Capstone: Mijing (覓境), an Instagram restaurant finder LINE Bot.\nIndustry–academia: E.SUN Securities program, beginner-investor risk chatbot — Winner (2021).",
     },
     {
-      degree: "Exchange Program, School of Data Science",
+      degree: "Exchange Student · School of Data Science",
       school: "Fudan University",
       period: "Sep 2021 - Jan 2022",
       note: "",
@@ -74,6 +81,8 @@ export const siteData = {
       role: "AI Management Associate | Digital Banking Division",
       company: "First Commercial Bank (First Bank)",
       logo: firstbankLogo,
+      brand: "#B3863B",
+      backdrop: firstbankEsg,
       period: "Aug 2026 - Present",
       summary: [
         "Joined the AI Management Associate program on Aug 10, 2026, rotating within the Digital Banking Division.",
@@ -83,10 +92,23 @@ export const siteData = {
       ],
     },
     {
+      role: "Project Assistant | Chinese Language Center (CLC)",
+      company: "National Chengchi University (NCCU)",
+      logo: clcLogo,
+      brand: "#1E2A8A",
+      period: "May 2026 - Jul 2026",
+      summary: [
+        "Ran three teacher-training lectures for the Ministry of Education's Mandarin Proficiency Enhancement Program — speaker invitations, venue and hybrid (on-site + online) logistics, promotion, and on-the-day hosting.",
+        "Launched the Mandarin Buddy Program with the Office of International Cooperation, pairing NCCU students with international students for real-life Mandarin practice.",
+        "Coordinated three instructors teaching the program's Mandarin-teaching courses.",
+      ],
+    },
+    {
       role: "Business Development Intern | Social Content BD Team",
       company: "LINE Taiwan Limited",
       logo: "https://vos.line-scdn.net/landpress-content-v2-tqq6mwxs5qlx5cg0nutma2bg/1c7f9ad5a0d2415cab739ae6e9f71e35-large.png?updatedAt=1752734110000",
       logoFallback: lineLogoLocal,
+      brand: "#06C755",
       period: "Oct 2022 - Aug 2023",
       summary: [
         "Supported business development and performance growth for social content; owned monthly performance and overall traffic reporting, turning data into actionable insights for management.",
@@ -101,6 +123,7 @@ export const siteData = {
       company: "Advant Analytics Tactics Ltd., AAT",
       logo: "https://system.netsuite.com/core/media/media.nl?id=14523301&c=835472&h=IG4EQfcTtnBchNGzUxALv1tVswtgqcyE8vTxEwOoFw9ekkQs",
       logoFallback: aatLogoLocal,
+      brand: "#D01025",
       period: "Apr 2022 - Sep 2022",
       summary: [
         "Researched and documented front-end development workflows in KNIME, covering HTML, CSS, JavaScript, Bootstrap, and reusable web nodes.",
@@ -111,18 +134,6 @@ export const siteData = {
     },
   ],
   otherExperiences: [
-    {
-      title: "NCCU Dormitory Resident Assistant (RA)",
-      photoClass: "photo-nccu",
-      expandIcon: "more-circle",
-      caption: [
-        "Handled night shifts for daily dormitory operations, including key desk support, visitor check-in, and parcel processing.",
-        "Performed routine facility checks for water heaters, electricity usage, and shared-space equipment.",
-        "Supported residents with issue clarification and coordinated with related units for follow-up actions.",
-      ],
-      period: "2024/06 - 2025/03",
-      image: nccu_img,
-    },
     {
       title: "Pacific Graphics Conference",
       subtitle: "Technical Team Lead",
@@ -137,12 +148,24 @@ export const siteData = {
       image: pg_img,
     },
     {
-      title: "NCCU Chen Sheng Chorus",
+      title: "NCCU Dormitory Resident Assistant (RA)",
+      photoClass: "photo-nccu",
+      expandIcon: "more-circle",
+      caption: [
+        "Handled night shifts for daily dormitory operations, including key desk support, visitor check-in, and parcel processing.",
+        "Performed routine facility checks for water heaters, electricity usage, and shared-space equipment.",
+        "Supported residents with issue clarification and coordinated with related units for follow-up actions.",
+      ],
+      period: "2024/06 - 2025/03",
+      image: nccu_img,
+    },
+    {
+      title: "NCCU Zhen Sheng Chorus",
       subtitle: "Tenor",
       expandIcon: "more-circle",
       caption: [
         "Participated as a tenor during master's studies at NCCU.",
-        "Performed in a public concert at Eslite Performance Hall (誠品廳).",
+        "Performed in the concert \"Yao Yuan\" (謠遠) at Eslite Performance Hall.",
       ],
       period: "2024 - 2025",
       image: chros_img,
@@ -239,6 +262,15 @@ export const siteData = {
       image: vangoph_teaser,
     },
     {
+      name: "Mijing (覓境) — Instagram Restaurant Finder (LINE Bot)",
+      description:
+        "Undergraduate capstone (team of 5). We crawled about 4,000 #台北美食 Instagram posts with Selenium, narrowed them to 65 Taipei restaurants verified on Google Maps, and scored each one by combining sentiment on posts (CKIP + CopeOpi) and Google reviews (SnowNLP) with star ratings. Recommendations are served through a LINE Bot (Flask, PostgreSQL on Railway, Dialogflow small talk).",
+      role: "Undergraduate capstone (team, 2022)",
+      stack: ["Python", "Selenium", "CKIP", "SnowNLP", "Flask", "LINE Bot"],
+      image: mijingImg,
+      poster: mijingPoster,
+    },
+    {
       name: "DS Prediction of Ecommerce Transaction Fraud",
       description:
         "Machine learning project for ecommerce fraud detection, using customer and transaction data to flag high-risk activities.",
@@ -249,6 +281,14 @@ export const siteData = {
       },
       repo: "https://github.com/112-2-dataScience/finalproject-group6",
       image: ds_poster,
+    },
+    {
+      name: "Personal Investment Risk Butler — E.SUN Securities Industry–Academia Program",
+      description:
+        "A LINE chatbot for first-time investors, built after studying settlement-default cases that often involved beginners. It looks up daily Taiwan stock quotes, explains terms like opening price or P/E in plain language, and adds gentle risk reminders. Our cross-university team was named a winner in the E.SUN Securities program (2021).",
+      role: "Team project — Winner (2021)",
+      stack: ["Python", "LINE Bot", "FinTech"],
+      image: esunImg,
     },
     {
       name: "PR Garbage Detection",

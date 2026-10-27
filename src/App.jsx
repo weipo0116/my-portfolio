@@ -2,11 +2,11 @@
 import React, {
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { getSiteData, ui } from "./i18n.js";
 import { usePrefs } from "./prefs.js";
 import PrefsToggles from "./PrefsToggles.jsx";
@@ -23,13 +23,13 @@ const PAGE_PATH = { profile: BASE, work: `${BASE}work/` };
 const NAV_ITEMS = [
   { id: "about", page: "profile" },
   { id: "experience", page: "profile" },
-  { id: "projects", page: "work" },
+  { id: "projects", page: "profile" },
   { id: "lab", page: "work" },
 ];
 // Every section on each page, for the scroll-spy (nav shows only the main four).
 const PAGE_SECTIONS = {
-  profile: ["home", "about", "education", "experience", "others"],
-  work: ["projects", "lab"],
+  profile: ["home", "about", "education", "experience", "projects"],
+  work: ["lab"],
 };
 
 const createFadeUpVariants = (reducedMotion, distance = 32) => ({
@@ -229,7 +229,11 @@ function App({ page = "profile" }) {
       window.innerWidth / 2,
       Math.min(window.innerHeight * 0.4, 360),
     );
-    const anchor = probe?.closest?.("article, section, header");
+    // Inside a pinned section the element itself is fixed on screen, so its
+    // position says nothing about scroll; anchor to the in-flow spacer instead.
+    const anchor =
+      probe?.closest?.(".pin-spacer") ||
+      probe?.closest?.("article, section, header");
     langAnchorRef.current = anchor
       ? { el: anchor, top: anchor.getBoundingClientRect().top }
       : null;
@@ -242,14 +246,10 @@ function App({ page = "profile" }) {
     if (Math.abs(drift) > 1) window.scrollBy(0, drift);
     langAnchorRef.current = null;
   }, [lang]);
-  const carouselViewportRef = useRef(null);
-  const swipeStartRef = useRef(null);
-  const carouselGap = 20;
+  const othersScrollRef = useRef(null);
   const [activeSection, setActiveSection] = useState(
-    isWork ? "projects" : "home",
+    isWork ? "lab" : "home",
   );
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [carouselPerPage, setCarouselPerPage] = useState(3);
   const [expandedProject, setExpandedProject] = useState(null);
   const [expandedOtherExperience, setExpandedOtherExperience] = useState(null);
   const [otherExperienceDirection, setOtherExperienceDirection] = useState(0);
@@ -342,11 +342,34 @@ function App({ page = "profile" }) {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ block: "start" });
     };
-    const timer = window.setTimeout(jumpToHash, 120);
+    // Fonts and ScrollTrigger pin spacers change the layout after first
+    // paint, so re-aim a few times while the page settles — but stop as soon
+    // as the reader scrolls on their own.
+    let userMoved = false;
+    const stopAiming = () => {
+      userMoved = true;
+    };
+    const aim = () => {
+      if (!userMoved) jumpToHash();
+    };
+    const timer = window.setTimeout(aim, 120);
+    const settle = window.setTimeout(stopAiming, 2500);
+    document.fonts?.ready.then(() => requestAnimationFrame(aim));
+    ScrollTrigger.addEventListener("refresh", aim);
+    window.addEventListener("load", aim);
     window.addEventListener("hashchange", jumpToHash);
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach((type) =>
+      window.addEventListener(type, stopAiming, { passive: true, once: true }),
+    );
     return () => {
       window.clearTimeout(timer);
+      window.clearTimeout(settle);
+      ScrollTrigger.removeEventListener("refresh", aim);
+      window.removeEventListener("load", aim);
       window.removeEventListener("hashchange", jumpToHash);
+      ["wheel", "touchstart", "keydown", "pointerdown"].forEach((type) =>
+        window.removeEventListener(type, stopAiming),
+      );
     };
   }, []);
 
@@ -398,82 +421,10 @@ function App({ page = "profile" }) {
     );
   };
 
-  useEffect(() => {
-    const updatePerPage = () => {
-      const width = window.innerWidth;
-      if (width < 720) {
-        setCarouselPerPage(1);
-      } else if (width < 1024) {
-        setCarouselPerPage(2);
-      } else {
-        setCarouselPerPage(3);
-      }
-    };
-    updatePerPage();
-    window.addEventListener("resize", updatePerPage);
-    return () => window.removeEventListener("resize", updatePerPage);
-  }, []);
-
   const otherExperiences = siteData.otherExperiences || [];
-  const useTwoRows = otherExperiences.length > 6;
   const expandedOtherExperienceIndex = otherExperiences.findIndex(
     (item) => item.title === expandedOtherExperience?.title,
   );
-  const carouselColumns = useMemo(() => {
-    if (!useTwoRows) {
-      return otherExperiences.map((item) => [item]);
-    }
-    const columns = [];
-    for (let i = 0; i < otherExperiences.length; i += 2) {
-      columns.push(otherExperiences.slice(i, i + 2));
-    }
-    return columns;
-  }, [otherExperiences, useTwoRows]);
-
-  const carouselMaxIndex = Math.max(
-    0,
-    carouselColumns.length - carouselPerPage,
-  );
-  const carouselPageCount = carouselMaxIndex + 1;
-
-  useEffect(() => {
-    if (carouselIndex > carouselMaxIndex) {
-      setCarouselIndex(carouselMaxIndex);
-    }
-  }, [carouselIndex, carouselMaxIndex]);
-
-  useEffect(() => {
-    const viewport = carouselViewportRef.current;
-    if (!viewport) return;
-    const track = viewport.querySelector(".carousel-track");
-    const columns = viewport.querySelectorAll(".other-column");
-    const targetColumn = columns[carouselIndex];
-    if (!targetColumn) return;
-    const trackPaddingLeft = track
-      ? Number.parseFloat(window.getComputedStyle(track).paddingLeft) || 0
-      : 0;
-    const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-    const edgeInset =
-      carouselPerPage === 1 ? 0 : carouselIndex === carouselMaxIndex ? 0 : 0;
-    viewport.scrollTo({
-      left: Math.min(
-        maxScrollLeft,
-        Math.max(0, targetColumn.offsetLeft - trackPaddingLeft - edgeInset),
-      ),
-      behavior: "smooth",
-    });
-  }, [carouselIndex, carouselPerPage, carouselGap, carouselMaxIndex]);
-
-  const moveCarouselBy = (delta) => {
-    const nextIndex = Math.min(
-      carouselMaxIndex,
-      Math.max(0, carouselIndex + delta),
-    );
-    if (nextIndex !== carouselIndex) {
-      setCarouselIndex(nextIndex);
-    }
-  };
-
   const moveOtherExperienceBy = (delta) => {
     if (!otherExperiences.length || expandedOtherExperienceIndex < 0) return;
     const nextIndex = expandedOtherExperienceIndex + delta;
@@ -595,6 +546,7 @@ function App({ page = "profile" }) {
       ref={pageRef}
       className={`page ${isWork ? "page-work" : "page-profile"}`}
     >
+      <div className="scroll-progress" aria-hidden="true" />
       <nav className="nav" aria-label={t.navAria}>
         <motion.div
           className="brand"
@@ -731,9 +683,7 @@ function App({ page = "profile" }) {
                   <motion.button
                     className="hero-cta hero-cta-primary"
                     type="button"
-                    onClick={() => {
-                      window.location.href = PAGE_PATH.work;
-                    }}
+                    onClick={() => scrollToId("projects")}
                     whileHover={heroButtonHover}
                     whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                   >
@@ -880,6 +830,9 @@ function App({ page = "profile" }) {
                 <div className="section-header">
                   <h2>{t.sections.education}</h2>
                 </div>
+                <div
+                  className={`education-layout ${siteData.educationImage ? "has-photo" : ""}`}
+                >
                 <div className="education-block education-standalone">
                   <div className="education-timeline">
                     {siteData.education.map((item, eduIndex) => (
@@ -890,10 +843,10 @@ function App({ page = "profile" }) {
                         <div className="education-timeline-marker" />
                         <div className="education-timeline-content">
                           <div className="education-header-row">
-                            <p className="education-degree">{item.degree}</p>
+                            <p className="education-degree">{item.school}</p>
                             <p className="education-period">{item.period}</p>
                           </div>
-                          <p className="education-meta">{item.school}</p>
+                          <p className="education-meta">{item.degree}</p>
                           {item.note ? (
                             <p className="education-note">
                               {item.note.split("\n").map((line, index) => (
@@ -910,6 +863,17 @@ function App({ page = "profile" }) {
                       </div>
                     ))}
                   </div>
+                </div>
+                {siteData.educationImage ? (
+                  <figure className="education-photo">
+                    <img
+                      src={siteData.educationImage}
+                      alt={t.educationPhotoAlt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </figure>
+                ) : null}
                 </div>
               </motion.section>
             ) : null}
@@ -944,6 +908,17 @@ function App({ page = "profile" }) {
                   <motion.article
                     key={`exp-${index}`}
                     className="info-card experience-card"
+                    style={
+                      item.brand
+                        ? {
+                            "--brand": item.brand,
+                            ...(item.backdrop
+                              ? { "--card-photo": `url("${item.backdrop}")` }
+                              : {}),
+                          }
+                        : undefined
+                    }
+                    data-photo={item.backdrop ? "" : undefined}
                     custom={index}
                     variants={cardVariants}
                     initial="hidden"
@@ -993,113 +968,6 @@ function App({ page = "profile" }) {
 
         {isWork ? (
           <>
-            <motion.section
-              className="section"
-              id="projects"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.16 }}
-              variants={sectionVariants}
-            >
-              <div className="section-header">
-                <h2>{t.sections.projects}</h2>
-              </div>
-              <div className="project-list">
-                {siteData.projects.map((project, index) => (
-                  <motion.article
-                    key={project.name}
-                    className="info-card project-row project-row-preview"
-                    role="button"
-                    tabIndex={0}
-                    custom={index}
-                    variants={cardVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                    whileHover={
-                      shouldReduceMotion
-                        ? undefined
-                        : {
-                            y: -4,
-                            transition: { duration: 0.4, ease: MOTION_EASE },
-                          }
-                    }
-                    whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
-                    onClick={() => setExpandedProject(project)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setExpandedProject(project);
-                      }
-                    }}
-                  >
-                    <ProgressiveImage
-                      className="project-thumb"
-                      src={project.image}
-                      alt={project.name}
-                      imgClassName="project-thumb-image"
-                      objectFit="contain"
-                    >
-                      {project.image ? (
-                        <div
-                          className="project-thumb-glow"
-                          aria-hidden="true"
-                        />
-                      ) : null}
-                    </ProgressiveImage>
-                    <div className="project-body">
-                      <h3 className="project-title">{project.name}</h3>
-                      {project.role ? (
-                        <p className="project-role">{project.role}</p>
-                      ) : null}
-                      {Array.isArray(project.stack) && project.stack.length ? (
-                        <div className="project-stack">
-                          {project.stack.slice(0, 6).map((item) => (
-                            <span
-                              className="project-chip"
-                              key={`${project.name}-${item}`}
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                      {isRepoLink(project.repo) ? (
-                        <a
-                          className="repo-link project-link"
-                          href={project.repo}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          {t.checkOnGithub}
-                        </a>
-                      ) : (
-                        <span
-                          className={`repo-link project-link ${isRepoUnreleased(project.repo) ? "is-unreleased" : ""}`}
-                        >
-                          {isRepoUnreleased(project.repo)
-                            ? t.unreleased
-                            : project.repo}
-                        </span>
-                      )}
-                      <p className="card-summary">
-                        {project.description.split("\n").map((line, index) => (
-                          <span key={`${project.name}-line-${index}`}>
-                            {line}
-                            {index <
-                            project.description.split("\n").length - 1 ? (
-                              <br />
-                            ) : null}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-            </motion.section>
-
             {siteData.lab?.items?.length ? (
               <motion.section
                 className="section"
@@ -1109,12 +977,6 @@ function App({ page = "profile" }) {
                 viewport={{ once: true, amount: 0.16 }}
                 variants={sectionVariants}
               >
-                <div className="section-header">
-                  <h2>{t.sections.lab}</h2>
-                </div>
-                {siteData.lab.intro ? (
-                  <p className="lab-intro">{siteData.lab.intro}</p>
-                ) : null}
                 <div className="lab-grid">
                   {siteData.lab.items.map((item, index) => (
                     <motion.article
@@ -1177,171 +1039,157 @@ function App({ page = "profile" }) {
         ) : null}
 
         {!isWork ? (
-          <motion.section
-            className="section"
-            id="others"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.16 }}
-            variants={sectionVariants}
-          >
-            <div className="section-header">
-              <h2>{t.sections.others}</h2>
-            </div>
-            <div
-              className="carousel"
-              style={{
-                "--carousel-gap": `${carouselGap}px`,
-                "--carousel-columns": carouselPerPage,
-              }}
-            >
-              <div className="carousel-shell">
-                {carouselPageCount > 1 ? (
-                  <button
-                    className="carousel-button carousel-button-left"
-                    onClick={() => moveCarouselBy(-1)}
-                    disabled={carouselIndex === 0}
-                    aria-label={t.prev}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M15.5 19 8.5 12l7-7" />
-                    </svg>
-                  </button>
-                ) : null}
-
-                <div
-                  className="carousel-viewport"
-                  ref={carouselViewportRef}
-                  onTouchStart={(event) => {
-                    swipeStartRef.current = event.touches[0].clientX;
-                  }}
-                  onTouchEnd={(event) => {
-                    const start = swipeStartRef.current;
-                    swipeStartRef.current = null;
-                    if (start == null) return;
-                    const dx = event.changedTouches[0].clientX - start;
-                    if (Math.abs(dx) > 40) moveCarouselBy(dx < 0 ? 1 : -1);
-                  }}
-                >
-                  <div className="carousel-track">
-                    {carouselColumns.map((columnItems, columnIndex) => (
-                      <div
-                        key={`column-${columnIndex}`}
-                        className={`other-column ${useTwoRows ? "is-two-rows" : "is-one-row"}`}
-                      >
-                        {columnItems.map((item, itemIndex) => (
-                          <motion.article
-                            key={`other-${columnIndex}-${itemIndex}`}
-                            className="photo-card photo-card-preview"
-                            role="button"
-                            tabIndex={0}
-                            custom={
-                              columnIndex * (useTwoRows ? 2 : 1) + itemIndex
+          <section className="section" id="projects">
+            {/* Plain elements only: a transformed ancestor (Framer) would turn
+                GSAP's position:fixed pin into a moving box. Cards still animate. */}
+            <div className="works-pin">
+              <div className="section-header">
+                <h2>{t.sections.projects}</h2>
+              </div>
+              <div className="hscroll" ref={othersScrollRef}>
+                <p className="hscroll-row-label">{t.rows.projects}</p>
+                <div className="hscroll-row">
+                  <div className="hscroll-track">
+                    {siteData.projects.map((project, index) => (
+                    <motion.article
+                      key={`work-${index}`}
+                      className="photo-card photo-card-preview hscroll-card work-card"
+                      role="button"
+                      tabIndex={0}
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={
+                        shouldReduceMotion
+                          ? undefined
+                          : {
+                              y: -4,
+                              transition: { duration: 0.4, ease: MOTION_EASE },
                             }
-                            variants={cardVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.2 }}
-                            whileHover={
-                              shouldReduceMotion
-                                ? undefined
-                                : {
-                                    y: -4,
-                                    transition: {
-                                      duration: 0.4,
-                                      ease: MOTION_EASE,
-                                    },
-                                  }
-                            }
-                            whileTap={
-                              shouldReduceMotion ? undefined : { scale: 0.995 }
-                            }
-                            onClick={() => setExpandedOtherExperience(item)}
-                            onKeyDown={(event) => {
-                              if (event.key === "Enter" || event.key === " ") {
-                                event.preventDefault();
-                                setExpandedOtherExperience(item);
-                              }
-                            }}
-                          >
-                            <div className="photo-media">
-                              <ProgressiveImage
-                                className={`photo ${item.photoClass || ""}`}
-                                aria-hidden="true"
-                                src={item.image}
-                                alt=""
-                                imgClassName="photo-image"
-                              />
-                              {item.period ? (
-                                <p className="photo-period-overlay">
-                                  {item.period}
-                                </p>
-                              ) : null}
-                            </div>
-                            <div className="photo-info">
-                              <div className="photo-header">
-                                <h3>
-                                  {item.title}
-                                  {item.subtitle ? (
-                                    <span className="photo-subtitle">
-                                      {item.subtitle}
-                                    </span>
-                                  ) : null}
-                                </h3>
-                              </div>
-                              <div
-                                className="photo-expand-hint"
-                                aria-hidden="true"
-                              >
-                                <span>{t.more}</span>
-                                <svg viewBox="0 0 24 24">
-                                  <path d="M8 16 16 8" />
-                                  <path d="M10 8h6v6" />
-                                </svg>
-                              </div>
-                            </div>
-                          </motion.article>
-                        ))}
+                      }
+                      whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
+                      onClick={() => setExpandedProject(project)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setExpandedProject(project);
+                        }
+                      }}
+                    >
+                      <div className="photo-media">
+                        <ProgressiveImage
+                          className="photo work-thumb"
+                          aria-hidden="true"
+                          src={project.image}
+                          alt=""
+                          imgClassName="photo-image"
+                          objectFit="contain"
+                        />
                       </div>
+                      <div className="photo-info">
+                        <div className="photo-header">
+                          <h3>
+                            {project.name}
+                            {project.role ? (
+                              <span className="photo-subtitle">
+                                {project.role}
+                              </span>
+                            ) : null}
+                          </h3>
+                        </div>
+                        <div className="photo-expand-hint" aria-hidden="true">
+                          <span>{t.more}</span>
+                          <svg viewBox="0 0 24 24">
+                            <path d="M8 16 16 8" />
+                            <path d="M10 8h6v6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </motion.article>
                     ))}
                   </div>
                 </div>
-
-                {carouselPageCount > 1 ? (
-                  <button
-                    className="carousel-button carousel-button-right"
-                    onClick={() => moveCarouselBy(1)}
-                    disabled={carouselIndex === carouselMaxIndex}
-                    aria-label={t.next}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M8.5 5 15.5 12l-7 7" />
-                    </svg>
-                  </button>
-                ) : null}
-              </div>
-
-              {carouselPageCount > 1 ? (
-                <div
-                  className="carousel-dots"
-                  role="tablist"
-                  aria-label={t.slides}
-                >
-                  {Array.from({ length: carouselPageCount }).map((_, index) => (
-                    <button
-                      key={`dot-${index}`}
-                      className={`carousel-dot ${index === carouselIndex ? "is-active" : ""}`}
-                      onClick={() => setCarouselIndex(index)}
-                      aria-label={t.goToSlide(index + 1)}
-                      aria-current={index === carouselIndex}
-                      role="tab"
-                      type="button"
-                    />
-                  ))}
+                <p className="hscroll-row-label">{t.rows.activities}</p>
+                <div className="hscroll-row">
+                  <div className="hscroll-track">
+                    {otherExperiences.map((item, index) => (
+                    <motion.article
+                      key={`other-${index}`}
+                      className="photo-card photo-card-preview hscroll-card"
+                      role="button"
+                      tabIndex={0}
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={
+                        shouldReduceMotion
+                          ? undefined
+                          : {
+                              y: -4,
+                              transition: {
+                                duration: 0.4,
+                                ease: MOTION_EASE,
+                              },
+                            }
+                      }
+                      whileTap={
+                        shouldReduceMotion ? undefined : { scale: 0.995 }
+                      }
+                      onClick={() => setExpandedOtherExperience(item)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setExpandedOtherExperience(item);
+                        }
+                      }}
+                    >
+                      <div className="photo-media">
+                        <ProgressiveImage
+                          className={`photo ${item.photoClass || ""}`}
+                          aria-hidden="true"
+                          src={item.image}
+                          alt=""
+                          imgClassName="photo-image"
+                        />
+                        {item.period ? (
+                          <p className="photo-period-overlay">
+                            {item.period}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="photo-info">
+                        <div className="photo-header">
+                          <h3>
+                            {item.title}
+                            {item.subtitle ? (
+                              <span className="photo-subtitle">
+                                {item.subtitle}
+                              </span>
+                            ) : null}
+                          </h3>
+                        </div>
+                        <div
+                          className="photo-expand-hint"
+                          aria-hidden="true"
+                        >
+                          <span>{t.more}</span>
+                          <svg viewBox="0 0 24 24">
+                            <path d="M8 16 16 8" />
+                            <path d="M10 8h6v6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </motion.article>
+                    ))}
+                  </div>
                 </div>
-              ) : null}
+              </div>
             </div>
-          </motion.section>
+          </section>
         ) : null}
       </main>
 
@@ -1369,8 +1217,8 @@ function App({ page = "profile" }) {
                 ×
               </button>
               <ProgressiveImage
-                className="project-thumb project-thumb-expanded"
-                src={expandedProject.image}
+                className={`project-thumb project-thumb-expanded ${expandedProject.poster ? "is-poster" : ""}`}
+                src={expandedProject.poster || expandedProject.image}
                 alt={expandedProject.name}
                 imgClassName="project-thumb-image"
                 eager
@@ -1405,6 +1253,16 @@ function App({ page = "profile" }) {
                     {Object.entries(getProjectLinks(expandedProject)).map(
                       ([key, value]) => renderProjectLink(key, value),
                     )}
+                    {expandedProject.poster ? (
+                      <a
+                        className="project-meta-link"
+                        href={expandedProject.poster}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t.viewPoster}
+                      </a>
+                    ) : null}
                   </div>
                 </div>
                 <p className="card-summary project-summary-expanded">

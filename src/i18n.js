@@ -25,25 +25,28 @@ export const ui = {
     viewWork: "View Work",
     downloadResume: "Download resume",
     downloadMyResume: "Download my Resume",
+    educationPhotoAlt: "Receiving my M.S. diploma at the 2026 NCCU commencement",
     sections: {
       about: "About Me",
       education: "Education",
       experience: "Experience",
-      projects: "Selected Projects",
+      projects: "Work",
       lab: "Lab",
       others: "Other Experience",
     },
+    rows: { projects: "Research & projects", activities: "Activities" },
     work: {
-      kicker: "Portfolio",
-      title: "Projects & Lab",
+      kicker: "Lab",
+      title: "What I'm building now",
       intro:
-        "Research, class projects, and the AI tools I'm building — from interactive 3D to everyday workflow automation.",
+        "Small AI tools for my own workflow — from systems I use every day to early experiments.",
       backToProfile: "Back to profile",
     },
     lab: { problem: "The Riddle", approach: "The Spell", tryIt: "Cast it" },
     labStatus: { Brewing: "Brewing", Wandering: "Wandering" },
     checkOnGithub: "Check on GitHub",
     unreleased: "Unreleased",
+    viewPoster: "View full poster",
     more: "more",
     relatedSite: "Related Site",
     prev: "Previous",
@@ -61,13 +64,15 @@ export const ui = {
     links: {
       bio: "M.S. CS @ NCCU. I turn data and ideas into tools people actually use.",
       portfolio: "Portfolio",
-      portfolioSub: "Background & experience",
-      work: "Projects & Lab",
-      workSub: "Research, projects and AI tools",
+      portfolioSub: "Background, experience & work",
+      work: "Lab",
+      workSub: "AI tools I'm building now",
       resume: "Resume",
       resumeSub: "One-page PDF",
       contact: "Contact",
       mainLinks: "Main links",
+      now: "Now",
+      nowText: "Building SI, an AI project workspace",
     },
   },
   zh: {
@@ -89,24 +94,27 @@ export const ui = {
     viewWork: "看作品",
     downloadResume: "下載履歷",
     downloadMyResume: "下載我的履歷",
+    educationPhotoAlt: "2026 年政大畢業典禮，領取碩士學位證書",
     sections: {
       about: "關於我",
       education: "學歷",
       experience: "經歷",
-      projects: "精選作品",
+      projects: "作品",
       lab: "Lab",
       others: "其他經歷",
     },
+    rows: { projects: "研究與專題", activities: "活動與其他經歷" },
     work: {
-      kicker: "作品集",
-      title: "作品與 Lab",
-      intro: "研究、課堂專題，以及我正在打造的 AI 工具——從互動式 3D 到日常工作流程自動化。",
+      kicker: "Lab",
+      title: "我正在做的事",
+      intro: "為自己的工作流程打造的小型 AI 工具——有每天在用的系統，也有早期的實驗。",
       backToProfile: "回到個人介紹",
     },
     lab: { problem: "謎題", approach: "咒語", tryIt: "施展" },
     labStatus: { Brewing: "熬煮魔藥中", Wandering: "遊歷探索中" },
     checkOnGithub: "在 GitHub 查看",
     unreleased: "尚未公開",
+    viewPoster: "查看完整海報",
     more: "更多",
     relatedSite: "相關網站",
     prev: "上一頁",
@@ -124,19 +132,21 @@ export const ui = {
     links: {
       bio: "政大資訊科學碩士。我把資料與想法，做成真正有人在用的工具。",
       portfolio: "個人介紹",
-      portfolioSub: "背景與經歷",
-      work: "作品與 Lab",
-      workSub: "研究、作品與 AI 工具",
+      portfolioSub: "背景、經歷與作品",
+      work: "Lab",
+      workSub: "正在打造的 AI 工具",
       resume: "履歷",
       resumeSub: "一頁 PDF（英文）",
       contact: "聯絡方式",
       mainLinks: "主要連結",
+      now: "最近在做",
+      nowText: "SI — AI 專案工作台",
     },
   },
 };
 
 const zhData = {
-  title: "AI MA 儲備幹部",
+  title: "AI MA（儲備幹部）",
   location: "台灣 · 台北",
   avatarAlt: "Webber Lai 的照片",
   heroHighlights: [
@@ -150,25 +160,26 @@ const zhData = {
   },
   education: [
     {
-      degree: "資訊科學碩士",
+      degree: "碩士｜資訊科學系",
       school: "國立政治大學",
       period: "2023.09 – 2026.01",
       note: "論文：大型空拍場景之 3D Gaussian Splatting 互動式語意分割。\n指導教授：紀明德。",
     },
     {
-      degree: "巨量資料管理學士（資料科學）",
+      degree: "學士｜巨量資料管理（資料科學）",
       school: "東吳大學",
       period: "2019.09 – 2023.06",
+      note: "畢業專題：「覓」境 — Instagram 餐廳查詢 LINE Bot\n產學合作：玉山證券「個人投資風險管家」聊天機器人，獲優勝（2021）",
     },
     {
-      degree: "交換學生，大數據學院",
+      degree: "交換學生｜大數據學院",
       school: "復旦大學",
       period: "2021.09 – 2022.01",
     },
   ],
   experience: [
     {
-      role: "AI MA 儲備幹部｜數位通路處",
+      role: "AI MA（儲備幹部）｜數位通路處",
       company: "第一商業銀行",
       period: "2026.08 – 至今",
       summary: [
@@ -176,6 +187,16 @@ const zhData = {
         "以 Python 前處理資料，建置每月警示帳戶 Power BI 報表，協助主管掌握趨勢、快速找出增加來源。",
         "比較多家台灣銀行的數位開戶流程（UI、身分驗證、資料補件），並以 Figma 向主管報告重點發現。",
         "將客戶旅程的觀察轉化為具體建議，降低開戶流失。",
+      ],
+    },
+    {
+      role: "計畫專任助理｜華語文教學中心（CLC）",
+      company: "國立政治大學",
+      period: "2026.05 – 2026.07",
+      summary: [
+        "承辦教育部「華語文能力精進計畫」三場華語教師增能講座：講者邀請、場地與實體＋線上混合規劃、宣傳，到活動當天主持統籌。",
+        "發起「華語學伴計畫」，與國合處合作媒合政大學生與境外生，陪伴境外生練習生活華語。",
+        "統籌三位老師分別講授的華語教學課程。",
       ],
     },
     {
@@ -204,14 +225,6 @@ const zhData = {
   ],
   otherExperiences: [
     {
-      title: "政大宿舍輔導員（RA）",
-      caption: [
-        "負責宿舍夜間值班，處理鑰匙櫃台、訪客登記與包裹收發。",
-        "定期巡檢熱水器、用電與公共空間設備。",
-        "協助住宿生釐清問題，並聯繫相關單位後續處理。",
-      ],
-    },
-    {
       title: "Pacific Graphics 國際研討會",
       subtitle: "技術組組長",
       caption: [
@@ -221,11 +234,19 @@ const zhData = {
       ],
     },
     {
-      title: "政大晨聲合唱團",
+      title: "政大宿舍輔導員（RA）",
+      caption: [
+        "負責宿舍夜間值班，處理鑰匙櫃台、訪客登記與包裹收發。",
+        "定期巡檢熱水器、用電與公共空間設備。",
+        "協助住宿生釐清問題，並聯繫相關單位後續處理。",
+      ],
+    },
+    {
+      title: "政大振聲合唱團",
       subtitle: "男高音",
       caption: [
         "碩士期間擔任男高音團員。",
-        "於誠品表演廳參與公開演出。",
+        "參與音樂會《謠遠》，於誠品表演廳演出。",
       ],
     },
     {
@@ -279,8 +300,20 @@ const zhData = {
       role: "全端（資料處理＋互動視覺化）",
     },
     {
+      name: "「覓」境 — Instagram 餐廳查詢 LINE Bot",
+      description:
+        "大學畢業專題（5 人團隊）。以 Selenium 爬取約 4,000 篇 #台北美食 Instagram 貼文，經 Google Maps 驗證篩出 65 間台北餐廳；結合貼文情緒（CKIP＋CopeOpi）、Google 評論情緒（SnowNLP）與星等加權計算推薦分數，再透過 LINE Bot（Flask、Railway PostgreSQL、Dialogflow 閒聊）提供查詢與推薦。",
+      role: "大學畢業專題（團隊，2022）",
+    },
+    {
       description: "電商交易詐欺偵測的機器學習專題，運用顧客與交易資料標記高風險行為。",
       role: "資料科學（建模＋評估）",
+    },
+    {
+      name: "個人投資風險管家 — 玉山證券產學合作",
+      description:
+        "觀察違約交割案例多發生在投資新手，因此打造給股市小白的 LINE 聊天機器人：查詢當日台股資訊、用白話解釋開盤價、本益比等名詞，並適時提醒風險。跨校團隊於玉山證券產學合作中獲得優勝（2021）。",
+      role: "團隊專題 — 優勝（2021）",
     },
     {
       description: "垃圾偵測的電腦視覺專題，包含模型訓練、評估與可直接使用的推論流程。",

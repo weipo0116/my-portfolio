@@ -28,6 +28,8 @@ _M.S. in Computer Science_
 
 _B.S. in Big Data Management (Data Science)_
 - GPA: 3.76/4
+- Capstone: Instagram restaurant-finder LINE Bot with sentiment-based ranking (team of 5).
+- E.SUN Securities industry–academia program: beginner-investor risk chatbot, Winner (2021).
 
 ### Fudan University || Sep 2021 - Jan 2022
 
@@ -42,6 +44,13 @@ _AI Management Associate | Digital Banking Division_
 - Joined the AI Management Associate program on Aug 10, 2026, rotating within the Digital Banking Division.
 - Building a monthly Power BI report on fraud-alert accounts with Python preprocessing, helping management pinpoint sources of increase.
 - Benchmarked digital account-opening journeys across Taiwanese banks (UI, ID verification, resubmission); presented findings in Figma.
+
+### National Chengchi University (NCCU) || May 2026 - Jul 2026
+
+_Project Assistant | Chinese Language Center (CLC)_
+
+- Ran three teacher-training lectures for the MOE Mandarin Proficiency Enhancement Program, from speaker invitations and hybrid logistics to hosting.
+- Launched the Mandarin Buddy Program with the Office of International Cooperation and coordinated three instructors' Mandarin-teaching courses.
 
 ### LINE Taiwan Limited || Oct 2022 - Aug 2023
 
