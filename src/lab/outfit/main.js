@@ -135,12 +135,13 @@ function dayElement(tz, off = 0) {
 /* ---------- weather ---------- */
 const WCODE = (c) => (c === 0 ? "晴" : c <= 3 ? "多雲" : c <= 48 ? "霧" : c <= 57 ? "毛毛雨" : c <= 67 ? "雨" : c <= 77 ? "雪" : c <= 82 ? "陣雨" : c <= 99 ? "雷雨" : "—");
 
-const DAY_OFFSETS = [-1, 0, 1, 2, 3, 4, 5];
+const DAY_OFFSETS = [-1, 0, 1, 2, 3, 4, 5, 6];
+const PAST_DAYS = 2, FUTURE_DAYS = 16; // forecast window requested from Open-Meteo
 
 // One request per city covers yesterday through +5 days; sliceWeather() picks a day.
 async function getWeather(city) {
   const c = CITIES[city];
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,precipitation&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,weather_code&timezone=${encodeURIComponent(c.tz)}&past_days=1&forecast_days=7`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,precipitation&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,weather_code&timezone=${encodeURIComponent(c.tz)}&past_days=${PAST_DAYS}&forecast_days=${FUTURE_DAYS}`;
   try {
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), 7000);
@@ -155,9 +156,9 @@ async function getWeather(city) {
 
 function sliceWeather(raw, city, off) {
   const c = CITIES[city];
-  if (raw?.ok) {
+  if (raw?.ok && off >= -PAST_DAYS && off < FUTURE_DAYS) {
     const j = raw.j;
-    const di = off + 1; // daily[0] is yesterday
+    const di = off + PAST_DAYS; // daily[0] is the earliest past day
     const date = j.daily.time[di];
     const mk = (k) => ({
       label: j.hourly.time[k].slice(11, 16),
@@ -191,7 +192,7 @@ function sliceWeather(raw, city, off) {
     return { label: `${String(hh).padStart(2, "0")}:00`, temp: t, feel: t, rain: 30, code: 3 };
   });
   const mid = off === 0 ? hours[0] : hours[4];
-  return { ok: false, mode: off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: 70, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
+  return { ok: false, est: !!raw?.ok, mode: off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: 70, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
 }
 
 /* ---------- render ---------- */
@@ -295,7 +296,7 @@ function renderWeather() {
       return d;
     }),
   );
-  if (!w.ok) g.appendChild(h("p", "wnote", "即時天氣暫時讀不到，以下為季節平均的估算值。"));
+  if (!w.ok) g.appendChild(h("p", "wnote", w.est ? "這天超出天氣預報範圍（約未來 16 天內），以下為季節平均的估算值。" : "即時天氣暫時讀不到，以下為季節平均的估算值。"));
 
   // hourly strip: temperature line + rain bars
   const hrs = w.hours;
@@ -322,22 +323,45 @@ function renderWeather() {
 
 function dayName(off) {
   const t = shiftDay(todayIn(CITIES[state.city].tz), off);
-  const base = off === -1 ? ["YESTERDAY", "昨天"] : off === 0 ? ["TODAY", "今天"] : off === 1 ? ["TOMORROW", "明天"] : [t.wk, `週${WK_ZH[t.wd]}`];
+  const base = off === -1 ? ["YESTERDAY", "昨天"] : off === 0 ? ["TODAY", "今天"] : off === 1 ? ["TOMORROW", "明天"] : [t.wk, Math.abs(off) <= 6 ? `週${WK_ZH[t.wd]}` : `${t.m}/${t.d}`];
   return { en: base[0], zh: base[1], md: `${t.m}/${t.d}` };
 }
 
+const ymd = (t) => `${t.y}-${String(t.m).padStart(2, "0")}-${String(t.d).padStart(2, "0")}`;
+
+// Day buttons stay disabled until the weather request has settled.
 function renderDayTabs() {
-  $("dayTabs").replaceChildren(
+  const ready = !!state.raw;
+  const box = $("dayTabs");
+  box.setAttribute("aria-busy", String(!ready));
+  box.replaceChildren(
     ...DAY_OFFSETS.map((o) => {
       const n = dayName(o);
       const b = h("button", "tab day" + (o === state.off ? " on" : ""), `<b>${n.zh}</b><small>${n.md}</small>`);
       b.type = "button";
+      b.disabled = !ready;
       b.setAttribute("aria-pressed", o === state.off);
       b.addEventListener("click", () => { if (o !== state.off) switchDay(o); });
       return b;
     }),
   );
+  const pick = $("dayPick");
+  pick.disabled = !ready;
+  if (state.day) pick.value = ymd(state.day.t);
+  $("dayState").textContent = ready ? "" : "載入天氣中…";
 }
+
+function offsetFor(value) {
+  const [y, m, d] = value.split("-").map(Number);
+  const t = todayIn(CITIES[state.city].tz);
+  return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(t.y, t.m - 1, t.d)) / 864e5);
+}
+
+$("dayPick").addEventListener("change", (e) => {
+  if (!e.target.value || !state.raw) return;
+  const off = offsetFor(e.target.value);
+  if (off !== state.off) switchDay(off);
+});
 
 function applyDay() {
   const tz = CITIES[state.city].tz;
@@ -485,6 +509,7 @@ async function init() {
   renderCityTabs();
   renderDayTabs();
   state.raw = await getWeather(state.city);
+  renderDayTabs();
   state.weather = sliceWeather(state.raw, state.city, state.off);
   renderWeather();
   renderTabs();

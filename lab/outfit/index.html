@@ -29,7 +29,11 @@
           <a href="../../work/">LAB ↗</a>
         </div>
         <p class="kicker" id="kicker">TODAY'S LOOK · 今日主色</p>
-        <div class="tabs days" id="dayTabs" role="group" aria-label="選擇日期"></div>
+        <div class="daybar">
+          <div class="tabs days" id="dayTabs" role="group" aria-label="選擇日期"></div>
+          <label class="datepick"><span>任選日期</span><input type="date" id="dayPick" min="2000-01-01" max="2100-12-31" disabled /></label>
+          <span class="daystate" id="dayState" role="status"></span>
+        </div>
         <h1 class="mega" id="mega" aria-live="polite"><span class="mega-zh" id="elZh">木</span><span class="mega-en" id="elEn">WOOD</span></h1>
         <p class="sub" id="sub"></p>
         <div class="chips" id="chips"></div>
