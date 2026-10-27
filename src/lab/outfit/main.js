@@ -3,9 +3,7 @@ import "./outfit.css";
 
 /* ---------- five elements ---------- */
 const GAN_EL = { 甲: "wood", 乙: "wood", 丙: "fire", 丁: "fire", 戊: "earth", 己: "earth", 庚: "metal", 辛: "metal", 壬: "water", 癸: "water" };
-const GEN = { wood: "fire", fire: "earth", earth: "metal", metal: "water", water: "wood" }; // 生
 const CTRL = { wood: "earth", earth: "water", water: "fire", fire: "metal", metal: "wood" }; // 剋
-const genBy = (e) => Object.keys(GEN).find((k) => GEN[k] === e);
 const ctrlBy = (e) => Object.keys(CTRL).find((k) => CTRL[k] === e);
 
 const EL = {
@@ -69,29 +67,34 @@ const ACCESSORY = { work: "包款或絲巾", date: "耳環／小包", sport: "�
 const SHOES = { work: "樂福鞋", date: "細帶高跟／尖頭平底", sport: "跑鞋", formal: "牛津鞋／高跟鞋", casual: "德訓鞋" };
 const SHOES_RAIN = { work: "防水皮鞋", date: "防水短靴", sport: "防水跑鞋", formal: "防水短靴", casual: "防水球鞋" };
 
-/* looks: each piece tagged with a colour slot */
+/* looks: each piece tagged with a colour slot (g1 吉, g2 次吉, g3 平) */
+const TIER = { g1: "吉", g2: "次吉", g3: "平" };
+const WEIGHT = { g1: 3, g2: 2, g3: 1 };
 function buildLooks(occ, feel, rainy, uv, c) {
   const b = band(feel);
   const top = TOPS[occ][b], bot = BOTTOMS[occ][b], outer = OUTER[b];
   const shoe = rainy ? SHOES_RAIN[occ] : SHOES[occ];
-  const extra = [{ part: "配件", item: ACCESSORY[occ], slot: "guest" }];
+  const extra = [];
   if (rainy) extra.push({ part: "雨具", item: "折疊傘／防潑水外層", slot: "accent" });
   if (uv >= 8) extra.push({ part: "防曬", item: "寬簷帽或墨鏡", slot: "neutral" });
 
-  const mk = (id, name, note, slots) => ({
-    id, name, note,
-    pieces: [
+  const mk = (id, name, note, slots) => {
+    const core = [
       { part: "上身", item: top, slot: slots.top },
       { part: "下身", item: bot, slot: slots.bot },
       ...(outer ? [{ part: "外層", item: outer, slot: slots.outer }] : []),
-      { part: "鞋", item: shoe, slot: slots.shoe },
-      ...extra,
-    ],
-  });
+    ];
+    const pieces = [...core, { part: "鞋", item: shoe, slot: slots.shoe }, { part: "配件", item: ACCESSORY[occ], slot: slots.acc }, ...extra];
+    // energy score: weighted share of 吉 / 次吉 / 平 across the visible pieces
+    const scored = [...core, pieces[core.length], pieces[core.length + 1]];
+    const pts = scored.reduce((n, p) => n + (WEIGHT[p.slot] ?? 0), 0);
+    const score = Math.round((pts / (scored.length * 3)) * 10);
+    return { id, name, note, pieces, score };
+  };
   return [
-    mk("01", "MONOCHROME 同色系", "整身以今日主色為核心，用明暗做層次，最有時裝週的氣勢。", { top: "main", bot: "main", outer: "main", shoe: "dark" }),
-    mk("02", "CONTRASTE 撞色", "主色與輔色大膽對撞，一件主角單品配一件反差。", { top: "support", bot: "main", outer: "support", shoe: "neutral" }),
-    mk("03", "SILENCE 沉靜", "中性底色，只用主色做一個重點（外套、包或鞋）。", { top: "neutral", bot: "dark", outer: "main", shoe: "main" }),
+    mk("01", "ÉNERGIE MAX 吉色滿格", "今日最旺的吉色佔大面積，次吉色做點綴，能量最集中。", { top: "g1", bot: "g1", outer: "g1", shoe: "dark", acc: "g2" }),
+    mk("02", "DUO 吉＋次吉", "吉色與次吉色對撞，一件主角單品配一件反差，時裝感最強。", { top: "g1", bot: "g2", outer: "g1", shoe: "neutral", acc: "g1" }),
+    mk("03", "TRIO 三色運勢", "用平色打底、吉色壓軸、次吉色收尾，層次豐富但不搶戲。", { top: "g3", bot: "dark", outer: "g1", shoe: "g2", acc: "g1" }),
   ].map((l) => ({ ...l, colors: c }));
 }
 
@@ -187,12 +190,19 @@ function splitChars(node, text) {
   });
 }
 
+// Colour fortune for the day, by relation to the day's element:
+//   剋我 → 吉 (best), 我剋 → 次吉, 同我 → 平. 生我 / 我生 are not ranked (kept neutral).
 function paletteFor(elKey) {
-  const main = EL[elKey];
-  const sup = EL[genBy(elKey)];
-  const guest = EL[ctrlBy(elKey)];
+  const tier = (k) => ({ key: k, el: EL[k], ...EL[k].colors[0] });
   const dark = { n: "Nero 墨黑", hex: "#0a0a0a" };
-  return { main: main.colors[0], mainAlt: main.colors[1], deep: main.colors[2], support: sup.colors[0], guest: guest.colors[0], neutral: NEUTRAL, dark, accent: { n: main.accent, hex: main.accent } };
+  return {
+    g1: tier(ctrlBy(elKey)),
+    g2: tier(CTRL[elKey]),
+    g3: tier(elKey),
+    neutral: NEUTRAL,
+    dark,
+    accent: { n: EL[elKey].accent, hex: EL[elKey].accent },
+  };
 }
 
 function renderHero() {
@@ -212,10 +222,10 @@ function renderHero() {
   const chips = $("chips");
   chips.replaceChildren(
     ...[
-      ["主色 PRINCIPAL", pal.main],
-      ["輔色 SOUTIEN", pal.support],
-      ["貴人色 PROTECTEUR", pal.guest],
-      ["中性 NEUTRE", pal.neutral],
+      ["吉 FAVORABLE", pal.g1],
+      ["次吉 BIEN", pal.g2],
+      ["平 NEUTRE", pal.g3],
+      ["中性底色 BASE", pal.neutral],
     ].map(([label, c], i) => {
       const d = h("div", "chip", `<i style="background:${c.hex}"></i><span>${label}</span><b>${c.n}</b>`);
       d.style.setProperty("--i", i);
@@ -324,7 +334,7 @@ function renderTabs() {
 }
 
 function slotColor(slot, pal) {
-  return slot === "main" ? pal.main : slot === "support" ? pal.support : slot === "guest" ? pal.guest : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
+  return slot === "g1" ? pal.g1 : slot === "g2" ? pal.g2 : slot === "g3" ? pal.g3 : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
 }
 
 function renderLooks(animate) {
@@ -340,10 +350,10 @@ function renderLooks(animate) {
       const rows = l.pieces
         .map((p) => {
           const c = slotColor(p.slot, state.pal);
-          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${p.slot === "accent" ? "點綴" : p.slot === "guest" ? "貴人色 · " + c.n : c.n}</small></li>`;
+          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? TIER[p.slot] + " · " : p.slot === "accent" ? "點綴 · " : ""}${p.slot === "accent" ? "" : c.n}</small></li>`;
         })
         .join("");
-      card.innerHTML = `<div class="look-no">${l.id}</div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul>`;
+      card.innerHTML = `<div class="look-no">${l.id}</div><div class="score" title="依吉／次吉／平色的佔比估算"><b>${l.score}</b>/10<small>ÉNERGIE</small></div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul>`;
       return card;
     }),
   );
@@ -351,15 +361,15 @@ function renderLooks(animate) {
 
 function renderRules() {
   const el = state.day.el;
-  const main = EL[el], sup = EL[genBy(el)], guest = EL[ctrlBy(el)];
   const rows = [
-    ["主色", `${main.zh}（${main.en}）`, "今天的日柱天干五行，直接穿在最顯眼的單品。", main.bg],
-    ["輔色", `${sup.zh}（${sup.en}）`, `${sup.zh}生${main.zh}，用來托住主色、做配角。`, sup.bg],
-    ["貴人色", `${guest.zh}（${guest.en}）`, `${guest.zh}剋${main.zh}，傳統上剋我者為官星、象徵助力與規範。用在包、飾品、鞋等小面積，借力又不壓過主色。`, guest.bg],
+    ["吉", "FAVORABLE", ctrlBy(el), `${EL[ctrlBy(el)].zh}剋${EL[el].zh}（剋我者）。今天最有助力的顏色，優先放在上身、外套等大面積。`],
+    ["次吉", "BIEN", CTRL[el], `${EL[el].zh}剋${EL[CTRL[el]].zh}（我剋者）。第二順位，適合下身、鞋或配件，補上第二層能量。`],
+    ["平", "NEUTRE", el, `與今天同為${EL[el].zh}（同我者）。不加分也不扣分，當作底色或點綴就好。`],
   ];
   $("rules").replaceChildren(
-    ...rows.map(([k, v, t, c], i) => {
-      const d = h("div", "rule", `<i style="background:${c}"></i><small>${k}</small><strong>${v}</strong><p>${t}</p>`);
+    ...rows.map(([k, en, e, t], i) => {
+      const E = EL[e];
+      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${k} · ${en}</small><strong>${E.zh}（${E.en}）· ${E.colors[0].n}</strong><p>${t}</p>`);
       d.style.setProperty("--i", i);
       return d;
     }),

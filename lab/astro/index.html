@@ -17,13 +17,12 @@
       rel="stylesheet"
     />
     <title>Astra Dies · 每日星盤</title>
-    <meta
-      name="description"
-      content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。"
-    />
+    <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
   </head>
   <body>
     <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="wheel-bg" aria-hidden="true"><svg id="wheelBg" viewBox="-400 -400 800 800"></svg></div>
+
     <main id="app">
       <header class="hero">
         <p class="eyebrow" id="romanDate">&nbsp;</p>
@@ -34,27 +33,30 @@
           <button id="today" type="button">今日</button>
           <button id="next" type="button" aria-label="後一天">明日 ›</button>
         </div>
-        <div class="wheel-wrap"><svg id="wheel" viewBox="-400 -400 800 800" role="img" aria-label="今日行星黃道輪盤"></svg></div>
+        <button id="openChart" class="cta" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
+        <p class="hint" id="motionHint"></p>
       </header>
 
       <section class="block reveal" aria-labelledby="h-energy">
         <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
-        <blockquote id="headline" class="headline"></blockquote>
+        <p id="headline" class="headline"></p>
+        <p id="summary" class="summary"></p>
+        <ul id="tags" class="tags"></ul>
         <div id="energy" class="prose"></div>
-      </section>
-
-      <section class="block reveal" aria-labelledby="h-planets">
-        <h2 id="h-planets"><span class="num">II</span> 行星位置 <em>Loci Planetarum</em></h2>
-        <ul id="planets" class="planets"></ul>
-      </section>
-
-      <section class="block reveal" aria-labelledby="h-aspects">
-        <h2 id="h-aspects"><span class="num">III</span> 重要相位 <em>Aspectus</em></h2>
-        <div id="aspects" class="aspects"></div>
+        <details class="how">
+          <summary>這段能量是怎麼算出來的？</summary>
+          <div class="prose">
+            <p><b>1. 位置是即時算的。</b>每次開頁，瀏覽器會用天文曆算（astronomy-engine）算出此刻 10 顆星體在黃道上的真實位置，不是查表、也不用網路。</p>
+            <p><b>2. 每顆星有固定角色。</b>太陽＝今天的主題、月亮＝情緒底色、水星＝溝通（逆行要多確認）、金星＝關係與金錢、火星＝行動力；它們落在哪個星座，就決定語氣。</p>
+            <p><b>3. 角度決定順不順。</b>兩顆星之間的角度（相位）：合相放大、六分與三分順暢、四分與對分有張力。只挑誤差最小的幾組。</p>
+            <p><b>4. 文字是模板組合，不是 AI 即時生成。</b>同樣的天象一定得到同樣的文字，所以很穩定，但也比較制式。</p>
+            <p><b>5. 會自動更新。</b>每天（台北時間）開頁就是當天的天象；頁面開著跨午夜，也會自動換成新的一天。</p>
+          </div>
+        </details>
       </section>
 
       <section class="block reveal moon-block" aria-labelledby="h-moon">
-        <h2 id="h-moon"><span class="num">IV</span> 月相 <em>Luna</em></h2>
+        <h2 id="h-moon"><span class="num">II</span> 月相 <em>Luna</em></h2>
         <div class="moon-row">
           <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相"></svg>
           <div id="moonText" class="prose"></div>
@@ -67,6 +69,31 @@
         <p><a href="../../work/">← 回到 Lab</a></p>
       </footer>
     </main>
+
+    <dialog id="chartDialog" aria-labelledby="dlgTitle">
+      <div class="dlg-bar">
+        <h2 id="dlgTitle">星盤詳情 <em id="dlgDate"></em></h2>
+        <button id="closeChart" type="button" aria-label="關閉">✕</button>
+      </div>
+      <div class="dlg-body">
+        <div class="dlg-wheel"><svg id="wheelMain" viewBox="-400 -400 800 800" role="img" aria-label="行星黃道輪盤"></svg></div>
+
+        <section class="dlg-sec" aria-labelledby="h-planets">
+          <h3 id="h-planets"><span class="num">II</span> 行星位置 <em>Loci Planetarum</em></h3>
+          <ul id="planets" class="planets"></ul>
+        </section>
+
+        <section class="dlg-sec" aria-labelledby="h-aspects">
+          <h3 id="h-aspects"><span class="num">III</span> 重要相位 <em>Aspectus</em></h3>
+          <div id="aspects" class="aspects"></div>
+        </section>
+
+        <section class="dlg-sec" aria-labelledby="h-legend">
+          <h3 id="h-legend"><span class="num">IV</span> 標記說明 <em>Notae</em></h3>
+          <ul class="legend" id="legend"></ul>
+        </section>
+      </div>
+    </dialog>
     <script type="module" src="/src/lab/astro/main.js"></script>
   </body>
 </html>
