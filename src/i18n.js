@@ -72,7 +72,7 @@ export const ui = {
       contact: "Contact",
       mainLinks: "Main links",
       now: "Now",
-      nowText: "Building SI, an AI project workspace",
+      nowText: "Building Super Intelligence, an AI project workspace",
     },
   },
   zh: {
