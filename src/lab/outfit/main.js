@@ -155,7 +155,7 @@ async function getWeather(city) {
 
 function sliceWeather(raw, city, off) {
   const c = CITIES[city];
-  if (raw.ok) {
+  if (raw?.ok) {
     const j = raw.j;
     const di = off + 1; // daily[0] is yesterday
     const date = j.daily.time[di];

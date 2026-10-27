@@ -17,6 +17,7 @@ import resumePdf from "./resume/resume.pdf";
 
 const MOTION_EASE = [0.22, 1, 0.36, 1];
 
+const LAB_ORDER = ["Lit", "Brewing", "Wandering"];
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
 const PAGE_PATH = { profile: BASE, work: `${BASE}work/` };
 // One nav for both pages, so moving between them never changes the menu.
@@ -215,6 +216,10 @@ function App({ page = "profile" }) {
   const shouldReduceMotion = useReducedMotion();
   const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const siteData = getSiteData(lang);
+  // Lit (live) first, then Casting (built, not live), then Decoding (ideas)
+  const labItems = [...(siteData.lab?.items ?? [])].sort(
+    (a, b) => LAB_ORDER.indexOf(a.status) - LAB_ORDER.indexOf(b.status),
+  );
   const t = ui[lang];
   const isWork = page === "work";
   const pageRef = useRef(null);
@@ -968,7 +973,7 @@ function App({ page = "profile" }) {
 
         {isWork ? (
           <>
-            {siteData.lab?.items?.length ? (
+            {labItems.length ? (
               <motion.section
                 className="section"
                 id="lab"
@@ -978,7 +983,7 @@ function App({ page = "profile" }) {
                 variants={sectionVariants}
               >
                 <div className="lab-grid">
-                  {siteData.lab.items.map((item, index) => (
+                  {labItems.map((item, index) => (
                     <motion.article
                       key={`lab-${index}`}
                       className="info-card lab-card"
@@ -1189,12 +1194,12 @@ function App({ page = "profile" }) {
                 </div>
               </div>
             </div>
-            {siteData.lab?.items?.length ? (
+            {labItems.length ? (
               <div className="hscroll hscroll-lab">
                     <p className="hscroll-row-label">{t.rows.lab}</p>
                     <div className="hscroll-row">
                       <div className="hscroll-track">
-                        {siteData.lab.items.map((item, index) => (
+                        {labItems.map((item, index) => (
                           <motion.a
                             key={`lab-thumb-${index}`}
                             className="photo-card photo-card-preview hscroll-card lab-thumb"
