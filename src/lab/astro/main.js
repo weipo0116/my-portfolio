@@ -166,7 +166,7 @@ function buildSummary(pos, aspects, phaseIdx) {
   else if (phaseIdx === 0 || phaseIdx === 4) s2 = `月相是${PHASES[phaseIdx][0]}，${PHASES[phaseIdx][1]}`;
   else if (hard) s2 = `留意${hard.a.zh}與${hard.b.zh}的${hard.asp.name}：${hard.asp.mean}`;
   else s2 = "沒有特別緊張的相位，可以照自己的步調走。";
-  return `${s1}${s2}建議：${ACTION[sun.sign.el]}`;
+  return { text: `${s1}${s2}`, advice: ACTION[sun.sign.el] };
 }
 
 function buildTags(pos, aspects, phaseIdx) {
@@ -646,7 +646,11 @@ function render({ dur = 1700 } = {}) {
   const phaseIdx = Math.round(moonInfo.phase / 45) % 8;
 
   $("headline").textContent = headline(pos);
-  $("summary").textContent = buildSummary(pos, aspects, phaseIdx);
+  {
+    const sm = buildSummary(pos, aspects, phaseIdx);
+    $("summary").textContent = sm.text;
+    $("advice").textContent = sm.advice;
+  }
   $("tags").replaceChildren(
     ...buildTags(pos, aspects, phaseIdx).map(([k, v]) => {
       const li = document.createElement("li");
