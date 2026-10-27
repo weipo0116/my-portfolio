@@ -1,4 +1,24 @@
 import * as A from "astronomy-engine";
+
+/* ---------- theme (dark / light) ---------- */
+let starRgb = "230,211,163";
+const THEME_KEY = "astra-theme";
+function applyTheme(mode) {
+  document.documentElement.dataset.theme = mode;
+  starRgb = mode === "light" ? "138,106,34" : "230,211,163";
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", mode === "light" ? "#f5efe0" : "#07080f");
+  const btn = document.getElementById("themeBtn");
+  if (btn) {
+    btn.setAttribute("aria-pressed", String(mode === "light"));
+    btn.setAttribute("aria-label", mode === "light" ? "切換為深色模式" : "切換為淺色模式");
+  }
+}
+(() => {
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
+  applyTheme(saved === "light" ? "light" : "dark");
+})();
 import "./astro.css";
 
 /* ---------- static tables ---------- */
@@ -280,23 +300,66 @@ function updateWheel(svg, pos, aspects, prev, opts = {}) {
 }
 
 /* ---------- moon ---------- */
+// Textured moon: lit area is clipped from a shaded sphere with maria and craters;
+// the dark side keeps a faint earthshine so the whole disc stays readable.
+const MARIA = [[-18, -14, 17, 12], [6, -21, 10, 8], [17, -6, 12, 8], [35, -11, 5, 7], [-35, 2, 10, 21], [-14, 19, 12, 8], [-31, 24, 6, 5], [3, 3, 6, 5], [26, 10, 6, 4]];
+const CRATERS = [[-4, 35, 3.2, 1], [-21, 4, 2.6, 0.8], [-9, -28, 2.2, 0.7], [20, 24, 2.4, 0.6], [30, -26, 1.8, 0.5], [-38, -16, 2, 0.5], [12, 38, 1.6, 0.5], [-26, 33, 1.8, 0.5], [38, 12, 1.6, 0.5], [-6, 12, 1.5, 0.6], [8, -4, 1.4, 0.5], [-30, -32, 1.4, 0.5]];
+
 function drawMoon(svg, date) {
   svg.innerHTML = "";
   const phase = A.MoonPhase(date); // 0..360, 0 = new
   const illum = A.Illumination(A.Body.Moon, date).phase_fraction;
-  el("circle", { r: 50, class: "moon-dark" }, svg);
-  const waxing = phase < 180;
-  // terminator: ellipse with rx = 50*|cos(phase)|
-  const k = Math.cos((phase * Math.PI) / 180);
-  const rx = Math.abs(k) * 50;
   const r = 50;
-  const side = waxing ? 1 : -1; // lit limb on the right when waxing
+  const defs = el("defs", {}, svg);
+  const sph = el("radialGradient", { id: "mSph", cx: "42%", cy: "38%", r: "75%" }, defs);
+  el("stop", { offset: "0%", class: "ms ms0" }, sph);
+  el("stop", { offset: "70%", class: "ms ms1" }, sph);
+  el("stop", { offset: "100%", class: "ms ms2" }, sph);
+  const limb = el("radialGradient", { id: "mLimb", cx: "50%", cy: "50%", r: "50%" }, defs);
+  el("stop", { offset: "72%", "stop-color": "#000", "stop-opacity": "0" }, limb);
+  el("stop", { offset: "100%", "stop-color": "#000", "stop-opacity": "0.42" }, limb);
+  const earth = el("radialGradient", { id: "mEarth", cx: "50%", cy: "50%", r: "50%" }, defs);
+  el("stop", { offset: "0%", class: "me0" }, earth);
+  el("stop", { offset: "100%", class: "me1" }, earth);
+  const blur = el("filter", { id: "mBlur", x: "-40%", y: "-40%", width: "180%", height: "180%" }, defs);
+  el("feGaussianBlur", { stdDeviation: "2.3" }, blur);
+  const soft = el("filter", { id: "mSoft", x: "-40%", y: "-40%", width: "180%", height: "180%" }, defs);
+  el("feGaussianBlur", { stdDeviation: "0.5" }, soft);
+
+  const waxing = phase < 180;
+  const k = Math.cos((phase * Math.PI) / 180);
+  const rx = Math.abs(k) * r;
   const lit = `M 0 ${-r} A ${r} ${r} 0 0 ${waxing ? 1 : 0} 0 ${r}`;
   const crescent = k > 0; // less than half lit
   const term = `A ${rx} ${r} 0 0 ${crescent ? (waxing ? 0 : 1) : waxing ? 1 : 0} 0 ${-r}`;
-  el("path", { d: `${lit} ${term} Z`, class: "moon-lit" }, svg);
-  el("circle", { r: 50, class: "moon-rim" }, svg);
-  return { phase, illum, side };
+  const clip = el("clipPath", { id: "mLit" }, defs);
+  el("path", { d: `${lit} ${term} Z` }, clip);
+  const disc = el("clipPath", { id: "mDisc" }, defs);
+  el("circle", { r }, disc);
+
+  // dark side + earthshine, with the maria faintly visible
+  el("circle", { r, class: "moon-dark" }, svg);
+  el("circle", { r, fill: "url(#mEarth)" }, svg);
+  const ghost = el("g", { "clip-path": "url(#mDisc)", opacity: "0.35" }, svg);
+  MARIA.forEach(([x, y, a, b]) => el("ellipse", { cx: x, cy: y, rx: a, ry: b, class: "moon-maria", filter: "url(#mBlur)" }, ghost));
+
+  // lit surface
+  const g = el("g", { "clip-path": "url(#mLit)" }, svg);
+  el("circle", { r, fill: "url(#mSph)" }, g);
+  const surf = el("g", { "clip-path": "url(#mDisc)" }, g);
+  MARIA.forEach(([x, y, a, b]) => el("ellipse", { cx: x, cy: y, rx: a, ry: b, class: "moon-maria", filter: "url(#mBlur)" }, surf));
+  CRATERS.forEach(([x, y, cr, o]) => {
+    el("circle", { cx: x + 0.5, cy: y + 0.7, r: cr, class: "moon-crater-shadow", opacity: o * 0.6, filter: "url(#mSoft)" }, surf);
+    el("circle", { cx: x, cy: y, r: cr * 0.8, class: "moon-crater-rim", opacity: o, filter: "url(#mSoft)" }, surf);
+  });
+  // rays around Tycho
+  for (let i = 0; i < 9; i++) {
+    const ang = (i / 9) * Math.PI * 2 + 0.3;
+    el("line", { x1: -4, y1: 35, x2: -4 + Math.cos(ang) * 11, y2: 35 + Math.sin(ang) * 11, class: "moon-ray" }, surf);
+  }
+  el("circle", { r, fill: "url(#mLimb)" }, g);
+  el("circle", { r, class: "moon-rim" }, svg);
+  return { phase, illum, side: waxing ? 1 : -1 };
 }
 
 /* ---------- period events & sign fortunes ---------- */
@@ -363,8 +426,58 @@ const PW = {
   Saturn: { love: 0.5, career: 0.6, money: 0.5, n: -0.8 },
 };
 const CATS = { love: "感情", career: "事業", money: "財運" };
-const POS_TXT = { love: "互動順暢，主動表達會被接住。", career: "有推進空間，適合提案與行動。", money: "有機會，留意好的交易與收入。" };
-const NEG_TXT = { love: "容易誤會，先聽再說。", career: "進度偏慢，先確認方向再投入。", money: "花費易失控，大額決定先緩一緩。" };
+// Plain-language copy for the general public: each sign has its own voice per category,
+// then a short tip by how the day scores, then the planet that drives it.
+const SIGN_LINE = {
+  love: [
+    "你直來直往的魅力很吃香，心動就別繞圈子。",
+    "你愛得穩、慢熱卻長久，細水長流最適合你。",
+    "你話題多又機靈，用聊天就能把距離拉近。",
+    "你的體貼很動人，也記得說出自己的需要。",
+    "你自帶光芒，大方表達喜歡會被看見。",
+    "你的細心很加分，只要別對對方太挑剔。",
+    "你懂得營造氣氛，但別為了和諧吞下真心話。",
+    "你要的是深度，真心話比曖昧更有力量。",
+    "你的樂觀很有感染力，給彼此一點自由空間。",
+    "你慢熱卻認真，偶爾放下防備會更靠近。",
+    "你需要有趣的靈魂，保有自己也願意靠近一步。",
+    "你的感受力很強，溫柔之餘也要守住界線。",
+  ],
+  career: [
+    "你的行動力是招牌，想到就先動手試試看。",
+    "你踏實累積的功夫到位，照自己的節奏走就好。",
+    "你的資訊與人脈是武器，多問多連結會有收穫。",
+    "你重視團隊氣氛，把細心用在關鍵細節上。",
+    "你很適合站上舞台，主動扛下一個亮點任務。",
+    "你是細節控，把流程整理好效率會更高。",
+    "你擅長協調溝通，適合當團隊裡的那座橋。",
+    "你專注力驚人，鑽進一件事就能看見突破。",
+    "你的視野夠廣，大方向對了就放手去闖。",
+    "你的責任感讓人信任，按計畫一步步往上爬。",
+    "你的創意與獨到想法是亮點，大方提出來。",
+    "你的靈感與同理心是天賦，把想法具體寫下來。",
+  ],
+  money: [
+    "你出手向來果斷，花錢前多留一秒想一想。",
+    "你對價值有自己的眼光，品質比折扣更重要。",
+    "你點子很多，挑一個真正值得投入的就好。",
+    "你天生會存，為家人與安心感花錢最值得。",
+    "你愛請客也愛好東西，量力而為更有面子。",
+    "你精打細算很在行，也替自己留點小獎勵。",
+    "你講究質感與美感，買之前多比較一下。",
+    "你直覺敏銳，資源配置多看長期。",
+    "你偏好體驗勝過物品，旅行與學習是好花費。",
+    "你長於規劃，穩健累積比一次衝刺更適合。",
+    "你的想法走在前面，新工具新方法先小額試。",
+    "你容易心軟，借貸與衝動消費要多留空間。",
+  ],
+};
+const TIP = {
+  love: { hi: "今天互動運順，適合主動聊聊、約個會。", mid: "感情運平穩，日常的小關心就很加分。", lo: "今天情緒較敏感，先聽對方說完再回應。" },
+  career: { hi: "工作上有推進力，適合提案、談合作。", mid: "節奏平穩，把手邊的事做完做好就很棒。", lo: "進度可能卡卡，先確認方向、別硬碰硬。" },
+  money: { hi: "財運有亮點，留意好機會與可靠的收入。", mid: "收支持平，維持原本的預算就好。", lo: "支出容易失控，大額決定先緩一天。" },
+};
+const AREA = ["自己的狀態與形象", "荷包與資源", "說話與學習", "家與安心感", "戀愛與玩樂", "日常作息與身體", "另一半與合作", "深層關係與共同資源", "眼界與遠方", "事業與名聲", "朋友與圈子", "獨處與休息"];
 
 // whole-sign houses counted from each sun sign
 function rawFortune(pos) {
@@ -396,9 +509,13 @@ function toStars(values) {
   return values.map((v) => 1 + Math.round((4 * (v - lo)) / span));
 }
 
-function fortuneNote(top, cat) {
+function fortuneNote(si, cat, stars, top) {
   const { b, house, c } = top;
-  return `${b.zh}${b.retro ? "（逆行）" : ""}落在你的第 ${house} 宮（${HOUSE[house - 1]}）：${c >= 0 ? POS_TXT[cat] : NEG_TXT[cat]}`;
+  const tier = stars >= 4 ? "hi" : stars === 3 ? "mid" : "lo";
+  return {
+    text: `${SIGN_LINE[cat][si]}${TIP[cat][tier]}`,
+    why: `${b.zh}${b.retro ? "（逆行）" : ""}正走到你的「${AREA[house - 1]}」，${c >= 0 ? "帶來助力" : "要多留心"}`,
+  };
 }
 
 function dayFortune(pos) {
@@ -406,7 +523,10 @@ function dayFortune(pos) {
   const out = {};
   for (const cat of Object.keys(CATS)) {
     const stars = toStars(raw.map((r) => r[cat].total));
-    out[cat] = SIGNS.map((sg, i) => ({ sign: sg, stars: stars[i], score: raw[i][cat].total, note: fortuneNote(raw[i][cat].top, cat) }));
+    out[cat] = SIGNS.map((sg, i) => {
+      const n = fortuneNote(i, cat, stars[i], raw[i][cat].top);
+      return { sign: sg, stars: stars[i], score: raw[i][cat].total, note: n.text, why: n.why };
+    });
   }
   return out;
 }
@@ -426,7 +546,8 @@ function weekFortune(date) {
     out[cat] = SIGNS.map((sg, i) => {
       const per = raws.map((r) => r[i][cat].total);
       const best = per.indexOf(Math.max(...per)), worst = per.indexOf(Math.min(...per));
-      return { sign: sg, stars: stars[i], score: avg[i], note: fortuneNote(mid[i][cat].top, cat), extra: `本週最順：${WK[best]}；較需留意：${WK[worst]}` };
+      const n = fortuneNote(i, cat, stars[i], mid[i][cat].top);
+      return { sign: sg, stars: stars[i], score: avg[i], note: n.text, why: n.why, extra: `本週最順：${WK[best]}；較需留意：${WK[worst]}` };
     });
   }
   return { data: out, from: days[0], to: days[6] };
@@ -590,7 +711,7 @@ function renderFortune() {
       }),
     );
   } else {
-    $("fortuneNote").textContent = "以每個星座當作上升（整宮制）來看當天行星落在第幾宮，再依感情、事業、財運加權。分數是 12 個星座之間的相對高低。";
+    $("fortuneNote").textContent = "依今天行星的位置，換算每個星座在感情、事業、財運上的順逆。星數是 12 個星座之間的相對高低，看個大方向、當作聊天話題就好。";
   }
   const box = $("fortune");
   box.replaceChildren(
@@ -604,7 +725,9 @@ function renderFortune() {
         const li = document.createElement("li");
         li.style.setProperty("--i", i);
         li.innerHTML = `<span class="fg">${TXT(r.sign.g)}</span><span class="fn"><b>${r.sign.zh}</b><i>${r.sign.la}</i></span><span class="fs" aria-label="${r.stars} 顆星">${stars(r.stars)}</span><span class="ft"></span>`;
-        li.querySelector(".ft").textContent = r.note + (r.extra ? `　${r.extra}` : "");
+        const ft = li.querySelector(".ft");
+        ft.append(Object.assign(document.createElement("span"), { className: "ft-main", textContent: r.note }));
+        ft.append(Object.assign(document.createElement("small"), { className: "ft-why", textContent: [r.extra, r.why].filter(Boolean).join("　·　") }));
         ul.appendChild(li);
       });
       if (!rows.length) ul.innerHTML = '<li class="empty">這一組目前沒有星座</li>';
@@ -666,7 +789,7 @@ function stars_() {
     ctx.clearRect(0, 0, w, h);
     for (const s of list) {
       const a = reduce ? 0.6 : 0.35 + 0.45 * Math.sin(t / 1000 * s.s + s.p);
-      ctx.fillStyle = `rgba(230,211,163,${a})`;
+      ctx.fillStyle = `rgba(${starRgb},${a})`;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
@@ -748,3 +871,9 @@ render();
 
 // floating dock once the hero has scrolled away
 new IntersectionObserver(([e]) => $("dock").classList.toggle("show", !e.isIntersecting), { threshold: 0.05 }).observe(document.querySelector(".hero"));
+
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(next);
+  try { localStorage.setItem(THEME_KEY, next); } catch { /* storage unavailable */ }
+});
