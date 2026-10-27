@@ -18,9 +18,9 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-BaIBEexB.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-CtwzbNPL.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-jLVVu9l9.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-Cj-uwmkL.css">
   </head>
   <body>
     <span id="top"></span>
@@ -28,6 +28,10 @@
       <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" /></svg>
       <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" /></svg>
     </button>
+    <div class="view-seg" id="viewSeg" role="group" aria-label="切換模式">
+      <button type="button" data-view="fortune">運勢</button>
+      <button type="button" data-view="chart">星盤</button>
+    </div>
     <canvas id="stars" aria-hidden="true"></canvas>
     <div class="wheel-bg" aria-hidden="true"><svg id="wheelBg" viewBox="-400 -400 800 800"></svg></div>
 
@@ -41,18 +45,26 @@
           <button id="today" type="button">今日</button>
           <button id="next" type="button" aria-label="後一天">明日 ›</button>
         </div>
-        <button id="openChart" class="cta" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
-        <p class="hint" id="motionHint"></p>
+        <button id="openChart" class="cta v-chart" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
+        <p class="hint v-chart" id="motionHint"></p>
         <p class="updated" id="updated"></p>
         <nav class="jump" aria-label="快速導覽">
-          <a href="#sec-energy">今日能量</a>
-          <a href="#sec-moon">月相</a>
-          <a href="#sec-fortune">星座運勢</a>
+          <a href="#sec-today" class="v-fortune">我的運勢</a>
+          <a href="#sec-fortune" class="v-fortune">十二星座</a>
+          <a href="#sec-energy" class="v-chart">今日能量</a>
+          <a href="#sec-moon" class="v-chart">月相</a>
+          <a href="#sec-fortune" class="v-chart">星座運勢</a>
           <a href="#sec-notes">說明</a>
         </nav>
       </header>
 
-      <section class="block reveal" id="sec-energy" aria-labelledby="h-energy">
+      <section class="block reveal v-fortune" id="sec-today" aria-labelledby="h-today">
+        <h2 id="h-today"><span class="num">✦</span> 我的運勢 <em>Fortuna Mea</em></h2>
+        <div class="signbar pick" id="todayPick" role="group" aria-label="選擇你的星座"></div>
+        <div id="todayCard"></div>
+      </section>
+
+      <section class="block reveal v-chart" id="sec-energy" aria-labelledby="h-energy">
         <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
         <p id="headline" class="headline"></p>
         <p id="summary" class="summary"></p>
@@ -71,7 +83,7 @@
         </details>
       </section>
 
-      <section class="block reveal moon-block" id="sec-moon" aria-labelledby="h-moon">
+      <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
         <h2 id="h-moon"><span class="num">II</span> 月相 <em>Luna</em></h2>
         <div class="moon-row">
           <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相"></svg>
@@ -80,7 +92,7 @@
       </section>
 
       <section class="block reveal" id="sec-fortune" aria-labelledby="h-fortune">
-        <h2 id="h-fortune"><span class="num">III</span> 星座運勢 <em>Fortuna</em></h2>
+        <h2 id="h-fortune"><span class="num"><span class="v-chart">III</span><span class="v-fortune">II</span></span> <span class="v-chart">星座運勢</span><span class="v-fortune">十二星座一覽</span> <em>Fortuna</em></h2>
         <p class="prose sub-note" id="fortuneNote"></p>
         <div class="signbar" id="signBar" role="group" aria-label="選擇星座"></div>
         <div class="fortune-ctl">
@@ -109,11 +121,28 @@
 
     <nav class="dock" id="dock" aria-label="頁面導覽">
       <a href="#top">↑ TOP</a>
-      <a href="#sec-energy">能量</a>
-      <a href="#sec-moon">月相</a>
-      <a href="#sec-fortune">運勢</a>
+      <a href="#sec-today" class="v-fortune">我的運勢</a>
+      <a href="#sec-fortune" class="v-fortune">十二星座</a>
+      <a href="#sec-energy" class="v-chart">能量</a>
+      <a href="#sec-moon" class="v-chart">月相</a>
+      <a href="#sec-fortune" class="v-chart">運勢</a>
       <a href="#sec-notes">說明</a>
     </nav>
+
+    <dialog id="shareDialog" class="share-dlg" aria-labelledby="shareTitle">
+      <div class="dlg-bar">
+        <h2 id="shareTitle">分享圖卡</h2>
+        <button id="closeShare" type="button" aria-label="關閉">✕</button>
+      </div>
+      <div class="share-body">
+        <img id="shareImg" alt="今日運勢分享圖卡" />
+        <div class="share-actions">
+          <button id="shareNative" type="button" class="cta" hidden>分享</button>
+          <a id="shareDl" class="cta ghost" download="astra-dies.png">下載圖片</a>
+        </div>
+        <p class="share-hint">手機上也可以長按圖片儲存。</p>
+      </div>
+    </dialog>
 
     <dialog id="chartDialog" aria-labelledby="dlgTitle">
       <div class="dlg-bar">
