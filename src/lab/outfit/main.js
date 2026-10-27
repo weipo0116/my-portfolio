@@ -350,7 +350,7 @@ function renderLooks(animate) {
       const rows = l.pieces
         .map((p) => {
           const c = slotColor(p.slot, state.pal);
-          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? TIER[p.slot] + " · " : p.slot === "accent" ? "點綴 · " : ""}${p.slot === "accent" ? "" : c.n}</small></li>`;
+          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : c.n}</small></li>`;
         })
         .join("");
       card.innerHTML = `<div class="look-no">${l.id}</div><div class="score" title="依吉／次吉／平色的佔比估算"><b>${l.score}</b>/10<small>ÉNERGIE</small></div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul>`;
