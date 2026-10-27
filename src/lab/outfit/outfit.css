@@ -115,3 +115,27 @@ h2 span { font-family: var(--sans); font-weight: 800; font-size: clamp(0.7rem, 1
   #wipe { display: none; }
   .reveal, .look, .rule, .wcell { opacity: 1; transform: none; }
 }
+
+/* city tabs + hourly strip */
+.tab.city { min-width: 84px; }
+.weather .looks-head { margin-bottom: 4px; }
+.hourly-wrap { margin-top: 28px; }
+.hourly { display: grid; grid-template-columns: repeat(13, minmax(64px, 1fr)); gap: 0; overflow-x: auto; border: 3px solid var(--black); background: #fff; scrollbar-width: thin; transition: opacity 0.3s var(--ease); }
+.hourly.loading { opacity: 0.35; }
+.hour { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 4px 12px; border-right: 2px solid var(--black); min-width: 64px; opacity: 0; }
+.hour:last-child { border-right: 0; }
+.reveal.in .hour { animation: up 0.7s var(--ease) calc(var(--i) * 55ms) both; }
+.hour small { font-weight: 800; font-size: 0.68rem; letter-spacing: 0.12em; }
+.hour.now { background: var(--bg); color: var(--ink); }
+.hour .dotwrap { position: relative; width: 100%; height: 72px; border-left: 0; }
+.hour .dot { position: absolute; left: 50%; top: calc(var(--y) * 100%); width: 14px; height: 14px; margin: -7px 0 0 -7px; background: var(--black); border-radius: 50%; transition: top 0.6s var(--ease); }
+.hour.now .dot { background: var(--ink); box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4); }
+.hour strong { font-family: var(--display); font-weight: 900; font-size: 1.35rem; line-height: 1; }
+.rainbar { position: relative; width: 18px; height: 56px; border: 2px solid var(--black); background: transparent; display: flex; align-items: flex-end; }
+.rainbar i { display: block; width: 100%; height: var(--p); background: #1020d8; transition: height 0.6s var(--ease); }
+.hour em { font-style: normal; font-weight: 800; font-size: 0.78rem; }
+.hourly-key { margin: 10px 0 0; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.hourly-key span { display: inline-block; width: 12px; height: 12px; }
+.hourly-key .k1 { background: var(--black); border-radius: 50%; }
+.hourly-key .k2 { background: #1020d8; margin-left: 10px; }
+@media (max-width: 640px) { .hourly { grid-template-columns: repeat(13, 64px); } }

@@ -1136,7 +1136,7 @@ function App({ page = "profile" }) {
                     >
                       <div className="lab-card-top">
                         <span
-                          className={`lab-status ${item.status === "In use" ? "is-live" : ""}`}
+                          className={`lab-status ${item.status === "Cooking" ? "is-live" : ""}`}
                         >
                           {t.labStatus[item.status] ?? item.status}
                         </span>

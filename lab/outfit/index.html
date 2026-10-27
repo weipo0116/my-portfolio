@@ -37,8 +37,15 @@
       <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
 
       <section class="weather reveal" aria-labelledby="h-w">
-        <h2 id="h-w">MÉTÉO <span>台北 · 即時天氣</span></h2>
+        <div class="looks-head">
+          <h2 id="h-w">MÉTÉO <span id="wCity">現在與未來 12 小時</span></h2>
+          <div class="tabs" id="cityTabs" role="group" aria-label="選擇城市"></div>
+        </div>
         <div class="wgrid" id="wgrid"></div>
+        <div class="hourly-wrap" aria-label="未來 12 小時氣溫與降雨機率">
+          <div class="hourly" id="hourly"></div>
+          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率</p>
+        </div>
       </section>
 
       <section class="looks" aria-labelledby="h-l">
@@ -55,7 +62,7 @@
       </section>
 
       <footer class="foot">
-        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市目前固定為台北。</p>
+        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市可選台北、東京、首爾。</p>
         <p>五行穿搭屬傳統文化與時尚遊戲，僅供娛樂與搭配靈感，不是科學預測。</p>
       </footer>
     </main>

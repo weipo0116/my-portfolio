@@ -166,7 +166,7 @@ export const siteData = {
     items: [
       {
         name: "SI — AI Project Workspace",
-        status: "In use",
+        status: "Cooking",
         problem:
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
         approach:
@@ -193,7 +193,7 @@ export const siteData = {
       },
       {
         name: "Astra Dies — Daily Astrology",
-        status: "In use",
+        status: "Cooking",
         problem:
           "Daily horoscopes are vague; I wanted planet positions I can verify, explained in plain language.",
         approach:
@@ -203,7 +203,7 @@ export const siteData = {
       },
       {
         name: "Cinq Éléments — Five-Element Outfit",
-        status: "In use",
+        status: "Cooking",
         problem:
           "Deciding what to wear means juggling weather, occasion and colour with no fixed logic.",
         approach:

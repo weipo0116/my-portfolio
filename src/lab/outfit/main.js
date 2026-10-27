@@ -65,6 +65,7 @@ const BOTTOMS = {
   casual: ["牛仔短褲", "寬版短褲", "寬版牛仔褲", "工裝褲", "燈芯絨長褲"],
 };
 const OUTER = [null, null, "輕薄襯衫外套", "西裝外套", "羊毛大衣"];
+const ACCESSORY = { work: "包款或絲巾", date: "耳環／小包", sport: "髮帶或襪子", formal: "胸針／手拿包", casual: "帽子或托特包" };
 const SHOES = { work: "樂福鞋", date: "細帶高跟／尖頭平底", sport: "跑鞋", formal: "牛津鞋／高跟鞋", casual: "德訓鞋" };
 const SHOES_RAIN = { work: "防水皮鞋", date: "防水短靴", sport: "防水跑鞋", formal: "防水短靴", casual: "防水球鞋" };
 
@@ -73,7 +74,7 @@ function buildLooks(occ, feel, rainy, uv, c) {
   const b = band(feel);
   const top = TOPS[occ][b], bot = BOTTOMS[occ][b], outer = OUTER[b];
   const shoe = rainy ? SHOES_RAIN[occ] : SHOES[occ];
-  const extra = [];
+  const extra = [{ part: "配件", item: ACCESSORY[occ], slot: "guest" }];
   if (rainy) extra.push({ part: "雨具", item: "折疊傘／防潑水外層", slot: "accent" });
   if (uv >= 8) extra.push({ part: "防曬", item: "寬簷帽或墨鏡", slot: "neutral" });
 
@@ -95,17 +96,25 @@ function buildLooks(occ, feel, rainy, uv, c) {
 }
 
 /* ---------- state ---------- */
-const TAIPEI = { lat: 25.033, lon: 121.5654 };
-let state = { occ: "work", el: null, weather: null };
+const CITIES = {
+  taipei: { zh: "台北", en: "TAIPEI", lat: 25.033, lon: 121.5654, tz: "Asia/Taipei" },
+  tokyo: { zh: "東京", en: "TOKYO", lat: 35.6762, lon: 139.6503, tz: "Asia/Tokyo" },
+  seoul: { zh: "首爾", en: "SEOUL", lat: 37.5665, lon: 126.978, tz: "Asia/Seoul" },
+};
+const readCity = () => {
+  try { const c = localStorage.getItem("cinq-city"); if (c && CITIES[c]) return c; } catch { /* storage unavailable */ }
+  return "taipei";
+};
+let state = { occ: "work", city: readCity(), day: null, pal: null, weather: null };
 
-function taipeiToday() {
-  const f = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" }).formatToParts(new Date());
+function todayIn(tz) {
+  const f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" }).formatToParts(new Date());
   const o = Object.fromEntries(f.map((p) => [p.type, p.value]));
   return { y: +o.year, m: +o.month, d: +o.day, wk: o.weekday };
 }
 
-function dayElement() {
-  const t = taipeiToday();
+function dayElement(tz) {
+  const t = todayIn(tz);
   const lunar = Solar.fromYmd(t.y, t.m, t.d).getLunar();
   const gan = lunar.getDayGan();
   return { t, gz: lunar.getDayInGanZhi(), gan, el: GAN_EL[gan] };
@@ -114,8 +123,9 @@ function dayElement() {
 /* ---------- weather ---------- */
 const WCODE = (c) => (c === 0 ? "晴" : c <= 3 ? "多雲" : c <= 48 ? "霧" : c <= 57 ? "毛毛雨" : c <= 67 ? "雨" : c <= 77 ? "雪" : c <= 82 ? "陣雨" : c <= 99 ? "雷雨" : "—");
 
-async function getWeather() {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${TAIPEI.lat}&longitude=${TAIPEI.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max&timezone=Asia%2FTaipei&forecast_days=1`;
+async function getWeather(city) {
+  const c = CITIES[city];
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,precipitation&hourly=temperature_2m,apparent_temperature,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max&timezone=${encodeURIComponent(c.tz)}&forecast_days=2`;
   try {
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), 7000);
@@ -123,6 +133,20 @@ async function getWeather() {
     clearTimeout(to);
     if (!r.ok) throw new Error(r.status);
     const j = await r.json();
+    // first hourly slot at or after the current local hour
+    const nowHour = j.current.time.slice(0, 13);
+    let start = j.hourly.time.findIndex((t) => t.slice(0, 13) >= nowHour);
+    if (start < 0) start = 0;
+    const hours = [];
+    for (let k = start; k < Math.min(start + 13, j.hourly.time.length); k++) {
+      hours.push({
+        label: j.hourly.time[k].slice(11, 16),
+        temp: j.hourly.temperature_2m[k],
+        feel: j.hourly.apparent_temperature[k],
+        rain: j.hourly.precipitation_probability[k] ?? 0,
+        code: j.hourly.weather_code[k],
+      });
+    }
     return {
       ok: true,
       temp: j.current.temperature_2m,
@@ -131,14 +155,21 @@ async function getWeather() {
       code: j.current.weather_code,
       max: j.daily.temperature_2m_max[0],
       min: j.daily.temperature_2m_min[0],
-      rain: j.daily.precipitation_probability_max[0] ?? 0,
+      rain: Math.max(...hours.map((x) => x.rain), 0),
       uv: j.daily.uv_index_max[0] ?? 0,
+      hours,
     };
   } catch {
-    // seasonal fallback so the page still works offline
-    const m = taipeiToday().m;
-    const base = [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18][m - 1];
-    return { ok: false, temp: base, feel: base, hum: 75, code: 3, max: base + 3, min: base - 4, rain: 40, uv: 6 };
+    // seasonal fallback so the page still works offline (rough estimates, flagged in the UI)
+    const m = todayIn(c.tz).m;
+    const base = ({ taipei: [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18], tokyo: [6, 7, 11, 16, 21, 24, 28, 30, 26, 20, 14, 9], seoul: [-1, 2, 8, 15, 20, 24, 27, 28, 23, 16, 8, 1] })[city][m - 1];
+    const hour0 = Number(new Intl.DateTimeFormat("en-GB", { timeZone: c.tz, hour: "2-digit", hour12: false }).format(new Date()));
+    const hours = Array.from({ length: 13 }, (_, k) => {
+      const hh = (hour0 + k) % 24;
+      const t = base + 3 * Math.sin(((hh - 9) / 24) * Math.PI * 2);
+      return { label: `${String(hh).padStart(2, "0")}:00`, temp: t, feel: t, rain: 30, code: 3 };
+    });
+    return { ok: false, temp: hours[0].temp, feel: hours[0].feel, hum: 70, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
   }
 }
 
@@ -159,18 +190,20 @@ function splitChars(node, text) {
 function paletteFor(elKey) {
   const main = EL[elKey];
   const sup = EL[genBy(elKey)];
+  const guest = EL[ctrlBy(elKey)];
   const dark = { n: "Nero 墨黑", hex: "#0a0a0a" };
-  return { main: main.colors[0], mainAlt: main.colors[1], deep: main.colors[2], support: sup.colors[0], neutral: NEUTRAL, dark, accent: { n: main.accent, hex: main.accent } };
+  return { main: main.colors[0], mainAlt: main.colors[1], deep: main.colors[2], support: sup.colors[0], guest: guest.colors[0], neutral: NEUTRAL, dark, accent: { n: main.accent, hex: main.accent } };
 }
 
 function renderHero() {
   const { t, gz, el } = state.day;
   const E = EL[el];
+  const city = CITIES[state.city];
   document.documentElement.style.setProperty("--bg", E.bg);
   document.documentElement.style.setProperty("--ink", E.ink);
   document.documentElement.style.setProperty("--accent", E.accent);
   document.querySelector('meta[name="theme-color"]').setAttribute("content", E.bg);
-  $("dateLine").textContent = `${t.y}.${String(t.m).padStart(2, "0")}.${String(t.d).padStart(2, "0")} ${t.wk.toUpperCase()} · ${gz}日`;
+  $("dateLine").textContent = `${t.y}.${String(t.m).padStart(2, "0")}.${String(t.d).padStart(2, "0")} ${t.wk.toUpperCase()} · ${gz}日 · ${city.en}`;
   $("elZh").textContent = E.zh;
   splitChars($("elEn"), E.en);
   $("sub").textContent = E.mood;
@@ -181,6 +214,7 @@ function renderHero() {
     ...[
       ["主色 PRINCIPAL", pal.main],
       ["輔色 SOUTIEN", pal.support],
+      ["貴人色 PROTECTEUR", pal.guest],
       ["中性 NEUTRE", pal.neutral],
     ].map(([label, c], i) => {
       const d = h("div", "chip", `<i style="background:${c.hex}"></i><span>${label}</span><b>${c.n}</b>`);
@@ -200,13 +234,29 @@ function renderHero() {
   w.classList.add("go");
 }
 
+function tempBand(t) { return BAND_NAME[band(t)]; }
+
+function renderCityTabs() {
+  const box = $("cityTabs");
+  box.replaceChildren(
+    ...Object.entries(CITIES).map(([id, c]) => {
+      const b = h("button", "tab city" + (id === state.city ? " on" : ""), `<b>${c.zh}</b><small>${c.en}</small>`);
+      b.type = "button";
+      b.setAttribute("aria-pressed", id === state.city);
+      b.addEventListener("click", () => { if (id !== state.city) switchCity(id); });
+      return b;
+    }),
+  );
+  $("wCity").textContent = `${CITIES[state.city].zh} · 現在與未來 12 小時`;
+}
+
 function renderWeather() {
   const w = state.weather;
   const g = $("wgrid");
   const cells = [
-    ["體感", `${Math.round(w.feel)}°`, `${BAND_NAME[band(w.feel)]} · 現在 ${Math.round(w.temp)}°`],
+    ["現在體感", `${Math.round(w.feel)}°`, `${tempBand(w.feel)} · 氣溫 ${Math.round(w.temp)}°`],
     ["今日高低", `${Math.round(w.min)}–${Math.round(w.max)}°`, WCODE(w.code)],
-    ["降雨機率", `${Math.round(w.rain)}%`, w.rain >= 50 ? "帶傘、換防水鞋" : "出門可不帶傘"],
+    ["未來 12 小時降雨", `${Math.round(w.rain)}%`, w.rain >= 50 ? "帶傘、換防水鞋" : "出門可不帶傘"],
     ["紫外線", String(Math.round(w.uv)), w.uv >= 8 ? "高：帽子與墨鏡" : "一般"],
   ];
   g.replaceChildren(
@@ -216,7 +266,47 @@ function renderWeather() {
       return d;
     }),
   );
-  if (!w.ok) g.appendChild(h("p", "wnote", "即時天氣暫時讀不到，以下以季節平均值估算。"));
+  if (!w.ok) g.appendChild(h("p", "wnote", "即時天氣暫時讀不到，以下為季節平均的估算值。"));
+
+  // hourly strip: temperature line + rain bars
+  const hrs = w.hours;
+  const temps = hrs.map((x) => x.temp);
+  const lo = Math.min(...temps), hi = Math.max(...temps);
+  const span = Math.max(hi - lo, 4);
+  const strip = $("hourly");
+  strip.replaceChildren(
+    ...hrs.map((x, i) => {
+      const y = 1 - (x.temp - lo) / span; // 0 top .. 1 bottom
+      const d = h(
+        "div", "hour" + (i === 0 ? " now" : ""),
+        `<small>${i === 0 ? "NOW" : x.label}</small>` +
+          `<span class="dotwrap"><i class="dot" style="--y:${y.toFixed(3)}"></i></span>` +
+          `<strong>${Math.round(x.temp)}°</strong>` +
+          `<span class="rainbar"><i style="--p:${Math.round(x.rain)}%"></i></span>` +
+          `<em>${Math.round(x.rain)}%</em>`,
+      );
+      d.style.setProperty("--i", i);
+      return d;
+    }),
+  );
+}
+
+async function switchCity(id) {
+  state.city = id;
+  try { localStorage.setItem("cinq-city", id); } catch { /* storage unavailable */ }
+  renderCityTabs();
+  $("hourly").classList.add("loading");
+  const prevEl = state.day?.el;
+  state.day = dayElement(CITIES[id].tz);
+  state.pal = paletteFor(state.day.el);
+  state.weather = await getWeather(id);
+  if (state.city !== id) return; // user switched again while loading
+  $("hourly").classList.remove("loading");
+  if (state.day.el !== prevEl) renderHero();
+  else $("dateLine").textContent = $("dateLine").textContent.replace(/·\s[A-Z]+$/, `· ${CITIES[id].en}`);
+  renderRules();
+  renderWeather();
+  renderLooks(true);
 }
 
 function renderTabs() {
@@ -234,7 +324,7 @@ function renderTabs() {
 }
 
 function slotColor(slot, pal) {
-  return slot === "main" ? pal.main : slot === "support" ? pal.support : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
+  return slot === "main" ? pal.main : slot === "support" ? pal.support : slot === "guest" ? pal.guest : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
 }
 
 function renderLooks(animate) {
@@ -250,7 +340,7 @@ function renderLooks(animate) {
       const rows = l.pieces
         .map((p) => {
           const c = slotColor(p.slot, state.pal);
-          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${p.slot === "accent" ? "點綴" : c.n}</small></li>`;
+          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${p.slot === "accent" ? "點綴" : p.slot === "guest" ? "貴人色 · " + c.n : c.n}</small></li>`;
         })
         .join("");
       card.innerHTML = `<div class="look-no">${l.id}</div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul>`;
@@ -261,11 +351,11 @@ function renderLooks(animate) {
 
 function renderRules() {
   const el = state.day.el;
-  const main = EL[el], sup = EL[genBy(el)], bad = EL[ctrlBy(el)];
+  const main = EL[el], sup = EL[genBy(el)], guest = EL[ctrlBy(el)];
   const rows = [
     ["主色", `${main.zh}（${main.en}）`, "今天的日柱天干五行，直接穿在最顯眼的單品。", main.bg],
     ["輔色", `${sup.zh}（${sup.en}）`, `${sup.zh}生${main.zh}，用來托住主色、做配角。`, sup.bg],
-    ["避開", `${bad.zh}（${bad.en}）`, `${bad.zh}剋${main.zh}，大面積使用會壓過主色；小配件可以。`, bad.bg],
+    ["貴人色", `${guest.zh}（${guest.en}）`, `${guest.zh}剋${main.zh}，傳統上剋我者為官星、象徵助力與規範。用在包、飾品、鞋等小面積，借力又不壓過主色。`, guest.bg],
   ];
   $("rules").replaceChildren(
     ...rows.map(([k, v, t, c], i) => {
@@ -284,11 +374,13 @@ function observe() {
 }
 
 async function init() {
-  state.day = dayElement();
+  const tz = CITIES[state.city].tz;
+  state.day = dayElement(tz);
   state.pal = paletteFor(state.day.el);
   renderHero();
   renderRules();
-  state.weather = await getWeather();
+  renderCityTabs();
+  state.weather = await getWeather(state.city);
   renderWeather();
   renderTabs();
   renderLooks(false);
