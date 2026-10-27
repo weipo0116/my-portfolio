@@ -188,7 +188,7 @@ export const siteData = {
       "Small AI tools I build for my own workflow — from systems I use every day to early experiments.",
     items: [
       {
-        name: "SI — AI Project Workspace",
+        name: "Super Intelligence — AI Project Workspace",
         status: "Lit",
         problem:
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",

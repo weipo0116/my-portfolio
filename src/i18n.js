@@ -140,7 +140,7 @@ export const ui = {
       contact: "聯絡方式",
       mainLinks: "主要連結",
       now: "最近在做",
-      nowText: "SI — AI 專案工作台",
+      nowText: "Super Intelligence — AI 專案工作台",
     },
   },
 };
@@ -262,7 +262,7 @@ const zhData = {
     intro: "為自己的工作流程打造的小型 AI 工具——有每天在用的系統，也有早期的實驗。",
     items: [
       {
-        name: "SI — AI 專案工作台",
+        name: "Super Intelligence — AI 專案工作台",
         problem: "想法冒出來的速度比執行快，而在不同 AI 工具間切換又會遺失脈絡。",
         approach:
           "用 Notion 想法收件匣讓 AI 轉成任務、執行，再用三行摘要回報。每個任務依需求分派給雲端 AI、本機瀏覽器或本機程式代理。",
