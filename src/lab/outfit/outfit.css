@@ -223,3 +223,8 @@ section[id] { scroll-margin-top: 24px; }
   .pickbtn { width: 100%; justify-content: space-between; }
   .cal { width: 100%; max-width: none; }
 }
+
+/* The giant glyph may overlap the controls on some screens: it never takes clicks, and controls sit above it */
+.mega, .mega * { pointer-events: none; }
+.daybar, .jump, .chips, .topbar { position: relative; z-index: 3; }
+.cal { z-index: 40; }
