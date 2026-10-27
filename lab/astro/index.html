@@ -18,11 +18,16 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-CR9GENQ9.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-e2LiX5PO.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-DYsIb6mz.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-B59EgUuI.css">
   </head>
   <body>
+    <span id="top"></span>
+    <button id="themeBtn" class="theme-btn" type="button" aria-pressed="false" aria-label="切換為淺色模式">
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" /></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" /></svg>
+    </button>
     <canvas id="stars" aria-hidden="true"></canvas>
     <div class="wheel-bg" aria-hidden="true"><svg id="wheelBg" viewBox="-400 -400 800 800"></svg></div>
 
@@ -39,9 +44,15 @@
         <button id="openChart" class="cta" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
         <p class="hint" id="motionHint"></p>
         <p class="updated" id="updated"></p>
+        <nav class="jump" aria-label="快速導覽">
+          <a href="#sec-energy">今日能量</a>
+          <a href="#sec-moon">月相</a>
+          <a href="#sec-fortune">星座運勢</a>
+          <a href="#sec-notes">說明</a>
+        </nav>
       </header>
 
-      <section class="block reveal" aria-labelledby="h-energy">
+      <section class="block reveal" id="sec-energy" aria-labelledby="h-energy">
         <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
         <p id="headline" class="headline"></p>
         <p id="summary" class="summary"></p>
@@ -59,7 +70,7 @@
         </details>
       </section>
 
-      <section class="block reveal moon-block" aria-labelledby="h-moon">
+      <section class="block reveal moon-block" id="sec-moon" aria-labelledby="h-moon">
         <h2 id="h-moon"><span class="num">II</span> 月相 <em>Luna</em></h2>
         <div class="moon-row">
           <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相"></svg>
@@ -67,9 +78,10 @@
         </div>
       </section>
 
-      <section class="block reveal" aria-labelledby="h-fortune">
+      <section class="block reveal" id="sec-fortune" aria-labelledby="h-fortune">
         <h2 id="h-fortune"><span class="num">III</span> 星座運勢 <em>Fortuna</em></h2>
         <p class="prose sub-note" id="fortuneNote"></p>
+        <div class="signbar" id="signBar" role="group" aria-label="選擇星座"></div>
         <div class="fortune-ctl">
           <div class="seg" id="modeSeg" role="group" aria-label="時間範圍">
             <button type="button" data-mode="day" class="on">今日</button>
@@ -85,12 +97,22 @@
         <div id="fortune" class="fortune"></div>
       </section>
 
-      <footer class="foot">
+      <footer class="foot" id="sec-notes">
+        <p class="foot-title">關於這個頁面</p>
+        <p id="updatedNote"></p>
         <p>行星位置以天文曆算（astronomy-engine, MIT）於瀏覽器內即時計算；以台北時間為準。</p>
         <p>星座解讀為占星娛樂與自我反思的參考，不是科學預測，也不構成醫療、財務或法律建議。</p>
         <p><a href="../../work/">← 回到 Lab</a></p>
       </footer>
     </main>
+
+    <nav class="dock" id="dock" aria-label="頁面導覽">
+      <a href="#top">↑ TOP</a>
+      <a href="#sec-energy">能量</a>
+      <a href="#sec-moon">月相</a>
+      <a href="#sec-fortune">運勢</a>
+      <a href="#sec-notes">說明</a>
+    </nav>
 
     <dialog id="chartDialog" aria-labelledby="dlgTitle">
       <div class="dlg-bar">
@@ -105,13 +127,17 @@
               <p class="tb-label" id="tbLabel"></p>
               <input id="tbRange" type="range" min="-30" max="30" step="1" value="0" aria-label="相對今天的天數" />
               <div class="tb-btns" id="tbBtns">
-                <button type="button" data-off="-30">過去一個月</button>
-                <button type="button" data-off="-7">過去一週</button>
-                <button type="button" data-off="-1">昨天</button>
-                <button type="button" data-off="0" class="strong">今天</button>
-                <button type="button" data-off="1">明天</button>
-                <button type="button" data-off="7">未來一週</button>
-                <button type="button" data-off="30">未來一個月</button>
+                <div class="tb-row r3">
+                  <button type="button" data-off="-1">昨天</button>
+                  <button type="button" data-off="0" class="strong">今天</button>
+                  <button type="button" data-off="1">明天</button>
+                </div>
+                <div class="tb-row r4">
+                  <button type="button" data-off="-30">過去 1 月</button>
+                  <button type="button" data-off="-7">過去 1 週</button>
+                  <button type="button" data-off="7">未來 1 週</button>
+                  <button type="button" data-off="30">未來 1 月</button>
+                </div>
               </div>
               <p class="tb-hint" id="tbHint">滑鼠移到右側的行星或相位，左邊星盤會聚焦；反過來也可以。</p>
             </div>
