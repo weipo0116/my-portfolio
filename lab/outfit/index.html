@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="icon" type="image/svg+xml" href="/my-portfolio/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,900;1,6..96,500;1,6..96,900&family=Archivo:wght@400;600;800;900&family=Noto+Serif+TC:wght@600;900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Five Elements · 五行穿搭</title>
+    <meta name="description" content="依當日五行與台北天氣，生成大膽配色的每日穿搭。五行屬文化娛樂參考。" />
+    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-CZcoHgx9.js"></script>
+    <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-BHuvFjr7.css">
+  </head>
+  <body>
+    <div id="wipe" aria-hidden="true"></div>
+    <main id="app"><span id="top"></span>
+      <header class="hero">
+        <div class="topbar">
+          <span>FIVE ELEMENTS</span>
+          <span id="dateLine">—</span>
+          <a href="../../work/">LAB ↗</a>
+        </div>
+        <p class="kicker">TODAY'S LOOK · 今日主色</p>
+        <h1 class="mega" id="mega" aria-live="polite"><span class="mega-zh" id="elZh">木</span><span class="mega-en" id="elEn">WOOD</span></h1>
+        <p class="sub" id="sub"></p>
+        <div class="chips" id="chips"></div>
+        <nav class="jump" aria-label="快速導覽">
+          <a href="#sec-weather"><b>天氣</b><small>WEATHER</small></a>
+          <a href="#sec-looks"><b>穿搭</b><small>LOOKS</small></a>
+          <a href="#sec-colors"><b>色運</b><small>LUCKY COLORS</small></a>
+        </nav>
+      </header>
+
+      <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
+
+      <section class="weather reveal" id="sec-weather" aria-labelledby="h-w">
+        <div class="looks-head">
+          <h2 id="h-w">WEATHER <span id="wCity">現在與未來 12 小時</span></h2>
+          <div class="tabs" id="cityTabs" role="group" aria-label="選擇城市"></div>
+        </div>
+        <div class="wgrid" id="wgrid"></div>
+        <div class="hourly-wrap" aria-label="未來 12 小時氣溫與降雨機率">
+          <div class="hourly" id="hourly"></div>
+          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率</p>
+        </div>
+      </section>
+
+      <section class="looks" id="sec-looks" aria-labelledby="h-l">
+        <div class="looks-head reveal">
+          <h2 id="h-l">THE LOOKS <span>選擇場合</span></h2>
+          <div class="tabs" role="tablist" id="tabs"></div>
+        </div>
+        <div class="look-grid" id="lookGrid"></div>
+      </section>
+
+      <section class="rules reveal" id="sec-colors" aria-labelledby="h-r">
+        <h2 id="h-r">LUCKY COLORS <span>今日色運排序</span></h2>
+        <div class="rule-grid" id="rules"></div>
+        <p class="rule-note">排序依「與當日五行的關係」：剋我＝旺色、我剋＝助色、同我＝穩色；生我與我生兩類暫不排序，只當中性底色參考。</p>
+      </section>
+
+      <footer class="foot">
+        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市可選台北、東京、首爾、紐約。</p>
+        <p>五行穿搭屬傳統文化與時尚遊戲，僅供娛樂與搭配靈感，不是科學預測。</p>
+      </footer>
+    </main>
+    <nav class="dock" id="dock" aria-label="頁面導覽">
+      <a href="#top">↑ <span>TOP</span></a>
+      <a href="#sec-weather">天氣</a>
+      <a href="#sec-looks">穿搭</a>
+      <a href="#sec-colors">色運</a>
+    </nav>
+  </body>
+</html>
