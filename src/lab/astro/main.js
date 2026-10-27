@@ -604,6 +604,37 @@ try { const v = localStorage.getItem(SIGN_KEY); if (v && v !== "all" && Number(v
 const SIGN_DATES = ["3/21–4/19", "4/20–5/20", "5/21–6/21", "6/22–7/22", "7/23–8/22", "8/23–9/22", "9/23–10/23", "10/24–11/22", "11/23–12/21", "12/22–1/19", "1/20–2/18", "2/19–3/20"];
 let currentFortune = null;
 let currentWeek = null;
+let currentDay = null; // { tp, headline, summary, advice } for the shown date
+
+/* ---------- "my fortune" view (general audience) ---------- */
+const ONE_LINER = {
+  love: { hi: "今天人緣和桃花都在線，想見的人就主動約。", mid: "感情是今天最順的一塊，一句真心的關心就夠。", lo: "整體節奏偏慢，把溫柔留給身邊的人，其他先別急。" },
+  career: { hi: "今天適合主動爭取機會，不要等別人發現你的價值。", mid: "工作是今天的穩定支點，把一件事做完就是勝利。", lo: "今天不求快，先把手上最重要的一件事顧好。" },
+  money: { hi: "今天對錢的判斷特別準，好機會出現時可以認真看。", mid: "財務是今天最穩的一塊，照預算走就安心。", lo: "今天守住荷包就是贏，大額決定留到之後再說。" },
+};
+const DO_DONT = {
+  love: {
+    hi: [["主動約對方", "大方說出喜歡"], ["想太多而錯過", "故意冷處理"]],
+    mid: [["日常的小關心", "一起吃頓飯"], ["翻舊帳", "拿別人的感情比較"]],
+    lo: [["先照顧好自己的情緒", "重要的話等冷靜再說"], ["深夜聊沉重話題", "用已讀不回試探"]],
+  },
+  career: {
+    hi: [["提案、爭取任務", "跨部門合作"], ["過度謙虛", "拖延回覆"]],
+    mid: [["收尾手上的工作", "整理待辦清單"], ["臨時改方向", "同時開太多新坑"]],
+    lo: [["多確認一次細節", "先做最重要的一件"], ["衝動回信", "當眾否定別人"]],
+  },
+  money: {
+    hi: [["檢視投資配置", "談報價或加薪"], ["跟風下大注", "忘了記帳"]],
+    mid: [["照預算消費", "整理訂閱與帳單"], ["為折扣買不需要的東西", "隨口答應借錢"]],
+    lo: [["延後大額支出", "先存一筆預備金"], ["衝動購物", "高風險投機"]],
+  },
+};
+const LUCKY_COLORS = [["深藍", "#1f3a68"], ["酒紅", "#7a1f2b"], ["墨綠", "#1f4d3a"], ["象牙白", "#efe6d2"], ["金色", "#c9a35a"], ["霧紫", "#7d6b9a"], ["琥珀", "#c98a2b"], ["石墨灰", "#4a4d55"], ["珊瑚橘", "#e07a5f"], ["天空藍", "#7fb3d5"], ["橄欖綠", "#7d8b4a"], ["玫瑰粉", "#d99aa5"]];
+const LUCKY_DIRS = ["東", "東南", "南", "西南", "西", "西北", "北", "東北"];
+const VIEW_KEY = "astra-view";
+const tierOf = (st) => (st >= 4 ? "hi" : st === 3 ? "mid" : "lo");
+const TIER_ZH = { hi: "旺", mid: "平穩", lo: "留意" };
+const dayWord = () => (offsetDays === 0 ? "今日" : offsetDays === -1 ? "昨日" : offsetDays === 1 ? "明日" : "這天");
 
 const $ = (id) => document.getElementById(id);
 const para = (t) => Object.assign(document.createElement("p"), { textContent: t });
@@ -728,7 +759,12 @@ function render({ dur = 1700 } = {}) {
 
   currentFortune = dayFortune(pos);
   currentWeek = weekFortune(date);
+  {
+    const sm = buildSummary(pos, aspects, phaseIdx);
+    currentDay = { tp, headline: headline(pos), summary: sm.text, advice: sm.advice };
+  }
   renderFortune();
+  renderToday();
   observeReveals();
 }
 
@@ -980,4 +1016,275 @@ $("signBar").addEventListener("click", (e) => {
   try { localStorage.setItem(SIGN_KEY, String(fortuneSign)); } catch { /* storage unavailable */ }
   syncSignBar();
   renderFortune();
+  renderToday();
 });
+
+/* ---------- view switch: fortune (general) / chart (astrology fans) ---------- */
+function applyView(v) {
+  document.documentElement.dataset.view = v;
+  $("viewSeg").querySelectorAll("button").forEach((b) => {
+    const on = b.dataset.view === v;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+}
+{
+  let saved = null;
+  try { saved = localStorage.getItem(VIEW_KEY); } catch { /* storage unavailable */ }
+  applyView(saved === "chart" ? "chart" : "fortune");
+}
+function setView(v) {
+  applyView(v);
+  try { localStorage.setItem(VIEW_KEY, v); } catch { /* storage unavailable */ }
+  observeReveals();
+}
+$("viewSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) setView(b.dataset.view);
+});
+
+function buildTodayPick() {
+  const bar = $("todayPick");
+  SIGNS.forEach((sg, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.dataset.sign = String(i);
+    b.innerHTML = `<i>${TXT(sg.g)}</i><span>${sg.zh.replace("座", "")}</span>`;
+    b.setAttribute("aria-label", sg.zh);
+    bar.appendChild(b);
+  });
+  bar.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    fortuneSign = Number(b.dataset.sign);
+    try { localStorage.setItem(SIGN_KEY, String(fortuneSign)); } catch { /* storage unavailable */ }
+    syncSignBar();
+    renderFortune();
+    renderToday();
+  });
+}
+buildTodayPick();
+renderToday();
+
+
+function luckyFor(tp, si) {
+  let h = 2166136261;
+  for (const ch of `${tp.y}-${tp.m}-${tp.d}-${si}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  return { color: LUCKY_COLORS[h % 12], num: 1 + ((h >>> 8) % 9), dir: LUCKY_DIRS[(h >>> 16) % 8] };
+}
+
+function todayData(si) {
+  const rows = Object.keys(CATS).map((cat) => ({ cat, ...currentFortune[cat][si] }));
+  const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
+  const best = rows.slice().sort((a, b) => b.stars - a.stars || b.score - a.score)[0];
+  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: ONE_LINER[best.cat][tierOf(avg)], lucky: luckyFor(currentDay.tp, si) };
+}
+
+function renderToday() {
+  const pick = $("todayPick");
+  if (!pick || !currentFortune || !currentDay) return;
+  pick.querySelectorAll("button").forEach((b) => {
+    const on = b.dataset.sign === String(fortuneSign);
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+  const box = $("todayCard");
+  if (fortuneSign === "all") {
+    box.replaceChildren(Object.assign(document.createElement("p"), { className: "tpick-hint", textContent: "↑ 先選你的星座，就能看到專屬的今日運勢。" }));
+    return;
+  }
+  const si = fortuneSign;
+  const d = todayData(si);
+  const tp = currentDay.tp;
+  const card = document.createElement("article");
+  card.className = "signcard tcard";
+  card.innerHTML = `
+    <header>
+      <span class="sg">${TXT(d.sg.g)}</span>
+      <div><h3>${d.sg.zh}</h3><p>${d.sg.la} · ${SIGN_DATES[si]} · ${tp.m}/${tp.d} ${tp.wk}</p></div>
+      <div class="sa"><small>${dayWord()}綜合</small><span class="fs big"></span><b class="tier t-${d.tier}">${TIER_ZH[d.tier]}</b></div>
+    </header>
+    <p class="tquote"></p>
+    <ul class="tcats"></ul>
+    <div class="lucky">
+      <div><small>幸運色</small><span><i class="sw"></i><b class="lc"></b></span></div>
+      <div><small>幸運數字</small><b class="ln"></b></div>
+      <div><small>幸運方位</small><b class="ld"></b></div>
+    </div>
+    <p class="lucky-note">幸運元素是依日期與星座固定產生的小彩蛋，純屬娛樂。</p>
+    <div class="tadvice"><b>行動建議</b><p></p></div>
+    <details class="why">
+      <summary>為什麼這樣說？看天象依據</summary>
+      <div class="prose why-body"></div>
+      <button type="button" class="linkbtn to-chart">切換到星盤模式，看完整天象 →</button>
+    </details>
+    <div class="tactions"><button type="button" class="cta share-btn">產生分享圖卡 <span aria-hidden="true">✦</span></button></div>`;
+  const fs = card.querySelector(".sa .fs");
+  fs.textContent = stars(d.avg);
+  fs.setAttribute("aria-label", `${d.avg} 顆星`);
+  card.querySelector(".tquote").textContent = d.line;
+  const ul = card.querySelector(".tcats");
+  d.rows.forEach((r, i) => {
+    const [dos, donts] = DO_DONT[r.cat][tierOf(r.stars)];
+    const li = document.createElement("li");
+    li.style.setProperty("--i", i);
+    li.innerHTML = `<div class="tc-head"><span class="cl"></span><span class="fs"></span></div><p class="ft-main"></p><div class="dd"><div class="do"><b>適合</b></div><div class="dont"><b>避免</b></div></div>`;
+    li.querySelector(".cl").textContent = CATS[r.cat];
+    li.querySelector(".fs").textContent = stars(r.stars);
+    li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
+    li.querySelector(".ft-main").textContent = r.note;
+    const chip = (t) => Object.assign(document.createElement("span"), { className: "chip", textContent: t });
+    li.querySelector(".do").append(...dos.map(chip));
+    li.querySelector(".dont").append(...donts.map(chip));
+    ul.appendChild(li);
+  });
+  card.querySelector(".sw").style.background = d.lucky.color[1];
+  card.querySelector(".lc").textContent = d.lucky.color[0];
+  card.querySelector(".ln").textContent = String(d.lucky.num);
+  card.querySelector(".ld").textContent = d.lucky.dir;
+  card.querySelector(".tadvice p").textContent = currentDay.advice;
+  card.querySelector(".why-body").replaceChildren(
+    para(currentDay.headline),
+    para(currentDay.summary),
+    ...d.rows.map((r) => para(`${CATS[r.cat]}：${r.why}。`)),
+    Object.assign(para("星數是 12 個星座之間的相對高低，看個大方向就好。"), { className: "muted" }),
+  );
+  card.querySelector(".to-chart").addEventListener("click", () => {
+    setView("chart");
+    $("sec-energy").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  card.querySelector(".share-btn").addEventListener("click", () => openShare(si));
+  box.replaceChildren(card);
+}
+
+/* ---------- share card (canvas → PNG) ---------- */
+function wrapLines(ctx, text, maxW) {
+  const lines = [];
+  let cur = "";
+  for (const ch of text) {
+    if (ctx.measureText(cur + ch).width > maxW && cur) {
+      // keep closing punctuation on the same line
+      if ("，。、；：！？」）".includes(ch)) { cur += ch; continue; }
+      lines.push(cur);
+      cur = ch;
+    } else cur += ch;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+async function drawShareCard(si) {
+  const d = todayData(si);
+  const tp = currentDay.tp;
+  const W = 1080, H = 1350;
+  const cv = document.createElement("canvas");
+  cv.width = W;
+  cv.height = H;
+  const ctx = cv.getContext("2d");
+  const GOLD = "#c8a45d", SOFT = "#e6d3a3", MARBLE = "#efe8d8", MUTED = "#9a9484";
+  const SERIF = '"Noto Serif TC", "Cormorant Garamond", serif';
+  const LATIN = '"Cinzel", "Cormorant Garamond", serif';
+  const GLYPH = getComputedStyle(document.documentElement).getPropertyValue("--glyph") || "serif";
+  try {
+    await Promise.all([
+      document.fonts.load(`600 60px ${LATIN}`, "ASTRA DIES"),
+      document.fonts.load(`600 60px ${SERIF}`, d.sg.zh + d.line + "感情事業財運幸運色數字方位"),
+      document.fonts.load(`400 30px ${SERIF}`, d.line),
+    ]);
+  } catch { /* draw with fallbacks */ }
+
+  // background: night sky with a warm glow and a seeded starfield
+  ctx.fillStyle = "#07080f";
+  ctx.fillRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(W / 2, 380, 40, W / 2, 380, 760);
+  g.addColorStop(0, "rgba(200,164,93,0.22)");
+  g.addColorStop(1, "rgba(200,164,93,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  let seed = si * 977 + tp.d * 31 + tp.m;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 160; i++) {
+    ctx.fillStyle = `rgba(230,211,163,${0.15 + rnd() * 0.6})`;
+    ctx.beginPath();
+    ctx.arc(rnd() * W, rnd() * H, rnd() * 1.6 + 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.strokeStyle = "rgba(200,164,93,0.22)";
+  ctx.lineWidth = 1.5;
+  for (const r of [190, 230]) { ctx.beginPath(); ctx.arc(W / 2, 400, r, 0, Math.PI * 2); ctx.stroke(); }
+  ctx.strokeStyle = "rgba(200,164,93,0.5)";
+  ctx.strokeRect(40, 40, W - 80, H - 80);
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  const text = (t, x, y, font, color, ls = "0px") => {
+    ctx.font = font;
+    ctx.fillStyle = color;
+    if ("letterSpacing" in ctx) ctx.letterSpacing = ls;
+    ctx.fillText(t, x, y);
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+  };
+  text("ASTRA DIES", W / 2, 140, `600 46px ${LATIN}`, SOFT, "14px");
+  text(`${tp.y}.${String(tp.m).padStart(2, "0")}.${String(tp.d).padStart(2, "0")} ${tp.wk} · ${dayWord()}運勢`, W / 2, 192, `400 28px ${SERIF}`, MUTED, "4px");
+  text(TXT(d.sg.g), W / 2, 440, `120px ${GLYPH}`, SOFT);
+  text(d.sg.zh, W / 2, 545, `600 64px ${SERIF}`, MARBLE, "10px");
+  text(`${d.sg.la.toUpperCase()} · ${SIGN_DATES[si]}`, W / 2, 595, `400 26px ${LATIN}`, GOLD, "6px");
+  text(`${stars(d.avg)}  ${TIER_ZH[d.tier]}`, W / 2, 668, `400 44px ${SERIF}`, GOLD, "4px");
+
+  ctx.font = `500 40px ${SERIF}`;
+  const lines = wrapLines(ctx, d.line, 860);
+  let y = 770;
+  for (const ln of lines) { text(ln, W / 2, y, `500 40px ${SERIF}`, MARBLE, "2px"); y += 62; }
+
+  // three categories
+  y += 34;
+  ctx.strokeStyle = "rgba(200,164,93,0.35)";
+  ctx.beginPath(); ctx.moveTo(150, y - 46); ctx.lineTo(W - 150, y - 46); ctx.stroke();
+  for (const r of d.rows) {
+    ctx.textAlign = "left";
+    text(CATS[r.cat], 220, y, `600 36px ${SERIF}`, SOFT, "8px");
+    ctx.textAlign = "right";
+    text(stars(r.stars), W - 220, y, `400 38px ${SERIF}`, GOLD, "4px");
+    y += 70;
+  }
+  ctx.textAlign = "center";
+  ctx.beginPath(); ctx.moveTo(150, y - 34); ctx.lineTo(W - 150, y - 34); ctx.stroke();
+
+  // lucky items
+  y += 30;
+  const lw = d.lucky;
+  text(`幸運色 ${lw.color[0]}　·　幸運數字 ${lw.num}　·　方位 ${lw.dir}`, W / 2, y, `400 30px ${SERIF}`, SOFT, "2px");
+  ctx.font = `400 30px ${SERIF}`;
+  if ("letterSpacing" in ctx) ctx.letterSpacing = "2px";
+  const tw = ctx.measureText(`幸運色 ${lw.color[0]}　·　幸運數字 ${lw.num}　·　方位 ${lw.dir}`).width;
+  if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+  ctx.fillStyle = lw.color[1];
+  ctx.strokeStyle = SOFT;
+  ctx.beginPath(); ctx.arc(W / 2 - tw / 2 - 34, y - 10, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+  text("weipo0116.github.io/my-portfolio/lab/astro", W / 2, H - 78, `400 22px ${LATIN}`, MUTED, "2px");
+  return cv;
+}
+
+async function openShare(si) {
+  const dlg = $("shareDialog");
+  const cv = await drawShareCard(si);
+  const url = cv.toDataURL("image/png");
+  const tp = currentDay.tp;
+  const name = `astra-dies-${tp.y}${String(tp.m).padStart(2, "0")}${String(tp.d).padStart(2, "0")}-${SIGNS[si].la.toLowerCase()}.png`;
+  $("shareImg").src = url;
+  $("shareDl").href = url;
+  $("shareDl").setAttribute("download", name);
+  const nativeBtn = $("shareNative");
+  nativeBtn.hidden = true;
+  cv.toBlob((blob) => {
+    if (!blob || !navigator.canShare) return;
+    const file = new File([blob], name, { type: "image/png" });
+    if (!navigator.canShare({ files: [file] })) return;
+    nativeBtn.hidden = false;
+    nativeBtn.onclick = () => navigator.share({ files: [file], title: "Astra Dies 今日運勢" }).catch(() => {});
+  }, "image/png");
+  if (!dlg.open) dlg.showModal();
+}
+$("closeShare").addEventListener("click", () => $("shareDialog").close());
+$("shareDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
