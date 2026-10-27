@@ -258,7 +258,7 @@ dialog { width: min(1240px, 96vw); }
 .dlg-body { padding: 8px 24px 32px; }
 .dlg-grid { display: grid; grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr); gap: 32px; align-items: start; }
 .dlg-left { position: sticky; top: 8px; align-self: start; }
-.dlg-left .dlg-wheel { width: min(100%, calc(100vh - 420px), 560px); min-width: 240px; margin: 8px auto 0; }
+.dlg-left .dlg-wheel { width: min(100%, calc(100vh - 470px), 560px); min-width: 240px; margin: 8px auto 0; }
 .timebox { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: rgba(13, 16, 32, 0.6); }
 .tb-label { margin: 0 0 8px; font-size: 0.95rem; color: var(--gold-soft); text-align: center; min-height: 1.5em; }
 #tbRange { width: 100%; accent-color: var(--gold); height: 28px; margin: 0 0 6px; }
@@ -327,3 +327,30 @@ dialog { width: min(1240px, 96vw); }
   .ev { grid-template-columns: 22px 60px 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .fgroup li { animation: none; } }
+
+/* ---- v4: jump nav, dock, tidy time box, footer notes ---- */
+html { scroll-behavior: smooth; }
+.block { scroll-margin-top: 24px; }
+.updated { font-size: 0.72rem; letter-spacing: 0.16em; margin: 8px 0 0; }
+.jump { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 26px; animation: rise 1.4s var(--ease) 0.7s both; }
+.jump a { color: var(--gold-soft); text-decoration: none; font-size: 0.85rem; letter-spacing: 0.1em; padding: 8px 18px; min-height: 40px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: rgba(13, 16, 32, 0.5); transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease); }
+.jump a:hover { background: rgba(200, 164, 93, 0.14); border-color: var(--gold); transform: translateY(-2px); }
+.jump a:focus-visible, .dock a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.dock { position: fixed; left: 50%; bottom: 16px; z-index: 40; transform: translate(-50%, 140%); display: flex; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(7, 8, 15, 0.88); backdrop-filter: blur(10px); border: 1px solid var(--line); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); transition: transform 0.5s var(--ease); max-width: calc(100vw - 20px); }
+.dock.show { transform: translate(-50%, 0); }
+dialog[open] ~ .dock { display: none; }
+.dock a { color: var(--gold-soft); text-decoration: none; font-size: 0.82rem; letter-spacing: 0.08em; padding: 10px 14px; min-height: 40px; display: flex; align-items: center; border-radius: 999px; white-space: nowrap; transition: background 0.3s var(--ease); }
+.dock a:hover { background: rgba(200, 164, 93, 0.16); }
+.foot { text-align: left; max-width: 62ch; margin-inline: auto; padding-bottom: 96px; }
+.foot p { margin: 0 0 8px; line-height: 1.8; }
+.foot .foot-title { font-family: var(--serif-la); letter-spacing: 0.2em; color: var(--gold); font-size: 0.8rem; margin-bottom: 12px; }
+
+.timebox { padding: 16px; }
+.tb-btns { display: grid; gap: 8px; }
+.tb-row { display: grid; gap: 8px; }
+.tb-row.r3 { grid-template-columns: repeat(3, 1fr); }
+.tb-row.r4 { grid-template-columns: repeat(4, 1fr); }
+.tb-btns button { width: 100%; padding: 8px 4px; border-radius: 8px; text-align: center; white-space: nowrap; font-size: 0.8rem; }
+.tb-row.r3 button { font-size: 0.9rem; min-height: 40px; }
+.tb-btns button.strong:not(.on) { border-color: var(--gold); }
+@media (max-width: 420px) { .tb-row.r4 button { font-size: 0.72rem; padding: 8px 2px; } }

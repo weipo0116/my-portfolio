@@ -17,6 +17,8 @@ import nccu_img from "./assets/logos/nccu.webp";
 import graduationPhoto from "./assets/images/profile/graduation.webp";
 import firstbankEsg from "./assets/images/backgrounds/firstbank_esg.webp";
 import firstbankLogo from "./assets/logos/firstbank.svg";
+import labAstroThumb from "./assets/images/lab/astro.webp";
+import labOutfitThumb from "./assets/images/lab/outfit.webp";
 import lineLogoLocal from "./assets/logos/line.webp";
 import aatLogoLocal from "./assets/logos/aat.webp";
 
@@ -194,24 +196,30 @@ export const siteData = {
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
         approach:
           "A Notion idea inbox that AI turns into tasks, works on, and reports back with a 3-line summary. Each task is routed to cloud AI, a local browser, or a local coding agent.",
+        art: "spark",
+        glyph: "✦",
         stack: ["Claude", "Notion", "Agent workflow"],
       },
       {
         name: "Screen Recording → Step Extractor",
-        status: "Brewing",
+        status: "Wandering",
         problem:
           "Comparing app flows from screen recordings means scrubbing video by hand.",
         approach:
           "Detect key frames and turn a recording into an ordered list of annotated steps — designed to run fully on-device.",
+        art: "frames",
+        glyph: "▶",
         stack: ["Python", "Computer vision", "Local-first"],
       },
       {
         name: "Resume & Portfolio Sync",
-        status: "Brewing",
+        status: "Wandering",
         problem:
           "Updating my resume and this site separately keeps them drifting apart.",
         approach:
           "One source of truth that regenerates both the PDF resume and the site content.",
+        art: "sync",
+        glyph: "⇄",
         stack: ["Markdown", "React", "Automation"],
       },
       {
@@ -221,6 +229,7 @@ export const siteData = {
           "Daily horoscopes are vague; I wanted planet positions I can verify, explained in plain language.",
         approach:
           "Computes real planetary longitudes, aspects and moon phase in the browser, then renders a Roman armillary-style chart with a short reading.",
+        thumb: labAstroThumb,
         stack: ["astronomy-engine", "SVG", "Motion"],
         link: `${import.meta.env.BASE_URL}lab/astro/`,
       },
@@ -231,6 +240,7 @@ export const siteData = {
           "Deciding what to wear means juggling weather, occasion and colour with no fixed logic.",
         approach:
           "Derives the day's Five Element from the lunar calendar, reads Taipei weather, and builds three bold, runway-style looks per occasion.",
+        thumb: labOutfitThumb,
         stack: ["lunar-javascript", "Open-Meteo", "Editorial design"],
         link: `${import.meta.env.BASE_URL}lab/outfit/`,
       },

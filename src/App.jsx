@@ -1047,70 +1047,6 @@ function App({ page = "profile" }) {
                 <h2>{t.sections.projects}</h2>
               </div>
               <div className="hscroll" ref={othersScrollRef}>
-                <p className="hscroll-row-label">{t.rows.projects}</p>
-                <div className="hscroll-row">
-                  <div className="hscroll-track">
-                    {siteData.projects.map((project, index) => (
-                    <motion.article
-                      key={`work-${index}`}
-                      className="photo-card photo-card-preview hscroll-card work-card"
-                      role="button"
-                      tabIndex={0}
-                      custom={index}
-                      variants={cardVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.2 }}
-                      whileHover={
-                        shouldReduceMotion
-                          ? undefined
-                          : {
-                              y: -4,
-                              transition: { duration: 0.4, ease: MOTION_EASE },
-                            }
-                      }
-                      whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
-                      onClick={() => setExpandedProject(project)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          setExpandedProject(project);
-                        }
-                      }}
-                    >
-                      <div className="photo-media">
-                        <ProgressiveImage
-                          className="photo work-thumb"
-                          aria-hidden="true"
-                          src={project.image}
-                          alt=""
-                          imgClassName="photo-image"
-                          objectFit="contain"
-                        />
-                      </div>
-                      <div className="photo-info">
-                        <div className="photo-header">
-                          <h3>
-                            {project.name}
-                            {project.role ? (
-                              <span className="photo-subtitle">
-                                {project.role}
-                              </span>
-                            ) : null}
-                          </h3>
-                        </div>
-                        <div className="photo-expand-hint" aria-hidden="true">
-                          <span>{t.more}</span>
-                          <svg viewBox="0 0 24 24">
-                            <path d="M8 16 16 8" />
-                            <path d="M10 8h6v6" />
-                          </svg>
-                        </div>
-                      </div>
-                    </motion.article>
-                    ))}
-                  </div>
-                </div>
                 <p className="hscroll-row-label">{t.rows.activities}</p>
                 <div className="hscroll-row">
                   <div className="hscroll-track">
@@ -1187,8 +1123,132 @@ function App({ page = "profile" }) {
                     ))}
                   </div>
                 </div>
+                <p className="hscroll-row-label">{t.rows.projects}</p>
+                <div className="hscroll-row">
+                  <div className="hscroll-track">
+                    {siteData.projects.map((project, index) => (
+                    <motion.article
+                      key={`work-${index}`}
+                      className="photo-card photo-card-preview hscroll-card work-card"
+                      role="button"
+                      tabIndex={0}
+                      custom={index}
+                      variants={cardVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={
+                        shouldReduceMotion
+                          ? undefined
+                          : {
+                              y: -4,
+                              transition: { duration: 0.4, ease: MOTION_EASE },
+                            }
+                      }
+                      whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
+                      onClick={() => setExpandedProject(project)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setExpandedProject(project);
+                        }
+                      }}
+                    >
+                      <div className="photo-media">
+                        <ProgressiveImage
+                          className="photo work-thumb"
+                          aria-hidden="true"
+                          src={project.image}
+                          alt=""
+                          imgClassName="photo-image"
+                          objectFit="contain"
+                        />
+                      </div>
+                      <div className="photo-info">
+                        <div className="photo-header">
+                          <h3>
+                            {project.name}
+                            {project.role ? (
+                              <span className="photo-subtitle">
+                                {project.role}
+                              </span>
+                            ) : null}
+                          </h3>
+                        </div>
+                        <div className="photo-expand-hint" aria-hidden="true">
+                          <span>{t.more}</span>
+                          <svg viewBox="0 0 24 24">
+                            <path d="M8 16 16 8" />
+                            <path d="M10 8h6v6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </motion.article>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
+            {siteData.lab?.items?.length ? (
+              <div className="hscroll hscroll-lab">
+                    <p className="hscroll-row-label">{t.rows.lab}</p>
+                    <div className="hscroll-row">
+                      <div className="hscroll-track">
+                        {siteData.lab.items.map((item, index) => (
+                          <motion.a
+                            key={`lab-thumb-${index}`}
+                            className="photo-card photo-card-preview hscroll-card lab-thumb"
+                            href={item.link || PAGE_PATH.work}
+                            custom={index}
+                            variants={cardVariants}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, amount: 0.2 }}
+                            whileHover={
+                              shouldReduceMotion
+                                ? undefined
+                                : {
+                                    y: -4,
+                                    transition: { duration: 0.4, ease: MOTION_EASE },
+                                  }
+                            }
+                          >
+                            <div className="photo-media">
+                              {item.thumb ? (
+                                <ProgressiveImage
+                                  className="photo work-thumb"
+                                  aria-hidden="true"
+                                  src={item.thumb}
+                                  alt=""
+                                  imgClassName="photo-image"
+                                />
+                              ) : (
+                                <div
+                                  className={`photo lab-art lab-art-${item.art || "spark"}`}
+                                  aria-hidden="true"
+                                >
+                                  <span>{item.glyph}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="photo-info">
+                              <div className="photo-header">
+                                <h3>
+                                  {item.name}
+                                  <span
+                                    className={`lab-status lab-status-mini ${item.status === "Lit" ? "is-live" : ""}`}
+                                  >
+                                    {t.labStatus[item.status] ?? item.status}
+                                  </span>
+                                </h3>
+                              </div>
+                            </div>
+                          </motion.a>
+                        ))}
+                      </div>
+                    </div>
+              </div>
+            ) : null}
           </section>
         ) : null}
       </main>

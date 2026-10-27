@@ -178,3 +178,10 @@ section[id] { scroll-margin-top: 24px; }
 .rule strong { font-size: 1.7rem; }
 .tab.city { min-width: 78px; }
 @media (max-width: 640px) { .dock a { padding: 10px 12px; } .jump a { min-width: 0; flex: 1 1 30%; padding: 10px 12px 9px; } }
+
+/* ---- v4: day picker in the hero ---- */
+.days { margin: 4px 0 18px; gap: 6px; }
+.days .tab { border-color: var(--ink); color: var(--ink); min-width: 64px; padding: 7px 12px; min-height: 44px; align-items: center; background: transparent; }
+.days .tab.on { background: var(--ink); color: var(--bg); }
+.days .tab:focus-visible { outline: 3px solid var(--ink); }
+@media (max-width: 640px) { .days { flex-wrap: nowrap; overflow-x: auto; margin-inline: -4px; padding: 4px; scrollbar-width: none; } .days .tab { flex: 0 0 auto; min-width: 60px; } }

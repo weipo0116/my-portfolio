@@ -34,7 +34,7 @@ export const ui = {
       lab: "Lab",
       others: "Other Experience",
     },
-    rows: { projects: "Research & projects", activities: "Activities" },
+    rows: { projects: "Research & projects", activities: "Activities", lab: "Lab" },
     work: {
       kicker: "Lab",
       title: "What I'm building now",
@@ -103,7 +103,7 @@ export const ui = {
       lab: "Lab",
       others: "其他經歷",
     },
-    rows: { projects: "研究與專題", activities: "活動與其他經歷" },
+    rows: { projects: "研究與專題", activities: "活動與其他經歷", lab: "Lab 實驗室" },
     work: {
       kicker: "Lab",
       title: "我正在做的事",

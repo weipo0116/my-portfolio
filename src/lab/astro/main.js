@@ -457,8 +457,9 @@ function render({ dur = 1700 } = {}) {
   const dateText = `${tp.y}.${String(tp.m).padStart(2, "0")}.${String(tp.d).padStart(2, "0")} ${tp.wk}`;
   $("dateLine").textContent = `${dateText} · 台北 ${tp.hh}:${tp.mm}`;
   $("dlgDate").textContent = dateText;
-  const nt = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(now);
-  $("updated").textContent = `資料更新於 ${nt}（台北 UTC+8）· 今日畫面每 5 分鐘自動重算`;
+  const nt = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit" }).format(now);
+  $("updated").textContent = `更新 ${nt} · 台北`;
+  $("updatedNote").textContent = `資料更新於 ${nt}（台北 UTC+8）。看「今日」時，畫面每 5 分鐘自動重算一次，跨過台北午夜會換成新的一天。`;
 
   const pos = compute(date);
   const aspects = findAspects(pos);
@@ -744,3 +745,6 @@ setInterval(() => {
 renderLegend();
 stars_();
 render();
+
+// floating dock once the hero has scrolled away
+new IntersectionObserver(([e]) => $("dock").classList.toggle("show", !e.isIntersecting), { threshold: 0.05 }).observe(document.querySelector(".hero"));
