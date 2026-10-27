@@ -254,7 +254,8 @@ body {
 .trail { stroke: var(--gold-soft); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 6; }
 
 .headline { font-size: clamp(1.2rem, 3.2vw, 1.6rem); line-height: 1.5; color: var(--gold-soft); margin: 0 0 14px; font-weight: 600; letter-spacing: 0.04em; }
-.summary { font-family: "Cormorant Garamond", "LXGW WenKai TC", serif; margin: 0 0 22px; font-size: clamp(1.15rem, 2.8vw, 1.45rem); line-height: 1.9; padding: 22px 24px; border-left: 2px solid var(--gold); background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.12), transparent); max-width: 62ch; text-wrap: pretty; }
+.summary { font-family: var(--serif-body); font-weight: 500; letter-spacing: 0.04em; margin: 0 0 22px; font-size: clamp(1.15rem, 2.8vw, 1.45rem); line-height: 1.9; padding: 22px 24px; border-left: 2px solid var(--gold); background: linear-gradient(90deg, rgba(var(--gold-rgb), 0.12), transparent); max-width: 62ch; text-wrap: pretty; }
+html:not([data-theme="light"]) .summary { color: #f3ead6; }
 .tags { list-style: none; padding: 0; margin: 0 0 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
 .tags li { border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; background: rgba(var(--panel-rgb), 0.55); display: flex; flex-direction: column; gap: 2px; }
 .tags b { font-family: var(--serif-la); letter-spacing: 0.2em; font-size: 0.75rem; color: var(--gold); }
