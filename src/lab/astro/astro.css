@@ -452,3 +452,12 @@ dialog[open] ~ .dock { display: none; }
   .signcard li .ft { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { .signcard, .signcard li { animation: none; } }
+
+/* dialog: period / planet rows never break mid-phrase */
+.dlg-right .planets li { grid-template-columns: 34px minmax(110px, 1fr) minmax(130px, 1fr); row-gap: 4px; }
+.dlg-right .planets li .pr { grid-column: 2 / -1; }
+.planets .mv.diff { display: flex; flex-wrap: wrap; gap: 0 12px; }
+.planets .mv.diff span { white-space: nowrap; }
+.ev span { min-width: 0; overflow-wrap: anywhere; }
+.ev-head { line-height: 1.6; text-wrap: pretty; }
+.ev.ev-empty { display: block; color: var(--muted); }

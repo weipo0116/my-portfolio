@@ -679,7 +679,7 @@ function render({ dur = 1700 } = {}) {
               li.querySelector("span").textContent = e.text;
               return li;
             })
-          : [Object.assign(document.createElement("li"), { className: "ev", textContent: "這段期間沒有換座、逆行或新滿月。" })]),
+          : [Object.assign(document.createElement("li"), { className: "ev ev-empty", textContent: "這段期間沒有換座、逆行或新滿月。" })]),
       ],
     );
   } else periodSec.hidden = true;
@@ -692,9 +692,9 @@ function render({ dur = 1700 } = {}) {
       const mv = `${b.motion >= 0 ? "+" : "−"}${Math.abs(b.motion).toFixed(b.key === "Moon" ? 1 : 2)}°`;
       let diff = "";
       if (cum) {
-        const laps = Math.abs(cum[i]) >= 360 ? `（繞行 ${(Math.abs(cum[i]) / 360).toFixed(1)} 圈）` : "";
-        const changed = basePos[i].signIndex !== b.signIndex ? `　${basePos[i].sign.zh} → ${b.sign.zh}` : "";
-        diff = `<small class="mv diff">較今天 ${sgn(cum[i], Math.abs(cum[i]) < 10 ? 2 : 1)}${laps}${changed}</small>`;
+        const laps = Math.abs(cum[i]) >= 360 ? `<span>（繞行 ${(Math.abs(cum[i]) / 360).toFixed(1)} 圈）</span>` : "";
+        const changed = basePos[i].signIndex !== b.signIndex ? `<span class="chg">${basePos[i].sign.zh} → ${b.sign.zh}</span>` : "";
+        diff = `<small class="mv diff"><span>較今天 ${sgn(cum[i], Math.abs(cum[i]) < 10 ? 2 : 1)}</span>${laps}${changed}</small>`;
       }
       li.innerHTML = `<span class="pg">${TXT(b.g)}</span><span class="pn"><b>${b.zh}</b><i>${b.la}</i></span><span class="ps">${TXT(b.sign.g)} ${b.sign.zh} <small>${fmtDeg(b.deg)}</small>${b.retro ? ' <span class="rx" title="逆行">℞</span>' : ""}</span><span class="pr">${b.role}<small class="mv">24 小時移動 ${mv}</small>${diff}</span>`;
       return li;
