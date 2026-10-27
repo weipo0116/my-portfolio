@@ -186,14 +186,40 @@ section[id] { scroll-margin-top: 24px; }
 .days .tab:focus-visible { outline: 3px solid var(--ink); }
 .daybar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 4px 0 18px; }
 .daybar .days { margin: 0; }
-.datepick { display: inline-flex; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.18em; }
-.datepick input { font: inherit; font-size: 0.85rem; letter-spacing: 0; font-weight: 700; color: var(--ink); background: transparent; border: 2px solid var(--ink); padding: 8px 10px; min-height: 44px; color-scheme: light; }
-.datepick input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-.days .tab:disabled, .datepick input:disabled { opacity: 0.45; cursor: progress; transform: none; }
-.daystate { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; }
+.datepick { position: relative; }
+.pickbtn { font: inherit; display: inline-flex; align-items: center; gap: 10px; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: 7px 14px; min-height: 44px; cursor: pointer; transition: background 0.3s var(--ease), color 0.3s var(--ease); }
+.pickbtn span { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.18em; }
+.pickbtn b { font-size: 0.95rem; font-weight: 800; min-width: 3ch; }
+.pickbtn i { font-style: normal; font-size: 0.7rem; transition: transform 0.3s var(--ease); }
+.pickbtn[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
+.pickbtn[aria-expanded="true"] i { transform: rotate(180deg); }
+.pickbtn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.cal { position: absolute; z-index: 30; top: calc(100% + 10px); left: 0; width: 320px; max-width: calc(100vw - 32px); background: var(--paper); color: var(--black); border: 3px solid var(--black); box-shadow: 8px 8px 0 var(--black); padding: 12px; animation: up 0.35s var(--ease) both; }
+.cal[hidden] { display: none; }
+.cal-head { display: grid; grid-template-columns: 40px 40px 1fr 40px 40px; align-items: center; margin-bottom: 8px; }
+.cal-head b { text-align: center; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.12em; }
+.cal-head button, .cal-today { font: inherit; font-weight: 800; background: transparent; color: var(--black); border: 2px solid transparent; min-height: 40px; cursor: pointer; transition: background 0.2s var(--ease), color 0.2s var(--ease); }
+.cal-head button { font-size: 1.1rem; }
+.cal-head button:hover, .cal-today:hover { background: var(--black); color: var(--paper); }
+.cal-wd, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-wd span { text-align: center; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; padding: 6px 0; border-bottom: 2px solid var(--black); }
+.cal-wd span:first-child, .cal-wd span:last-child { color: #b3261e; }
+.cal-grid { margin-top: 6px; gap: 2px; }
+.cd { font: inherit; font-weight: 700; font-size: 0.95rem; aspect-ratio: 1; min-height: 38px; background: transparent; color: var(--black); border: 2px solid transparent; cursor: pointer; position: relative; transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease); }
+.cd.we { color: #b3261e; }
+.cd.out { opacity: 0.32; }
+.cd:hover { background: var(--black); color: var(--paper); transform: translateY(-1px); }
+.cd.today::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 3px; height: 4px; background: var(--bg); border: 1.5px solid var(--black); }
+.cd.sel { background: var(--black); color: var(--paper); }
+.cd:focus-visible, .cal-head button:focus-visible, .cal-today:focus-visible { outline: 3px solid var(--bg); outline-offset: -3px; box-shadow: 0 0 0 2px var(--black); }
+.cal-today { width: 100%; margin-top: 10px; border-color: var(--black); font-size: 0.8rem; letter-spacing: 0.14em; }
+.daystate { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; padding: 4px 10px; border-left: 4px solid var(--ink); }
+.daystate:empty { display: none; }
+.days .tab:disabled, .pickbtn:disabled { opacity: 0.45; cursor: progress; transform: none; }
 @media (max-width: 640px) {
   .days { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
   .days .tab { min-width: 0; }
-  .datepick { width: 100%; justify-content: space-between; }
-  .datepick input { flex: 1; }
+  .datepick { width: 100%; }
+  .pickbtn { width: 100%; justify-content: space-between; }
+  .cal { width: 100%; max-width: none; }
 }

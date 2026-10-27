@@ -31,7 +31,21 @@
         <p class="kicker" id="kicker">TODAY'S LOOK · 今日主色</p>
         <div class="daybar">
           <div class="tabs days" id="dayTabs" role="group" aria-label="選擇日期"></div>
-          <label class="datepick"><span>任選日期</span><input type="date" id="dayPick" min="2000-01-01" max="2100-12-31" disabled /></label>
+          <div class="datepick" id="datepick">
+            <button type="button" class="pickbtn" id="dayPickBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal" disabled><span>任選日期</span><b id="dayPickVal">—</b><i aria-hidden="true">▾</i></button>
+            <div class="cal" id="cal" role="dialog" aria-label="選擇日期" hidden>
+              <div class="cal-head">
+                <button type="button" id="calPrevY" aria-label="上一年">«</button>
+                <button type="button" id="calPrev" aria-label="上個月">‹</button>
+                <b id="calTitle" aria-live="polite"></b>
+                <button type="button" id="calNext" aria-label="下個月">›</button>
+                <button type="button" id="calNextY" aria-label="下一年">»</button>
+              </div>
+              <div class="cal-wd" aria-hidden="true"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+              <div class="cal-grid" id="calGrid"></div>
+              <button type="button" class="cal-today" id="calToday">回到今天</button>
+            </div>
+          </div>
           <span class="daystate" id="dayState" role="status"></span>
         </div>
         <h1 class="mega" id="mega" aria-live="polite"><span class="mega-zh" id="elZh">木</span><span class="mega-en" id="elEn">WOOD</span></h1>

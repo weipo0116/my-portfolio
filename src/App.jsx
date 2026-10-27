@@ -145,6 +145,101 @@ const getInitials = (value = "") =>
 
 const joinClasses = (...values) => values.filter(Boolean).join(" ");
 
+
+// Left/right pager for a row of tiles: no scroll bar, the track glides one
+// page at a time. Arrows disappear when every tile already fits.
+function WorkCarousel({ label, children, prevLabel, nextLabel, reduceMotion }) {
+  const items = React.Children.toArray(children);
+  const total = items.length;
+  const viewRef = useRef(null);
+  const [width, setWidth] = useState(0);
+  const [index, setIndex] = useState(0);
+  const touchX = useRef(null);
+
+  useEffect(() => {
+    const el = viewRef.current;
+    if (!el) return undefined;
+    const measure = () => setWidth(el.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const perView = width >= 1000 ? 4 : width >= 700 ? 3 : 2;
+  const gap = width >= 700 ? 16 : 12;
+  const cardW = width ? (width - gap * (perView - 1)) / perView : 0;
+  const maxIndex = Math.max(0, total - perView);
+  const at = Math.min(index, maxIndex);
+  const go = (next) => setIndex(Math.max(0, Math.min(maxIndex, next)));
+  const from = at + 1;
+  const to = Math.min(total, at + perView);
+
+  return (
+    <div className="work-group">
+      <div className="work-head">
+        <p className="work-row-label">{label}</p>
+        {maxIndex > 0 ? (
+          <div className="work-pager">
+            <span className="work-count" aria-live="polite">
+              {from}–{to} / {total}
+            </span>
+            <button
+              type="button"
+              className="work-arrow"
+              aria-label={prevLabel}
+              disabled={at === 0}
+              onClick={() => go(at - perView)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+            </button>
+            <button
+              type="button"
+              className="work-arrow"
+              aria-label={nextLabel}
+              disabled={at >= maxIndex}
+              onClick={() => go(at + perView)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+            </button>
+          </div>
+        ) : null}
+      </div>
+      <div
+        className="work-view"
+        ref={viewRef}
+        onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+        onTouchEnd={(e) => {
+          if (touchX.current == null) return;
+          const dx = e.changedTouches[0].clientX - touchX.current;
+          touchX.current = null;
+          if (Math.abs(dx) > 48) go(at + (dx < 0 ? perView : -perView));
+        }}
+      >
+        <div
+          className="work-track"
+          style={{
+            gap,
+            transform: `translateX(${-at * (cardW + gap)}px)`,
+            transition: reduceMotion ? "none" : "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
+          {items.map((child, i) => (
+            <div
+              className="work-slot"
+              key={child.key ?? i}
+              style={{ width: cardW || undefined }}
+              aria-hidden={i < at || i >= at + perView ? "true" : undefined}
+              inert={i < at || i >= at + perView ? "" : undefined}
+            >
+              {child}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 const ProgressiveImage = ({
   src,
   alt = "",
@@ -1051,87 +1146,72 @@ function App({ page = "profile" }) {
               </div>
               <div className="work-rows" ref={othersScrollRef}>
                 {labItems.length ? (
-                  <div className="work-group">
-                    <p className="work-row-label">{t.rows.lab}</p>
-                    <div className="work-row">
-                      <div className="work-track">
-                        {labItems.map((item, index) => (
-                          <motion.a
-                            key={`lab-thumb-${index}`}
-                            className="photo-card photo-card-preview work-tile lab-thumb"
-                            href={item.link || PAGE_PATH.work}
-                            custom={index}
-                            variants={cardVariants}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, amount: 0.2 }}
-                            whileHover={
-                              shouldReduceMotion
-                                ? undefined
-                                : {
-                                    y: -4,
-                                    transition: { duration: 0.4, ease: MOTION_EASE },
-                                  }
-                            }
-                          >
-                            <div className="photo-media">
-                              {item.thumb ? (
-                                <ProgressiveImage
-                                  className="photo work-thumb"
-                                  aria-hidden="true"
-                                  src={item.thumb}
-                                  alt=""
-                                  imgClassName="photo-image"
-                                />
-                              ) : (
-                                <div
-                                  className={`photo lab-art lab-art-${item.art || "spark"}`}
-                                  aria-hidden="true"
-                                >
-                                  <span>{item.glyph}</span>
-                                </div>
-                              )}
+                  <WorkCarousel
+                    label={t.rows.lab}
+                    prevLabel={t.prev}
+                    nextLabel={t.next}
+                    reduceMotion={shouldReduceMotion}
+                  >
+                    {labItems.map((item, index) => (
+                      <motion.a
+                        key={`lab-thumb-${index}`}
+                        className="photo-card photo-card-preview work-tile lab-thumb"
+                        href={item.link || PAGE_PATH.work}
+                        draggable={false}
+                        whileHover={
+                          shouldReduceMotion
+                            ? undefined
+                            : { y: -4, transition: { duration: 0.4, ease: MOTION_EASE } }
+                        }
+                      >
+                        <div className="photo-media">
+                          {item.thumb ? (
+                            <ProgressiveImage
+                              className="photo work-thumb"
+                              aria-hidden="true"
+                              src={item.thumb}
+                              alt=""
+                              imgClassName="photo-image"
+                            />
+                          ) : (
+                            <div
+                              className={`photo lab-art lab-art-${item.art || "spark"}`}
+                              aria-hidden="true"
+                            >
+                              <span>{item.glyph}</span>
                             </div>
-                            <div className="photo-info">
-                              <div className="photo-header">
-                                <h3>
-                                  {item.name}
-                                  <span
-                                    className={`lab-status lab-status-mini ${item.status === "Lit" ? "is-live" : ""}`}
-                                  >
-                                    {t.labStatus[item.status] ?? item.status}
-                                  </span>
-                                </h3>
-                              </div>
-                            </div>
-                          </motion.a>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                          )}
+                        </div>
+                        <div className="tile-info">
+                          <h3 className="tile-title">{item.name}</h3>
+                          <p className="tile-sub">
+                            <span
+                              className={`lab-status lab-status-mini ${item.status === "Lit" ? "is-live" : ""}`}
+                            >
+                              {t.labStatus[item.status] ?? item.status}
+                            </span>
+                          </p>
+                        </div>
+                      </motion.a>
+                    ))}
+                  </WorkCarousel>
                 ) : null}
-                <div className="work-group">
-                <p className="work-row-label">{t.rows.projects}</p>
-                <div className="work-row">
-                  <div className="work-track">
-                    {siteData.projects.map((project, index) => (
+                <WorkCarousel
+                  label={t.rows.projects}
+                  prevLabel={t.prev}
+                  nextLabel={t.next}
+                  reduceMotion={shouldReduceMotion}
+                >
+                  {siteData.projects.map((project, index) => (
                     <motion.article
                       key={`work-${index}`}
                       className="photo-card photo-card-preview work-tile work-card"
                       role="button"
                       tabIndex={0}
-                      custom={index}
-                      variants={cardVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.2 }}
                       whileHover={
                         shouldReduceMotion
                           ? undefined
-                          : {
-                              y: -4,
-                              transition: { duration: 0.4, ease: MOTION_EASE },
-                            }
+                          : { y: -4, transition: { duration: 0.4, ease: MOTION_EASE } }
                       }
                       whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
                       onClick={() => setExpandedProject(project)}
@@ -1152,59 +1232,31 @@ function App({ page = "profile" }) {
                           objectFit="contain"
                         />
                       </div>
-                      <div className="photo-info">
-                        <div className="photo-header">
-                          <h3>
-                            {project.name}
-                            {project.role ? (
-                              <span className="photo-subtitle">
-                                {project.role}
-                              </span>
-                            ) : null}
-                          </h3>
-                        </div>
-                        <div className="photo-expand-hint" aria-hidden="true">
-                          <span>{t.more}</span>
-                          <svg viewBox="0 0 24 24">
-                            <path d="M8 16 16 8" />
-                            <path d="M10 8h6v6" />
-                          </svg>
-                        </div>
+                      <div className="tile-info">
+                        <h3 className="tile-title">{project.name}</h3>
+                        <p className="tile-sub">{project.role}</p>
                       </div>
                     </motion.article>
-                    ))}
-                  </div>
-                </div>
-                </div>
-                <div className="work-group">
-                <p className="work-row-label">{t.rows.activities}</p>
-                <div className="work-row">
-                  <div className="work-track">
-                    {otherExperiences.map((item, index) => (
+                  ))}
+                </WorkCarousel>
+                <WorkCarousel
+                  label={t.rows.activities}
+                  prevLabel={t.prev}
+                  nextLabel={t.next}
+                  reduceMotion={shouldReduceMotion}
+                >
+                  {otherExperiences.map((item, index) => (
                     <motion.article
                       key={`other-${index}`}
                       className="photo-card photo-card-preview work-tile"
                       role="button"
                       tabIndex={0}
-                      custom={index}
-                      variants={cardVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, amount: 0.2 }}
                       whileHover={
                         shouldReduceMotion
                           ? undefined
-                          : {
-                              y: -4,
-                              transition: {
-                                duration: 0.4,
-                                ease: MOTION_EASE,
-                              },
-                            }
+                          : { y: -4, transition: { duration: 0.4, ease: MOTION_EASE } }
                       }
-                      whileTap={
-                        shouldReduceMotion ? undefined : { scale: 0.995 }
-                      }
+                      whileTap={shouldReduceMotion ? undefined : { scale: 0.995 }}
                       onClick={() => setExpandedOtherExperience(item)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") {
@@ -1222,38 +1274,16 @@ function App({ page = "profile" }) {
                           imgClassName="photo-image"
                         />
                         {item.period ? (
-                          <p className="photo-period-overlay">
-                            {item.period}
-                          </p>
+                          <p className="photo-period-overlay">{item.period}</p>
                         ) : null}
                       </div>
-                      <div className="photo-info">
-                        <div className="photo-header">
-                          <h3>
-                            {item.title}
-                            {item.subtitle ? (
-                              <span className="photo-subtitle">
-                                {item.subtitle}
-                              </span>
-                            ) : null}
-                          </h3>
-                        </div>
-                        <div
-                          className="photo-expand-hint"
-                          aria-hidden="true"
-                        >
-                          <span>{t.more}</span>
-                          <svg viewBox="0 0 24 24">
-                            <path d="M8 16 16 8" />
-                            <path d="M10 8h6v6" />
-                          </svg>
-                        </div>
+                      <div className="tile-info">
+                        <h3 className="tile-title">{item.title}</h3>
+                        <p className="tile-sub">{item.subtitle}</p>
                       </div>
                     </motion.article>
-                    ))}
-                  </div>
-                </div>
-                </div>
+                  ))}
+                </WorkCarousel>
               </div>
             </div>
           </section>

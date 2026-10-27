@@ -345,10 +345,10 @@ function renderDayTabs() {
       return b;
     }),
   );
-  const pick = $("dayPick");
-  pick.disabled = !ready;
-  if (state.day) pick.value = ymd(state.day.t);
-  $("dayState").textContent = ready ? "" : "載入天氣中…";
+  $("dayPickBtn").disabled = !ready;
+  if (state.day) $("dayPickVal").textContent = `${state.day.t.m}/${state.day.t.d}`;
+  if (!ready) $("dayState").textContent = "載入天氣中…";
+  else if ($("dayState").textContent.startsWith("載入")) $("dayState").textContent = "";
 }
 
 function offsetFor(value) {
@@ -357,29 +357,84 @@ function offsetFor(value) {
   return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(t.y, t.m - 1, t.d)) / 864e5);
 }
 
-$("dayPick").addEventListener("change", (e) => {
-  if (!e.target.value || !state.raw) return;
-  const off = offsetFor(e.target.value);
-  if (off !== state.off) switchDay(off);
-});
-
 function applyDay() {
   const tz = CITIES[state.city].tz;
-  state.day = dayElement(tz, state.off);
-  state.pal = paletteFor(state.day.el);
-  state.weather = sliceWeather(state.raw, state.city, state.off);
-  renderHero();
-  renderDayTabs();
-  renderRules();
-  renderCityTabs();
-  renderWeather();
-  renderLooks(true);
+  const day = dayElement(tz, state.off);
+  const pal = paletteFor(day.el);
+  const weather = sliceWeather(state.raw, state.city, state.off);
+  state.day = day;
+  state.pal = pal;
+  state.weather = weather;
+  try {
+    renderHero();
+    renderDayTabs();
+    renderRules();
+    renderCityTabs();
+    renderWeather();
+    renderLooks(true);
+    $("dayState").textContent = `已切換：${day.t.m}/${day.t.d} 週${WK_ZH[day.t.wd]} · ${day.gz}日 · ${EL[day.el].zh}`;
+  } catch (err) {
+    console.error(err);
+    $("dayState").textContent = `切換失敗（${err.message}），請重新整理`;
+  }
 }
 
 function switchDay(off) {
   state.off = off;
   applyDay();
+  closeCal();
 }
+
+/* ---------- calendar popover ---------- */
+const cal = { y: 0, m: 0 };
+function closeCal() {
+  $("cal").hidden = true;
+  $("dayPickBtn").setAttribute("aria-expanded", "false");
+}
+function renderCal() {
+  const t = todayIn(CITIES[state.city].tz);
+  const sel = state.day.t;
+  $("calTitle").textContent = `${cal.y} · ${String(cal.m).padStart(2, "0")}`;
+  const first = new Date(Date.UTC(cal.y, cal.m - 1, 1)).getUTCDay();
+  const dim = new Date(Date.UTC(cal.y, cal.m, 0)).getUTCDate();
+  const cells = [];
+  for (let i = 0; i < 42; i++) {
+    const day = i - first + 1;
+    const dt = shiftDay({ y: cal.y, m: cal.m, d: 1 }, day - 1);
+    const inMonth = day >= 1 && day <= dim;
+    const b = h("button", "cd" + (inMonth ? "" : " out") + (dt.wd === 0 || dt.wd === 6 ? " we" : "") + (dt.y === t.y && dt.m === t.m && dt.d === t.d ? " today" : "") + (dt.y === sel.y && dt.m === sel.m && dt.d === sel.d ? " sel" : ""), String(dt.d));
+    b.type = "button";
+    b.setAttribute("aria-label", `${dt.y}年${dt.m}月${dt.d}日`);
+    if (dt.y === sel.y && dt.m === sel.m && dt.d === sel.d) b.setAttribute("aria-current", "date");
+    b.addEventListener("click", () => {
+      const off = offsetFor(ymd(dt));
+      if (off !== state.off) switchDay(off); else closeCal();
+    });
+    cells.push(b);
+  }
+  $("calGrid").replaceChildren(...cells);
+}
+function openCal() {
+  cal.y = state.day.t.y;
+  cal.m = state.day.t.m;
+  renderCal();
+  $("cal").hidden = false;
+  $("dayPickBtn").setAttribute("aria-expanded", "true");
+}
+const moveMonth = (dm) => {
+  const u = new Date(Date.UTC(cal.y, cal.m - 1 + dm, 1));
+  cal.y = u.getUTCFullYear();
+  cal.m = u.getUTCMonth() + 1;
+  renderCal();
+};
+$("dayPickBtn").addEventListener("click", () => ($("cal").hidden ? openCal() : closeCal()));
+$("calPrev").addEventListener("click", () => moveMonth(-1));
+$("calNext").addEventListener("click", () => moveMonth(1));
+$("calPrevY").addEventListener("click", () => moveMonth(-12));
+$("calNextY").addEventListener("click", () => moveMonth(12));
+$("calToday").addEventListener("click", () => { if (state.off !== 0) switchDay(0); else closeCal(); });
+document.addEventListener("click", (e) => { if (!$("cal").hidden && !$("datepick").contains(e.target)) closeCal(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("cal").hidden) { closeCal(); $("dayPickBtn").focus(); } });
 
 async function switchCity(id) {
   state.city = id;
