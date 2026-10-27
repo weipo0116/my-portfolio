@@ -166,7 +166,7 @@ export const siteData = {
     items: [
       {
         name: "SI — AI Project Workspace",
-        status: "Cooking",
+        status: "Brewing",
         problem:
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
         approach:
@@ -175,7 +175,7 @@ export const siteData = {
       },
       {
         name: "Screen Recording → Step Extractor",
-        status: "Exploring",
+        status: "Wandering",
         problem:
           "Comparing app flows from screen recordings means scrubbing video by hand.",
         approach:
@@ -184,7 +184,7 @@ export const siteData = {
       },
       {
         name: "Resume & Portfolio Sync",
-        status: "Exploring",
+        status: "Wandering",
         problem:
           "Updating my resume and this site separately keeps them drifting apart.",
         approach:
@@ -193,7 +193,7 @@ export const siteData = {
       },
       {
         name: "Astra Dies — Daily Astrology",
-        status: "Cooking",
+        status: "Brewing",
         problem:
           "Daily horoscopes are vague; I wanted planet positions I can verify, explained in plain language.",
         approach:
@@ -202,8 +202,8 @@ export const siteData = {
         link: `${import.meta.env.BASE_URL}lab/astro/`,
       },
       {
-        name: "Cinq Éléments — Five-Element Outfit",
-        status: "Cooking",
+        name: "Five Elements — Daily Outfit",
+        status: "Brewing",
         problem:
           "Deciding what to wear means juggling weather, occasion and colour with no fixed logic.",
         approach:

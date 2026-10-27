@@ -202,7 +202,8 @@ function buildFrame(svg) {
   svg.dataset.built = "1";
 }
 
-function updateWheel(svg, pos, aspects, prev) {
+function updateWheel(svg, pos, aspects, prev, opts = {}) {
+  const dur = opts.dur ?? 1700;
   if (!svg.dataset.built) buildFrame(svg);
   svg.querySelector(".dyn")?.remove();
   const dyn = el("g", { class: "dyn" }, svg);
@@ -211,8 +212,27 @@ function updateWheel(svg, pos, aspects, prev) {
   aspects.slice(0, 8).forEach((a, i) => {
     const [x1, y1] = pt(a.a.lon, 150);
     const [x2, y2] = pt(a.b.lon, 150);
-    el("line", { x1, y1, x2, y2, class: "asp asp-" + a.asp.ang, style: `--i:${i}`, pathLength: 1 }, lines);
+    const ln = el("line", { x1, y1, x2, y2, class: "asp asp-" + a.asp.ang, style: `--i:${i}`, pathLength: 1 }, lines);
+    ln.dataset.pair = `${a.a.key}-${a.b.key}`;
   });
+
+  // time track: where each body stood on the baseline day (today) and the path it took to get here
+  const track = el("g", { class: "track" }, dyn);
+  if (opts.ghost) {
+    opts.ghost.pos.forEach((g0, i) => {
+      const cur = pos[i];
+      const R = 236;
+      const [gx, gy] = pt(g0.lon, R);
+      const grp = el("g", { class: "ghost", "data-key": g0.key }, track);
+      const cum = opts.ghost.cum[i];
+      if (Math.abs(cum) >= 0.4 && Math.abs(cum) < 340) {
+        const [ex, ey] = pt(cur.lon, R);
+        el("path", { d: `M ${gx} ${gy} A ${R} ${R} 0 ${Math.abs(cum) > 180 ? 1 : 0} ${cum > 0 ? 0 : 1} ${ex} ${ey}`, class: "arc", fill: "none" }, grp);
+      }
+      el("circle", { cx: gx, cy: gy, r: 11, class: "ghost-disc" }, grp);
+      el("text", { x: gx, y: gy, class: "ghost-glyph", "text-anchor": "middle", "dominant-baseline": "central" }, grp).textContent = TXT(g0.g);
+    });
+  }
 
   // spread bodies that sit close together
   const sorted = [...pos].sort((a, b) => a.lon - b.lon);
@@ -227,7 +247,7 @@ function updateWheel(svg, pos, aspects, prev) {
   const layer = el("g", { class: "planet-layer" }, dyn);
   pos.forEach((b, i) => {
     const r = 206 - lane.get(b.key) * 36;
-    const g = el("g", { class: "planet" }, layer);
+    const g = el("g", { class: "planet", "data-key": b.key }, layer);
     const [x, y] = pt(b.lon, r);
     const [kx, ky] = pt(b.lon, 262);
     const [kx2, ky2] = pt(b.lon, 255);
@@ -245,8 +265,8 @@ function updateWheel(svg, pos, aspects, prev) {
     // move along the ecliptic: counter-clockwise on screen when longitude grows
     const d = delta(old.lon, b.lon);
     if (Math.abs(d) < 0.01) return;
-    g.animate([{ transform: `rotate(${d}deg)` }, { transform: "rotate(0deg)" }], { duration: 1700, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" });
-    if (Math.abs(d) >= 0.4) {
+    g.animate([{ transform: `rotate(${d}deg)` }, { transform: "rotate(0deg)" }], { duration: dur, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" });
+    if (Math.abs(d) >= 0.4 && !opts.ghost) {
       const [sx, sy] = pt(old.lon, r);
       const trail = el("path", { d: `M ${sx} ${sy} A ${r} ${r} 0 0 ${d > 0 ? 0 : 1} ${x} ${y}`, class: "trail", fill: "none" }, trails);
       trail.animate([{ opacity: 0.9 }, { opacity: 0.9, offset: 0.55 }, { opacity: 0 }], { duration: 3200, easing: "ease-out", fill: "forwards" });
@@ -279,28 +299,179 @@ function drawMoon(svg, date) {
   return { phase, illum, side };
 }
 
+/* ---------- period events & sign fortunes ---------- */
+const DAY = 86400000;
+const noonTaipei = (tp) => new Date(Date.UTC(tp.y, tp.m - 1, tp.d, 4, 0, 0)); // 12:00 in Taipei
+const md = (date) => { const t = taipeiParts(date); return `${t.m}/${t.d}`; };
+
+function cumulative(baseDate, targetDate) {
+  // follow each body day by day so retrograde loops and the Moon's laps are counted honestly
+  const days = Math.round((targetDate - baseDate) / DAY);
+  const sign = days >= 0 ? 1 : -1;
+  const out = BODIES.map(() => 0);
+  for (let k = 0; k < Math.abs(days); k++) {
+    const a = new Date(baseDate.getTime() + sign * k * DAY);
+    const b = new Date(baseDate.getTime() + sign * (k + 1) * DAY);
+    BODIES.forEach((bd, i) => { out[i] += delta(lonOf(bd.key, a), lonOf(bd.key, b)); });
+  }
+  return out;
+}
+
+function periodEvents(d0, d1) {
+  const lo = d0 < d1 ? d0 : d1, hi = d0 < d1 ? d1 : d0;
+  const days = Math.round((hi - lo) / DAY);
+  const ev = [];
+  let prev = compute(lo);
+  for (let k = 1; k <= days; k++) {
+    const when = new Date(lo.getTime() + k * DAY);
+    const now = compute(when);
+    now.forEach((b, i) => {
+      const was = prev[i];
+      if (b.key === "Moon" && days > 8) return; // too frequent for long ranges
+      if (b.signIndex !== was.signIndex) ev.push({ t: when, icon: "→", text: `${b.zh}進入${b.sign.zh}`, kind: "ingress" });
+      if (b.retro !== was.retro) ev.push({ t: when, icon: "℞", text: `${b.zh}${b.retro ? "轉為逆行" : "恢復順行"}`, kind: "retro" });
+    });
+    prev = now;
+  }
+  const phase = (deg, label) => {
+    let from = lo;
+    for (;;) {
+      const t = A.SearchMoonPhase(deg, from, (hi - from) / DAY + 1);
+      if (!t || t.date > hi) break;
+      ev.push({ t: t.date, icon: deg === 0 ? "●" : "○", text: label, kind: "moon" });
+      from = new Date(t.date.getTime() + DAY);
+    }
+  };
+  phase(0, "新月"); phase(180, "滿月");
+  return ev.sort((a, b) => a.t - b.t);
+}
+
+const HOUSE = ["自我與形象", "財務與資源", "溝通與學習", "家庭與內在", "戀愛與創作", "日常與健康", "伴侶與合作", "深度連結", "遠行與進修", "事業與聲望", "朋友與社群", "獨處與潛意識"];
+const HF = {
+  love: [0.8, 0.3, 0.3, 0.4, 1, -0.2, 1, -0.1, 0.5, 0.2, 0.6, -0.4],
+  career: [0.6, 0.4, 0.2, 0, 0.2, 0.7, 0.3, -0.1, 0.4, 1, 0.5, -0.4],
+  money: [0.3, 1, 0.2, 0.1, 0.2, 0.3, 0.2, 0.7, 0.2, 0.4, 0.8, -0.5],
+};
+// weight per category, and the planet's nature (+ supportive, − restrictive)
+const PW = {
+  Sun: { love: 0.4, career: 0.8, money: 0.4, n: 0.7 },
+  Moon: { love: 0.7, career: 0.3, money: 0.3, n: 0.4 },
+  Mercury: { love: 0.3, career: 0.6, money: 0.5, n: 0.5 },
+  Venus: { love: 1, career: 0.4, money: 0.8, n: 1 },
+  Mars: { love: 0.5, career: 0.8, money: 0.3, n: 0.4 },
+  Jupiter: { love: 0.5, career: 0.9, money: 1, n: 1 },
+  Saturn: { love: 0.5, career: 0.6, money: 0.5, n: -0.8 },
+};
+const CATS = { love: "感情", career: "事業", money: "財運" };
+const POS_TXT = { love: "互動順暢，主動表達會被接住。", career: "有推進空間，適合提案與行動。", money: "有機會，留意好的交易與收入。" };
+const NEG_TXT = { love: "容易誤會，先聽再說。", career: "進度偏慢，先確認方向再投入。", money: "花費易失控，大額決定先緩一緩。" };
+
+// whole-sign houses counted from each sun sign
+function rawFortune(pos) {
+  return SIGNS.map((_, si) => {
+    const res = {};
+    for (const cat of Object.keys(CATS)) {
+      let total = 0;
+      const parts = [];
+      for (const b of pos.slice(0, 7)) {
+        const w = PW[b.key];
+        const house = ((b.signIndex - si + 12) % 12) + 1;
+        let n = w.n;
+        if (b.retro) n *= 0.5;
+        let c = w[cat] * n * HF[cat][house - 1];
+        if (b.key === "Mercury" && b.retro && cat !== "love") c -= 0.15;
+        total += c;
+        parts.push({ b, house, c });
+      }
+      parts.sort((x, y) => Math.abs(y.c) - Math.abs(x.c));
+      res[cat] = { total, top: parts[0] };
+    }
+    return res;
+  });
+}
+
+function toStars(values) {
+  const lo = Math.min(...values), hi = Math.max(...values);
+  const span = hi - lo || 1;
+  return values.map((v) => 1 + Math.round((4 * (v - lo)) / span));
+}
+
+function fortuneNote(top, cat) {
+  const { b, house, c } = top;
+  return `${b.zh}${b.retro ? "（逆行）" : ""}落在你的第 ${house} 宮（${HOUSE[house - 1]}）：${c >= 0 ? POS_TXT[cat] : NEG_TXT[cat]}`;
+}
+
+function dayFortune(pos) {
+  const raw = rawFortune(pos);
+  const out = {};
+  for (const cat of Object.keys(CATS)) {
+    const stars = toStars(raw.map((r) => r[cat].total));
+    out[cat] = SIGNS.map((sg, i) => ({ sign: sg, stars: stars[i], score: raw[i][cat].total, note: fortuneNote(raw[i][cat].top, cat) }));
+  }
+  return out;
+}
+
+function weekFortune(date) {
+  const tp = taipeiParts(date);
+  const dow = (new Date(Date.UTC(tp.y, tp.m - 1, tp.d)).getUTCDay() + 6) % 7; // Monday = 0
+  const mon = new Date(noonTaipei(tp).getTime() - dow * DAY);
+  const days = Array.from({ length: 7 }, (_, k) => new Date(mon.getTime() + k * DAY));
+  const raws = days.map((d) => rawFortune(compute(d)));
+  const mid = rawFortune(compute(days[3]));
+  const WK = ["週一", "週二", "週三", "週四", "週五", "週六", "週日"];
+  const out = {};
+  for (const cat of Object.keys(CATS)) {
+    const avg = SIGNS.map((_, i) => raws.reduce((n, r) => n + r[i][cat].total, 0) / 7);
+    const stars = toStars(avg);
+    out[cat] = SIGNS.map((sg, i) => {
+      const per = raws.map((r) => r[i][cat].total);
+      const best = per.indexOf(Math.max(...per)), worst = per.indexOf(Math.min(...per));
+      return { sign: sg, stars: stars[i], score: avg[i], note: fortuneNote(mid[i][cat].top, cat), extra: `本週最順：${WK[best]}；較需留意：${WK[worst]}` };
+    });
+  }
+  return { data: out, from: days[0], to: days[6] };
+}
+
 /* ---------- render ---------- */
 let offsetDays = 0;
 let prevPos = null;
 let shownDate = null;
+let lastRender = 0;
+let fortuneMode = "day";
+let fortuneCat = "love";
+let currentFortune = null;
+let currentWeek = null;
 
 const $ = (id) => document.getElementById(id);
 const para = (t) => Object.assign(document.createElement("p"), { textContent: t });
+const sgn = (n, d = 1) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(d)}°`;
+const clampOff = (n) => Math.max(-30, Math.min(30, n));
 
-function render() {
-  const date = new Date(Date.now() + offsetDays * 86400000);
+function render({ dur = 1700 } = {}) {
+  const now = new Date();
+  const date = new Date(now.getTime() + offsetDays * DAY);
   const tp = taipeiParts(date);
   shownDate = `${tp.y}-${tp.m}-${tp.d}`;
+  lastRender = Date.now();
   $("romanDate").textContent = `${roman(tp.y)} · ${roman(tp.m)} · ${roman(tp.d)}`;
   const dateText = `${tp.y}.${String(tp.m).padStart(2, "0")}.${String(tp.d).padStart(2, "0")} ${tp.wk}`;
   $("dateLine").textContent = `${dateText} · 台北 ${tp.hh}:${tp.mm}`;
   $("dlgDate").textContent = dateText;
+  const nt = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(now);
+  $("updated").textContent = `資料更新於 ${nt}（台北 UTC+8）· 今日畫面每 5 分鐘自動重算`;
 
   const pos = compute(date);
   const aspects = findAspects(pos);
-  // the same bodies glide from where they were; the chart is never redrawn from scratch
-  updateWheel($("wheelBg"), pos, aspects, prevPos);
-  updateWheel($("wheelMain"), pos, aspects, prevPos);
+
+  // baseline for comparisons = today; when browsing another day we draw the time track
+  let ghost = null;
+  let basePos = null;
+  if (offsetDays !== 0) {
+    basePos = compute(now);
+    ghost = { pos: basePos, cum: cumulative(now, date) };
+  }
+  updateWheel($("wheelBg"), pos, aspects, prevPos, { dur });
+  updateWheel($("wheelMain"), pos, aspects, prevPos, { dur, ghost });
   if (prevPos) {
     const moved = pos.map((b, i) => ({ b, d: Math.abs(delta(prevPos[i].lon, b.lon)) })).filter((x) => x.d > 0.4).sort((x, y) => y.d - x.d)[0];
     $("motionHint").textContent = moved ? `${moved.b.zh}移動了 ${moved.d.toFixed(1)}°（金色弧線是這次的軌跡）` : "";
@@ -322,12 +493,46 @@ function render() {
   );
   $("energy").replaceChildren(...buildEnergy(pos, aspects, phaseIdx).map(para));
 
+  // ---- dialog: time box, period changes, table, aspects ----
+  $("tbRange").value = clampOff(offsetDays);
+  const rel = offsetDays === 0 ? "今天" : offsetDays > 0 ? `未來 ${offsetDays} 天` : `過去 ${-offsetDays} 天`;
+  $("tbLabel").textContent = `${rel} · ${dateText}`;
+  $("tbBtns").querySelectorAll("button").forEach((b) => b.classList.toggle("on", Number(b.dataset.off) === offsetDays));
+
+  const periodSec = $("periodSec");
+  if (offsetDays !== 0) {
+    periodSec.hidden = false;
+    const evs = periodEvents(now, date);
+    const lines = [`相對今天（空心虛線圈與弧線是今天的位置與走過的路）：`];
+    $("period").replaceChildren(
+      ...[
+        ...[Object.assign(document.createElement("li"), { className: "ev-head", textContent: lines[0] })],
+        ...(evs.length
+          ? evs.map((e) => {
+              const li = document.createElement("li");
+              li.className = "ev " + e.kind;
+              li.innerHTML = `<i>${e.icon}</i><b>${md(e.t)}</b><span></span>`;
+              li.querySelector("span").textContent = e.text;
+              return li;
+            })
+          : [Object.assign(document.createElement("li"), { className: "ev", textContent: "這段期間沒有換座、逆行或新滿月。" })]),
+      ],
+    );
+  } else periodSec.hidden = true;
+
+  const cum = ghost?.cum;
   $("planets").replaceChildren(
     ...pos.map((b, i) => {
       const li = document.createElement("li");
-      li.style.setProperty("--i", i);
+      li.dataset.key = b.key;
       const mv = `${b.motion >= 0 ? "+" : "−"}${Math.abs(b.motion).toFixed(b.key === "Moon" ? 1 : 2)}°`;
-      li.innerHTML = `<span class="pg">${TXT(b.g)}</span><span class="pn"><b>${b.zh}</b><i>${b.la}</i></span><span class="ps">${TXT(b.sign.g)} ${b.sign.zh} <small>${fmtDeg(b.deg)}</small>${b.retro ? ' <span class="rx" title="逆行">℞</span>' : ""}</span><span class="pr">${b.role}<small class="mv">24 小時移動 ${mv}</small></span>`;
+      let diff = "";
+      if (cum) {
+        const laps = Math.abs(cum[i]) >= 360 ? `（繞行 ${(Math.abs(cum[i]) / 360).toFixed(1)} 圈）` : "";
+        const changed = basePos[i].signIndex !== b.signIndex ? `　${basePos[i].sign.zh} → ${b.sign.zh}` : "";
+        diff = `<small class="mv diff">較今天 ${sgn(cum[i], Math.abs(cum[i]) < 10 ? 2 : 1)}${laps}${changed}</small>`;
+      }
+      li.innerHTML = `<span class="pg">${TXT(b.g)}</span><span class="pn"><b>${b.zh}</b><i>${b.la}</i></span><span class="ps">${TXT(b.sign.g)} ${b.sign.zh} <small>${fmtDeg(b.deg)}</small>${b.retro ? ' <span class="rx" title="逆行">℞</span>' : ""}</span><span class="pr">${b.role}<small class="mv">24 小時移動 ${mv}</small>${diff}</span>`;
       return li;
     }),
   );
@@ -335,9 +540,10 @@ function render() {
   const top = aspects.slice(0, 5);
   $("aspects").replaceChildren(
     ...(top.length
-      ? top.map((a, i) => {
+      ? top.map((a) => {
           const d = document.createElement("article");
-          d.style.setProperty("--i", i);
+          d.dataset.pair = `${a.a.key}-${a.b.key}`;
+          d.dataset.keys = `${a.a.key},${a.b.key}`;
           d.innerHTML = `<div class="ag">${TXT(a.a.g)} ${TXT(a.asp.g)} ${TXT(a.b.g)}</div><h3>${a.a.zh} ${a.asp.name} ${a.b.zh}</h3><p class="la">${a.a.la} · ${a.asp.la} · ${a.b.la}　誤差 ${a.off.toFixed(1)}°</p><p>${a.asp.mean}</p>`;
           return d;
         })
@@ -352,7 +558,60 @@ function render() {
     ].map(para),
   );
 
+  currentFortune = dayFortune(pos);
+  currentWeek = weekFortune(date);
+  renderFortune();
   observeReveals();
+}
+
+function stars(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
+
+function renderFortune() {
+  const week = fortuneMode === "week";
+  const list = (week ? currentWeek.data : currentFortune)[fortuneCat];
+  const tier = (st) => (st >= 4 ? "旺" : st === 3 ? "平穩" : "留意");
+  const groups = [
+    ["旺", "近期順風，適合主動出擊", (r) => r.stars >= 4],
+    ["平穩", "照節奏走，不需要特別調整", (r) => r.stars === 3],
+    ["留意", "放慢一點，先顧好基本盤", (r) => r.stars <= 2],
+  ];
+  $("weekEvents").replaceChildren();
+  if (week) {
+    const evs = periodEvents(currentWeek.from, currentWeek.to);
+    $("fortuneNote").textContent = `本週：${md(currentWeek.from)}（週一）– ${md(currentWeek.to)}（週日）。分數是 12 個星座之間的相對高低，取整週平均。`;
+    $("weekEvents").replaceChildren(
+      ...(evs.length ? evs : [{ t: currentWeek.from, icon: "·", text: "本週沒有換座、逆行或新滿月", kind: "" }]).map((e) => {
+        const li = document.createElement("li");
+        li.className = "ev " + e.kind;
+        li.innerHTML = `<i>${e.icon}</i><b>${md(e.t)}</b><span></span>`;
+        li.querySelector("span").textContent = e.text;
+        return li;
+      }),
+    );
+  } else {
+    $("fortuneNote").textContent = "以每個星座當作上升（整宮制）來看當天行星落在第幾宮，再依感情、事業、財運加權。分數是 12 個星座之間的相對高低。";
+  }
+  const box = $("fortune");
+  box.replaceChildren(
+    ...groups.map(([name, sub, fn]) => {
+      const rows = list.filter(fn).sort((a, b) => b.score - a.score);
+      const sec = document.createElement("section");
+      sec.className = "fgroup g-" + (name === "旺" ? "hi" : name === "平穩" ? "mid" : "lo");
+      sec.innerHTML = `<h3><b>${name}</b><span>${sub}</span><em>${rows.length} 個星座</em></h3>`;
+      const ul = document.createElement("ul");
+      rows.forEach((r, i) => {
+        const li = document.createElement("li");
+        li.style.setProperty("--i", i);
+        li.innerHTML = `<span class="fg">${TXT(r.sign.g)}</span><span class="fn"><b>${r.sign.zh}</b><i>${r.sign.la}</i></span><span class="fs" aria-label="${r.stars} 顆星">${stars(r.stars)}</span><span class="ft"></span>`;
+        li.querySelector(".ft").textContent = r.note + (r.extra ? `　${r.extra}` : "");
+        ul.appendChild(li);
+      });
+      if (!rows.length) ul.innerHTML = '<li class="empty">這一組目前沒有星座</li>';
+      sec.appendChild(ul);
+      return sec;
+    }),
+  );
+  void tier;
 }
 
 function renderLegend() {
@@ -360,6 +619,7 @@ function renderLegend() {
     ["℞", "逆行：從地球看，這顆星暫時「倒退」，通常提醒回頭檢查、重做舊事。"],
     ...ASPECTS.map((a) => [TXT(a.g), `${a.name}（${a.ang}°，容許誤差 ${a.orb}°）：${a.mean}`]),
     ["線條顏色", "金＝合相、藍＝六分、紅＝四分、綠＝三分、橘＝對分。"],
+    ["虛線空心圈", "切換到別的日子時，今天的位置會以外圈的空心圓標示，弧線是這段期間走過的路；月亮繞太快，只在文字顯示累計角度。"],
     ["輪盤方向", "牡羊 0° 在左側，星座逆時針排列；星體由內圈往外圈錯開，避免重疊。"],
   ];
   $("legend").replaceChildren(
@@ -385,7 +645,7 @@ function observeReveals() {
 }
 
 /* ---------- starfield ---------- */
-function stars() {
+function stars_() {
   const c = document.getElementById("stars");
   const ctx = c.getContext("2d");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -417,24 +677,70 @@ function stars() {
   requestAnimationFrame(frame);
 }
 
-$("prev").addEventListener("click", () => { offsetDays -= 1; render(); });
-$("next").addEventListener("click", () => { offsetDays += 1; render(); });
-$("today").addEventListener("click", () => { offsetDays = 0; render(); });
+const go = (n, dur) => { offsetDays = n; render({ dur }); };
+$("prev").addEventListener("click", () => go(offsetDays - 1));
+$("next").addEventListener("click", () => go(offsetDays + 1));
+$("today").addEventListener("click", () => go(0));
+$("tbBtns").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(Number(b.dataset.off), 1500); });
+let rafId = 0;
+$("tbRange").addEventListener("input", (e) => {
+  const v = Number(e.target.value);
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => go(v, 500));
+});
 
+$("modeSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  fortuneMode = b.dataset.mode;
+  $("modeSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  renderFortune();
+});
+$("catSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  fortuneCat = b.dataset.cat;
+  $("catSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  renderFortune();
+});
+
+/* hover / tap focus: the table, the aspect cards and the wheel highlight each other */
 const dlg = $("chartDialog");
+const wheelMain = $("wheelMain");
+function setFocus(keys, pair) {
+  const on = keys.length > 0;
+  wheelMain.classList.toggle("dim", on);
+  wheelMain.querySelectorAll(".planet, .ghost").forEach((g) => g.classList.toggle("hot", keys.includes(g.dataset.key)));
+  wheelMain.querySelectorAll(".asp").forEach((l) => l.classList.toggle("hot", !!pair && l.dataset.pair === pair));
+  $("planets").querySelectorAll("li").forEach((li) => li.classList.toggle("hot", keys.includes(li.dataset.key)));
+  $("aspects").querySelectorAll("article").forEach((c) => c.classList.toggle("hot", (!!pair && c.dataset.pair === pair) || (!pair && keys.length === 1 && c.dataset.keys.split(",").includes(keys[0]))));
+}
+const focusFrom = (t) => {
+  const row = t.closest?.("#planets li, .planet");
+  if (row) return [[row.dataset.key], null];
+  const card = t.closest?.("#aspects article");
+  if (card) return [card.dataset.keys.split(","), card.dataset.pair];
+  return [[], null];
+};
+dlg.addEventListener("pointerover", (e) => { if (e.pointerType === "touch") return; const [k, p] = focusFrom(e.target); setFocus(k, p); });
+dlg.addEventListener("pointerleave", () => setFocus([], null));
+dlg.addEventListener("click", (e) => {
+  if (e.target === dlg) return;
+  const [k, p] = focusFrom(e.target);
+  if (k.length && matchMedia("(hover: none)").matches) setFocus(k, p);
+});
+
 $("openChart").addEventListener("click", () => { dlg.showModal(); document.body.classList.add("lock"); });
 const closeDlg = () => dlg.close();
 $("closeChart").addEventListener("click", closeDlg);
 dlg.addEventListener("click", (e) => { if (e.target === dlg) closeDlg(); }); // click on backdrop
-dlg.addEventListener("close", () => document.body.classList.remove("lock"));
+dlg.addEventListener("close", () => { document.body.classList.remove("lock"); setFocus([], null); });
 
-// keep "today" current if the page stays open past midnight (Taipei time)
+// keep "today" current: recompute every 5 minutes and when the Taipei date rolls over
 setInterval(() => {
   if (offsetDays !== 0) return;
   const tp = taipeiParts(new Date());
-  if (`${tp.y}-${tp.m}-${tp.d}` !== shownDate) render();
-}, 60000);
+  if (`${tp.y}-${tp.m}-${tp.d}` !== shownDate || Date.now() - lastRender >= 5 * 60000) render({ dur: 1200 });
+}, 30000);
 
 renderLegend();
-stars();
+stars_();
 render();

@@ -8,40 +8,40 @@ const ctrlBy = (e) => Object.keys(CTRL).find((k) => CTRL[k] === e);
 
 const EL = {
   wood: {
-    zh: "木", en: "WOOD", fr: "Vert", bg: "#00a35c", ink: "#04140b", accent: "#d6ff3d",
-    colors: [{ n: "Émeraude 翡翠綠", hex: "#00a35c" }, { n: "Chartreuse 螢光黃綠", hex: "#c8f400" }, { n: "Forêt 森林綠", hex: "#0d4a2f" }],
+    zh: "木", en: "WOOD", fr: "Green", bg: "#00a35c", ink: "#04140b", accent: "#d6ff3d",
+    colors: [{ n: "Emerald 翡翠綠", hex: "#00a35c" }, { n: "Chartreuse 螢光黃綠", hex: "#c8f400" }, { n: "Forest 森林綠", hex: "#0d4a2f" }],
     mood: "生長、伸展、向外開展。今天適合嘗試新東西，造型可以有線條與層次。",
   },
   fire: {
-    zh: "火", en: "FIRE", fr: "Rouge", bg: "#e4002b", ink: "#fff3ea", accent: "#ffd400",
-    colors: [{ n: "Rosso 正紅", hex: "#e4002b" }, { n: "Fuchsia 桃紅", hex: "#ff1f8e" }, { n: "Arancia 橘", hex: "#ff5a00" }],
+    zh: "火", en: "FIRE", fr: "Red", bg: "#e4002b", ink: "#fff3ea", accent: "#ffd400",
+    colors: [{ n: "Scarlet 正紅", hex: "#e4002b" }, { n: "Fuchsia 桃紅", hex: "#ff1f8e" }, { n: "Orange 亮橘", hex: "#ff5a00" }],
     mood: "熱度、表達、被看見。今天適合站到前面，一件高彩度單品就能撐起整個造型。",
   },
   earth: {
-    zh: "土", en: "EARTH", fr: "Ocre", bg: "#e7a100", ink: "#1b1100", accent: "#7a1f00",
-    colors: [{ n: "Senape 芥末黃", hex: "#e7a100" }, { n: "Terracotta 陶土", hex: "#c24a1a" }, { n: "Cammello 駝", hex: "#b98a55" }],
+    zh: "土", en: "EARTH", fr: "Ochre", bg: "#e7a100", ink: "#1b1100", accent: "#7a1f00",
+    colors: [{ n: "Mustard 芥末黃", hex: "#e7a100" }, { n: "Terracotta 陶土", hex: "#c24a1a" }, { n: "Camel 駝色", hex: "#b98a55" }],
     mood: "穩定、承載、務實。今天適合把重要的事做紮實，質感與剪裁比花樣更重要。",
   },
   metal: {
-    zh: "金", en: "METAL", fr: "Argent", bg: "#ece8df", ink: "#0a0a0a", accent: "#c9a227",
-    colors: [{ n: "Bianco 純白", hex: "#f6f3ec" }, { n: "Argento 銀", hex: "#b9c0c9" }, { n: "Oro 金", hex: "#c9a227" }],
+    zh: "金", en: "METAL", fr: "Silver", bg: "#ece8df", ink: "#0a0a0a", accent: "#c9a227",
+    colors: [{ n: "White 純白", hex: "#f6f3ec" }, { n: "Silver 銀", hex: "#b9c0c9" }, { n: "Gold 金", hex: "#c9a227" }],
     mood: "俐落、精準、有秩序。今天適合乾淨線條與金屬細節，少即是多。",
   },
   water: {
     zh: "水", en: "WATER", fr: "Cobalt", bg: "#1020d8", ink: "#eef0ff", accent: "#7df9ff",
-    colors: [{ n: "Cobalto 鈷藍", hex: "#1020d8" }, { n: "Nero 墨黑", hex: "#0a0a0a" }, { n: "Notte 夜藍", hex: "#0b1a4f" }],
+    colors: [{ n: "Cobalt 鈷藍", hex: "#1020d8" }, { n: "Black 墨黑", hex: "#0a0a0a" }, { n: "Midnight 夜藍", hex: "#0b1a4f" }],
     mood: "流動、深度、彈性。今天適合順著情境調整，深色與亮藍的對比最有張力。",
   },
 };
-const NEUTRAL = { n: "Crème 米白", hex: "#efe9dc" };
+const NEUTRAL = { n: "Cream 米白", hex: "#efe9dc" };
 
 /* ---------- outfit tables ---------- */
 const OCCASIONS = [
-  { id: "work", zh: "上班通勤", en: "TRAVAIL" },
-  { id: "date", zh: "約會", en: "RENDEZ-VOUS" },
+  { id: "work", zh: "上班通勤", en: "WORK" },
+  { id: "date", zh: "約會", en: "DATE" },
   { id: "sport", zh: "運動", en: "SPORT" },
-  { id: "formal", zh: "正式場合", en: "GALA" },
-  { id: "casual", zh: "週末休閒", en: "WEEK-END" },
+  { id: "formal", zh: "正式場合", en: "FORMAL" },
+  { id: "casual", zh: "週末休閒", en: "WEEKEND" },
 ];
 
 // temperature band by apparent temperature
@@ -67,8 +67,9 @@ const ACCESSORY = { work: "包款或絲巾", date: "耳環／小包", sport: "�
 const SHOES = { work: "樂福鞋", date: "細帶高跟／尖頭平底", sport: "跑鞋", formal: "牛津鞋／高跟鞋", casual: "德訓鞋" };
 const SHOES_RAIN = { work: "防水皮鞋", date: "防水短靴", sport: "防水跑鞋", formal: "防水短靴", casual: "防水球鞋" };
 
-/* looks: each piece tagged with a colour slot (g1 吉, g2 次吉, g3 平) */
-const TIER = { g1: "吉", g2: "次吉", g3: "平" };
+/* looks: each piece tagged with a colour slot (g1 power, g2 boost, g3 steady) */
+const TIER = { g1: "旺色", g2: "助色", g3: "穩色" };
+const TIER_EN = { g1: "POWER", g2: "BOOST", g3: "STEADY" };
 const WEIGHT = { g1: 3, g2: 2, g3: 1 };
 function buildLooks(occ, feel, rainy, uv, c) {
   const b = band(feel);
@@ -85,16 +86,16 @@ function buildLooks(occ, feel, rainy, uv, c) {
       ...(outer ? [{ part: "外層", item: outer, slot: slots.outer }] : []),
     ];
     const pieces = [...core, { part: "鞋", item: shoe, slot: slots.shoe }, { part: "配件", item: ACCESSORY[occ], slot: slots.acc }, ...extra];
-    // energy score: weighted share of 吉 / 次吉 / 平 across the visible pieces
+    // energy score: weighted share of power / boost / steady across the visible pieces
     const scored = [...core, pieces[core.length], pieces[core.length + 1]];
     const pts = scored.reduce((n, p) => n + (WEIGHT[p.slot] ?? 0), 0);
     const score = Math.round((pts / (scored.length * 3)) * 10);
     return { id, name, note, pieces, score };
   };
   return [
-    mk("01", "ÉNERGIE MAX 吉色滿格", "今日最旺的吉色佔大面積，次吉色做點綴，能量最集中。", { top: "g1", bot: "g1", outer: "g1", shoe: "dark", acc: "g2" }),
-    mk("02", "DUO 吉＋次吉", "吉色與次吉色對撞，一件主角單品配一件反差，時裝感最強。", { top: "g1", bot: "g2", outer: "g1", shoe: "neutral", acc: "g1" }),
-    mk("03", "TRIO 三色運勢", "用平色打底、吉色壓軸、次吉色收尾，層次豐富但不搶戲。", { top: "g3", bot: "dark", outer: "g1", shoe: "g2", acc: "g1" }),
+    mk("01", "POWER UP 旺色滿格", "今日最旺的旺色佔大面積，助色做點綴，能量最集中。", { top: "g1", bot: "g1", outer: "g1", shoe: "dark", acc: "g2" }),
+    mk("02", "DUO 旺色＋助色", "旺色與助色對撞，一件主角單品配一件反差，時裝感最強。", { top: "g1", bot: "g2", outer: "g1", shoe: "neutral", acc: "g1" }),
+    mk("03", "TRIO 三色運勢", "用穩色打底、旺色壓軸、助色收尾，層次豐富但不搶戲。", { top: "g3", bot: "dark", outer: "g1", shoe: "g2", acc: "g1" }),
   ].map((l) => ({ ...l, colors: c }));
 }
 
@@ -103,6 +104,7 @@ const CITIES = {
   taipei: { zh: "台北", en: "TAIPEI", lat: 25.033, lon: 121.5654, tz: "Asia/Taipei" },
   tokyo: { zh: "東京", en: "TOKYO", lat: 35.6762, lon: 139.6503, tz: "Asia/Tokyo" },
   seoul: { zh: "首爾", en: "SEOUL", lat: 37.5665, lon: 126.978, tz: "Asia/Seoul" },
+  newyork: { zh: "紐約", en: "NEW YORK", lat: 40.7128, lon: -74.006, tz: "America/New_York" },
 };
 const readCity = () => {
   try { const c = localStorage.getItem("cinq-city"); if (c && CITIES[c]) return c; } catch { /* storage unavailable */ }
@@ -165,7 +167,7 @@ async function getWeather(city) {
   } catch {
     // seasonal fallback so the page still works offline (rough estimates, flagged in the UI)
     const m = todayIn(c.tz).m;
-    const base = ({ taipei: [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18], tokyo: [6, 7, 11, 16, 21, 24, 28, 30, 26, 20, 14, 9], seoul: [-1, 2, 8, 15, 20, 24, 27, 28, 23, 16, 8, 1] })[city][m - 1];
+    const base = ({ taipei: [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18], tokyo: [6, 7, 11, 16, 21, 24, 28, 30, 26, 20, 14, 9], seoul: [-1, 2, 8, 15, 20, 24, 27, 28, 23, 16, 8, 1], newyork: [1, 3, 7, 13, 19, 24, 27, 26, 22, 16, 10, 4] })[city][m - 1];
     const hour0 = Number(new Intl.DateTimeFormat("en-GB", { timeZone: c.tz, hour: "2-digit", hour12: false }).format(new Date()));
     const hours = Array.from({ length: 13 }, (_, k) => {
       const hh = (hour0 + k) % 24;
@@ -190,11 +192,11 @@ function splitChars(node, text) {
   });
 }
 
-// Colour fortune for the day, by relation to the day's element:
-//   剋我 → 吉 (best), 我剋 → 次吉, 同我 → 平. 生我 / 我生 are not ranked (kept neutral).
+// Colour ranking for the day, by relation to the day's element:
+//   剋我 → power, 我剋 → boost, 同我 → steady. 生我 / 我生 are not ranked (kept neutral).
 function paletteFor(elKey) {
   const tier = (k) => ({ key: k, el: EL[k], ...EL[k].colors[0] });
-  const dark = { n: "Nero 墨黑", hex: "#0a0a0a" };
+  const dark = { n: "Black 墨黑", hex: "#0a0a0a" };
   return {
     g1: tier(ctrlBy(elKey)),
     g2: tier(CTRL[elKey]),
@@ -222,10 +224,10 @@ function renderHero() {
   const chips = $("chips");
   chips.replaceChildren(
     ...[
-      ["吉 FAVORABLE", pal.g1],
-      ["次吉 BIEN", pal.g2],
-      ["平 NEUTRE", pal.g3],
-      ["中性底色 BASE", pal.neutral],
+      [`${TIER.g1} ${TIER_EN.g1}`, pal.g1],
+      [`${TIER.g2} ${TIER_EN.g2}`, pal.g2],
+      [`${TIER.g3} ${TIER_EN.g3}`, pal.g3],
+      ["底色 BASE", pal.neutral],
     ].map(([label, c], i) => {
       const d = h("div", "chip", `<i style="background:${c.hex}"></i><span>${label}</span><b>${c.n}</b>`);
       d.style.setProperty("--i", i);
@@ -333,6 +335,48 @@ function renderTabs() {
   );
 }
 
+/* ---------- stickers: simple garment icons so each look reads at a glance ---------- */
+const ICONS = {
+  tank: "M32 12 L38 12 Q50 34 62 12 L68 12 L74 40 L70 88 H30 L26 40Z",
+  tee: "M30 16 L10 30 L21 46 L30 40 V86 H70 V40 L79 46 L90 30 L70 16 Q50 30 30 16Z",
+  long: "M32 14 L8 34 L15 84 L28 82 L30 52 V88 H70 V52 L72 82 L85 84 L92 34 L68 14 Q50 28 32 14Z",
+  coat: "M34 10 L50 42 L66 10 L90 24 L86 92 H54 V50 L50 44 L46 50 V92 H14 L10 24Z",
+  trousers: "M30 10 H70 L75 90 H54 L50 40 L46 90 H25Z",
+  wide: "M28 10 H72 L88 90 H54 L50 36 L46 90 H12Z",
+  skirt: "M34 12 H66 L88 86 H12Z",
+  shorts: "M26 18 H74 L82 64 H55 L50 44 L45 64 H18Z",
+  flat: "M8 62 Q8 44 28 42 L48 42 Q60 58 88 58 Q94 60 94 70 V76 H8Z",
+  sneaker: "M8 58 Q8 40 30 40 L46 40 L52 52 Q70 52 90 60 Q96 64 96 72 V78 H8Z",
+  heel: "M16 24 H38 L42 56 Q62 60 86 70 V78 H66 L52 68 H40 L34 92 H24Z",
+  bag: "M24 40 H76 L84 88 H16Z",
+  scarf: "M26 18 Q50 40 74 18 L80 30 Q50 58 20 30Z M44 46 L38 90 H54 L58 50Z",
+  gem: "M28 38 L40 20 H60 L72 38 L50 84Z",
+  hat: "M10 66 H90 Q90 60 80 58 Q76 26 50 26 Q24 26 20 58 Q10 60 10 66Z",
+  shades: "M10 38 H44 V58 Q44 72 28 72 Q10 72 10 58Z M56 38 H90 V58 Q90 72 72 72 Q56 72 56 58Z",
+  umbrella: "M8 52 Q50 -2 92 52 Q81 44 71 52 Q61 44 50 52 Q39 44 29 52 Q19 44 8 52Z",
+};
+const ICON_LINES = {
+  bag: "M36 42 Q36 16 50 16 Q64 16 64 42",
+  umbrella: "M50 52 V80 Q50 92 38 88",
+  flat: "M8 70 H94",
+  sneaker: "M8 70 H96",
+};
+const ICON_RULES = [
+  [/外套|大衣/, "coat"], [/無袖|背心|吊帶/, "tank"], [/短袖|背心 T/, "tee"], [/短褲/, "shorts"], [/裙/, "skirt"],
+  [/寬褲|寬版牛仔褲/, "wide"], [/褲/, "trousers"], [/高跟|短靴/, "heel"], [/跑鞋|球鞋|德訓/, "sneaker"], [/鞋/, "flat"],
+  [/傘/, "umbrella"], [/帽/, "hat"], [/墨鏡/, "shades"], [/包/, "bag"], [/絲巾/, "scarf"], [/耳環|胸針|髮帶|襪/, "gem"],
+  [/襯衫|針織|長袖|衛衣|連帽|刷毛|發熱|高領/, "long"],
+];
+const iconFor = (item) => (ICON_RULES.find(([re]) => re.test(item)) || [0, "long"])[1];
+
+function stickerHTML(piece, hex, i) {
+  const id = iconFor(piece.item);
+  const d = ICONS[id];
+  const line = ICON_LINES[id] ? `<path d="${ICON_LINES[id]}" class="stk-l"/>` : "";
+  const rot = [-6, 4, -3, 6, -4, 3, -5][i % 7];
+  return `<figure class="stk" style="--r:${rot}deg"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="${d}" class="stk-o"/><path d="${d}" class="stk-f" style="fill:${hex}"/>${line}</svg><figcaption>${piece.part}</figcaption></figure>`;
+}
+
 function slotColor(slot, pal) {
   return slot === "g1" ? pal.g1 : slot === "g2" ? pal.g2 : slot === "g3" ? pal.g3 : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
 }
@@ -353,7 +397,8 @@ function renderLooks(animate) {
           return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : c.n}</small></li>`;
         })
         .join("");
-      card.innerHTML = `<div class="look-no">${l.id}</div><div class="score" title="依吉／次吉／平色的佔比估算"><b>${l.score}</b>/10<small>ÉNERGIE</small></div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul>`;
+      const board = l.pieces.map((p, k) => stickerHTML(p, slotColor(p.slot, state.pal).hex, k)).join("");
+      card.innerHTML = `<div class="look-no">${l.id}</div><div class="score" title="依旺／助／穩色的佔比估算"><b>${l.score}</b>/10<small>ENERGY</small></div><div class="board">${board}</div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul>`;
       return card;
     }),
   );
@@ -362,14 +407,14 @@ function renderLooks(animate) {
 function renderRules() {
   const el = state.day.el;
   const rows = [
-    ["吉", "FAVORABLE", ctrlBy(el), `${EL[ctrlBy(el)].zh}剋${EL[el].zh}（剋我者）。今天最有助力的顏色，優先放在上身、外套等大面積。`],
-    ["次吉", "BIEN", CTRL[el], `${EL[el].zh}剋${EL[CTRL[el]].zh}（我剋者）。第二順位，適合下身、鞋或配件，補上第二層能量。`],
-    ["平", "NEUTRE", el, `與今天同為${EL[el].zh}（同我者）。不加分也不扣分，當作底色或點綴就好。`],
+    ["g1", ctrlBy(el), `${EL[ctrlBy(el)].zh}剋${EL[el].zh}（剋我者）。今天最有助力的顏色，優先放在上身、外套等大面積。`],
+    ["g2", CTRL[el], `${EL[el].zh}剋${EL[CTRL[el]].zh}（我剋者）。第二順位，適合下身、鞋或配件，補上第二層能量。`],
+    ["g3", el, `與今天同為${EL[el].zh}（同我者）。不加分也不扣分，當作底色或點綴就好。`],
   ];
   $("rules").replaceChildren(
-    ...rows.map(([k, en, e, t], i) => {
+    ...rows.map(([slot, e, t], i) => {
       const E = EL[e];
-      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${k} · ${en}</small><strong>${E.zh}（${E.en}）· ${E.colors[0].n}</strong><p>${t}</p>`);
+      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${TIER[slot]} · ${TIER_EN[slot]}</small><strong>${E.zh}（${E.en}）</strong><b class="rc">${E.colors[0].n}</b><p>${t}</p>`);
       d.style.setProperty("--i", i);
       return d;
     }),
@@ -396,5 +441,9 @@ async function init() {
   renderLooks(false);
   observe();
 }
+
+// floating dock: appears once the hero has scrolled out of view
+const heroEl = document.querySelector(".hero");
+new IntersectionObserver(([e]) => $("dock").classList.toggle("show", !e.isIntersecting), { threshold: 0.05 }).observe(heroEl);
 
 init();

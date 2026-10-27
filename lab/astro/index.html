@@ -35,6 +35,7 @@
         </div>
         <button id="openChart" class="cta" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
         <p class="hint" id="motionHint"></p>
+        <p class="updated" id="updated"></p>
       </header>
 
       <section class="block reveal" aria-labelledby="h-energy">
@@ -63,6 +64,24 @@
         </div>
       </section>
 
+      <section class="block reveal" aria-labelledby="h-fortune">
+        <h2 id="h-fortune"><span class="num">III</span> 星座運勢 <em>Fortuna</em></h2>
+        <p class="prose sub-note" id="fortuneNote"></p>
+        <div class="fortune-ctl">
+          <div class="seg" id="modeSeg" role="group" aria-label="時間範圍">
+            <button type="button" data-mode="day" class="on">今日</button>
+            <button type="button" data-mode="week">本週</button>
+          </div>
+          <div class="seg" id="catSeg" role="group" aria-label="運勢類別">
+            <button type="button" data-cat="love" class="on">感情</button>
+            <button type="button" data-cat="career">事業</button>
+            <button type="button" data-cat="money">財運</button>
+          </div>
+        </div>
+        <ul id="weekEvents" class="events"></ul>
+        <div id="fortune" class="fortune"></div>
+      </section>
+
       <footer class="foot">
         <p>行星位置以天文曆算（astronomy-engine, MIT）於瀏覽器內即時計算；以台北時間為準。</p>
         <p>星座解讀為占星娛樂與自我反思的參考，不是科學預測，也不構成醫療、財務或法律建議。</p>
@@ -76,22 +95,43 @@
         <button id="closeChart" type="button" aria-label="關閉">✕</button>
       </div>
       <div class="dlg-body">
-        <div class="dlg-wheel"><svg id="wheelMain" viewBox="-400 -400 800 800" role="img" aria-label="行星黃道輪盤"></svg></div>
-
-        <section class="dlg-sec" aria-labelledby="h-planets">
-          <h3 id="h-planets"><span class="num">II</span> 行星位置 <em>Loci Planetarum</em></h3>
-          <ul id="planets" class="planets"></ul>
-        </section>
-
-        <section class="dlg-sec" aria-labelledby="h-aspects">
-          <h3 id="h-aspects"><span class="num">III</span> 重要相位 <em>Aspectus</em></h3>
-          <div id="aspects" class="aspects"></div>
-        </section>
-
-        <section class="dlg-sec" aria-labelledby="h-legend">
-          <h3 id="h-legend"><span class="num">IV</span> 標記說明 <em>Notae</em></h3>
-          <ul class="legend" id="legend"></ul>
-        </section>
+        <div class="dlg-grid">
+          <aside class="dlg-left">
+            <div class="dlg-wheel"><svg id="wheelMain" viewBox="-400 -400 800 800" role="img" aria-label="行星黃道輪盤"></svg></div>
+            <div class="timebox">
+              <p class="tb-label" id="tbLabel"></p>
+              <input id="tbRange" type="range" min="-30" max="30" step="1" value="0" aria-label="相對今天的天數" />
+              <div class="tb-btns" id="tbBtns">
+                <button type="button" data-off="-30">過去一個月</button>
+                <button type="button" data-off="-7">過去一週</button>
+                <button type="button" data-off="-1">昨天</button>
+                <button type="button" data-off="0" class="strong">今天</button>
+                <button type="button" data-off="1">明天</button>
+                <button type="button" data-off="7">未來一週</button>
+                <button type="button" data-off="30">未來一個月</button>
+              </div>
+              <p class="tb-hint" id="tbHint">滑鼠移到右側的行星或相位，左邊星盤會聚焦；反過來也可以。</p>
+            </div>
+          </aside>
+          <div class="dlg-right">
+            <section class="dlg-sec first" id="periodSec" aria-labelledby="h-period" hidden>
+              <h3 id="h-period"><span class="num">I</span> 期間變化 <em>Mutationes</em></h3>
+              <ul id="period" class="events"></ul>
+            </section>
+            <section class="dlg-sec" aria-labelledby="h-planets">
+              <h3 id="h-planets"><span class="num">II</span> 行星位置 <em>Loci Planetarum</em></h3>
+              <ul id="planets" class="planets"></ul>
+            </section>
+            <section class="dlg-sec" aria-labelledby="h-aspects">
+              <h3 id="h-aspects"><span class="num">III</span> 重要相位 <em>Aspectus</em></h3>
+              <div id="aspects" class="aspects"></div>
+            </section>
+            <section class="dlg-sec" aria-labelledby="h-legend">
+              <h3 id="h-legend"><span class="num">IV</span> 標記說明 <em>Notae</em></h3>
+              <ul class="legend" id="legend"></ul>
+            </section>
+          </div>
+        </div>
       </div>
     </dialog>
     <script type="module" src="/src/lab/astro/main.js"></script>
