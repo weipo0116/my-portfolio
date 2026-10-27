@@ -189,7 +189,7 @@ export const siteData = {
     items: [
       {
         name: "SI — AI Project Workspace",
-        status: "Brewing",
+        status: "Lit",
         problem:
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
         approach:
@@ -198,7 +198,7 @@ export const siteData = {
       },
       {
         name: "Screen Recording → Step Extractor",
-        status: "Wandering",
+        status: "Brewing",
         problem:
           "Comparing app flows from screen recordings means scrubbing video by hand.",
         approach:
@@ -207,7 +207,7 @@ export const siteData = {
       },
       {
         name: "Resume & Portfolio Sync",
-        status: "Wandering",
+        status: "Brewing",
         problem:
           "Updating my resume and this site separately keeps them drifting apart.",
         approach:
@@ -216,7 +216,7 @@ export const siteData = {
       },
       {
         name: "Astra Dies — Daily Astrology",
-        status: "Lit",
+        status: "Wandering",
         problem:
           "Daily horoscopes are vague; I wanted planet positions I can verify, explained in plain language.",
         approach:
@@ -226,7 +226,7 @@ export const siteData = {
       },
       {
         name: "Five Elements — Daily Outfit",
-        status: "Lit",
+        status: "Wandering",
         problem:
           "Deciding what to wear means juggling weather, occasion and colour with no fixed logic.",
         approach:
