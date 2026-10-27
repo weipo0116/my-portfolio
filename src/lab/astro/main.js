@@ -598,6 +598,10 @@ let shownDate = null;
 let lastRender = 0;
 let fortuneMode = "day";
 let fortuneCat = "love";
+const SIGN_KEY = "astra-sign";
+let fortuneSign = "all"; // "all" or a sign index 0-11
+try { const v = localStorage.getItem(SIGN_KEY); if (v && v !== "all" && Number(v) >= 0 && Number(v) < 12) fortuneSign = Number(v); } catch { /* storage unavailable */ }
+const SIGN_DATES = ["3/21–4/19", "4/20–5/20", "5/21–6/21", "6/22–7/22", "7/23–8/22", "8/23–9/22", "9/23–10/23", "10/24–11/22", "11/23–12/21", "12/22–1/19", "1/20–2/18", "2/19–3/20"];
 let currentFortune = null;
 let currentWeek = null;
 
@@ -750,6 +754,32 @@ function renderFortune() {
     );
   } else {
     $("fortuneNote").textContent = "依今天行星的位置，換算每個星座在感情、事業、財運上的順逆。星數是 12 個星座之間的相對高低，看個大方向、當作聊天話題就好。";
+  }
+  if (fortuneSign !== "all") {
+    const si = fortuneSign;
+    const src = week ? currentWeek.data : currentFortune;
+    const sg = SIGNS[si];
+    const rows = Object.keys(CATS).map((cat) => ({ cat, ...src[cat][si] }));
+    const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
+    const card = document.createElement("article");
+    card.className = "signcard";
+    card.innerHTML = `<header><span class="sg">${TXT(sg.g)}</span><div><h3>${sg.zh}</h3><p>${sg.la} · ${SIGN_DATES[si]} · ${sg.el}象</p></div><div class="sa"><small>${week ? "本週綜合" : "今日綜合"}</small><span class="fs"></span></div></header><p class="sgtone"></p><ul></ul>`;
+    card.querySelector(".sa .fs").textContent = stars(avg);
+    card.querySelector(".sgtone").textContent = `${sg.zh}的底色：${sg.tone}。`;
+    const ul = card.querySelector("ul");
+    rows.forEach((r, i) => {
+      const li = document.createElement("li");
+      li.style.setProperty("--i", i);
+      li.innerHTML = `<span class="cl"></span><span class="fs"></span><span class="ft"><span class="ft-main"></span><small class="ft-why"></small></span>`;
+      li.querySelector(".cl").textContent = CATS[r.cat];
+      li.querySelector(".fs").textContent = stars(r.stars);
+      li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
+      li.querySelector(".ft-main").textContent = r.note;
+      li.querySelector(".ft-why").textContent = [r.extra, r.why].filter(Boolean).join("　·　");
+      ul.appendChild(li);
+    });
+    $("fortune").replaceChildren(card);
+    return;
   }
   const box = $("fortune");
   box.replaceChildren(
@@ -914,4 +944,36 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
   applyTheme(next);
   try { localStorage.setItem(THEME_KEY, next); } catch { /* storage unavailable */ }
+});
+
+function buildSignBar() {
+  const bar = $("signBar");
+  const mk = (key, html, label) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.dataset.sign = String(key);
+    b.innerHTML = html;
+    b.setAttribute("aria-label", label);
+    bar.appendChild(b);
+  };
+  mk("all", "<span>全部</span>", "看全部星座");
+  SIGNS.forEach((sg, i) => mk(i, `<i>${TXT(sg.g)}</i><span>${sg.zh.replace("座", "")}</span>`, sg.zh));
+  syncSignBar();
+}
+function syncSignBar() {
+  $("signBar").querySelectorAll("button").forEach((b) => {
+    const on = b.dataset.sign === String(fortuneSign);
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+  });
+  $("catSeg").hidden = fortuneSign !== "all";
+}
+buildSignBar();
+$("signBar").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  fortuneSign = b.dataset.sign === "all" ? "all" : Number(b.dataset.sign);
+  try { localStorage.setItem(SIGN_KEY, String(fortuneSign)); } catch { /* storage unavailable */ }
+  syncSignBar();
+  renderFortune();
 });

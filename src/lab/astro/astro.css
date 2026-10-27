@@ -419,3 +419,36 @@ dialog[open] ~ .dock { display: none; }
 
 .ft-main { display: block; }
 .ft-why { display: block; margin-top: 4px; color: var(--muted); font-size: 0.78rem; line-height: 1.6; }
+
+/* by-sign picker + single sign card */
+.signbar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 0 0 18px; }
+.signbar button { font: inherit; color: var(--gold-soft); background: rgba(var(--panel-rgb), 0.55); border: 1px solid var(--line); border-radius: 10px; padding: 8px 4px; min-height: 52px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: background 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease), color 0.3s var(--ease); }
+.signbar button i { font-style: normal; font-family: var(--glyph); font-size: 1.3rem; line-height: 1; }
+.signbar button span { font-size: 0.78rem; letter-spacing: 0.06em; }
+.signbar button:first-child { grid-column: span 1; }
+.signbar button:hover { border-color: var(--gold); transform: translateY(-2px); }
+.signbar button.on { background: var(--gold); color: var(--night); border-color: var(--gold); }
+.signbar button:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 2px; }
+@media (max-width: 640px) { .signbar { grid-template-columns: repeat(4, 1fr); gap: 6px; } }
+.fortune-ctl .seg[hidden] { display: none; }
+.signcard { border: 1px solid rgba(var(--soft-rgb), 0.55); border-radius: 10px; padding: 22px 24px 8px; background: linear-gradient(160deg, rgba(var(--gold-rgb), 0.1), rgba(var(--panel-rgb), 0.6)); animation: rise 0.7s var(--ease) both; }
+.signcard header { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.signcard .sg { font-family: var(--glyph); font-size: 3rem; line-height: 1; color: var(--gold-soft); }
+.signcard h3 { margin: 0; font-size: 1.5rem; letter-spacing: 0.12em; color: var(--gold-soft); }
+.signcard header p { margin: 2px 0 0; font-family: var(--serif-body); font-style: italic; color: var(--muted); font-size: 0.9rem; }
+.signcard .sa { text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.signcard .sa small { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.1em; }
+.signcard .sa .fs { font-size: 1.1rem; }
+.sgtone { margin: 14px 0 4px; color: var(--muted); font-size: 0.92rem; }
+.signcard ul { list-style: none; margin: 0; padding: 0; }
+.signcard li { display: grid; grid-template-columns: 56px 96px 1fr; gap: 14px; align-items: baseline; padding: 16px 0; border-top: 1px solid rgba(var(--gold-rgb), 0.14); animation: rise 0.6s var(--ease) calc(var(--i, 0) * 80ms) both; }
+.signcard li:first-child { border-top: 0; }
+.signcard .cl { font-weight: 600; color: var(--gold-soft); letter-spacing: 0.15em; }
+@media (max-width: 560px) {
+  .signcard { padding: 18px 16px 4px; }
+  .signcard header { grid-template-columns: auto 1fr; }
+  .signcard .sa { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+  .signcard li { grid-template-columns: 48px 1fr; }
+  .signcard li .ft { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { .signcard, .signcard li { animation: none; } }
