@@ -73,68 +73,6 @@ export const useScrollMotion = (scopeRef, deps) => {
         },
       );
 
-      // Home "Work": vertical scroll drives both rows sideways on wide screens.
-      // Each row travels its own length over the same scroll distance, so the
-      // shorter row drifts slower (a little depth). Narrow screens keep native
-      // swipe + CSS scroll-snap per row.
-      mm.add(
-        "(min-width: 960px) and (prefers-reduced-motion: no-preference)",
-        () => {
-          const root = scopeRef.current;
-          const scroller = root?.querySelector(".hscroll");
-          const section = scroller?.closest("section");
-          const pinTarget = section?.querySelector(".works-pin");
-          if (!scroller || !section || !pinTarget) return;
-          const rows = gsap.utils.toArray(".hscroll-row", scroller);
-          const tracks = rows.map((row) => row.querySelector(".hscroll-track"));
-          const travel = (track) =>
-            Math.max(0, track.scrollWidth - scroller.clientWidth);
-          const distance = () => Math.max(...tracks.map(travel), 0);
-          if (distance() < 40) return;
-          scroller.classList.add("is-driven");
-          rows.forEach((row) => {
-            row.scrollLeft = 0;
-          });
-          const lead = tracks.reduce((a, b) => (travel(b) > travel(a) ? b : a));
-          const leadCards = gsap.utils.toArray(".hscroll-card", lead);
-
-          const timeline = gsap.timeline({
-            defaults: { ease: "none" },
-            scrollTrigger: {
-              trigger: section,
-              // Pin just below the fixed nav so the title stays readable.
-              start: () => {
-                const nav = document.querySelector(".nav");
-                return `top ${(nav ? nav.offsetHeight : 64) + 20}px`;
-              },
-              end: () => `+=${distance()}`,
-              scrub: 0.8,
-              pin: pinTarget,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-              snap: {
-                snapTo: (progress) => {
-                  const d = distance() || 1;
-                  const stops = leadCards.map((card) =>
-                    Math.min(1, (card.offsetLeft - leadCards[0].offsetLeft) / d),
-                  );
-                  stops.push(1);
-                  return gsap.utils.snap(stops, progress);
-                },
-                duration: { min: 0.2, max: 0.5 },
-                delay: 0.06,
-                ease: "power2.inOut",
-              },
-            },
-          });
-          tracks.forEach((track) => {
-            timeline.to(track, { x: () => -travel(track), duration: 1 }, 0);
-          });
-
-          return () => scroller.classList.remove("is-driven");
-        },
-      );
-
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         // Reading progress across the top of the page.
         const progress = scopeRef.current?.querySelector(".scroll-progress");
