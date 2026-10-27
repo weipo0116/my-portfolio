@@ -300,10 +300,79 @@ function updateWheel(svg, pos, aspects, prev, opts = {}) {
 }
 
 /* ---------- moon ---------- */
-// Textured moon: lit area is clipped from a shaded sphere with maria and craters;
-// the dark side keeps a faint earthshine so the whole disc stays readable.
-const MARIA = [[-18, -14, 17, 12], [6, -21, 10, 8], [17, -6, 12, 8], [35, -11, 5, 7], [-35, 2, 10, 21], [-14, 19, 12, 8], [-31, 24, 6, 5], [3, 3, 6, 5], [26, 10, 6, 4]];
-const CRATERS = [[-4, 35, 3.2, 1], [-21, 4, 2.6, 0.8], [-9, -28, 2.2, 0.7], [20, 24, 2.4, 0.6], [30, -26, 1.8, 0.5], [-38, -16, 2, 0.5], [12, 38, 1.6, 0.5], [-26, 33, 1.8, 0.5], [38, 12, 1.6, 0.5], [-6, 12, 1.5, 0.6], [8, -4, 1.4, 0.5], [-30, -32, 1.4, 0.5]];
+// Procedural moon surface: fractal noise + maria blobs + power-law craters, lit from the
+// upper left and rendered once to a canvas. The lit phase is a soft mask over it.
+const MARIA = [[-0.34, -0.28, 0.3, 0.22], [0.1, -0.4, 0.17, 0.15], [0.33, -0.1, 0.22, 0.15], [0.68, -0.2, 0.09, 0.12], [-0.68, 0.04, 0.18, 0.4], [-0.28, 0.38, 0.22, 0.14], [-0.6, 0.45, 0.1, 0.1], [0.06, 0.06, 0.12, 0.1], [0.5, 0.22, 0.1, 0.07]];
+let moonTex = null;
+function moonTexture() {
+  if (moonTex) return moonTex;
+  const N = 420, R = N / 2;
+  let seed = 7;
+  const rnd = () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  // value noise
+  const G = 64, grid = Float32Array.from({ length: G * G }, rnd);
+  const vn = (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const g = (i, j) => grid[(((j % G) + G) % G) * G + (((i % G) + G) % G)];
+    return (g(xi, yi) * (1 - u) + g(xi + 1, yi) * u) * (1 - v) + (g(xi, yi + 1) * (1 - u) + g(xi + 1, yi + 1) * u) * v;
+  };
+  const fbm = (x, y) => { let a = 0.5, f = 1, t = 0; for (let o = 0; o < 5; o++) { t += a * vn(x * f, y * f); a *= 0.5; f *= 2.03; } return t; };
+  const h = new Float32Array(N * N), alb = new Float32Array(N * N);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const nx = (x - R) / R, ny = (y - R) / R;
+    const i = y * N + x;
+    h[i] = fbm(nx * 5 + 11, ny * 5 + 3) * 0.6;
+    let m = 0;
+    for (const [cx, cy, rx, ry] of MARIA) { const d = ((nx - cx) / rx) ** 2 + ((ny - cy) / ry) ** 2; m += Math.exp(-d * 1.0); }
+    const edge = fbm(nx * 7 + 40, ny * 7 + 9);
+    m = Math.min(1, Math.max(0, m * (0.75 + edge * 0.5) - 0.12));
+    alb[i] = 0.78 - 0.34 * m + (fbm(nx * 11 + 5, ny * 11 + 21) - 0.5) * 0.2;
+  }
+  // craters: many small, few large
+  const craters = [];
+  for (let k = 0; k < 150; k++) {
+    const r = 2.5 + Math.pow(rnd(), 4.6) * 44;
+    const a = rnd() * Math.PI * 2, d = Math.sqrt(rnd()) * (R - r * 0.4);
+    craters.push([R + Math.cos(a) * d, R + Math.sin(a) * d, r]);
+  }
+  craters.push([R - 0.09 * R, R + 0.72 * R, 15]); // Tycho
+  craters.push([R - 0.4 * R, R + 0.1 * R, 17]); // Copernicus
+  for (const [cx, cy, r] of craters) {
+    const bright = r > 12 ? 0.08 : 0.03;
+    const x0 = Math.max(0, Math.floor(cx - r * 1.7)), x1 = Math.min(N - 1, Math.ceil(cx + r * 1.7));
+    const y0 = Math.max(0, Math.floor(cy - r * 1.7)), y1 = Math.min(N - 1, Math.ceil(cy + r * 1.7));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const d = Math.hypot(x - cx, y - cy) / r;
+      let dh = 0;
+      if (d < 1) dh = -0.4 * (1 - d * d) * (0.5 + r / 90);
+      dh += 0.12 * Math.exp(-((d - 1.02) ** 2) / 0.03) * (0.5 + r / 90);
+      const i = y * N + x;
+      h[i] += dh * 0.6;
+      if (d < 1.9) alb[i] += bright * Math.exp(-d * d * 0.7);
+    }
+  }
+  const c = document.createElement("canvas");
+  c.width = c.height = N;
+  const ctx = c.getContext("2d");
+  const img = ctx.createImageData(N, N);
+  for (let y = 1; y < N - 1; y++) for (let x = 1; x < N - 1; x++) {
+    const nx = (x - R) / R, ny = (y - R) / R, rr = Math.hypot(nx, ny);
+    const i = y * N + x, o = i * 4;
+    if (rr > 1) { img.data[o + 3] = 0; continue; }
+    const gx = h[i + 1] - h[i - 1], gy = h[i + N] - h[i - N];
+    const shade = 1 + (-gx - gy) * 0.95; // light from the upper left
+    const limb = 1 - 0.38 * Math.pow(rr, 3.2);
+    const v = Math.max(0.05, Math.min(1, alb[i] * shade * limb));
+    img.data[o] = v * 238;
+    img.data[o + 1] = v * 232;
+    img.data[o + 2] = v * 216;
+    img.data[o + 3] = rr > 0.985 ? Math.round(255 * (1 - (rr - 0.985) / 0.015)) : 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  moonTex = c.toDataURL("image/png");
+  return moonTex;
+}
 
 function drawMoon(svg, date) {
   svg.innerHTML = "";
@@ -311,20 +380,8 @@ function drawMoon(svg, date) {
   const illum = A.Illumination(A.Body.Moon, date).phase_fraction;
   const r = 50;
   const defs = el("defs", {}, svg);
-  const sph = el("radialGradient", { id: "mSph", cx: "42%", cy: "38%", r: "75%" }, defs);
-  el("stop", { offset: "0%", class: "ms ms0" }, sph);
-  el("stop", { offset: "70%", class: "ms ms1" }, sph);
-  el("stop", { offset: "100%", class: "ms ms2" }, sph);
-  const limb = el("radialGradient", { id: "mLimb", cx: "50%", cy: "50%", r: "50%" }, defs);
-  el("stop", { offset: "72%", "stop-color": "#000", "stop-opacity": "0" }, limb);
-  el("stop", { offset: "100%", "stop-color": "#000", "stop-opacity": "0.42" }, limb);
-  const earth = el("radialGradient", { id: "mEarth", cx: "50%", cy: "50%", r: "50%" }, defs);
-  el("stop", { offset: "0%", class: "me0" }, earth);
-  el("stop", { offset: "100%", class: "me1" }, earth);
-  const blur = el("filter", { id: "mBlur", x: "-40%", y: "-40%", width: "180%", height: "180%" }, defs);
-  el("feGaussianBlur", { stdDeviation: "2.3" }, blur);
-  const soft = el("filter", { id: "mSoft", x: "-40%", y: "-40%", width: "180%", height: "180%" }, defs);
-  el("feGaussianBlur", { stdDeviation: "0.5" }, soft);
+  const soft = el("filter", { id: "mTerm", x: "-20%", y: "-20%", width: "140%", height: "140%" }, defs);
+  el("feGaussianBlur", { stdDeviation: "1.1" }, soft);
 
   const waxing = phase < 180;
   const k = Math.cos((phase * Math.PI) / 180);
@@ -332,32 +389,13 @@ function drawMoon(svg, date) {
   const lit = `M 0 ${-r} A ${r} ${r} 0 0 ${waxing ? 1 : 0} 0 ${r}`;
   const crescent = k > 0; // less than half lit
   const term = `A ${rx} ${r} 0 0 ${crescent ? (waxing ? 0 : 1) : waxing ? 1 : 0} 0 ${-r}`;
-  const clip = el("clipPath", { id: "mLit" }, defs);
-  el("path", { d: `${lit} ${term} Z` }, clip);
-  const disc = el("clipPath", { id: "mDisc" }, defs);
-  el("circle", { r }, disc);
+  const mask = el("mask", { id: "mLitMask", maskUnits: "userSpaceOnUse", x: -60, y: -60, width: 120, height: 120 }, defs);
+  el("path", { d: `${lit} ${term} Z`, fill: "#fff", filter: "url(#mTerm)" }, mask);
 
-  // dark side + earthshine, with the maria faintly visible
+  const tex = moonTexture();
   el("circle", { r, class: "moon-dark" }, svg);
-  el("circle", { r, fill: "url(#mEarth)" }, svg);
-  const ghost = el("g", { "clip-path": "url(#mDisc)", opacity: "0.35" }, svg);
-  MARIA.forEach(([x, y, a, b]) => el("ellipse", { cx: x, cy: y, rx: a, ry: b, class: "moon-maria", filter: "url(#mBlur)" }, ghost));
-
-  // lit surface
-  const g = el("g", { "clip-path": "url(#mLit)" }, svg);
-  el("circle", { r, fill: "url(#mSph)" }, g);
-  const surf = el("g", { "clip-path": "url(#mDisc)" }, g);
-  MARIA.forEach(([x, y, a, b]) => el("ellipse", { cx: x, cy: y, rx: a, ry: b, class: "moon-maria", filter: "url(#mBlur)" }, surf));
-  CRATERS.forEach(([x, y, cr, o]) => {
-    el("circle", { cx: x + 0.5, cy: y + 0.7, r: cr, class: "moon-crater-shadow", opacity: o * 0.6, filter: "url(#mSoft)" }, surf);
-    el("circle", { cx: x, cy: y, r: cr * 0.8, class: "moon-crater-rim", opacity: o, filter: "url(#mSoft)" }, surf);
-  });
-  // rays around Tycho
-  for (let i = 0; i < 9; i++) {
-    const ang = (i / 9) * Math.PI * 2 + 0.3;
-    el("line", { x1: -4, y1: 35, x2: -4 + Math.cos(ang) * 11, y2: 35 + Math.sin(ang) * 11, class: "moon-ray" }, surf);
-  }
-  el("circle", { r, fill: "url(#mLimb)" }, g);
+  el("image", { href: tex, x: -r, y: -r, width: r * 2, height: r * 2, opacity: "0.17", class: "moon-earthshine" }, svg);
+  el("image", { href: tex, x: -r, y: -r, width: r * 2, height: r * 2, mask: "url(#mLitMask)" }, svg);
   el("circle", { r, class: "moon-rim" }, svg);
   return { phase, illum, side: waxing ? 1 : -1 };
 }

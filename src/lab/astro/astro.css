@@ -71,18 +71,9 @@ body { transition: background-color 0.5s var(--ease), color 0.5s var(--ease); }
 html[data-theme="light"] .theme-btn .i-sun { display: block; }
 html[data-theme="light"] .theme-btn .i-moon { display: none; }
 
-/* moon texture */
-.ms0 { stop-color: var(--moon-hi, #fbf4dc); }
-.ms1 { stop-color: var(--moon-mid, #e8dcb8); }
-.ms2 { stop-color: var(--moon-lo, #b9a979); }
-.me0 { stop-color: #4a4f6e; stop-opacity: 0.5; }
-.me1 { stop-color: #1b1e30; stop-opacity: 0.2; }
-.moon-maria { fill: #6d6447; fill-opacity: 0.5; }
-.moon-crater-shadow { fill: #3d3724; }
-.moon-crater-rim { fill: none; stroke: #fff6d8; stroke-width: 0.7; }
-.moon-ray { stroke: #fff6d8; stroke-opacity: 0.35; stroke-width: 0.6; stroke-linecap: round; }
-#moon { filter: drop-shadow(0 0 22px rgba(var(--soft-rgb), 0.42)); }
-.moon-lit { fill: var(--gold-soft); }
+/* moon */
+#moon { filter: drop-shadow(0 0 22px rgba(var(--soft-rgb), 0.38)); }
+.moon-rim { fill: none; stroke: var(--gold); stroke-opacity: 0.35; stroke-width: 0.6; }
 
 * { box-sizing: border-box; }
 html { color-scheme: dark; background: var(--night); }
@@ -207,7 +198,7 @@ body {
 .aspects p { margin: 0 0 8px; color: var(--body); font-size: 0.95rem; }
 
 .moon-row { display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
-#moon { width: 160px; height: 160px; filter: drop-shadow(0 0 24px rgba(var(--soft-rgb), 0.35)); }
+#moon { width: 200px; height: 200px; }
 .moon-dark { fill: var(--moon-dark); }
 .moon-lit { fill: var(--gold-soft); }
 .moon-rim { fill: none; stroke: var(--gold); stroke-opacity: 0.5; }
