@@ -216,7 +216,7 @@ export const siteData = {
       },
       {
         name: "Astra Dies — Daily Astrology",
-        status: "Wandering",
+        status: "Lit",
         problem:
           "Daily horoscopes are vague; I wanted planet positions I can verify, explained in plain language.",
         approach:
@@ -226,7 +226,7 @@ export const siteData = {
       },
       {
         name: "Five Elements — Daily Outfit",
-        status: "Wandering",
+        status: "Lit",
         problem:
           "Deciding what to wear means juggling weather, occasion and colour with no fixed logic.",
         approach:
