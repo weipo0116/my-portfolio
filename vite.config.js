@@ -14,6 +14,9 @@ export default defineConfig({
         links: resolve(__dirname, "links/index.html"), // → /my-portfolio/links/
         labAstro: resolve(__dirname, "lab/astro/index.html"), // → /my-portfolio/lab/astro/
         labOutfit: resolve(__dirname, "lab/outfit/index.html"), // → /my-portfolio/lab/outfit/
+        labWeekend: resolve(__dirname, "lab/weekend/index.html"), // → /my-portfolio/lab/weekend/
+        labCities: resolve(__dirname, "lab/cities/index.html"), // → /my-portfolio/lab/cities/
+        labRoom: resolve(__dirname, "lab/room/index.html"), // → /my-portfolio/lab/room/
       },
     },
   },

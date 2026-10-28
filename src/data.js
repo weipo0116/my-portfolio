@@ -19,6 +19,9 @@ import firstbankEsg from "./assets/images/backgrounds/firstbank_esg.webp";
 import firstbankLogo from "./assets/logos/firstbank.svg";
 import labAstroThumb from "./assets/images/lab/astro.webp";
 import labOutfitThumb from "./assets/images/lab/outfit.webp";
+import labWeekendThumb from "./assets/images/lab/weekend.webp";
+import labCitiesThumb from "./assets/images/lab/cities.webp";
+import labRoomThumb from "./assets/images/lab/room.webp";
 import lineLogoLocal from "./assets/logos/line.webp";
 import aatLogoLocal from "./assets/logos/aat.webp";
 
@@ -243,6 +246,39 @@ export const siteData = {
         thumb: labOutfitThumb,
         stack: ["lunar-javascript", "Open-Meteo", "Editorial design"],
         link: `${import.meta.env.BASE_URL}lab/outfit/`,
+      },
+      {
+        name: "Weekend Where — Taipei Metro Guide",
+        status: "Lit",
+        problem:
+          "On weekends in Taipei I want to go out, but end up scrolling lists without knowing where to go.",
+        approach:
+          "A hand-inked metro map of greater Taipei: filter spots by indoor/outdoor, time of day and hiking, then drop them into a morning–afternoon–night plan with transfer hints.",
+        thumb: labWeekendThumb,
+        stack: ["SVG map", "GSAP", "Editorial design"],
+        link: `${import.meta.env.BASE_URL}lab/weekend/`,
+      },
+      {
+        name: "Field Guide to Cities",
+        status: "Lit",
+        problem:
+          "Travel guides list sights and food, but not a city's character — its people, faith and the etiquette that matters.",
+        approach:
+          "A draggable globe that flies to each city and unfolds a dossier: must-do experiences, food, people, beliefs and etiquette, history and seasons, with side-by-side compare.",
+        thumb: labCitiesThumb,
+        stack: ["d3-geo", "GSAP", "Information design"],
+        link: `${import.meta.env.BASE_URL}lab/cities/`,
+      },
+      {
+        name: "Room Brief — Bedroom Style Match",
+        status: "Lit",
+        problem:
+          "Style quizzes pick what looks good in photos, not what you will still enjoy living with a year later.",
+        approach:
+          "A designer-style intake interview scores each style on fit and staying power, then renders a 2.5D room and a proposal with palette, lighting and an itemised budget.",
+        thumb: labRoomThumb,
+        stack: ["Isometric SVG", "GSAP", "UX research"],
+        link: `${import.meta.env.BASE_URL}lab/room/`,
       },
     ],
   },
