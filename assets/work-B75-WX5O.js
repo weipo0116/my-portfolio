@@ -1,1 +1,0 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{a as t,c as o,j as r,r as e}from"./resume-Ue61ScQW.js";import{A as a}from"./App-DxL5CM8t.js";import"./_commonjsHelpers-Cpj98o6Y.js";t();o(document.getElementById("root")).render(r.jsx(e.StrictMode,{children:r.jsx(a,{page:"work"})}));
