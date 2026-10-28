@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<link rel="icon" type="image/svg+xml" href="/my-portfolio/favicon.svg" />
+<title>週末趣哪裡 · Lab</title>
+<meta name="description" content="週末趣哪裡：以雙北捷運為主軸的週末出遊導覽，可篩室內外、時段、爬山並排行程。" />
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}html,body{overflow-x:clip}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=LXGW+WenKai+TC:wght@400;700&family=Nanum+Pen+Script&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: 一本紙本「週末博物館」導覽 — 黏頂頁首；海報式開場＋館務資訊卡；地圖（左）配展品清單（右，手機為可拖曳底部抽屜）；下方是本週展期、週末行程卡、館長建議。 */
+:root{
+  --paper:#F2EDE3;      /* 牛皮紙白 */
+  --paper-2:#E9E2D4;    /* 較深的紙 */
+  --card:#FBF8F2;       /* 展品標籤紙 */
+  --ink:#1B1915;        /* 黑墨 */
+  --ink-2:#47413A;
+  --sub:#756B5F;
+  --rule:#D5CBBB;
+  --rule-2:#E5DED0;
+  --crust:#8B5D35;      /* 麵包皮咖啡 */
+  --stamp:#B4432C;      /* 印章紅 */
+  --water:#D8DED7;
+  --l-red:#D23A2E;--l-green:#137A57;--l-blue:#2167AD;--l-brown:#A57633;--l-orange:#DB9A1A;--l-yellow:#C9AC12;
+  --shadow:0 22px 44px -24px rgba(27,25,21,.42);
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .08  0 0 0 0 .05  0 0 0 .075 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --f-scrawl:"Nanum Pen Script","LXGW WenKai TC",cursive;
+  --f-hand:"LXGW WenKai TC","Noto Serif TC","Noto Sans TC",serif;
+  --f-body:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --hdr:56px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#16130F;--paper-2:#1D1914;--card:#221D18;--ink:#EEE7DA;--ink-2:#D2C9BA;--sub:#9D9284;--rule:#3B3329;--rule-2:#2B251F;
+  --crust:#D39B5F;--stamp:#E8694D;--water:#212A2C;
+  --l-red:#F0594C;--l-green:#33A87D;--l-blue:#5A97DA;--l-brown:#CC9752;--l-orange:#F1B53C;--l-yellow:#E6CF4A;
+  --shadow:0 22px 44px -22px rgba(0,0,0,.7);
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 .95  0 0 0 0 .85  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16130F;--paper-2:#1D1914;--card:#221D18;--ink:#EEE7DA;--ink-2:#D2C9BA;--sub:#9D9284;--rule:#3B3329;--rule-2:#2B251F;
+  --crust:#D39B5F;--stamp:#E8694D;--water:#212A2C;
+  --l-red:#F0594C;--l-green:#33A87D;--l-blue:#5A97DA;--l-brown:#CC9752;--l-orange:#F1B53C;--l-yellow:#E6CF4A;
+  --shadow:0 22px 44px -22px rgba(0,0,0,.7);
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 .95  0 0 0 0 .85  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--hdr) + env(safe-area-inset-top,0px) + 12px)}
+body{background:var(--paper);background-image:var(--grain);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--stamp);outline-offset:3px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.scrawl{font-family:var(--f-scrawl);font-weight:400;line-height:.9}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.inner{max-width:1280px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- header ---------- */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:61;background:var(--paper)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:60;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .3s}
+.bar.lined{border-bottom-color:var(--rule)}
+.bar .inner{height:var(--hdr);display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;min-width:0}
+.brand .scrawl{font-size:30px;letter-spacing:.01em;white-space:nowrap}
+.brand .zh{font-family:var(--f-hand);font-weight:700;font-size:14px;color:var(--sub);white-space:nowrap}
+.nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.nav a{text-decoration:none;font-size:14px;padding:8px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;transition:background .2s}
+.nav a:hover{background:var(--paper-2)}
+.badge{font-family:var(--f-mono);font-size:11px;min-width:20px;height:20px;border-radius:10px;background:var(--ink);color:var(--paper);display:inline-grid;place-items:center;padding:0 6px;font-variant-numeric:tabular-nums}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);background:transparent;display:grid;place-items:center;transition:background .2s,transform .15s}
+.iconbtn:hover{background:var(--paper-2)}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:18px;height:18px}
+@media (max-width:720px){.nav .opt{display:none}.brand .zh{display:none}.brand .scrawl{font-size:26px}}
+.nav a{white-space:nowrap}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(36px,7vw,88px) clamp(20px,4vw,40px)}
+.hero .inner{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:clamp(28px,5vw,72px);align-items:end}
+.kicker{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);display:flex;gap:14px;flex-wrap:wrap}
+.kicker span+span::before{content:"/";margin-right:14px;color:var(--rule)}
+.hero h1{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.hero h1 .scrawl{font-size:clamp(76px,13vw,168px);letter-spacing:-.01em;display:block}
+.hero h1 .line{display:block;padding-right:.08em}
+.hero h1 .zh{font-family:var(--f-hand);font-weight:700;font-size:clamp(28px,4.2vw,46px);letter-spacing:.06em;display:inline-flex;align-items:center;gap:14px;transform-origin:left center}
+.hero h1 .zh i{display:inline-block;width:46px;height:2px;background:var(--ink)}
+.lede{margin-top:22px;max-width:30em;font-size:clamp(15px,1.6vw,17px);color:var(--ink-2)}
+.info{position:relative;background:var(--card);border:1.5px solid var(--ink);padding:22px 22px 18px;box-shadow:var(--shadow)}
+.info h2{font-family:var(--f-mono);font-size:11.5px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;border-bottom:1.5px solid var(--ink);padding-bottom:10px;display:flex;justify-content:space-between}
+.info dl{margin:0;display:grid;grid-template-columns:auto 1fr;column-gap:0}
+.info dd{padding-left:20px}
+.info dt,.info dd{margin:0;padding:11px 0;border-bottom:1px dashed var(--rule)}
+.info dt{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;color:var(--sub);text-transform:uppercase;padding-top:14px}
+.info dd{font-family:var(--f-hand);font-size:17px;text-align:right}
+.info dd b{font-family:var(--f-mono);font-weight:500;font-size:16px}
+.info dl>*:nth-last-child(-n+2){border-bottom:0}
+.stamp{position:absolute;right:-30px;top:-58px;width:118px;height:118px;color:var(--stamp);pointer-events:none}
+.stamp svg{width:100%;height:100%;overflow:visible}
+@media (max-width:860px){.hero .inner{grid-template-columns:1fr}.stamp{right:-6px;top:-54px;width:96px;height:96px}}
+
+.marquee{overflow:hidden;border-block:1.5px solid var(--ink);padding-block:10px;margin-top:clamp(28px,5vw,56px);white-space:nowrap}
+.mq-track{display:inline-flex;gap:48px;font-family:var(--f-scrawl);font-size:clamp(30px,4.4vw,48px);line-height:1;will-change:transform}
+.mq-track span{display:inline-flex;align-items:center;gap:48px}
+.mq-track span::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--stamp)}
+
+/* ---------- section heads ---------- */
+.sec{padding-block:clamp(48px,8vw,104px)}
+.sh{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 40px;align-items:end;margin-bottom:clamp(20px,3.5vw,36px)}
+.sh .scrawl{font-size:clamp(52px,7vw,92px);display:block}
+.sh h2{font-family:var(--f-hand);font-weight:700;font-size:clamp(22px,2.6vw,30px);letter-spacing:.04em;margin-top:6px}
+.sh p.desc{color:var(--ink-2);max-width:34em;justify-self:end}
+@media (max-width:760px){.sh{grid-template-columns:1fr}.sh p.desc{justify-self:start}}
+
+/* ---------- explore ---------- */
+.explore{padding-block:clamp(28px,5vw,56px) 0}
+.tools{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.row1{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.search{position:relative;flex:1 1 340px;min-width:0;max-width:520px}
+.search svg{position:absolute;left:14px;top:50%;width:17px;height:17px;transform:translateY(-50%);pointer-events:none;color:var(--sub)}
+.search input{width:100%;height:46px;border-radius:999px;border:1.5px solid var(--ink);background:var(--card);padding:0 44px 0 40px;font-size:15px;outline:none;transition:box-shadow .2s}
+.search input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--stamp) 22%,transparent)}
+.search input::placeholder{color:var(--sub)}
+.search .kbd{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:var(--f-mono);font-size:11px;color:var(--sub);border:1px solid var(--rule);border-radius:5px;padding:1px 6px}
+.qlist{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--card);border:1.5px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);z-index:30;padding:6px;max-height:340px;overflow:auto}
+.qlist li{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer}
+.qlist li[aria-selected="true"]{background:var(--paper-2)}
+.qlist .k{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;color:var(--sub);width:44px;flex:none;text-transform:uppercase}
+.qlist .t{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qlist .s{font-size:12.5px;color:var(--sub);white-space:nowrap}
+.qlist .none{padding:10px;color:var(--sub);font-size:14px;cursor:default}
+.summary{font-size:13.5px;color:var(--sub)}
+.summary b{font-family:var(--f-mono);font-weight:500;color:var(--ink);font-size:15px}
+.rail{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-inline:-2px;padding-inline:2px;-webkit-mask-image:linear-gradient(90deg,#000 92%,transparent);mask-image:linear-gradient(90deg,#000 92%,transparent)}
+.rail::-webkit-scrollbar{display:none}
+.rail-label{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);flex:none;align-self:center;padding-right:4px}
+.area{flex:none;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--rule);background:transparent;font-family:var(--f-hand);font-size:15px;transition:background .2s,border-color .2s,color .2s,transform .15s}
+.area:hover{border-color:var(--ink)}
+.area[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip{flex:none;height:36px;padding:0 12px 0 14px;border-radius:999px;border:1px solid var(--rule);background:var(--card);font-size:14px;display:inline-flex;align-items:center;gap:8px;transition:background .2s,border-color .2s,color .2s,transform .15s}
+.chip:hover{border-color:var(--ink)}
+.chip .n{font-family:var(--f-mono);font-size:11px;color:var(--sub);min-width:16px;text-align:right}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip[aria-pressed="true"] .n{color:color-mix(in srgb,var(--paper) 70%,transparent)}
+.chip[data-empty="true"]:not([aria-pressed="true"]){opacity:.45}
+.chip svg{width:15px;height:15px}
+.area:active,.chip:active{transform:scale(.96)}
+.sep{flex:none;width:1px;background:var(--rule);margin:6px 4px}
+.clear{flex:none;height:36px;padding:0 12px;border:0;background:transparent;font-size:13.5px;text-decoration:underline;text-underline-offset:3px;color:var(--stamp)}
+
+.app{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 404px;gap:14px;height:clamp(540px,calc(100svh - var(--hdr) - 150px),860px)}
+.map{position:relative;overflow:hidden;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);background-image:var(--grain);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;outline:none}
+.map:focus-visible{box-shadow:0 0 0 3px var(--stamp)}
+.map.dragging{cursor:grabbing}
+.map>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cart{position:absolute;left:14px;bottom:14px;background:var(--card);border:1.5px solid var(--ink);padding:9px 12px 8px;pointer-events:none;max-width:220px}
+.cart b{display:block;font-family:var(--f-hand);font-size:15px;letter-spacing:.04em}
+.cart span{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;color:var(--sub);text-transform:uppercase;margin-top:2px}
+.ctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;border:1.5px solid var(--ink);border-radius:10px;background:var(--card);overflow:hidden}
+.ctl button{width:42px;height:42px;border:0;background:transparent;display:grid;place-items:center;transition:background .15s}
+.ctl button:hover{background:var(--paper-2)}
+.ctl button+button{border-top:1px solid var(--rule)}
+.ctl svg{width:18px;height:18px}
+.hint{position:absolute;left:14px;top:14px;font-size:12px;color:var(--sub);background:color-mix(in srgb,var(--paper) 85%,transparent);padding:4px 10px;border-radius:999px;transition:opacity .4s;pointer-events:none}
+.legend{position:absolute;right:12px;bottom:12px;background:var(--card);border:1.5px solid var(--ink);border-radius:10px;font-size:12.5px}
+.legend summary{list-style:none;cursor:pointer;padding:7px 12px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.legend summary::-webkit-details-marker{display:none}
+.legend ul{padding:4px 12px 12px;display:grid;gap:5px}
+.legend li{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.legend i{width:20px;height:4px;border-radius:2px;flex:none}
+.legend svg{width:20px;height:14px;flex:none}
+
+/* map svg */
+.river{fill:none;stroke:var(--water);stroke-linecap:round;stroke-linejoin:round}
+.rv-t{font-family:var(--f-hand);font-size:12px;fill:var(--sub);letter-spacing:.3em;font-style:italic}
+.ctr{fill:none;stroke:var(--ink);stroke-width:var(--hw,1);opacity:.32;stroke-linejoin:round}
+.ctr.top{opacity:.5}
+.ln{fill:none;stroke-width:var(--lw,4);stroke-linecap:round;stroke-linejoin:round}
+.ln-ink{fill:none;stroke:var(--ink);stroke-width:var(--lw2,1);stroke-linecap:round;stroke-linejoin:round;opacity:.55}
+.ln-base{fill:none;stroke:var(--paper);stroke-width:var(--lw3,8);stroke-linecap:round;stroke-linejoin:round}
+.mt-n{font-family:var(--f-hand);font-size:13px;fill:var(--ink-2);text-anchor:middle;paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.mt-e{font-family:var(--f-scrawl);font-size:17px;fill:var(--sub);text-anchor:middle}
+.ar{cursor:pointer;transition:opacity .25s}
+.ar .an{font-family:var(--f-hand);font-weight:700;font-size:17px;fill:var(--ink);text-anchor:middle;paint-order:stroke;stroke:var(--paper);stroke-width:6px;stroke-linejoin:round;letter-spacing:.06em}
+.ar .ae{font-family:var(--f-scrawl);font-size:19px;fill:var(--crust);text-anchor:middle;paint-order:stroke;stroke:var(--paper);stroke-width:5px;stroke-linejoin:round}
+.ar .au{stroke:var(--ink);stroke-width:1.2;fill:none}
+.ar:hover .an{fill:var(--stamp)}
+.st{cursor:pointer;outline:none}
+.st .hit{fill:transparent}
+.st .dot{fill:var(--card);stroke:var(--ink);stroke-width:2;transition:fill .25s}
+.st.plain{cursor:default}
+.st.plain .dot{stroke-width:1.4;opacity:.75}
+.st.on .dot{fill:var(--ink)}
+.st.off .pin,.st.off .lbl{opacity:.26}
+.st .ring{fill:none;stroke:var(--stamp);stroke-width:2.2;opacity:0;stroke-dasharray:3 2.4}
+.st.sel .ring{opacity:1}
+.st.sel .dot{fill:var(--stamp);stroke:var(--ink)}
+.st:focus-visible .ring{opacity:1;stroke-dasharray:none}
+.st .lbl text{font-family:var(--f-hand);font-size:13px;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:4px;stroke-linejoin:round}
+.st.plain .lbl text{font-size:11.5px;fill:var(--sub)}
+.st.on .lbl text{font-weight:700}
+.st.nolab .lbl{display:none}
+.st .tag{display:none}
+.st.sel .tag{display:block}
+.st .tag rect{fill:var(--card);stroke:var(--ink);stroke-width:1.5}
+.st .tag .tn{font-family:var(--f-hand);font-weight:700;font-size:16px;fill:var(--ink)}
+.st .tag .te{font-family:var(--f-scrawl);font-size:19px;fill:var(--crust)}
+.st .tag .tc{font-family:var(--f-mono);font-size:10px;fill:var(--sub);letter-spacing:.08em}
+.st.sel .lbl{display:none}
+.st .bdg rect{fill:var(--ink)}
+.st .bdg text{font-family:var(--f-mono);font-size:10px;font-weight:500;fill:var(--paper);text-anchor:middle}
+.st .bdg{display:none}
+.st.on.showb .bdg{display:block}
+.st .hk,.st .ek{display:none}
+.st.hike.zin .hk,.hikeon .st.hike .hk{display:block}
+.st.ev .ek{display:block}
+.hk path{fill:var(--card);stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round}
+.hk line{stroke:var(--ink);stroke-width:1}
+.ek path{fill:var(--stamp);stroke:var(--ink);stroke-width:1}
+
+/* panel */
+.panel{position:relative;display:flex;flex-direction:column;background:var(--card);border:1.5px solid var(--ink);border-radius:6px;min-height:0;overflow:hidden}
+.grip{display:none}
+.phd{padding:16px 18px 14px;border-bottom:1.5px solid var(--ink);display:flex;flex-direction:column;gap:8px}
+.ph-top{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.eyebrow{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sub)}
+.ph-title{font-family:var(--f-hand);font-weight:700;font-size:22px;line-height:1.3;letter-spacing:.03em}
+.ph-en{font-family:var(--f-scrawl);font-size:26px;line-height:.8;color:var(--crust)}
+.dots{display:inline-flex;gap:4px;vertical-align:middle}
+.dots i{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink)}
+.xbtn{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);background:transparent;display:grid;place-items:center;transition:background .15s}
+.xbtn:hover{background:var(--paper-2)}
+.xbtn svg{width:14px;height:14px}
+.backbtn{border:0;background:transparent;padding:4px 0;font-size:14px;display:inline-flex;align-items:center;gap:6px;color:var(--ink-2)}
+.backbtn svg{width:16px;height:16px}
+.backbtn:hover{color:var(--ink)}
+.pbd{flex:1;min-height:0;overflow-y:auto}
+.items{display:flex;flex-direction:column}
+.item{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:2px 12px;align-items:start;text-align:left;width:100%;border:0;border-bottom:1px solid var(--rule-2);background:transparent;padding:14px 18px;position:relative;transition:background .2s}
+.item:hover{background:var(--paper)}
+.item .no{grid-row:span 3;font-family:var(--f-mono);font-size:11px;color:var(--sub);padding-top:4px;letter-spacing:.04em}
+.item .t{font-family:var(--f-hand);font-weight:700;font-size:16.5px;line-height:1.4;background-image:linear-gradient(var(--ink),var(--ink));background-size:0 1.5px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .35s ease;justify-self:start}
+.item:hover .t,.item:focus-visible .t{background-size:100% 1.5px}
+.item .m{font-size:12.5px;color:var(--sub);grid-column:2}
+.item .g{grid-column:2;display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:4px}
+.item .pr{grid-row:1;grid-column:3;font-family:var(--f-mono);font-size:11px;color:var(--ink-2);text-align:right;white-space:nowrap;padding-top:3px}
+.tg{font-size:11.5px;line-height:1;padding:4px 7px;border:1px solid var(--rule);border-radius:4px;color:var(--ink-2);white-space:nowrap}
+.tg.h{border-color:var(--ink);color:var(--ink)}
+.tg.r{border-color:var(--crust);color:var(--crust)}
+.empty{padding:36px 22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.empty .scrawl{font-size:40px}
+.empty p{color:var(--ink-2)}
+.btn{height:42px;padding:0 18px;border-radius:999px;border:1.5px solid var(--ink);background:var(--card);display:inline-flex;align-items:center;gap:8px;font-size:14px;text-decoration:none;transition:background .2s,color .2s,transform .15s;white-space:nowrap}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn:active{transform:scale(.96)}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.btn.solid:hover{background:var(--stamp);border-color:var(--stamp)}
+.btn svg{width:16px;height:16px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+
+/* detail */
+.dt{padding:18px 18px 28px;display:flex;flex-direction:column;gap:18px}
+.dt h3{font-family:var(--f-hand);font-weight:700;font-size:26px;line-height:1.3;letter-spacing:.02em;text-wrap:balance}
+.dt .meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:13px;color:var(--ink-2)}
+.ticket{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border:1.5px solid var(--ink);background:var(--paper);position:relative}
+.ticket>div{padding:10px 14px;min-width:0}
+.ticket>div+div{border-left:1.5px dashed var(--ink)}
+.ticket small{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;color:var(--sub);text-transform:uppercase}
+.ticket strong{font-weight:500;font-size:14.5px}
+.ticket::before,.ticket::after{content:"";position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--card);border:1.5px solid var(--ink);transform:translateY(-50%)}
+.ticket::before{left:-7px;clip-path:inset(0 0 0 50%)}
+.ticket::after{right:-7px;clip-path:inset(0 50% 0 0)}
+.sge{display:flex;flex-direction:column}
+.sge>div{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--rule)}
+.sge>div:last-child{border-bottom:1px solid var(--rule)}
+.sge .scrawl{font-size:30px;line-height:.9;color:var(--crust)}
+.sge .scrawl small{display:block;font-family:var(--f-hand);font-size:12px;color:var(--sub);margin-top:4px;line-height:1}
+.sge p{font-size:14.5px}
+.notes{display:grid;gap:10px}
+.note{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font-family:var(--f-hand);font-size:15px;line-height:1.6;color:var(--ink-2)}
+.note svg{width:20px;height:20px;margin-top:3px;color:var(--crust)}
+.addto{display:flex;flex-direction:column;gap:8px;padding:14px;border:1.5px solid var(--ink);background:var(--paper)}
+.addto .lab{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sub)}
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg3 button{height:42px;border:1px solid var(--rule);background:var(--card);border-radius:8px;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;transition:background .2s,border-color .2s,transform .15s}
+.seg3 button small{font-family:var(--f-scrawl);font-size:15px;color:var(--sub)}
+.seg3 button.rec{border-color:var(--ink)}
+.seg3 button:hover{background:var(--ink);color:var(--paper)}
+.seg3 button:hover small{color:var(--paper)}
+.seg3 button:active{transform:scale(.96)}
+.seg3 button.in{background:var(--ink);color:var(--paper)}
+.seg3 button.in small{color:var(--paper)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.fav[aria-pressed="true"]{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+.sibs{display:flex;flex-wrap:wrap;gap:6px}
+.sibs button{height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--rule);background:transparent;font-size:13px}
+.sibs button:hover{border-color:var(--ink)}
+.evnote{border:1.5px dashed var(--stamp);padding:10px 12px;font-size:13.5px;color:var(--ink-2)}
+.evnote b{color:var(--stamp);font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;display:block}
+
+/* mobile: bottom sheet */
+@media (max-width:959px){
+  .app{display:block;height:clamp(480px,calc(100svh - var(--hdr) - 24px),860px)}
+  .map{position:absolute;inset:0;border-radius:6px}
+  .panel{position:absolute;left:0;right:0;top:0;height:100%;border-radius:18px 18px 6px 6px;box-shadow:0 -12px 30px -18px rgba(0,0,0,.35);will-change:transform;z-index:5}
+  .grip{display:flex;justify-content:center;padding:9px 0 3px;touch-action:none;cursor:grab}
+  .grip span{width:42px;height:4.5px;border-radius:3px;background:var(--rule)}
+  .phd{touch-action:none;padding-top:4px}
+  .pbd{max-height:var(--vis,60%)}
+  .cart{max-width:170px;padding:7px 10px 6px;top:12px;bottom:auto}
+  .cart b{font-size:13.5px}
+  .legend{display:none}
+  .hint{display:none}
+}
+
+/* ---------- events ---------- */
+.posters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.pcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.pcol h3{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1.5px solid var(--ink);padding-bottom:6px}
+.pcol h3 .scrawl{font-size:40px}
+.pcol h3 span:last-child{font-family:var(--f-hand);font-size:15px;color:var(--sub)}
+.poster{position:relative;text-align:left;border:1.5px solid var(--ink);background:var(--card);padding:16px 16px 14px;display:flex;flex-direction:column;gap:8px;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;min-width:0}
+.poster:nth-child(odd){transform:rotate(-.6deg)}
+.poster:nth-child(even){transform:rotate(.5deg)}
+.poster:hover{transform:rotate(0) translateY(-3px);box-shadow:var(--shadow)}
+.poster .pt{font-family:var(--f-hand);font-weight:700;font-size:20px;line-height:1.35}
+.poster .pm{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.poster .smp{position:absolute;right:12px;top:10px;font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;color:var(--stamp);border:1.5px solid var(--stamp);padding:2px 6px;transform:rotate(4deg)}
+.srcs{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;align-items:center}
+.srcs .lab{font-size:13.5px;color:var(--ink-2);margin-right:4px}
+.disclaim{margin-top:18px;font-size:13.5px;color:var(--ink-2);max-width:52em;border-left:2px solid var(--stamp);padding-left:12px}
+@media (max-width:860px){.posters{grid-template-columns:1fr}}
+
+/* ---------- plan ---------- */
+.planwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(24px,5vw,64px);align-items:start}
+.receipt{position:relative;background:var(--card);padding:34px clamp(18px,3vw,32px) 30px;box-shadow:var(--shadow);transform-origin:50% 0;
+  -webkit-mask:radial-gradient(circle 7px at 50% 0,#0000 98%,#000) 0 0/18px 51% repeat-x,radial-gradient(circle 7px at 50% 100%,#0000 98%,#000) 0 100%/18px 51% repeat-x;
+  mask:radial-gradient(circle 7px at 50% 0,#0000 98%,#000) 0 0/18px 51% repeat-x,radial-gradient(circle 7px at 50% 100%,#0000 98%,#000) 0 100%/18px 51% repeat-x}
+.rc-head{text-align:center;border-bottom:1.5px dashed var(--ink);padding-bottom:16px;display:flex;flex-direction:column;gap:4px;align-items:center}
+.rc-head .scrawl{font-size:46px}
+.rc-head .mono{font-size:11.5px;color:var(--sub);letter-spacing:.12em}
+.slot{padding:16px 0;border-bottom:1.5px dashed var(--rule)}
+.slot h4{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.slot h4 span:first-child{font-family:var(--f-hand);font-weight:700;font-size:18px}
+.slot h4 .scrawl{font-size:26px;color:var(--crust)}
+.pl{display:flex;flex-direction:column}
+.pli{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:8px 0}
+.pli .t{font-size:15px;font-weight:500;background:none;border:0;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:4px}
+.pli .t:hover{text-decoration-color:var(--ink)}
+.pli .s{font-size:12.5px;color:var(--sub);grid-column:1;display:flex;align-items:center;gap:6px}
+.pli .rm{grid-row:1/span 2;grid-column:2;width:32px;height:32px;border-radius:50%;border:1px solid var(--rule);background:transparent;display:grid;place-items:center}
+.pli .rm:hover{border-color:var(--stamp);color:var(--stamp)}
+.pli .rm svg{width:12px;height:12px}
+.hop{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-2);display:flex;gap:8px;align-items:flex-start;padding:4px 0 4px 2px;letter-spacing:.01em}
+.hop::before{content:"";flex:none;width:1.5px;height:18px;background:repeating-linear-gradient(var(--ink) 0 3px,transparent 3px 6px);margin:0 8px 0 4px}
+.hop.cross{color:var(--crust);padding:10px 0 2px}
+.slot .emp{font-family:var(--f-hand);font-size:15px;color:var(--sub)}
+.rc-foot{display:flex;flex-wrap:wrap;gap:8px;padding-top:18px;justify-content:center}
+.rc-total{text-align:center;font-family:var(--f-mono);font-size:11.5px;color:var(--sub);letter-spacing:.1em;padding-top:14px}
+.plan-copy{margin-top:14px;width:100%;min-height:150px;border:1.5px solid var(--ink);background:var(--card);font-family:var(--f-mono);font-size:12.5px;padding:10px}
+.plan-side{display:flex;flex-direction:column;gap:18px}
+.plan-side p{color:var(--ink-2);max-width:32em}
+.how{display:grid;gap:0;border-top:1.5px solid var(--ink)}
+.how li{display:grid;grid-template-columns:90px minmax(0,1fr);gap:14px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.how .scrawl{font-size:28px;color:var(--crust)}
+@media (max-width:900px){.planwrap{grid-template-columns:1fr}}
+
+/* ---------- notes ---------- */
+.cnotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1.5px solid var(--ink)}
+.cn{padding:22px 24px 26px 0;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cn+.cn{padding-left:24px;border-left:1px solid var(--rule)}
+.cn .scrawl{font-size:40px;color:var(--crust)}
+.cn h3{font-family:var(--f-hand);font-weight:700;font-size:19px}
+.cn li{padding:8px 0;border-top:1px dashed var(--rule);font-size:14.5px;color:var(--ink-2)}
+.cn li b{color:var(--ink);font-weight:500}
+@media (max-width:860px){.cnotes{grid-template-columns:1fr}.cn,.cn+.cn{padding:22px 0;border-left:0}.cn+.cn{border-top:1px solid var(--rule)}}
+.tours{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:clamp(36px,6vw,64px)}
+.tour{border:1.5px solid var(--ink);background:var(--card);display:flex;flex-direction:column;min-width:0;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.tour:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.tour header{padding:14px 16px 12px;border-bottom:1.5px dashed var(--ink)}
+.tour header .mono{font-size:10.5px;letter-spacing:.16em;color:var(--sub)}
+.tour header h3{font-family:var(--f-hand);font-weight:700;font-size:20px;margin-top:2px}
+.tour ol{padding:10px 16px;flex:1}
+.tour li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;padding:6px 0;font-size:14px;align-items:baseline}
+.tour li .scrawl{font-size:21px;color:var(--crust)}
+.tour li button{border:0;background:none;padding:0;text-align:left;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:4px}
+.tour li button:hover{text-decoration-color:var(--ink)}
+.tour footer{padding:0 16px 16px}
+@media (max-width:1060px){.tours{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.tours{grid-template-columns:1fr}}
+
+.foot{border-top:1.5px solid var(--ink);padding-block:28px calc(36px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--sub)}
+.foot .inner{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+.foot p{max-width:44em}
+.foot .scrawl{font-size:30px;color:var(--ink)}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);opacity:0;visibility:hidden;background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:999px;font-size:14px;z-index:90;max-width:calc(100% - 32px);transition:transform .45s cubic-bezier(.2,.9,.2,1.1),opacity .3s,visibility .45s;pointer-events:none;text-align:center}
+.toast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.flyer{position:fixed;z-index:95;pointer-events:none;font-family:var(--f-mono);font-size:12px;background:var(--stamp);color:var(--paper);padding:4px 9px;border-radius:999px;left:0;top:0}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+
+<header class="bar gut" id="bar">
+  <div class="inner">
+    <a class="brand" href="#top" aria-label="週末趣哪裡，回到頂端"><span class="scrawl">Weekend Museum</span><span class="zh">週末趣哪裡</span></a>
+    <nav class="nav" aria-label="頁面導覽">
+      <a href="#explore" class="opt">地圖</a>
+      <a href="#events" class="opt">本週展期</a>
+      <a href="#plan" id="planLink">行程卡 <span class="badge" id="planCount">0</span></a>
+    </nav>
+    <button class="iconbtn" id="themeBtn" type="button" aria-label="切換深色或淺色">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero gut" aria-labelledby="heroTitle">
+  <div class="inner">
+    <div>
+      <p class="kicker"><span>Taipei &amp; New Taipei</span><span>Weekend edition</span><span>No. 01</span></p>
+      <h1 id="heroTitle">
+        <span class="scrawl"><span class="line">Where to,</span><span class="line">this weekend?</span></span>
+        <span class="zh"><i aria-hidden="true"></i>週末趣哪裡</span>
+      </h1>
+      <p class="lede">把雙北當成一座週末博物館。沿著捷運挑一站：上午去爬山，下午看展逛街，晚上吃夜市。每個去處都附上必看、必吃、必去和票價。</p>
+    </div>
+    <aside class="info" aria-label="館務資訊">
+      <div class="stamp" aria-hidden="true">
+        <svg viewBox="-60 -60 120 120"><defs><path id="stc" d="M0,-44 a44,44 0 1,1 -0.01,0"/></defs>
+          <g id="stampRot"><circle r="56" fill="none" stroke="currentColor" stroke-width="2"/><circle r="34" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <text font-family="IBM Plex Mono, monospace" font-size="9.6" letter-spacing="2.6" fill="currentColor"><textPath href="#stc">WEEKEND · MUSEUM · TAIPEI · EST. 2026 ·</textPath></text></g>
+          <text y="7" text-anchor="middle" font-family="LXGW WenKai TC, serif" font-weight="700" font-size="21" fill="currentColor">週末</text>
+        </svg>
+      </div>
+      <h2><span>Visitor info · 館務資訊</span></h2>
+      <dl>
+        <dt>開放時間</dt><dd>週六、週日，全天</dd>
+        <dt>入場方式</dt><dd>搭捷運，一段票起</dd>
+        <dt>館藏</dt><dd><b id="kSpots">53</b> 處去處</dd>
+        <dt>展區</dt><dd><b id="kAreas">8</b> 區・<b>6</b> 條路線</dd>
+        <dt>本期</dt><dd id="kWeek">本週末</dd>
+      </dl>
+    </aside>
+  </div>
+  <div class="marquee" aria-hidden="true"><div class="mq-track" id="mq"><span>Hike in the morning</span><span>Museums after lunch</span><span>Night markets after dark</span><span>Hike in the morning</span><span>Museums after lunch</span><span>Night markets after dark</span></div></div>
+</section>
+
+<section class="explore gut" id="explore" aria-labelledby="exTitle">
+  <div class="inner">
+    <h2 class="sr" id="exTitle">雙北週末地圖</h2>
+    <div class="tools">
+      <div class="row1">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          <input id="q" type="search" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qList" aria-autocomplete="list" placeholder="搜尋站名或去處，例如：象山、夜市" aria-label="搜尋站名或去處">
+          <span class="kbd" aria-hidden="true">/</span>
+          <ul class="qlist" id="qList" role="listbox" hidden></ul>
+        </div>
+        <p class="summary" id="summary" aria-live="polite"></p>
+      </div>
+      <div class="rail" id="areaRail" role="group" aria-label="展區"><span class="rail-label">展區</span></div>
+      <div class="rail" id="chipRail" role="group" aria-label="篩選條件"><span class="rail-label">篩選</span></div>
+    </div>
+    <div class="app" id="app">
+      <div class="map" id="map" tabindex="0" aria-label="雙北捷運週末地圖。拖曳移動，滾輪或雙指縮放；方向鍵移動，加號減號縮放。" aria-describedby="summary">
+        <svg id="svg" aria-hidden="false">
+          <g id="world"><g id="land"></g><g id="lines"></g></g>
+          <g id="ovl"></g>
+          <g id="stl" role="group" aria-label="捷運站"></g>
+        </svg>
+        <div class="cart" aria-hidden="true"><b>雙北週末導覽圖</b><span>Not to scale · 示意圖</span></div>
+        <div class="ctl">
+          <button type="button" id="zin" aria-label="放大"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button type="button" id="zout" aria-label="縮小"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+          <button type="button" id="zfit" aria-label="看全圖"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+        </div>
+        <p class="hint" id="hint">拖曳移動・滾輪或雙指縮放・點站看展品</p>
+        <details class="legend"><summary>圖例 Legend</summary><ul id="legend"></ul></details>
+      </div>
+      <aside class="panel" id="panel" aria-label="展品清單">
+        <div class="grip" id="grip"><span></span></div>
+        <div class="phd" id="phd"></div>
+        <div class="pbd" id="pbd"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="sec gut" id="events" aria-labelledby="evTitle">
+  <div class="inner">
+    <div class="sh rv">
+      <div><span class="scrawl">This weekend</span><h2 id="evTitle">本週末展期</h2></div>
+      <p class="desc">依上午、下午、晚上排好的活動。點一張就會跳回地圖，看它在哪一站。</p>
+    </div>
+    <div class="posters" id="posters"></div>
+    <p class="disclaim">這一區目前是<b>示範資料</b>，用來展示版面，不是真實活動。真實活動還沒接上，要接需要臺北旅遊網或文化局的開放資料，加上每天更新的程式。出門前請先看下面的官方網站。</p>
+    <div class="srcs"><span class="lab">查真實活動</span>
+      <a class="btn" href="https://www.travel.taipei/" target="_blank" rel="noopener">臺北旅遊網</a>
+      <a class="btn" href="https://www.culture.gov.taipei/" target="_blank" rel="noopener">臺北市文化局</a>
+      <a class="btn" href="https://www.gov.taipei/" target="_blank" rel="noopener">臺北市政府</a>
+      <a class="btn" href="https://www.accupass.com/" target="_blank" rel="noopener">Accupass 活動通</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec gut" id="plan" aria-labelledby="plTitle" style="padding-top:0">
+  <div class="inner">
+    <div class="sh rv">
+      <div><span class="scrawl">Your weekend</span><h2 id="plTitle">週末行程卡</h2></div>
+      <p class="desc">在地圖上打開任何去處，按「加入行程」放進上午、下午或晚上。行程卡會標出怎麼搭捷運過去，也能複製成文字傳給朋友。</p>
+    </div>
+    <div class="planwrap">
+      <div class="receipt" id="receipt">
+        <div class="rc-head"><span class="scrawl">Weekend plan</span><span class="mono" id="rcDate">本週末</span></div>
+        <div id="slots"></div>
+        <p class="rc-total mono" id="rcTotal"></p>
+        <div class="rc-foot">
+          <button class="btn solid" type="button" id="copyPlan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>複製成文字</button>
+          <button class="btn" type="button" id="autoPlan">幫我排一天</button>
+          <button class="btn" type="button" id="clearPlan">清空</button>
+        </div>
+        <textarea class="plan-copy mono" id="planText" readonly hidden aria-label="行程文字"></textarea>
+      </div>
+      <div class="plan-side rv">
+        <p>行程卡只存在這台裝置的瀏覽器裡。換手機或清除瀏覽資料就會不見，想保留請先複製。</p>
+        <ol class="how">
+          <li><span class="scrawl">01 Pick</span><span>在地圖或清單點一個去處，看必看、必吃、必去和票價。</span></li>
+          <li><span class="scrawl">02 Add</span><span>選上午、下午或晚上加入。建議的時段會用粗框標出來。</span></li>
+          <li><span class="scrawl">03 Ride</span><span>行程卡會寫出捷運怎麼接：同一條線直達，或在哪一站轉車。</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec gut" id="notes" aria-labelledby="ntTitle" style="padding-top:0">
+  <div class="inner">
+    <div class="sh rv">
+      <div><span class="scrawl">Curator's notes</span><h2 id="ntTitle">館長的週末建議</h2></div>
+      <p class="desc">排行程的順序、下雨的備案和爬山的基本安全。下面四條導覽路線可以一鍵放進行程卡。</p>
+    </div>
+    <div class="cnotes">
+      <div class="cn rv"><span class="scrawl">Morning first</span><h3>一天怎麼排</h3><ul>
+        <li><b>上午</b>留給戶外和爬山。氣溫低、人少、視野好，10 點前出發，11:30 前下山吃飯。</li>
+        <li><b>下午</b>排室內或市區：博物館、文創園區、咖啡。這段時間最熱，也最常下午後雷陣雨。</li>
+        <li><b>晚上</b>排夜市、夜景或溫泉，盡量和下午在同一區，不要跨半個台北。</li>
+        <li>一天最多三個點，每兩點之間留 30 分鐘給移動和排隊。</li></ul></div>
+      <div class="cn rv"><span class="scrawl">If it rains</span><h3>下雨的備案</h3><ul>
+        <li>降雨機率高就打開「雨天OK」，清單只會留下室內或有遮蔽的去處。</li>
+        <li>雨天好組合：故宮或北美館，接永康街吃飯，晚上去北投泡湯。</li>
+        <li>室內景點雨天特別擠，開館就進場，或下午四點後再去。</li>
+        <li>夜市大多有騎樓，但地面濕滑，穿防滑的鞋。</li></ul></div>
+      <div class="cn rv"><span class="scrawl">On the trail</span><h3>爬山安全</h3><ul>
+        <li>出發前看中央氣象署的山區預報，夏天盡量上午上山，避開午後雷陣雨。</li>
+        <li>帶 1 公升以上的水、薄外套和頭燈，手機充飽並先下載離線地圖。</li>
+        <li>日落前一小時開始下山，第一次走的路線不要摸黑。</li>
+        <li>告訴朋友你走哪條路、預計幾點下山。一個人就選人多的熱門步道。</li></ul></div>
+    </div>
+    <div class="tours" id="tours"></div>
+  </div>
+</section>
+</main>
+
+<footer class="foot gut">
+  <div class="inner">
+    <span class="scrawl">Weekend Museum</span>
+    <p>票價與開放時間常調整，標「約」的是參考價，出發前請以各景點官方公告為準。步行時間是從最近捷運站出發的概估。地圖是示意圖，不按比例，路線顏色依台北捷運與環狀線的慣用色。</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/my-portfolio/lab/vendor/gsap.min.js"></script>
+<script src="/my-portfolio/lab/vendor/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+'use strict';
+const G=window.gsap||null;
+const RM=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ANIM=!!G&&!RM;
+if(G&&window.ScrollTrigger)G.registerPlugin(window.ScrollTrigger);
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+const SLOT={a:'上午',p:'下午',n:'晚上'};
+const SLOT_EN={a:'Morning',p:'Afternoon',n:'Evening'};
+const ENVL={in:'室內',out:'室外',both:'室內外'};
+const LINE={red:{n:'淡水信義線',c:'var(--l-red)'},green:{n:'松山新店線',c:'var(--l-green)'},blue:{n:'板南線',c:'var(--l-blue)'},brown:{n:'文湖線',c:'var(--l-brown)'},orange:{n:'中和新蘆線',c:'var(--l-orange)'},yellow:{n:'環狀線',c:'var(--l-yellow)'}};
+
+/* ---------- stations: id, 名稱, English, x, y, label[dx,dy,anchor], lines, area ---------- */
+const ST_RAW=[
+['tamsui','淡水','Tamsui',80,60,[-12,5,'e'],['red'],'tb'],
+['guandu','關渡','Guandu',125,95,[-12,5,'e'],['red'],'tb'],
+['beitou','北投','Beitou',190,125,[-12,5,'e'],['red'],'tb'],
+['xinbeitou','新北投','Xinbeitou',250,105,[12,4,'s'],['red'],'tb'],
+['shipai','石牌','Shipai',225,145,[-12,6,'e'],['red'],'tb'],
+['zhishan','芝山','Zhishan',260,165,[12,2,'s'],['red'],'sl'],
+['shilin','士林','Shilin',320,215,[-12,5,'e'],['red'],'sl'],
+['jiantan','劍潭','Jiantan',360,262,[-12,5,'e'],['red'],'sl'],
+['yuanshan','圓山','Yuanshan',390,305,[-12,5,'e'],['red'],'sl'],
+['minquan','民權西路','Minquan W. Rd.',390,345,[12,-6,'s'],['red','orange'],'zs'],
+['shuanglian','雙連','Shuanglian',390,365,[12,9,'s'],['red'],'zs'],
+['zhongshan','中山','Zhongshan',390,385,[-12,-8,'e'],['red','green'],'zs'],
+['dadaocheng','大橋頭','Daqiaotou',330,345,[0,26,'m'],['orange'],'zs'],
+['taipeibridge','台北橋','Taipei Bridge',270,345,[0,26,'m'],['orange'],'zs'],
+['taipei_main','台北車站','Taipei Main Station',390,430,[10,-10,'s'],['red','blue'],'cz'],
+['ximen','西門','Ximen',310,480,[-14,22,'e'],['green','blue'],'cz'],
+['xiaonanmen','小南門','Xiaonanmen',350,510,[-4,24,'e'],['green'],'cz'],
+['longshan','龍山寺','Longshan Temple',200,480,[0,24,'m'],['blue'],'cz'],
+['chiangkai','中正紀念堂','CKS Memorial Hall',390,520,[12,-8,'s'],['red','green'],'cz'],
+['dongmen','東門','Dongmen',450,545,[-14,5,'e'],['red','orange'],'cz'],
+['guting','古亭','Guting',335,575,[-12,5,'e'],['green','orange'],'cz'],
+['songjiang','松江南京','Songjiang Nanjing',470,385,[10,-10,'s'],['green','orange'],'xy'],
+['nanjing_fuxing','南京復興','Nanjing Fuxing',540,385,[10,-10,'s'],['green','brown'],'xy'],
+['zhongxiao_xinsheng','忠孝新生','Zhongxiao Xinsheng',470,430,[10,22,'s'],['blue','orange'],'xy'],
+['fuxing','忠孝復興','Zhongxiao Fuxing',540,430,[10,22,'s'],['blue','brown'],'xy'],
+['daan_park','大安森林公園','Daan Park',510,565,[-12,24,'e'],['red'],'xy'],
+['daan','大安','Daan',560,590,[12,-8,'s'],['red','brown'],'xy'],
+['xinyi_anhe','信義安和','Xinyi Anhe',610,600,[0,24,'m'],['red'],'xy'],
+['taipei101','台北101','Taipei 101 / WTC',660,610,[0,-14,'m'],['red'],'xy'],
+['xiangshan','象山','Xiangshan',730,640,[12,5,'s'],['red'],'xy'],
+['sunyat','國父紀念館','Sun Yat-sen Memorial Hall',660,430,[0,24,'m'],['blue'],'xy'],
+['cityhall','市政府','Taipei City Hall',715,430,[0,-12,'m'],['blue'],'xy'],
+['yongchun','永春','Yongchun',770,430,[0,24,'m'],['blue'],'xy'],
+['arena','小巨蛋','Taipei Arena',590,385,[0,26,'m'],['green'],'nh'],
+['songshan','松山','Songshan',650,385,[0,26,'m'],['green'],'nh'],
+['jiannan','劍南路','Jiannan Rd.',650,265,[0,-12,'m'],['brown'],'nh'],
+['xihu','西湖','Xihu',720,260,[0,-12,'m'],['brown'],'nh'],
+['neihu','內湖','Neihu',790,260,[0,-12,'m'],['brown'],'nh'],
+['dahu_park','大湖公園','Dahu Park',850,300,[-12,18,'e'],['brown'],'nh'],
+['nangang','南港','Nangang',825,430,[0,-12,'m'],['blue'],'nh'],
+['exhib','南港展覽館','Nangang Exhibition Center',880,430,[0,24,'m'],['blue','brown'],'nh'],
+['gongguan','公館','Gongguan',300,660,[-12,5,'e'],['green'],'ws'],
+['jingmei','景美','Jingmei',380,760,[-12,-6,'e'],['green'],'ws'],
+['dapinglin','大坪林','Dapinglin',470,790,[0,24,'m'],['green','yellow'],'ws'],
+['xindian','新店','Xindian',600,860,[12,5,'s'],['green'],'ws'],
+['zoo','動物園','Taipei Zoo',720,820,[0,24,'m'],['brown'],'ws'],
+['banqiao','板橋','Banqiao',80,480,[12,-8,'s'],['blue','yellow'],'xb'],
+['jingan','景安',"Jing'an",230,770,[12,4,'s'],['orange','yellow'],'xb'],
+['nanshijiao','南勢角','Nanshijiao',190,830,[12,5,'s'],['orange'],'xb']
+];
+const ST={},STL=[];
+ST_RAW.forEach(r=>{const o={id:r[0],name:r[1],en:r[2],x:r[3],y:r[4],lab:r[5],lines:r[6],area:r[7]};ST[o.id]=o;STL.push(o);});
+const HUBS=STL.filter(s=>s.lines.length>1);
+
+const LINES={
+red:[[80,60],[125,95],[190,125],[225,145],[260,165],[320,215],[360,262],[390,305],[390,345],[390,385],[390,430],[390,520],[450,545],[510,565],[560,590],[610,600],[660,610],[730,640]],
+red2:[[190,125],[250,105]],
+green:[[650,385],[590,385],[540,385],[470,385],[390,385],[345,425],[310,462],[310,480],[310,500],[350,510],[390,520],[335,575],[300,660],[330,715],[380,760],[470,790],[520,825],[600,860]],
+blue:[[80,480],[200,480],[310,480],[340,455],[365,430],[390,430],[470,430],[540,430],[610,430],[660,430],[715,430],[770,430],[825,430],[880,430]],
+brown:[[720,820],[600,745],[570,680],[560,640],[560,590],[540,565],[540,430],[540,385],[540,335],[590,290],[650,265],[720,260],[790,260],[850,300],[880,340],[880,430]],
+orange:[[100,265],[150,310],[210,345],[270,345],[330,345],[390,345],[445,345],[470,365],[470,385],[470,430],[470,520],[450,545],[400,575],[335,575],[260,630],[225,700],[230,770],[190,830]],
+yellow:[[470,790],[350,790],[230,770],[140,740],[100,640],[80,480],[60,380]]
+};
+const LCOL={red:'red',red2:'red',green:'green',blue:'blue',brown:'brown',orange:'orange',yellow:'yellow'};
+
+const AREAS=[
+{id:'all',n:'全覽'},
+{id:'tb',n:'淡水・北投',en:'Tamsui & Beitou',lx:170,ly:30},
+{id:'sl',n:'士林・圓山',en:'Shilin',lx:470,ly:225},
+{id:'zs',n:'大稻埕・中山',en:'Dadaocheng',lx:240,ly:405},
+{id:'cz',n:'城中・萬華',en:'Old Town',lx:205,ly:560},
+{id:'xy',n:'信義・東區',en:'Xinyi & East',lx:680,ly:505},
+{id:'nh',n:'松山・內湖・南港',en:'Neihu & Nangang',lx:770,ly:350},
+{id:'ws',n:'文山・新店',en:'Wenshan',lx:520,ly:705},
+{id:'xb',n:'板橋・中永和',en:'Banqiao',lx:110,ly:880}
+];
+const AREA_ORDER=['tb','sl','zs','cz','xy','nh','ws','xb'];
+
+const MOUNTAINS=[
+{n:'陽明山',e:'Yangmingshan',cx:450,cy:70,rx:140,ry:62,r:6,seed:11,lx:450,ly:84},
+{n:'內湖山系',e:'Neihu hills',cx:820,cy:140,rx:115,ry:66,r:5,seed:23,lx:830,ly:150},
+{n:'四獸山',e:'Four Beasts',cx:770,cy:570,rx:72,ry:44,r:5,seed:37,lx:785,ly:582},
+{n:'貓空',e:'Maokong',cx:830,cy:800,rx:118,ry:78,r:6,seed:41,lx:840,ly:812},
+{n:'觀音山',e:'Guanyinshan',cx:42,cy:200,rx:48,ry:58,r:5,seed:53,lx:46,ly:212},
+{n:'仙跡岩',e:'',cx:432,cy:712,rx:34,ry:24,r:3,seed:61,lx:432,ly:752},
+{n:'烘爐地',e:'',cx:110,cy:900,rx:58,ry:32,r:4,seed:71,lx:110,ly:946},
+{n:'軍艦岩',e:'',cx:262,cy:112,rx:36,ry:20,r:3,seed:83,lx:298,ly:94},
+{n:'金面山',e:'',cx:700,cy:212,rx:34,ry:20,r:3,seed:97,lx:700,ly:192}
+];
+const RIVERS=[
+{d:'M20 112C110 190 160 300 190 410S235 560 255 640 340 790 430 905',w:20,n:'淡水河・新店溪',lx:150,ly:300},
+{d:'M920 345C810 330 700 310 620 318S480 295 420 280 320 262 215 300',w:15,n:'基隆河',lx:520,ly:298}
+];
+
+/* ---------- 去處 ---------- */
+const SP=[
+{id:'tamsui-old',s:'tamsui',n:'淡水老街與河岸夕陽',e:'out',t:'pn',tags:['小吃','夕陽','河岸'],see:'河岸欄杆邊看夕陽落進出海口，天色轉紫時最好看。',eat:'阿給、魚酥、鐵蛋，邊走邊吃。',go:'沿河岸往漁人碼頭走，傍晚可搭渡輪看對岸。',price:'免費（小吃另計）',walk:'約5分鐘到老街',wx:'晴天傍晚最好，河岸風大，帶薄外套。',crowd:'週末傍晚人最多，15:30 前到，吃完再等夕陽。'},
+{id:'tamsui-fort',s:'tamsui',n:'紅毛城與滬尾小鎮',e:'both',t:'ap',r:1,tags:['歷史','古蹟','拍照'],see:'紅毛城的紅磚建築與園區，從高處看淡水河口。',eat:'周邊老屋咖啡與下午茶。',go:'順路走滬尾砲台與老街，半天剛好。',price:'約NT$80（以官方公告為準）',walk:'約20分鐘，或搭公車',wx:'雨天有室內展區，晴天視野最好。',crowd:'上午最舒服，午後旅行團變多。'},
+{id:'guandu-park',s:'guandu',n:'關渡自然公園',e:'out',t:'ap',tags:['賞鳥','濕地','親子'],see:'淡水河邊的濕地，秋冬候鳥季可以看到大量水鳥。',eat:'關渡宮周邊的小吃。',go:'接著走關渡宮，或沿河堤騎車往淡水。',price:'約NT$60（以官方公告為準）',walk:'約15到20分鐘',wx:'晴天陰天都適合，正午偏曬，帶望遠鏡更好。',crowd:'假日上午親子多，傍晚最安靜。'},
+{id:'xbt-museum',s:'xinbeitou',n:'北投溫泉博物館與地熱谷',e:'both',t:'ap',r:1,tags:['溫泉','古蹟','散步'],see:'日治時期的溫泉浴場建築，彩繪玻璃很漂亮。再走到地熱谷看冒煙的溫泉源頭。',eat:'北投市場周邊的在地小吃。',go:'沿北投公園散步，順路進北投圖書館看綠建築。',price:'博物館免費（以官方公告為準）',walk:'約8分鐘到博物館，約15分鐘到地熱谷',wx:'微雨很有氣氛，但地熱谷周邊路面濕滑。',crowd:'週末下午人滿，上午進館最好。'},
+{id:'xbt-bath',s:'xinbeitou',n:'北投泡湯',e:'in',t:'pn',r:1,tags:['溫泉','放鬆','雨天'],see:'公共浴池與私人湯屋都有，依預算挑。',eat:'泡完湯來碗熱食，或在溫泉旅館喝下午茶。',go:'先看博物館的歷史，再泡湯收尾。',price:'公共浴池約NT$150起，湯屋各家不同',walk:'約5到15分鐘',wx:'越冷越適合，是下雨天最好的備案。',crowd:'週末晚上先訂位，或避開 18:00 前後。'},
+{id:'junjian',s:'shipai',n:'軍艦岩親山步道',e:'out',t:'ap',h:1,tags:['岩頂','市景','短程'],see:'像船頭一樣突出的砂岩岩頂，能看到關渡平原和台北盆地。',eat:'下山後在石牌路一帶吃在地小吃。',go:'從石牌一帶上山，體力好可以連走丹鳳山。',price:'免費',walk:'約15到20分鐘到登山口',wx:'岩面雨後很滑，風大時注意站位。',crowd:'假日早上人多，岩頂拍照要排一下。'},
+{id:'zhishan',s:'zhishan',n:'芝山岩與惠濟宮',e:'out',t:'ap',h:1,tags:['小山','古蹟','散步'],see:'小山丘上有廟、石砌步道和古蹟，不費力就能走到頂。',eat:'下山後去士林市場補給。',go:'順路看雨農閣與芝山岩隘門。',price:'免費',walk:'約10分鐘到入口',wx:'雨後石階濕滑，穿防滑鞋。',crowd:'早晨散步的居民多，週末午後較安靜。'},
+{id:'shilin-npm',s:'shilin',n:'國立故宮博物院',e:'in',t:'ap',r:1,tags:['博物館','文物','雨天'],see:'翠玉白菜、肉形石、毛公鼎，這幾件先找（常設展品會輪替，以當期展覽為準）。',eat:'館內餐廳，或回士林吃小吃。',go:'逛完搭公車去士林官邸或夜市。',price:'約NT$350（以官方公告為準）',walk:'轉公車約15到20分鐘',wx:'雨天首選，館內冷氣強，帶薄外套。',crowd:'週末下午排隊久，開館就進場最好。'},
+{id:'shilin-ymsnp',s:'jiantan',n:'陽明山擎天崗',e:'out',t:'a',h:1,tags:['草原','火山','健行'],see:'擎天崗大草原與放牧的牛群，天氣好能看到整片山谷。',eat:'竹子湖一帶的野菜餐廳。',go:'一般走擎天崗環形步道就夠；體力好可以挑戰七星山主峰。',price:'免費',walk:'劍潭站轉紅5公車約30到40分鐘到陽明山，再轉108遊園公車',wx:'山上常起霧、風大，出發前看山區預報。',crowd:'假日上午公車很擠，8:00 前出發。'},
+{id:'jiantan-hill',s:'jiantan',n:'劍潭山親山步道',e:'out',t:'ap',h:1,tags:['輕鬆','市區','初學者'],see:'好走的市區後山，可以看到基隆河與市景。',eat:'下山後直接去士林夜市。',go:'當作夜市前的暖身。',price:'免費',walk:'約10分鐘到登山口',wx:'夏天午後悶熱，上午或傍晚上山。',crowd:'假日早上晨運客多，步道夠寬。'},
+{id:'shilin-market',s:'jiantan',n:'士林夜市',e:'both',t:'n',r:1,tags:['夜市','小吃','夜生活'],see:'地下美食區與外圍的巷弄攤位。',eat:'大餅包小餅、雞排、蚵仔煎。',go:'從劍潭站走過去，晚上八點最熱鬧。',price:'免費（小吃另計）',walk:'約5分鐘',wx:'部分區域有遮蔽，下雨也能逛。',crowd:'週末晚上極擠，早點到。'},
+{id:'tfam',s:'yuanshan',n:'臺北市立美術館',e:'in',t:'ap',r:1,tags:['藝術','展覽','雨天'],see:'當代藝術展覽，建築本身也值得看。',eat:'館內咖啡，或到大直、圓山一帶吃飯。',go:'接著走花博公園，或去美麗華吃晚餐。',price:'約NT$30（以官方公告為準）',walk:'約10分鐘',wx:'雨天首選。',crowd:'週末午後稍多。'},
+{id:'expo-park',s:'yuanshan',n:'花博公園',e:'out',t:'ap',tags:['公園','騎車','市集'],see:'大片草地與展館，週末常有市集。',eat:'草地野餐或附近咖啡。',go:'順路去北美館，或到河濱騎車。',price:'免費（場館依公告）',walk:'約5分鐘',wx:'晴天最舒服，夏天正午太曬。',crowd:'活動檔期人多，平日早上最舒適。'},
+{id:'dadaocheng',s:'dadaocheng',n:'大稻埕迪化街',e:'both',t:'ap',r:1,tags:['老街','南北貨','老屋'],see:'洋樓立面、布市與茶行。',eat:'古早味小吃、手工點心與老屋咖啡。',go:'午後逛老街，傍晚走到河岸看夕陽。',price:'免費（餐飲購物另計）',walk:'約5到10分鐘',wx:'騎樓多，下雨也能逛。',crowd:'年貨期間很擠，平日早上最舒適。'},
+{id:'dadaocheng-pier',s:'dadaocheng',n:'大稻埕碼頭夕陽',e:'out',t:'pn',tags:['夕陽','河岸','約會'],see:'河堤邊的夕陽，天黑後對岸燈光亮起。',eat:'碼頭邊的貨櫃市集與簡餐。',go:'迪化街逛完直接走過去，晚餐就地解決。',price:'免費',walk:'約15分鐘',wx:'夏天傍晚悶熱，帶水。',crowd:'週末日落前人多，提早找位置。'},
+{id:'sanhe',s:'taipeibridge',n:'三和夜市',e:'out',t:'n',tags:['夜市','在地','小吃'],see:'三重在地人的夜市，氣氛接地氣。',eat:'滷味、炸物、冰品。',go:'想避開市區觀光人潮時的選擇。',price:'免費（小吃另計）',walk:'約5分鐘',wx:'主街露天，雨天帶傘。',crowd:'週末晚上較擠。'},
+{id:'ningxia',s:'shuanglian',n:'寧夏夜市',e:'out',t:'n',tags:['夜市','小吃','老字號'],see:'一整條街的攤位，在地老店多。',eat:'蚵仔煎、芋餅、滷肉飯、豬肝湯。',go:'吃完散步到大稻埕或中山。',price:'免費（小吃另計）',walk:'約8到10分鐘',wx:'主街露天，雨天帶傘。',crowd:'週末晚上排隊的店多，18:00 前到較好。'},
+{id:'zhongshan',s:'zhongshan',n:'中山赤峰街與線形公園',e:'both',t:'ap',r:1,tags:['咖啡','選物','散步'],see:'老公寓改成的咖啡館、小店與選物店。',eat:'精品咖啡與甜點。',go:'沿線形公園散步到雙連。',price:'免費（消費另計）',walk:'約5分鐘',wx:'店多，雨天好躲。',crowd:'下午排隊較多，上午最悠閒。'},
+{id:'ntm',s:'taipei_main',n:'國立臺灣博物館',e:'in',t:'ap',r:1,tags:['博物館','建築','雨天'],see:'希臘神殿風格的老建築，有自然史常設展。',eat:'館前路、重慶南路一帶的小店。',go:'順路逛二二八和平公園，再去西門。',price:'約NT$30（以官方公告為準）',walk:'約10分鐘（台大醫院站更近）',wx:'雨天首選。',crowd:'假日有親子團。'},
+{id:'ximen',s:'ximen',n:'西門町與紅樓',e:'both',t:'pn',r:1,tags:['逛街','小吃','電影'],see:'街頭文化、電影街與紅樓。',eat:'麵線、蚵仔煎、手搖飲。',go:'傍晚吃完晚餐，看電影或逛紅樓市集。',price:'免費（消費另計）',walk:'約1分鐘',wx:'部分有騎樓，主街多半露天。',crowd:'週末晚上人極多，下午輕鬆一點。'},
+{id:'botanical',s:'xiaonanmen',n:'臺北植物園',e:'out',t:'ap',tags:['荷花','散步','古蹟'],see:'荷花池（夏天最盛）、欽差行臺古蹟和各種植物區。',eat:'南海路、牯嶺街一帶的小店。',go:'接著走南海學園，或往西門町。',price:'免費',walk:'約8分鐘',wx:'晴天微陰都好，夏天蚊子多。',crowd:'荷花季週末攝影人多，上午最好。'},
+{id:'longshan',s:'longshan',n:'艋舺龍山寺與剝皮寮',e:'both',t:'apn',r:1,tags:['古寺','老街','夜市'],see:'龍山寺的屋簷雕飾，剝皮寮的老街與展覽。',eat:'華西街與廣州街的在地小吃。',go:'白天逛老街，晚上走華西街、廣州街夜市。',price:'寺廟免費；剝皮寮展覽依公告',walk:'約1到8分鐘',wx:'廟埕有遮蔽，小雨也能逛。',crowd:'初一十五人多，平日下午很舒服。'},
+{id:'cks',s:'chiangkai',n:'中正紀念堂與廣場',e:'out',t:'ap',tags:['廣場','建築','拍照'],see:'藍白牌樓與大廣場，兩側是國家戲劇院與音樂廳。',eat:'走到東門永康街、溫州街。',go:'繼續往東門吃飯。',price:'免費',walk:'約3分鐘',wx:'廣場沒有遮蔭，夏天中午太曬。',crowd:'有活動時人多，平常很空曠。'},
+{id:'yongkang',s:'dongmen',n:'永康街',e:'both',t:'ap',r:1,tags:['小吃','咖啡','巷弄'],see:'巷弄小店與老社區氣氛。',eat:'小籠包、牛肉麵、芒果冰、手作甜點。',go:'名店先取號再去逛。',price:'免費（消費另計）',walk:'約3分鐘',wx:'室內店家多，雨天也行。',crowd:'午餐和週末下午要排隊，11:00 前到最好。'},
+{id:'shida',s:'guting',n:'師大商圈與溫州街',e:'both',t:'pn',r:1,tags:['夜市','咖啡','書店'],see:'小店、餐廳與書店林立的巷弄。',eat:'滷味、各國料理、咖啡。',go:'晚餐吃師大路，再散步到溫州街喝咖啡。',price:'免費（消費另計）',walk:'約5到8分鐘',wx:'店多，雨天好躲。',crowd:'週末晚上人多。'},
+{id:'huashan',s:'zhongxiao_xinsheng',n:'華山1914文化創意產業園區',e:'both',t:'ap',r:1,tags:['展覽','市集','文創'],see:'舊酒廠改成的藝文空間，紅磚與草地很好拍。',eat:'園區內與周邊的咖啡、輕食。',go:'週末常有市集與展覽，逛完去光華商場或永康街。',price:'免費入園（展覽另計）',walk:'約5分鐘',wx:'室內外都有，雨天看展。',crowd:'週末下午人多，上午較空。'},
+{id:'zxfx',s:'fuxing',n:'忠孝復興商圈',e:'in',t:'pn',r:1,tags:['逛街','百貨','雨天'],see:'百貨與地下街相連，雨天走地下通道。',eat:'商場餐廳與巷內咖啡館。',go:'和朋友碰面，一次逛完再去看夜景。',price:'免費（消費另計）',walk:'約1到3分鐘',wx:'以室內為主，雨天首選。',crowd:'週末傍晚人多。'},
+{id:'daan-park',s:'daan_park',n:'大安森林公園',e:'out',t:'ap',tags:['公園','野餐','散步'],see:'市中心的大片綠地，有露天音樂台。',eat:'信義路、永康街、金山南路一帶。',go:'早上散步配咖啡，下午野餐。',price:'免費',walk:'約1分鐘',wx:'晴天舒服，雨後草地濕。',crowd:'週末早上與傍晚常有活動。'},
+{id:'linjiang',s:'xinyi_anhe',n:'臨江街觀光夜市',e:'out',t:'n',tags:['夜市','小吃','在地'],see:'通化街一帶的夜市，離信義區很近。',eat:'蚵仔麵線、胡椒餅、水果攤。',go:'象山或101行程後的晚餐選擇。',price:'免費（小吃另計）',walk:'約3分鐘',wx:'主街露天，雨天帶傘。',crowd:'週末晚上擠，平日輕鬆。'},
+{id:'101',s:'taipei101',n:'台北101觀景台',e:'in',t:'pn',r:1,tags:['夜景','地標','約會'],see:'89 樓室內觀景台與 88 樓的風阻尼器。',eat:'購物中心美食街。',go:'傍晚進場，一次看黃昏和夜景。',price:'約NT$600（以官方公告為準）',walk:'約3分鐘',wx:'晴天最好，雲層低時看不遠。',crowd:'日落時段最熱門，先線上訂票。'},
+{id:'xiangshan',s:'xiangshan',n:'象山六巨石',e:'out',t:'ap',h:1,tags:['夜景','階梯','短程'],see:'六巨石平台俯瞰 101 與整個盆地。',eat:'下山後到信義區或臨江街夜市。',go:'上午或傍晚上山，看日落記得結伴並帶頭燈。',price:'免費',walk:'約10分鐘到登山口，單程約30到40分鐘',wx:'石階雨後濕滑，夏天很熱，早點出發。',crowd:'週末傍晚步道非常擠。'},
+{id:'sunyat',s:'sunyat',n:'國父紀念館與中山公園',e:'out',t:'ap',tags:['公園','建築','散步'],see:'國父紀念館的大屋頂建築，整點有衛兵交接。',eat:'光復南路與忠孝東路一帶。',go:'接著走松菸，或往信義商圈。',price:'免費（展覽依公告）',walk:'約1分鐘',wx:'園區有樹蔭，下雨可以進館。',crowd:'整點交接時人多。'},
+{id:'songyan',s:'sunyat',n:'松山文創園區',e:'both',t:'ap',r:1,tags:['展覽','文創','設計'],see:'老菸廠改成的園區，有展覽與設計商店。',eat:'園區咖啡館與誠品生活松菸店。',go:'逛完去國父紀念館或信義商圈。',price:'免費入園（展覽另計）',walk:'約10分鐘',wx:'室內展區可以避雨。',crowd:'展覽檔期週末人多，上午最舒服。'},
+{id:'xinyi',s:'cityhall',n:'信義商圈',e:'in',t:'pn',r:1,tags:['購物','夜景','約會'],see:'相連的百貨商場與假日街頭表演。',eat:'商場美食街與餐廳。',go:'下午逛街，晚上看 101 的燈光。',price:'免費（消費另計）',walk:'約3到5分鐘',wx:'以室內為主，雨天首選。',crowd:'週末晚上人多。'},
+{id:'yongchun',s:'yongchun',n:'四獸山・虎山自然步道',e:'out',t:'a',h:1,tags:['健行','市景','近市區'],see:'登上虎山能遠眺 101 與市區，步道短又好走。',eat:'下山後去永春市場。',go:'四獸山有虎、豹、獅、象四座小山，可以連走。',price:'免費',walk:'約15分鐘到登山口',wx:'夏天午後悶熱，上午去；雨後泥濘。',crowd:'假日早晨人多，岔路多可以避開人潮。'},
+{id:'arena',s:'arena',n:'臺北小巨蛋',e:'in',t:'pn',r:1,tags:['演唱會','運動','活動'],see:'演唱會與運動賽事的場館。',eat:'南京東路與敦化北路一帶。',go:'有節目時再排，散場注意人潮管制。',price:'依節目而定',walk:'約1分鐘',wx:'全室內。',crowd:'散場時捷運極擠，提早或晚點離開。'},
+{id:'raohe',s:'songshan',n:'饒河街觀光夜市',e:'out',t:'n',tags:['夜市','小吃','廟口'],see:'慈祐宮前的牌樓與一條直直的夜市。',eat:'胡椒餅、藥燉排骨、臭豆腐。',go:'傍晚進場，先排胡椒餅再慢慢逛。',price:'免費（小吃另計）',walk:'約5分鐘',wx:'主街露天，雨天帶傘。',crowd:'週末晚上很擠，18:00 前較舒服。'},
+{id:'miramar',s:'jiannan',n:'美麗華與摩天輪',e:'both',t:'pn',r:1,tags:['摩天輪','夜景','約會'],see:'摩天輪與基隆河邊的夜景。',eat:'商場餐廳。',go:'黃昏上摩天輪，下來吃晚餐。',price:'摩天輪票價以官方公告為準',walk:'約5到8分鐘',wx:'商場是室內，摩天輪看天候。',crowd:'週末晚上排隊久。'},
+{id:'jinmian',s:'xihu',n:'金面山剪刀石',e:'out',t:'a',h:1,tags:['岩稜','市景','中級'],see:'剪刀石與岩稜步道，俯瞰內湖與 101。',eat:'下山後在內湖吃早午餐。',go:'部分路段要手腳並用，適合有一點爬山經驗的人。',price:'免費',walk:'約15分鐘到登山口',wx:'岩面曬又熱，清晨出發；雨後不建議。',crowd:'假日上午岩稜段會塞，早點出發。'},
+{id:'dahu-park',s:'dahu_park',n:'大湖公園',e:'out',t:'ap',tags:['湖景','散步','拱橋'],see:'錦帶橋與湖面倒影。',eat:'周邊咖啡館與餐廳。',go:'繞湖散步約 1 小時。',price:'免費',walk:'約1分鐘',wx:'晴天舒服，雨後起霧很漂亮。',crowd:'週末早上晨運的人多。'},
+{id:'baishihu',s:'dahu_park',n:'白石湖吊橋與碧山巖',e:'out',t:'ap',h:1,tags:['吊橋','步道','草莓'],see:'紅色的白石湖吊橋與山景，冬春有草莓園。',eat:'山上的咖啡店與草莓園。',go:'從大湖公園一帶走步道上山，或轉乘公車、計程車。',price:'免費',walk:'步道或接駁約20到40分鐘',wx:'下雨路滑，起霧看不到景。',crowd:'假日停車難，搭大眾運輸較好。'},
+{id:'nangang-bottle',s:'nangang',n:'南港瓶蓋工廠',e:'both',t:'ap',r:1,tags:['文創','老工廠','咖啡'],see:'老瓶蓋工廠改成的文創空間。',eat:'在地小吃與咖啡。',go:'和南港展覽館的展覽排成半天。',price:'以官方公告為準',walk:'約5到10分鐘',wx:'有室內空間，雨天也行。',crowd:'週末下午人多一點。'},
+{id:'exhib',s:'exhib',n:'南港展覽館',e:'in',t:'ap',r:1,tags:['展覽','消費展','活動'],see:'大型展覽與消費展，檔期很多。',eat:'館內與周邊餐飲。',go:'出發前先查展期，有些是只開放業界的商業展。',price:'依展覽而定',walk:'約1分鐘',wx:'全室內，雨天適合。',crowd:'熱門展的週末很多人。'},
+{id:'gongguan',s:'gongguan',n:'台大校園與公館商圈',e:'both',t:'apn',tags:['校園','小吃','夜市'],see:'台大的椰林大道和校園建築。',eat:'公館夜市與水源市場附近的小吃。',go:'白天逛校園，傍晚吃公館。',price:'免費（餐飲另計）',walk:'約3到10分鐘',wx:'校園多半戶外，下雨去附近店家。',crowd:'週末傍晚人多。'},
+{id:'baozang',s:'gongguan',n:'寶藏巖國際藝術村',e:'out',t:'pn',tags:['聚落','藝術','河岸'],see:'依山而建的老聚落，晚上燈光很有氣氛。',eat:'村內的小咖啡館。',go:'傍晚去，看完夕陽再吃飯。',price:'公共空間免費，部分展覽另計',walk:'約10到15分鐘',wx:'坡道多，雨天較滑。',crowd:'週末傍晚常有人拍照。'},
+{id:'jingmei-rock',s:'jingmei',n:'仙跡岩步道',e:'out',t:'ap',h:1,tags:['健行','市景','親山'],see:'可以眺望景美與新店溪一帶。',eat:'下山後去景美夜市。',go:'傍晚前上山，看完市景下來吃夜市。',price:'免費',walk:'約15到20分鐘到登山口',wx:'雨後濕滑，夏天悶熱。',crowd:'週末早晨人多，10 點前出發。'},
+{id:'jingmei-market',s:'jingmei',n:'景美夜市',e:'out',t:'n',tags:['夜市','在地','小吃'],see:'在地人常去的夜市，氣氛輕鬆。',eat:'滷味、烤玉米、各式小吃。',go:'爬完仙跡岩的晚餐首選。',price:'免費（小吃另計）',walk:'約5分鐘',wx:'部分有騎樓。',crowd:'週末晚上較多人。'},
+{id:'zoo',s:'zoo',n:'臺北市立動物園',e:'out',t:'ap',tags:['動物','親子','全天'],see:'無尾熊館、企鵝館、大貓熊館是人氣區。',eat:'園區餐廳，或自備野餐。',go:'早點進場先看戶外區，動物上午比較活躍。',price:'約NT$60起（以官方公告為準）',walk:'約1到3分鐘',wx:'夏天炎熱，上午去。',crowd:'週末熱門館要排隊。'},
+{id:'maokong',s:'zoo',n:'貓空纜車與茶園',e:'out',t:'pn',h:1,tags:['纜車','茶園','夜景'],see:'纜車沿著山坡往上，到站後喝茶看夜景。',eat:'茶餐廳與在地茶點。',go:'傍晚上山，晚餐配夜景；纜車固定有維修停駛日，出發前先查。',price:'依搭乘站數 NT$70 到 120（以官方公告為準）',walk:'約3分鐘到纜車站',wx:'山上比市區涼，起霧時看不到景。',crowd:'週末晚上排隊久。'},
+{id:'bitan',s:'xindian',n:'碧潭吊橋與河畔',e:'out',t:'pn',tags:['吊橋','划船','夜景'],see:'碧潭吊橋與河邊夜景，天黑燈亮很漂亮。',eat:'河邊小吃與冰品。',go:'傍晚划船或走吊橋，等天色轉暗。',price:'吊橋免費，划船另計',walk:'約5分鐘',wx:'風大或下雨不要划船。',crowd:'週末傍晚人多。'},
+{id:'lin-garden',s:'banqiao',n:'板橋林本源園邸',e:'out',t:'ap',tags:['古蹟','園林','拍照'],see:'清代園林建築與池塘假山。',eat:'板橋老街與新板特區。',go:'半天行程，接著逛板橋老街。',price:'約NT$80（以官方公告為準）',walk:'約15分鐘（府中站約10分鐘）',wx:'晴天最好，雨天部分廊道可躲雨。',crowd:'週末下午人較多。'},
+{id:'hongludi',s:'nanshijiao',n:'烘爐地南山福德宮',e:'out',t:'ap',h:1,tags:['山景','廟宇','眺望'],see:'山上的土地公廟，能眺望新北與台北盆地。',eat:'下山後去華新街吃緬甸料理。',go:'搭公車或計程車上山，白天去。',price:'免費',walk:'接駁約15到20分鐘',wx:'起霧時看不到景，天氣好最值得。',crowd:'假日人多，停車難。'},
+{id:'huaxin',s:'nanshijiao',n:'華新街緬甸街',e:'both',t:'apn',r:1,tags:['異國','小吃','在地'],see:'緬甸與泰北風味的街區，市場氣氛濃。',eat:'涼拌茶葉、椰漿雞麵、緬式咖哩。',go:'午餐或晚餐都適合，多點幾道一起分。',price:'免費（餐飲另計）',walk:'約10分鐘',wx:'店多，雨天好躲。',crowd:'週末中午要排隊。'}
+];
+const SPM={};
+SP.forEach(p=>{SPM[p.id]=p;p.h=!!p.h;p.r=!!p.r;p.free=/^(免費|博物館免費|寺廟免費|吊橋免費|公共空間免費)/.test(p.price)||p.price.indexOf('免費入園')>=0;p.area=ST[p.s].area;});
+SP.sort((a,b)=>AREA_ORDER.indexOf(a.area)-AREA_ORDER.indexOf(b.area)||STL.indexOf(ST[a.s])-STL.indexOf(ST[b.s]));
+SP.forEach((p,i)=>p.no=String(i+1).padStart(3,'0'));
+
+const EV=[
+{s:'zhongxiao_xinsheng',slots:'ap',t:'週末創意市集'},
+{s:'sunyat',slots:'ap',t:'設計主題展'},
+{s:'yuanshan',slots:'ap',t:'花卉與植物市集'},
+{s:'xinbeitou',slots:'p',t:'溫泉季體驗'},
+{s:'exhib',slots:'p',t:'大型消費展'},
+{s:'arena',slots:'n',t:'演唱會'},
+{s:'dadaocheng',slots:'n',t:'河岸音樂夜'},
+{s:'tamsui',slots:'n',t:'夕陽音樂會'}
+];
+const TOURS=[
+{t:'山系慢活日',en:'Ridge & skyline',steps:{a:'xiangshan',p:'101',n:'linjiang'}},
+{t:'老台北散步日',en:'Old Taipei',steps:{a:'longshan',p:'dadaocheng',n:'dadaocheng-pier'}},
+{t:'下雨也好玩',en:'Rainy day',steps:{a:'shilin-npm',p:'yongkang',n:'xbt-bath'}},
+{t:'北邊一日',en:'Up north',steps:{a:'junjian',p:'xbt-museum',n:'tamsui-old'}}
+];
+
+/* ---------- storage ---------- */
+let FAV={},PLAN={a:[],p:[],n:[]};
+try{const f=JSON.parse(localStorage.getItem('wkm.fav')||'{}');if(f&&typeof f==='object')Object.keys(f).forEach(k=>{if(SPM[k])FAV[k]=1;});}catch(e){}
+try{const p=JSON.parse(localStorage.getItem('wkm.plan')||'null');if(p)['a','p','n'].forEach(k=>{PLAN[k]=(Array.isArray(p[k])?p[k]:[]).filter(id=>SPM[id]);});}catch(e){}
+const saveFav=()=>{try{localStorage.setItem('wkm.fav',JSON.stringify(FAV));}catch(e){}};
+const savePlan=()=>{try{localStorage.setItem('wkm.plan',JSON.stringify(PLAN));}catch(e){}};
+
+/* ---------- state ---------- */
+const S={env:new Set(),time:new Set(),hike:false,free:false,rain:false,fav:false,events:true,area:'all',station:null,spot:null};
+function match(p,o){o=o||S;
+  if(o.env.size===1){if(o.env.has('in')&&p.e==='out')return false;if(o.env.has('out')&&p.e==='in')return false;}
+  if(o.time.size){let ok=false;o.time.forEach(t=>{if(p.t.indexOf(t)>=0)ok=true;});if(!ok)return false;}
+  if(o.hike&&!p.h)return false;if(o.free&&!p.free)return false;if(o.rain&&!p.r)return false;if(o.fav&&!FAV[p.id])return false;
+  return true;}
+function scoped(p){if(S.station)return p.s===S.station;if(S.area!=='all')return p.area===S.area;return true;}
+const anyFilter=()=>S.env.size||S.time.size||S.hike||S.free||S.rain||S.fav;
+const dots=lines=>'<span class="dots" aria-hidden="true">'+lines.map(l=>'<i style="background:'+LINE[l].c+'"></i>').join('')+'</span>';
+const slotsOf=p=>p.t.split('').map(c=>SLOT[c]).join('・');
+
+/* ---------- icons ---------- */
+const IC={
+x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z"/></svg>',
+pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>',
+sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></svg>',
+people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.3"/><path d="M16 14.2c2.4.2 4 1.7 4.5 4.3"/></svg>',
+mtn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 19.5 9 7l4 7 2.5-3.5 6 9z"/></svg>',
+rain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 12a8 8 0 0 1 16 0z"/><path d="M12 12v6.5a2 2 0 0 1-4 0"/></svg>',
+star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 3.5 2.4 5.3 5.8.6-4.3 3.9 1.2 5.7L12 16.1 6.9 19l1.2-5.7L3.8 9.4l5.8-.6z"/></svg>'
+};
+
+/* ---------- map engine ---------- */
+const mapEl=$('#map'),svg=$('#svg'),world=$('#world'),land=$('#land'),linesG=$('#lines'),ovl=$('#ovl'),stl=$('#stl'),panel=$('#panel');
+const BOUNDS={x0:0,y0:10,x1:950,y1:950};
+const cam={x:0,y:0,s:.6};
+let VW=600,VH=600,minS=.3,maxS=3.4,lastS=-1,camTween=null,inertiaRaf=0;
+const desk=()=>window.matchMedia('(min-width: 960px)').matches;
+
+function rp(pts,r){
+  let d='M'+pts[0][0]+' '+pts[0][1];
+  for(let i=1;i<pts.length-1;i++){
+    const p0=pts[i-1],p1=pts[i],p2=pts[i+1];
+    const v1=[p0[0]-p1[0],p0[1]-p1[1]],v2=[p2[0]-p1[0],p2[1]-p1[1]];
+    const l1=Math.hypot(v1[0],v1[1])||1,l2=Math.hypot(v2[0],v2[1])||1,rr=Math.min(r,l1/2,l2/2);
+    const a=[p1[0]+v1[0]/l1*rr,p1[1]+v1[1]/l1*rr],b=[p1[0]+v2[0]/l2*rr,p1[1]+v2[1]/l2*rr];
+    d+=' L'+a[0].toFixed(1)+' '+a[1].toFixed(1)+' Q'+p1[0]+' '+p1[1]+' '+b[0].toFixed(1)+' '+b[1].toFixed(1);
+  }
+  const q=pts[pts.length-1];return d+' L'+q[0]+' '+q[1];
+}
+function rng(seed){let s=seed*9973%2147483647;return()=>{s=s*16807%2147483647;return(s-1)/2147483646;};}
+function blob(cx,cy,rx,ry,r){
+  const a=[.1+r()*.08,.05+r()*.06,.02+r()*.04],ph=[r()*6.28,r()*6.28,r()*6.28];let d='';
+  for(let i=0;i<=56;i++){const t=i/56*Math.PI*2,k=1+a[0]*Math.sin(2*t+ph[0])+a[1]*Math.sin(3*t+ph[1])+a[2]*Math.sin(5*t+ph[2]);
+    d+=(i?'L':'M')+(cx+Math.cos(t)*rx*k).toFixed(1)+' '+(cy+Math.sin(t)*ry*k).toFixed(1);}
+  return d+'Z';
+}
+const OVL=[];
+function buildMap(){
+  let h='';
+  RIVERS.forEach(rv=>{h+='<path class="river" d="'+rv.d+'" stroke-width="'+rv.w+'"/>';});
+  MOUNTAINS.forEach(m=>{const r=rng(m.seed);
+    for(let i=0;i<m.r;i++){const f=1-i/m.r*.86;const ox=-(i*m.rx*.035),oy=-(i*m.ry*.05);
+      h+='<path class="ctr'+(i===m.r-1?' top':'')+'" d="'+blob(m.cx+ox,m.cy+oy,m.rx*f,m.ry*f,r)+'"/>';}
+  });
+  land.innerHTML=h;
+  let l='';const order=['yellow','brown','blue','orange','green','red','red2'];
+  order.forEach(k=>{l+='<path class="ln-base" d="'+rp(LINES[k],16)+'"/>';});
+  l+='<g id="inkG">';order.forEach(k=>{l+='<path class="ln-ink" d="'+rp(LINES[k],16)+'"/>';});l+='</g>';
+  order.forEach(k=>{l+='<path class="ln" data-l="'+k+'" style="stroke:'+LINE[LCOL[k]].c+'" d="'+rp(LINES[k],16)+'"/>';});
+  linesG.innerHTML=l;
+  /* overlay: river names, mountain names, area labels */
+  let o='';
+  RIVERS.forEach((rv,i)=>{o+='<g class="ov" data-o="rv'+i+'"><text class="rv-t" text-anchor="middle">'+rv.n+'</text></g>';OVL.push({k:'rv'+i,x:rv.lx,y:rv.ly});});
+  MOUNTAINS.forEach((m,i)=>{o+='<g class="ov mt" data-o="mt'+i+'"><text class="mt-n">'+m.n+'</text>'+(m.e?'<text class="mt-e" y="16">'+m.e+'</text>':'')+'</g>';OVL.push({k:'mt'+i,x:m.lx,y:m.ly});});
+  AREAS.slice(1).forEach(a=>{o+='<g class="ov ar" data-o="ar-'+a.id+'" data-area="'+a.id+'" role="button" tabindex="-1" aria-label="放大到'+a.n+'"><text class="an">'+a.n+'</text></g>';OVL.push({k:'ar-'+a.id,x:a.lx,y:a.ly,area:a.id});});
+  ovl.innerHTML=o;
+  OVL.forEach(v=>{v.el=ovl.querySelector('[data-o="'+v.k+'"]');});
+  /* stations */
+  let s='';
+  STL.forEach(st=>{
+    st.cur=SP.some(p=>p.s===st.id);st.hub=st.lines.length>1;
+    const L=st.lab,anc=L[2]==='e'?'end':L[2]==='m'?'middle':'start';
+    s+='<g class="st'+(st.cur?'':' plain')+'" data-st="'+st.id+'"'+(st.cur?' tabindex="0" role="button"':'')+'>'
+     +'<g class="pin"><circle class="hit" r="17"/><circle class="ring" r="12.5"/>'
+     +'<g class="hk" transform="translate(-24 -22)"><path d="M0 13 7 1l4 6 2.5-3.2L19 13z"/><line x1="4.5" y1="9" x2="9.5" y2="9"/></g>'
+     +'<g class="ek" transform="translate(-17 6)"><path d="m6 0 1.5 3.6 3.9.4-2.9 2.6.8 3.9L6 8.5 2.7 10.5l.8-3.9L.6 4l3.9-.4z"/></g>'
+     +'<circle class="dot" r="'+(st.cur?(st.hub?6.6:5.6):(st.hub?4.6:3.4))+'"/>'
+     +'<g class="bdg" transform="translate(8 -21)"><rect x="0" y="0" width="17" height="14" rx="3"/><text x="8.5" y="10.4"></text></g></g>'
+     +'<g class="lbl"><text x="'+L[0]+'" y="'+L[1]+'" text-anchor="'+anc+'">'+st.name+'</text></g>'
+     +'<g class="tag"></g></g>';
+  });
+  stl.innerHTML=s;
+  STL.forEach(st=>{st.el=stl.querySelector('[data-st="'+st.id+'"]');st.lw=textW(st.name,st.cur?13:11.5);});
+  $('#legend').innerHTML=Object.keys(LINE).map(k=>'<li><i style="background:'+LINE[k].c+'"></i>'+LINE[k].n+'</li>').join('')
+   +'<li><svg viewBox="0 0 20 14"><circle cx="10" cy="7" r="5" fill="var(--ink)"/></svg>有符合的去處</li>'
+   +'<li><svg viewBox="0 0 20 14"><path d="M1 13 8 1l4 6 2.5-3.2L19 13z" fill="var(--card)" stroke="var(--ink)" stroke-width="1.2"/></svg>可爬山</li>'
+   +'<li><svg viewBox="0 0 20 14"><path d="m10 1 1.6 3.7 4 .4-3 2.7.9 4-3.5-2.1-3.5 2.1.9-4-3-2.7 4-.4z" fill="var(--stamp)" stroke="var(--ink)" stroke-width=".8"/></svg>示範活動</li>';
+}
+function textW(t,fs){let w=0;for(const c of t)w+=/[\u0000-ÿ]/.test(c)?fs*.58:fs*1.02;return w;}
+
+function resize(){
+  const r=mapEl.getBoundingClientRect();VW=Math.max(200,r.width);VH=Math.max(200,r.height);
+  svg.setAttribute('viewBox','0 0 '+VW+' '+VH);
+  const full={x:0,y:0,w:VW,h:VH};
+  const fs=Math.min((full.w-24)/(BOUNDS.x1-BOUNDS.x0),(full.h-24)/(BOUNDS.y1-BOUNDS.y0));
+  minS=fs*.8;maxS=Math.max(2.6,fs*6);
+}
+function sheetVis(){return desk()?0:(sheet.target!=null?sheet.target:(sheet.vis||0));}
+function viewRect(){const cover=sheetVis();return {x:0,y:desk()?0:58,w:VW,h:Math.max(140,VH-cover-(desk()?0:58))};}
+function fitCam(b,pad){pad=pad==null?36:pad;const v=viewRect();
+  const s=clamp(Math.min((v.w-2*pad)/Math.max(40,b.x1-b.x0),(v.h-2*pad)/Math.max(40,b.y1-b.y0)),minS,maxS);
+  return {s,x:v.x+v.w/2-(b.x0+b.x1)/2*s,y:v.y+v.h/2-(b.y0+b.y1)/2*s};}
+function clampCam(c){c=c||cam;const v=viewRect();
+  const bx0=c.x+BOUNDS.x0*c.s,bx1=c.x+BOUNDS.x1*c.s,by0=c.y+BOUNDS.y0*c.s,by1=c.y+BOUNDS.y1*c.s;
+  const mx=v.w*.3,my=v.h*.3;
+  if(bx1<v.x+mx)c.x+=v.x+mx-bx1;if(bx0>v.x+v.w-mx)c.x-=bx0-(v.x+v.w-mx);
+  if(by1<v.y+my)c.y+=v.y+my-by1;if(by0>v.y+v.h-my)c.y-=by0-(v.y+v.h-my);
+  return c;}
+function apply(){
+  const s=cam.s;
+  world.setAttribute('transform','translate('+cam.x.toFixed(2)+' '+cam.y.toFixed(2)+') scale('+s.toFixed(4)+')');
+  if(Math.abs(s-lastS)>1e-4){
+    const lw=clamp(2.4+2.3*s,3,7.5);
+    linesG.style.setProperty('--lw',(lw/s).toFixed(3));
+    linesG.style.setProperty('--lw2',(1/s).toFixed(3));
+    linesG.style.setProperty('--lw3',((lw+4)/s).toFixed(3));
+    land.style.setProperty('--hw',(.9/s).toFixed(3));
+    const ink=$('#inkG');if(ink)ink.setAttribute('transform','translate('+(1.6/s).toFixed(2)+' '+(1.6/s).toFixed(2)+')');
+    lastS=s;scheduleLabels();
+  }
+  for(const st of STL)st.el.setAttribute('transform','translate('+(cam.x+st.x*s).toFixed(1)+' '+(cam.y+st.y*s).toFixed(1)+')');
+  for(const v of OVL)v.el.setAttribute('transform','translate('+(cam.x+v.x*s).toFixed(1)+' '+(cam.y+v.y*s).toFixed(1)+')');
+}
+let labRaf=0;
+function scheduleLabels(){if(labRaf)return;labRaf=requestAnimationFrame(()=>{labRaf=0;layoutLabels();});}
+function layoutLabels(){
+  const s=cam.s,boxes=[];
+  const areaOp=clamp((0.56-s)/0.1,0,1);
+  OVL.forEach(v=>{if(v.area){v.el.style.opacity=areaOp;v.el.style.pointerEvents=areaOp>.3?'auto':'none';v.el.setAttribute('tabindex',areaOp>.3?'0':'-1');}
+    else{v.el.style.opacity=(s<.5&&v.k.indexOf('mt')===0)?0:1;}});
+  const showLab=s>=.5;
+  const cand=STL.map(st=>{let pr=st.cur?(st.on?60:30):(s>=1.05?10:-1);if(st.id===S.station)pr=999;return {st,pr};}).filter(c=>c.pr>0).sort((a,b)=>b.pr-a.pr);
+  const vis=new Set();
+  cand.forEach(c=>{
+    const st=c.st;if(!showLab&&c.pr<999)return;
+    const fs=st.cur?13:11.5,L=st.lab,w=st.lw,px=cam.x+st.x*s,py=cam.y+st.y*s;
+    let x0=L[2]==='e'?L[0]-w:L[2]==='m'?L[0]-w/2:L[0];x0+=px;
+    const y0=py+L[1]-fs*.9,b={x0:x0-2,y0:y0-1,x1:x0+w+2,y1:y0+fs*1.2+1};
+    if(c.pr<999&&boxes.some(o=>b.x0<o.x1&&b.x1>o.x0&&b.y0<o.y1&&b.y1>o.y0))return;
+    boxes.push(b);vis.add(st.id);
+  });
+  STL.forEach(st=>{st.el.classList.toggle('nolab',!vis.has(st.id));st.el.classList.toggle('showb',s>=1);st.el.classList.toggle('zin',s>=1);});
+}
+function setCam(t,dur){
+  stopMotion();clampCam(t);
+  if(!ANIM||dur===0){cam.x=t.x;cam.y=t.y;cam.s=t.s;apply();return;}
+  camTween=G.to(cam,{x:t.x,y:t.y,s:t.s,duration:dur||.85,ease:'power3.inOut',onUpdate:apply});
+}
+function stopMotion(){if(camTween){camTween.kill();camTween=null;}if(inertiaRaf){cancelAnimationFrame(inertiaRaf);inertiaRaf=0;}}
+function zoomAt(px,py,ns,dur){
+  ns=clamp(ns,minS,maxS);const wx=(px-cam.x)/cam.s,wy=(py-cam.y)/cam.s;
+  const t={s:ns,x:px-wx*ns,y:py-wy*ns};
+  if(dur)setCam(t,dur);else{cam.s=t.s;cam.x=t.x;cam.y=t.y;clampCam();apply();}
+}
+function boundsOf(ids,pad){pad=pad||40;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;ids.forEach(id=>{const s=ST[id];x0=Math.min(x0,s.x);y0=Math.min(y0,s.y);x1=Math.max(x1,s.x);y1=Math.max(y1,s.y);});return {x0:x0-pad,y0:y0-pad,x1:x1+pad,y1:y1+pad};}
+function fitAll(dur){setCam(fitCam(BOUNDS,16),dur);}
+function focusStation(id,dur){
+  const st=ST[id],v=viewRect(),s=Math.max(cam.s,Math.min(maxS,desk()?1.35:1.15));
+  setCam({s,x:v.x+v.w/2-st.x*s,y:v.y+v.h*.5-st.y*s},dur);
+}
+
+/* pointer */
+const ptrs=new Map();let drag=null,pinch=null,moved=0,downSt=null,vel={x:0,y:0},lastPt=null,lastT=0,rect=null,interacted=false;
+function rel(e){return {x:e.clientX-rect.left,y:e.clientY-rect.top};}
+mapEl.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.ctl,.legend'))return;
+  if(e.button!==undefined&&e.button!==0&&e.pointerType==='mouse')return;
+  rect=mapEl.getBoundingClientRect();stopMotion();
+  try{mapEl.setPointerCapture(e.pointerId);}catch(_){}
+  ptrs.set(e.pointerId,rel(e));
+  if(ptrs.size===1){const p=rel(e);drag={x:p.x,y:p.y,cx:cam.x,cy:cam.y};moved=0;
+    downSt=e.target.closest('[data-st]')||e.target.closest('[data-area]');vel={x:0,y:0};lastPt=p;lastT=performance.now();}
+  else if(ptrs.size===2){const [a,b]=[...ptrs.values()];const m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,s:cam.s,wx:(m.x-cam.x)/cam.s,wy:(m.y-cam.y)/cam.s};drag=null;moved=99;}
+});
+mapEl.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;const p=rel(e);ptrs.set(e.pointerId,p);
+  if(pinch&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+    const ns=clamp(pinch.s*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d,minS,maxS);cam.s=ns;cam.x=m.x-pinch.wx*ns;cam.y=m.y-pinch.wy*ns;clampCam();apply();markInteract();return;}
+  if(drag){const dx=p.x-drag.x,dy=p.y-drag.y;moved=Math.max(moved,Math.hypot(dx,dy));
+    if(moved>5){mapEl.classList.add('dragging');cam.x=drag.cx+dx;cam.y=drag.cy+dy;clampCam();apply();markInteract();
+      const now=performance.now(),dt=Math.max(1,now-lastT);vel={x:(p.x-lastPt.x)/dt,y:(p.y-lastPt.y)/dt};lastPt=p;lastT=now;}}
+});
+function endPtr(e){
+  if(!ptrs.has(e.pointerId))return;ptrs.delete(e.pointerId);
+  if(pinch){if(ptrs.size<2){pinch=null;if(ptrs.size===1){const p=[...ptrs.values()][0];drag={x:p.x,y:p.y,cx:cam.x,cy:cam.y};moved=99;}}return;}
+  if(ptrs.size===0&&drag){mapEl.classList.remove('dragging');
+    if(moved<6&&downSt&&e.type==='pointerup'){
+      if(downSt.dataset.st){const st=ST[downSt.dataset.st];if(st.cur)selectStation(st.id);}
+      else if(downSt.dataset.area)pickArea(downSt.dataset.area);
+    }else if(moved>=6&&performance.now()-lastT<80&&Math.hypot(vel.x,vel.y)>.15&&!RM){inertia(vel.x*16,vel.y*16);}
+    drag=null;}
+}
+mapEl.addEventListener('pointerup',endPtr);mapEl.addEventListener('pointercancel',endPtr);
+function inertia(vx,vy){const step=()=>{vx*=.92;vy*=.92;cam.x+=vx;cam.y+=vy;clampCam();apply();if(Math.hypot(vx,vy)>.4)inertiaRaf=requestAnimationFrame(step);else inertiaRaf=0;};inertiaRaf=requestAnimationFrame(step);}
+mapEl.addEventListener('wheel',e=>{e.preventDefault();stopMotion();rect=mapEl.getBoundingClientRect();const p=rel(e);
+  const k=Math.exp(-e.deltaY*(e.ctrlKey?.012:.0016));zoomAt(p.x,p.y,cam.s*k);markInteract();},{passive:false});
+mapEl.addEventListener('dblclick',e=>{rect=mapEl.getBoundingClientRect();const p=rel(e);zoomAt(p.x,p.y,cam.s*1.8,.55);});
+mapEl.addEventListener('keydown',e=>{
+  const st=e.target.closest&&e.target.closest('[data-st]');
+  if(st&&(e.key==='Enter'||e.key===' ')){e.preventDefault();selectStation(st.dataset.st);return;}
+  const ar=e.target.closest&&e.target.closest('[data-area]');
+  if(ar&&(e.key==='Enter'||e.key===' ')){e.preventDefault();pickArea(ar.dataset.area);return;}
+  const v=viewRect(),step=70;let used=true;
+  if(e.key==='ArrowLeft')setCam({s:cam.s,x:cam.x+step,y:cam.y},.3);
+  else if(e.key==='ArrowRight')setCam({s:cam.s,x:cam.x-step,y:cam.y},.3);
+  else if(e.key==='ArrowUp')setCam({s:cam.s,x:cam.x,y:cam.y+step},.3);
+  else if(e.key==='ArrowDown')setCam({s:cam.s,x:cam.x,y:cam.y-step},.3);
+  else if(e.key==='+'||e.key==='=')zoomAt(v.x+v.w/2,v.y+v.h/2,cam.s*1.4,.35);
+  else if(e.key==='-'||e.key==='_')zoomAt(v.x+v.w/2,v.y+v.h/2,cam.s/1.4,.35);
+  else if(e.key==='0')fitAll(.6);
+  else used=false;
+  if(used)e.preventDefault();
+});
+$('#zin').addEventListener('click',()=>{const v=viewRect();zoomAt(v.x+v.w/2,v.y+v.h/2,cam.s*1.5,.45);});
+$('#zout').addEventListener('click',()=>{const v=viewRect();zoomAt(v.x+v.w/2,v.y+v.h/2,cam.s/1.5,.45);});
+$('#zfit').addEventListener('click',()=>{S.area='all';S.station=null;S.spot=null;renderAll();fitAll(.8);});
+function markInteract(){if(interacted)return;interacted=true;const h=$('#hint');if(h)h.style.opacity=0;}
+
+/* ---------- paint map state ---------- */
+function paintMap(){
+  mapEl.classList.toggle('hikeon',S.hike);
+  STL.forEach(st=>{
+    if(!st.cur){st.on=false;return;}
+    const ms=SP.filter(p=>p.s===st.id&&match(p));
+    st.on=ms.length>0;st.n=ms.length;
+    const el=st.el;
+    el.classList.toggle('on',st.on);el.classList.toggle('off',!st.on);
+    el.classList.toggle('hike',ms.some(p=>p.h));
+    el.classList.toggle('ev',S.events&&EV.some(ev=>ev.s===st.id&&(!S.time.size||[...S.time].some(t=>ev.slots.indexOf(t)>=0))));
+    el.classList.toggle('sel',S.station===st.id);
+    const b=el.querySelector('.bdg');b.querySelector('text').textContent=st.n;b.querySelector('rect').setAttribute('width',st.n>9?22:17);b.querySelector('text').setAttribute('x',st.n>9?11:8.5);
+    el.setAttribute('aria-label',st.name+'站，'+st.n+' 個符合條件的去處');
+    el.setAttribute('aria-pressed',S.station===st.id?'true':'false');
+  });
+  const sel=S.station&&ST[S.station];
+  STL.forEach(st=>{if(st.id!==S.station)st.el.querySelector('.tag').innerHTML='';});
+  if(sel){
+    if(document.activeElement!==sel.el)stl.appendChild(sel.el);
+    const nm=sel.name,en=sel.en,cnt=SP.filter(p=>p.s===sel.id&&match(p)).length+' / '+SP.filter(p=>p.s===sel.id).length;
+    const w=Math.max(textW(nm,16)+16,textW(en,19)*.62+16,96);
+    sel.el.querySelector('.tag').innerHTML='<g transform="translate('+(-w/2)+' 20)"><rect width="'+w+'" height="58" rx="2"/><text class="tn" x="9" y="22">'+esc(nm)+'</text><text class="te" x="9" y="42">'+esc(en)+'</text><text class="tc" x="'+(w-8)+'" y="51" text-anchor="end">'+cnt+'</text></g>';
+  }
+  scheduleLabels();
+}
+
+/* ---------- filters UI ---------- */
+const CHIPS=[
+{k:'in',l:'室內',g:'env'},{k:'out',l:'室外',g:'env'},
+{sep:1},
+{k:'a',l:'上午',g:'time'},{k:'p',l:'下午',g:'time'},{k:'n',l:'晚上',g:'time'},
+{sep:1},
+{k:'hike',l:'爬山',ic:'mtn'},{k:'free',l:'免費'},{k:'rain',l:'雨天OK',ic:'rain'},{k:'fav',l:'收藏',ic:'heart'},
+{sep:1},
+{k:'events',l:'活動層',ic:'star',layer:1}
+];
+function chipOn(c){if(c.g==='env')return S.env.has(c.k);if(c.g==='time')return S.time.has(c.k);return !!S[c.k];}
+function cloneS(){return {env:new Set(S.env),time:new Set(S.time),hike:S.hike,free:S.free,rain:S.rain,fav:S.fav};}
+function toggleChip(c,o){o=o||S;if(c.g==='env'){o.env.has(c.k)?o.env.delete(c.k):o.env.add(c.k);}else if(c.g==='time'){o.time.has(c.k)?o.time.delete(c.k):o.time.add(c.k);}else o[c.k]=!o[c.k];}
+function buildChips(){
+  const rail=$('#chipRail');
+  CHIPS.forEach(c=>{
+    if(c.sep){const s=document.createElement('span');s.className='sep';s.setAttribute('aria-hidden','true');rail.appendChild(s);return;}
+    const b=document.createElement('button');b.type='button';b.className='chip';b.dataset.k=c.k;
+    b.innerHTML=(c.ic?IC[c.ic]:'')+'<span>'+c.l+'</span>'+(c.layer?'':'<span class="n mono"></span>');
+    b.addEventListener('click',()=>{if(c.layer){S.events=!S.events;}else{toggleChip(c);}S.spot=null;renderAll();});
+    rail.appendChild(b);c.el=b;
+  });
+  const cl=document.createElement('button');cl.type='button';cl.className='clear';cl.id='clearF';cl.textContent='清除條件';cl.hidden=true;
+  cl.addEventListener('click',()=>{S.env.clear();S.time.clear();S.hike=S.free=S.rain=S.fav=false;renderAll();});
+  rail.appendChild(cl);
+  const ar=$('#areaRail');
+  AREAS.forEach(a=>{const b=document.createElement('button');b.type='button';b.className='area';b.dataset.a=a.id;b.textContent=a.n;
+    b.addEventListener('click',()=>pickArea(a.id));ar.appendChild(b);a.el=b;});
+}
+function paintChips(){
+  CHIPS.forEach(c=>{if(c.sep)return;const on=c.layer?S.events:chipOn(c);c.el.setAttribute('aria-pressed',on?'true':'false');
+    if(!c.layer){const o=cloneS();if(!on)toggleChip(c,o);const n=SP.filter(p=>scoped(p)&&match(p,o)).length;
+      c.el.querySelector('.n').textContent=n;c.el.dataset.empty=(n===0&&!on)?'true':'false';
+      c.el.setAttribute('aria-label',c.l+'，'+n+' 個去處');}});
+  $('#clearF').hidden=!anyFilter();
+  AREAS.forEach(a=>a.el.setAttribute('aria-pressed',S.area===a.id&&!S.station?'true':'false'));
+  const res=SP.filter(p=>match(p)),stn=new Set(res.map(p=>p.s));
+  $('#summary').innerHTML='<b>'+res.length+'</b> 個去處・<b>'+stn.size+'</b> 站符合條件';
+}
+function pickArea(id){
+  S.area=id;S.station=null;S.spot=null;renderAll();
+  if(id==='all'){fitAll(.9);}else{setCam(fitCam(boundsOf(STL.filter(s=>s.area===id).map(s=>s.id),46),24),.9);}
+  if(!desk()&&sheet.snap==='full')setSnap('half');
+}
+
+/* ---------- panel ---------- */
+const phd=$('#phd'),pbd=$('#pbd');
+function renderPanel(dir){
+  if(S.spot)renderDetail();else renderList();
+  if(!desk())setSheetY(sheet.y);
+  if(ANIM&&dir){G.fromTo([phd,pbd],{x:dir*18,opacity:.0},{x:0,opacity:1,duration:.38,ease:'power2.out',stagger:.03,clearProps:'transform,opacity'});}
+}
+function renderList(){
+  const list=SP.filter(p=>scoped(p)&&match(p));
+  let head='';
+  if(S.station){const st=ST[S.station];const tot=SP.filter(p=>p.s===st.id).length;
+    head='<div class="ph-top"><div><p class="eyebrow">Station · '+dots(st.lines)+'</p><p class="ph-title">'+esc(st.name)+'站</p><p class="ph-en">'+esc(st.en)+'</p></div><button class="xbtn" type="button" data-act="unstation" aria-label="取消選擇這一站">'+IC.x+'</button></div>'
+      +'<p class="summary"><b>'+list.length+'</b> / '+tot+' 個去處符合條件</p>';}
+  else if(S.area!=='all'){const a=AREAS.find(x=>x.id===S.area);
+    head='<div class="ph-top"><div><p class="eyebrow">Gallery · 展區</p><p class="ph-title">'+esc(a.n)+'</p><p class="ph-en">'+esc(a.en)+'</p></div><button class="xbtn" type="button" data-act="unarea" aria-label="看全部展區">'+IC.x+'</button></div>'
+      +'<p class="summary"><b>'+list.length+'</b> 個去處</p>';}
+  else{head='<div class="ph-top"><div><p class="eyebrow">Collection · 全部展品</p><p class="ph-title">雙北週末去處</p></div></div><p class="summary"><b>'+list.length+'</b> 個去處・點站或點清單看細節</p>';}
+  phd.innerHTML=head;
+  if(!list.length){
+    pbd.innerHTML='<div class="empty"><span class="scrawl">Nothing here.</span><p>這個範圍沒有符合條件的去處。少選一兩個條件，或換一個展區看看。</p><button class="btn" type="button" data-act="clearall">清除所有條件</button></div>';
+    return;}
+  pbd.innerHTML='<div class="items">'+list.map(p=>{const st=ST[p.s];
+    return '<button class="item" type="button" data-spot="'+p.id+'"><span class="no">No.'+p.no+'</span><span class="t">'+esc(p.n)+'</span><span class="pr">'+esc(shortPrice(p.price))+'</span>'
+     +'<span class="m">'+dots(st.lines)+' '+esc(st.name)+'站・'+esc(p.walk.split('，')[0])+'</span>'
+     +'<span class="g"><span class="tg">'+ENVL[p.e]+'</span><span class="tg">'+slotsOf(p)+'</span>'+(p.h?'<span class="tg h">爬山</span>':'')+(p.r?'<span class="tg r">雨天OK</span>':'')+(FAV[p.id]?'<span class="tg r">已收藏</span>':'')+'</span></button>';}).join('')+'</div>';
+}
+function shortPrice(s){if(/^免費/.test(s))return '免費';const m=s.match(/NT\$\d+/);if(m)return '約'+m[0];if(s.indexOf('免費')>=0)return '免費起';return '見公告';}
+function renderDetail(){
+  const p=SPM[S.spot],st=ST[p.s];
+  phd.innerHTML='<div class="ph-top"><button class="backbtn" type="button" data-act="back">'+IC.back+(S.station?esc(st.name)+'站':'回到清單')+'</button><span class="eyebrow">Exhibit No.'+p.no+'</span></div>';
+  const evs=EV.filter(e=>e.s===p.s);
+  const sibs=SP.filter(q=>q.s===p.s&&q.id!==p.id);
+  const inPlan=k=>PLAN[k].indexOf(p.id)>=0;
+  pbd.innerHTML='<div class="dt">'
+   +'<div><h3>'+esc(p.n)+'</h3><p class="meta" style="margin-top:8px">'+dots(st.lines)+'<span>'+esc(st.name)+'站</span><span>・</span><span>'+ENVL[p.e]+'</span><span>・</span><span>'+slotsOf(p)+'</span>'+(p.h?'<span class="tg h">爬山</span>':'')+(p.r?'<span class="tg r">雨天OK</span>':'')+'</p></div>'
+   +'<div class="ticket"><div><small>Admission · 門票</small><strong>'+esc(p.price)+'</strong></div><div><small>Walk · 步行</small><strong>'+esc(p.walk.split('，')[0])+'</strong></div></div>'
+   +'<div class="sge"><div><span class="scrawl">See<small>必看</small></span><p>'+esc(p.see)+'</p></div><div><span class="scrawl">Eat<small>必吃</small></span><p>'+esc(p.eat)+'</p></div><div><span class="scrawl">Go<small>必去</small></span><p>'+esc(p.go)+'</p></div></div>'
+   +'<div class="notes"><p class="note">'+IC.pin+'<span>'+esc(p.walk)+'</span></p><p class="note">'+IC.sun+'<span>'+esc(p.wx)+'</span></p><p class="note">'+IC.people+'<span>'+esc(p.crowd)+'</span></p></div>'
+   +'<div class="addto"><span class="lab">加入週末行程卡・粗框是建議時段</span><div class="seg3">'
+   +['a','p','n'].map(k=>'<button type="button" data-add="'+k+'" class="'+(p.t.indexOf(k)>=0?'rec':'')+(inPlan(k)?' in':'')+'" aria-pressed="'+inPlan(k)+'">'+SLOT[k]+'<small>'+SLOT_EN[k]+'</small></button>').join('')+'</div></div>'
+   +'<div class="acts"><button class="btn fav" type="button" data-act="fav" aria-pressed="'+(!!FAV[p.id])+'">'+IC.heart+(FAV[p.id]?'已收藏':'收藏')+'</button>'
+   +'<a class="btn" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.n)+'" target="_blank" rel="noopener">'+IC.pin+'Google 地圖</a></div>'
+   +(evs.length?'<div class="evnote"><b>SAMPLE · 示範活動</b>'+evs.map(e=>e.slots.split('').map(c=>SLOT[c]).join('、')+'：'+esc(e.t)).join('<br>')+'</div>':'')
+   +(sibs.length?'<div><p class="eyebrow" style="margin-bottom:8px">同一站還有</p><div class="sibs">'+sibs.map(q=>'<button type="button" data-spot="'+q.id+'">'+esc(q.n)+'</button>').join('')+'</div></div>':'')
+   +'</div>';
+  pbd.scrollTop=0;
+}
+panel.addEventListener('click',e=>{
+  const sp=e.target.closest('[data-spot]');if(sp){openSpot(sp.dataset.spot);return;}
+  const ad=e.target.closest('[data-add]');if(ad){addToPlan(S.spot,ad.dataset.add,ad);return;}
+  const a=e.target.closest('[data-act]');if(!a)return;const act=a.dataset.act;
+  if(act==='back'){S.spot=null;renderPanel(-1);if(!desk())setSnap('half');if(S.station)focusStation(S.station);}
+  else if(act==='unstation'){S.station=null;renderAll();if(!desk())setSnap('peek');}
+  else if(act==='unarea'){pickArea('all');}
+  else if(act==='clearall'){S.env.clear();S.time.clear();S.hike=S.free=S.rain=S.fav=false;renderAll();}
+  else if(act==='fav'){const id=S.spot;if(FAV[id])delete FAV[id];else FAV[id]=1;saveFav();a.setAttribute('aria-pressed',!!FAV[id]);a.innerHTML=IC.heart+(FAV[id]?'已收藏':'收藏');
+    if(ANIM)G.fromTo(a,{scale:.9},{scale:1,duration:.5,ease:'elastic.out(1,.4)'});toast(FAV[id]?'已收藏':'已取消收藏');paintChips();paintMap();}
+});
+function selectStation(id){
+  S.station=id;S.spot=null;S.area=ST[id].area;renderAll(1);
+  if(!desk())setSnap('half',()=>focusStation(id));else focusStation(id);
+  stampSel();
+}
+function openSpot(id){
+  const p=SPM[id];if(!p)return;S.spot=id;if(S.station!==p.s){S.station=p.s;S.area=p.area;}
+  paintChips();paintMap();renderPanel(1);
+  if(!desk())setSnap('full');else focusStation(p.s);
+}
+function stampSel(){if(!ANIM||!S.station)return;const el=ST[S.station].el;
+  G.fromTo(el.querySelector('.ring'),{scale:2.2,rotation:-40,transformOrigin:'50% 50%'},{scale:1,rotation:0,duration:.5,ease:'back.out(2.2)'});
+  G.fromTo(el.querySelector('.tag'),{y:-8,opacity:0},{y:0,opacity:1,duration:.4,ease:'power2.out',delay:.08});}
+
+/* ---------- bottom sheet (mobile) ---------- */
+const sheet={snap:'peek',y:0,vis:120,target:null};
+function snapY(name){const H=$('#app').clientHeight;const peek=Math.min(140,H*.3);
+  return name==='full'?12:name==='half'?Math.round(H*.48):H-peek;}
+function setSheetY(y){sheet.y=y;const H=$('#app').clientHeight;sheet.vis=H-y;panel.style.transform='translateY('+y+'px)';panel.style.setProperty('--vis',(H-y-(phd.offsetHeight+18))+'px');}
+let sheetTw=null;
+function setSnap(name,cb){
+  if(desk()){cb&&cb();return;}
+  sheet.snap=name;const ty=snapY(name);sheet.target=$('#app').clientHeight-ty;
+  if(sheetTw)sheetTw.kill();
+  if(ANIM){const o={y:sheet.y};sheetTw=G.to(o,{y:ty,duration:.55,ease:'expo.out',onUpdate:()=>setSheetY(o.y),onComplete:()=>{sheet.target=null;}});}
+  else{setSheetY(ty);sheet.target=null;}
+  cb&&cb();
+}
+(function(){
+  let sd=null;
+  const start=e=>{if(desk())return;if(e.target.closest('button,a,input'))return;sd={y0:e.clientY,sy:sheet.y,t:performance.now(),ly:e.clientY,lt:performance.now(),v:0};
+    try{e.currentTarget.setPointerCapture(e.pointerId);}catch(_){}};
+  const move=e=>{if(!sd)return;const H=$('#app').clientHeight;let y=sd.sy+(e.clientY-sd.y0);y=clamp(y,8,H-70);setSheetY(y);
+    const now=performance.now();sd.v=(e.clientY-sd.ly)/Math.max(1,now-sd.lt);sd.ly=e.clientY;sd.lt=now;};
+  const end=()=>{if(!sd)return;const proj=sheet.y+sd.v*220;sd=null;
+    const c=['full','half','peek'].map(n=>({n,d:Math.abs(snapY(n)-proj)})).sort((a,b)=>a.d-b.d)[0].n;setSnap(c);};
+  [$('#grip'),phd].forEach(el=>{el.addEventListener('pointerdown',start);el.addEventListener('pointermove',move);el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);});
+  $('#grip').addEventListener('click',()=>{if(desk())return;setSnap(sheet.snap==='peek'?'half':sheet.snap==='half'?'full':'peek');});
+})();
+function layoutMode(){
+  if(desk()){panel.style.transform='';panel.style.removeProperty('--vis');sheet.vis=0;}
+  else{setSheetY(snapY(sheet.snap));}
+}
+
+/* ---------- search ---------- */
+const q=$('#q'),ql=$('#qList');let qi=-1,qr=[];
+const norm=s=>s.toLowerCase().replace(/臺/g,'台').replace(/\s+/g,'');
+function runSearch(){
+  const v=norm(q.value);if(!v){ql.hidden=true;q.setAttribute('aria-expanded','false');return;}
+  const sts=STL.filter(s=>s.cur&&(norm(s.name).indexOf(v)>=0||norm(s.en).indexOf(v)>=0)).slice(0,4).map(s=>({k:'station',id:s.id,t:s.name+'站',s:s.en}));
+  const sps=SP.filter(p=>norm(p.n).indexOf(v)>=0||p.tags.some(t=>norm(t).indexOf(v)>=0)||norm(p.eat).indexOf(v)>=0).slice(0,7).map(p=>({k:'spot',id:p.id,t:p.n,s:ST[p.s].name+'站'}));
+  qr=sts.concat(sps);qi=qr.length?0:-1;
+  ql.innerHTML=qr.length?qr.map((r,i)=>'<li role="option" id="qo'+i+'" aria-selected="'+(i===qi)+'" data-i="'+i+'"><span class="k">'+(r.k==='station'?'Station':'Exhibit')+'</span><span class="t">'+esc(r.t)+'</span><span class="s">'+esc(r.s)+'</span></li>').join(''):'<li class="none" role="option" aria-disabled="true">找不到，換個關鍵字試試，例如「夜市」「溫泉」。</li>';
+  ql.hidden=false;q.setAttribute('aria-expanded','true');q.setAttribute('aria-activedescendant',qi>=0?'qo'+qi:'');
+}
+function revealApp(){const el=desk()?$('#explore'):$('#app');const r=el.getBoundingClientRect();if(r.top<-20||r.top>window.innerHeight*.35)el.scrollIntoView({behavior:RM?'auto':'smooth'});}
+function pickResult(i){const r=qr[i];if(!r)return;ql.hidden=true;q.setAttribute('aria-expanded','false');q.value='';q.blur();
+  if(r.k==='station')selectStation(r.id);else{openSpot(r.id);}
+  revealApp();}
+q.addEventListener('input',runSearch);
+q.addEventListener('focus',()=>{if(q.value)runSearch();});
+q.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!qr.length)return;e.preventDefault();qi=(qi+(e.key==='ArrowDown'?1:-1)+qr.length)%qr.length;
+    $$('li',ql).forEach((li,i)=>li.setAttribute('aria-selected',i===qi));q.setAttribute('aria-activedescendant','qo'+qi);const el=$('#qo'+qi);el&&el.scrollIntoView({block:'nearest'});}
+  else if(e.key==='Enter'){if(qi>=0){e.preventDefault();pickResult(qi);}}
+  else if(e.key==='Escape'){ql.hidden=true;q.setAttribute('aria-expanded','false');}
+});
+ql.addEventListener('pointerdown',e=>{const li=e.target.closest('li[data-i]');if(li){e.preventDefault();pickResult(+li.dataset.i);}});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.search')){ql.hidden=true;q.setAttribute('aria-expanded','false');}});
+document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==q&&!/input|textarea/i.test(document.activeElement.tagName)){e.preventDefault();q.focus();}});
+
+/* ---------- plan ---------- */
+function lineRoute(a,b){
+  if(a===b)return '同一站，走路就到';
+  const A=ST[a],B=ST[b];const common=A.lines.find(l=>B.lines.indexOf(l)>=0);
+  if(common)return '搭'+LINE[common].n+'直達';
+  const mid={x:(A.x+B.x)/2,y:(A.y+B.y)/2};
+  const hubs=HUBS.slice().sort((h1,h2)=>Math.hypot(h1.x-mid.x,h1.y-mid.y)-Math.hypot(h2.x-mid.x,h2.y-mid.y));
+  const prev={},qq=[];A.lines.forEach(l=>{prev[l]={};qq.push(l);});
+  let goal=null;
+  while(qq.length){const l=qq.shift();if(B.lines.indexOf(l)>=0){goal=l;break;}
+    hubs.forEach(h=>{if(h.lines.indexOf(l)<0)return;h.lines.forEach(m=>{if(!(m in prev)){prev[m]={from:l,hub:h};qq.push(m);}});});}
+  if(!goal)return '請查詢捷運路線';
+  const legs=[];let cur=goal;while(prev[cur]&&prev[cur].hub){legs.unshift({line:prev[cur].from,hub:prev[cur].hub,to:cur});cur=prev[cur].from;}
+  return legs.map((g,i)=>(i===0?'搭'+LINE[g.line].n:'')+'到'+g.hub.name+'站，轉'+LINE[g.to].n).join('，再');
+}
+function addToPlan(id,k,btn){
+  if(!id)return;const p=SPM[id];
+  if(PLAN[k].indexOf(id)>=0){PLAN[k]=PLAN[k].filter(x=>x!==id);savePlan();renderPlan();toast('已從'+SLOT[k]+'移除');if(S.spot===id)renderDetail();return;}
+  PLAN[k].push(id);savePlan();renderPlan();if(S.spot===id)renderDetail();
+  toast('已加入'+SLOT[k]+'：'+p.n);fly(btn);
+}
+function fly(from){
+  const badge=$('#planCount');if(!ANIM||!from){bump();return;}
+  const a=from.getBoundingClientRect(),b=badge.getBoundingClientRect();
+  const f=document.createElement('div');f.className='flyer';f.textContent='+1';document.body.appendChild(f);
+  G.set(f,{x:a.left+a.width/2-14,y:a.top+a.height/2-12});
+  G.to(f,{x:b.left+b.width/2-14,y:b.top+b.height/2-12,duration:.7,ease:'power2.in',onComplete:()=>{f.remove();bump();}});
+  G.fromTo(f,{scale:.6},{scale:1.1,duration:.25,ease:'back.out(3)'});
+}
+function bump(){const b=$('#planCount');if(ANIM)G.fromTo(b,{scale:1.6},{scale:1,duration:.6,ease:'elastic.out(1,.35)'});}
+function renderPlan(){
+  const total=PLAN.a.length+PLAN.p.length+PLAN.n.length;$('#planCount').textContent=total;
+  let h='',prev=null;
+  ['a','p','n'].forEach(k=>{
+    const ids=PLAN[k];
+    h+='<div class="slot"><h4><span>'+SLOT[k]+'</span><span class="scrawl">'+SLOT_EN[k]+'</span></h4>';
+    if(prev&&ids.length)h+='<p class="hop cross">'+esc(ST[SPM[prev].s].name)+'站 → '+esc(ST[SPM[ids[0]].s].name)+'站：'+esc(lineRoute(SPM[prev].s,SPM[ids[0]].s))+'</p>';
+    if(!ids.length)h+='<p class="emp">還沒有安排。去地圖挑一個'+(k==='a'?'早上適合的去處，例如爬山。':k==='p'?'下午的去處，例如看展。':'晚上的去處，例如夜市或夜景。')+'</p>';
+    h+='<ul class="pl">';
+    ids.forEach((id,i)=>{const p=SPM[id],st=ST[p.s];
+      if(i>0)h+='<li class="hop">'+esc(lineRoute(SPM[ids[i-1]].s,p.s))+'</li>';
+      h+='<li class="pli"><button class="t" type="button" data-plan-open="'+id+'">'+esc(p.n)+'</button><span class="s">'+dots(st.lines)+esc(st.name)+'站・'+esc(shortPrice(p.price))+'</span><button class="rm" type="button" data-plan-rm="'+k+':'+id+'" aria-label="從'+SLOT[k]+'移除 '+esc(p.n)+'">'+IC.x+'</button></li>';});
+    h+='</ul></div>';
+    if(ids.length)prev=ids[ids.length-1];
+  });
+  $('#slots').innerHTML=h;
+  $('#rcTotal').textContent=total?('共 '+total+' 站・票價與時間以官方公告為準'):'行程卡是空的';
+  $('#copyPlan').disabled=!total;
+}
+$('#slots').addEventListener('click',e=>{
+  const o=e.target.closest('[data-plan-open]');if(o){openSpot(o.dataset.planOpen);revealApp();return;}
+  const r=e.target.closest('[data-plan-rm]');if(r){const [k,id]=r.dataset.planRm.split(':');PLAN[k]=PLAN[k].filter(x=>x!==id);savePlan();renderPlan();if(S.spot)renderDetail();toast('已移除');}
+});
+function planText(){
+  let t='週末趣哪裡｜我的週末行程（'+$('#rcDate').textContent+'）\n';let prev=null;
+  ['a','p','n'].forEach(k=>{const ids=PLAN[k];if(!ids.length)return;t+='\n【'+SLOT[k]+'】\n';
+    ids.forEach((id,i)=>{const p=SPM[id],st=ST[p.s];
+      if(i===0&&prev)t+='  ↳ '+lineRoute(SPM[prev].s,p.s)+'\n';
+      if(i>0)t+='  ↳ '+lineRoute(SPM[ids[i-1]].s,p.s)+'\n';
+      t+='・'+p.n+'（'+st.name+'站，'+p.price+'）\n';});
+    prev=ids[ids.length-1];});
+  return t+'\n票價與開放時間以官方公告為準。';
+}
+$('#copyPlan').addEventListener('click',()=>{
+  const txt=planText(),ta=$('#planText');
+  const fail=()=>{ta.hidden=false;ta.value=txt;ta.focus();ta.select();toast('已選取文字，請手動複製');};
+  try{navigator.clipboard.writeText(txt).then(()=>{ta.hidden=true;toast('已複製行程文字');},fail);}catch(e){fail();}
+});
+let clearArm=0;
+$('#clearPlan').addEventListener('click',e=>{const b=e.currentTarget;
+  if(!clearArm){clearArm=1;b.textContent='再按一次清空';setTimeout(()=>{clearArm=0;b.textContent='清空';},2600);return;}
+  clearArm=0;b.textContent='清空';PLAN={a:[],p:[],n:[]};savePlan();renderPlan();if(S.spot)renderDetail();toast('行程卡已清空');});
+$('#autoPlan').addEventListener('click',()=>{
+  const o=Object.assign(cloneS(),{time:new Set()});
+  const pool=k=>SP.filter(p=>p.t.indexOf(k)>=0&&match(p,o));
+  const pick=(arr,area)=>{const near=area?arr.filter(p=>p.area===area):[];const src=near.length?near:arr;return src.length?src[Math.floor(Math.random()*src.length)]:null;};
+  const A=pick(pool('a'));const P=pick(pool('p').filter(p=>!A||p.id!==A.id),A&&A.area);const N=pick(pool('n').filter(p=>(!A||p.id!==A.id)&&(!P||p.id!==P.id)),P&&P.area);
+  if(!A&&!P&&!N){toast('目前條件下排不出來，先少選幾個條件');return;}
+  PLAN={a:A?[A.id]:[],p:P?[P.id]:[],n:N?[N.id]:[]};savePlan();renderPlan();toast('排好了，可以再按一次換一組');
+  if(ANIM)G.fromTo('#slots .pli',{x:-14,opacity:0},{x:0,opacity:1,duration:.45,stagger:.08,ease:'power2.out'});
+});
+
+/* ---------- events & tours ---------- */
+function renderEvents(){
+  $('#posters').innerHTML=['a','p','n'].map(k=>{
+    const evs=EV.filter(e=>e.slots.indexOf(k)>=0);
+    return '<div class="pcol"><h3><span class="scrawl">'+SLOT_EN[k]+'</span><span>'+SLOT[k]+'</span></h3>'
+      +evs.map(e=>{const st=ST[e.s];return '<button class="poster" type="button" data-ev="'+e.s+'"><span class="smp">SAMPLE</span><span class="pt">'+esc(e.t)+'</span><span class="pm">'+dots(st.lines)+esc(st.name)+'站・'+e.slots.split('').map(c=>SLOT[c]).join('、')+'</span></button>';}).join('')
+      +'</div>';}).join('');
+  $('#posters').addEventListener('click',e=>{const b=e.target.closest('[data-ev]');if(!b)return;S.events=true;
+    revealApp();setTimeout(()=>selectStation(b.dataset.ev),RM?0:450);});
+  $('#tours').innerHTML=TOURS.map((t,i)=>'<article class="tour rv"><header><span class="mono">Guided tour '+String(i+1).padStart(2,'0')+'</span><h3>'+esc(t.t)+'</h3></header><ol>'
+    +['a','p','n'].map(k=>{const p=SPM[t.steps[k]];return '<li><span class="scrawl">'+SLOT_EN[k].slice(0,3)+'.</span><button type="button" data-spot-go="'+p.id+'">'+esc(p.n)+'</button></li>';}).join('')
+    +'</ol><footer><button class="btn" type="button" data-tour="'+i+'">套用到行程卡</button></footer></article>').join('');
+  $('#tours').addEventListener('click',e=>{
+    const g=e.target.closest('[data-spot-go]');if(g){openSpot(g.dataset.spotGo);revealApp();return;}
+    const b=e.target.closest('[data-tour]');if(!b)return;const t=TOURS[+b.dataset.tour];
+    PLAN={a:[t.steps.a],p:[t.steps.p],n:[t.steps.n]};savePlan();renderPlan();toast('已套用「'+t.t+'」');fly(b);
+    setTimeout(()=>$('#plan').scrollIntoView({behavior:RM?'auto':'smooth'}),RM?0:500);});
+}
+
+/* ---------- misc ---------- */
+let toastT=0;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200);}
+function weekendLabel(){const d=new Date();const day=d.getDay();const sat=new Date(d);sat.setDate(d.getDate()+(day===0?-1:(6-day)));const sun=new Date(sat);sun.setDate(sat.getDate()+1);
+  const f=x=>(x.getMonth()+1)+'/'+x.getDate();return 'SAT '+f(sat)+' – SUN '+f(sun);}
+$('#themeBtn').addEventListener('click',()=>{const r=document.documentElement;const cur=r.getAttribute('data-theme');
+  const dark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;r.setAttribute('data-theme',dark?'light':'dark');});
+
+function renderAll(dir){paintChips();paintMap();renderPanel(dir);}
+
+/* ---------- init ---------- */
+buildChips();buildMap();renderEvents();
+$('#kSpots').textContent=SP.length;$('#kAreas').textContent=AREAS.length-1;
+const wl=weekendLabel();$('#kWeek').textContent=wl.replace('SAT ','週六 ').replace('SUN ','週日 ');$('#rcDate').textContent=wl;
+resize();layoutMode();
+renderPanel();layoutMode();
+cam.s=0;Object.assign(cam,fitCam(BOUNDS,16));clampCam();apply();
+renderAll();renderPlan();
+let rzT=0;
+window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{const was=cam.s;resize();layoutMode();lastS=-1;
+  if(S.station)focusStation(S.station,0);else if(S.area!=='all')setCam(fitCam(boundsOf(STL.filter(s=>s.area===S.area).map(s=>s.id),46),24),0);else setCam(fitCam(BOUNDS,16),0);},120);});
+const bar=$('#bar');const onScroll=()=>bar.classList.toggle('lined',window.scrollY>8);window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+/* ---------- motion ---------- */
+if(ANIM){
+  const ST_=window.ScrollTrigger;
+  const intro=G.timeline({defaults:{ease:'power3.out'}});
+  intro.fromTo('.hero h1 .line',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:.95,stagger:.28,ease:'power2.inOut',clearProps:'clipPath'})
+    .fromTo('.hero h1 .zh',{scale:1.35,rotation:-5,opacity:0},{scale:1,rotation:0,opacity:1,duration:.5,ease:'back.out(2.4)'},'-=.35')
+    .fromTo('.hero .kicker span',{y:10,opacity:0},{y:0,opacity:1,duration:.5,stagger:.06},'<')
+    .fromTo('.lede',{y:14,opacity:0},{y:0,opacity:1,duration:.6},'-=.3')
+    .fromTo('.info',{y:30,rotation:1.5,opacity:0},{y:0,rotation:0,opacity:1,duration:.8},'-=.55')
+    .fromTo('.info dl>*',{y:8,opacity:0},{y:0,opacity:1,duration:.4,stagger:.035},'-=.45')
+    .fromTo('.stamp',{scale:1.8,rotation:-60,opacity:0},{scale:1,rotation:-12,opacity:1,duration:.55,ease:'back.out(2)'},'-=.3');
+  if(ST_){
+    G.to('#mq',{xPercent:-30,ease:'none',scrollTrigger:{trigger:'.marquee',start:'top bottom',end:'bottom top',scrub:.6}});
+    G.to('#stampRot',{rotation:200,svgOrigin:'0 0',ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:.8}});
+    /* map draw-in */
+    ST_.create({trigger:'#app',start:'top 85%',once:true,onEnter:()=>{
+      const tl=G.timeline();
+      $$('.ln',linesG).forEach((p,i)=>{const L=p.getTotalLength();tl.fromTo(p,{strokeDasharray:L,strokeDashoffset:L},{strokeDashoffset:0,duration:1.1,ease:'power2.inOut',onComplete:()=>{p.style.strokeDasharray='';p.style.strokeDashoffset='';}},i*.09);});
+      tl.fromTo($$('.st .pin',stl),{scale:0,transformOrigin:'50% 50%'},{scale:1,duration:.45,stagger:{each:.012,from:'random'},ease:'back.out(3)',clearProps:'transform'},.35);
+      tl.fromTo($$('.ar',ovl).map(g=>g.querySelector('.an')),{y:-10,opacity:0},{y:0,opacity:1,duration:.4,stagger:.05,ease:'back.out(2)'},.6);
+    }});
+    /* section reveals: start from visible state; only shift position */
+    $$('.rv').forEach(el=>G.from(el,{y:44,duration:.9,ease:'power3.out',immediateRender:false,scrollTrigger:{trigger:el,start:'top 88%',once:true}}));
+    G.from('.poster',{y:56,rotation:(i)=>i%2?3:-3,duration:.9,stagger:.06,ease:'power3.out',immediateRender:false,scrollTrigger:{trigger:'#posters',start:'top 85%',once:true}});
+    G.fromTo('#receipt',{rotation:-2.2,y:36},{rotation:0,y:0,ease:'none',scrollTrigger:{trigger:'#plan',start:'top bottom',end:'top 25%',scrub:.6}});
+  }
+}
+})();
+</script>
+
+</body>
+</html>
