@@ -193,17 +193,6 @@ export const siteData = {
       "Small AI tools I build for my own workflow — from systems I use every day to early experiments.",
     items: [
       {
-        name: "Super Intelligence — AI Project Workspace",
-        status: "Lit",
-        problem:
-          "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
-        approach:
-          "A Notion idea inbox that AI turns into tasks, works on, and reports back with a 3-line summary. Each task is routed to cloud AI, a local browser, or a local coding agent.",
-        art: "spark",
-        glyph: "✦",
-        stack: ["Claude", "Notion", "Agent workflow"],
-      },
-      {
         name: "Screen Recording → Step Extractor",
         status: "Wandering",
         problem:
@@ -248,8 +237,19 @@ export const siteData = {
         link: `${import.meta.env.BASE_URL}lab/outfit/`,
       },
       {
-        name: "Weekend Where — Taipei Metro Guide",
+        name: "Super Intelligence — AI Project Workspace",
         status: "Lit",
+        problem:
+          "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
+        approach:
+          "A Notion idea inbox that AI turns into tasks, works on, and reports back with a 3-line summary. Each task is routed to cloud AI, a local browser, or a local coding agent.",
+        art: "spark",
+        glyph: "✦",
+        stack: ["Claude", "Notion", "Agent workflow"],
+      },
+      {
+        name: "Weekend Where — Taipei Metro Guide",
+        status: "Brewing",
         problem:
           "On weekends in Taipei I want to go out, but end up scrolling lists without knowing where to go.",
         approach:
@@ -257,11 +257,10 @@ export const siteData = {
         thumb: labWeekendThumb,
         stack: ["SVG map", "GSAP", "Editorial design"],
         link: `${import.meta.env.BASE_URL}lab/weekend/`,
-        unlisted: true, // 未公開：不顯示在 Lab 列表，但直接輸入網址可開。要公開時刪掉這行
       },
       {
         name: "Field Guide to Cities",
-        status: "Lit",
+        status: "Brewing",
         problem:
           "Travel guides list sights and food, but not a city's character — its people, faith and the etiquette that matters.",
         approach:
@@ -269,11 +268,10 @@ export const siteData = {
         thumb: labCitiesThumb,
         stack: ["d3-geo", "GSAP", "Information design"],
         link: `${import.meta.env.BASE_URL}lab/cities/`,
-        unlisted: true, // 未公開：不顯示在 Lab 列表，但直接輸入網址可開。要公開時刪掉這行
       },
       {
         name: "Room Brief — Bedroom Style Match",
-        status: "Lit",
+        status: "Brewing",
         problem:
           "Style quizzes pick what looks good in photos, not what you will still enjoy living with a year later.",
         approach:
@@ -281,7 +279,6 @@ export const siteData = {
         thumb: labRoomThumb,
         stack: ["Isometric SVG", "GSAP", "UX research"],
         link: `${import.meta.env.BASE_URL}lab/room/`,
-        unlisted: true, // 未公開：不顯示在 Lab 列表，但直接輸入網址可開。要公開時刪掉這行
       },
     ],
   },

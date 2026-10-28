@@ -42,7 +42,7 @@ export const ui = {
         "Small AI tools for my own workflow — from systems I use every day to early experiments.",
       backToProfile: "Back to profile",
     },
-    lab: { problem: "The Summons", approach: "The Solution", tryIt: "Cast it" },
+    lab: { problem: "The Hex", approach: "The Counterspell", tryIt: "Cast it" },
     labStatus: { Lit: "Lit", Brewing: "Casting", Wandering: "Decoding" },
     checkOnGithub: "Check on GitHub",
     unreleased: "Unreleased",
@@ -72,7 +72,7 @@ export const ui = {
       contact: "Contact",
       mainLinks: "Main links",
       now: "Now",
-      nowText: "Building Super Intelligence, an AI project workspace",
+      nowText: "Casting new Lab experiments",
     },
   },
   zh: {
@@ -110,7 +110,7 @@ export const ui = {
       intro: "為自己的工作流程打造的小型 AI 工具——有每天在用的系統，也有早期的實驗。",
       backToProfile: "回到個人介紹",
     },
-    lab: { problem: "召喚", approach: "解法", tryIt: "施展" },
+    lab: { problem: "難題", approach: "解咒", tryIt: "施展" },
     labStatus: { Lit: "已點亮", Brewing: "施展中", Wandering: "解析魔法" },
     checkOnGithub: "在 GitHub 查看",
     unreleased: "尚未公開",
@@ -140,7 +140,7 @@ export const ui = {
       contact: "聯絡方式",
       mainLinks: "主要連結",
       now: "最近在做",
-      nowText: "Super Intelligence — AI 專案工作台",
+      nowText: "Lab 新實驗施展中",
     },
   },
 };
@@ -262,12 +262,6 @@ const zhData = {
     intro: "為自己的工作流程打造的小型 AI 工具——有每天在用的系統，也有早期的實驗。",
     items: [
       {
-        name: "Super Intelligence — AI 專案工作台",
-        problem: "想法冒出來的速度比執行快，而在不同 AI 工具間切換又會遺失脈絡。",
-        approach:
-          "用 Notion 想法收件匣讓 AI 轉成任務、執行，再用三行摘要回報。每個任務依需求分派給雲端 AI、本機瀏覽器或本機程式代理。",
-      },
-      {
         name: "螢幕錄影 → 步驟擷取",
         problem: "從螢幕錄影比較 App 流程，得一格一格手動拉影片。",
         approach: "自動偵測關鍵畫面，把錄影轉成有標註、依序排列的步驟清單，設計成完全在本機執行。",
@@ -286,6 +280,12 @@ const zhData = {
         name: "Five Elements — 五行穿搭",
         problem: "每天穿什麼要同時考慮天氣、場合與顏色，卻沒有固定邏輯。",
         approach: "由農曆算出當日五行，讀取台北天氣，依場合生成三套大膽的時裝秀風格穿搭。",
+      },
+      {
+        name: "Super Intelligence — AI 專案工作台",
+        problem: "想法冒出來的速度比執行快，而在不同 AI 工具間切換又會遺失脈絡。",
+        approach:
+          "用 Notion 想法收件匣讓 AI 轉成任務、執行，再用三行摘要回報。每個任務依需求分派給雲端 AI、本機瀏覽器或本機程式代理。",
       },
       {
         name: "週末趣哪裡 — 雙北捷運週末導覽",

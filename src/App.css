@@ -2551,3 +2551,355 @@ html[lang^="zh"] .hero-highlights li {
     transform: none;
   }
 }
+
+/* ── Work hero: the same masked dot grid as the Links page ── */
+.work-hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.work-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -96px;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--text) 16%, transparent) 1px,
+    transparent 1.2px
+  );
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 58% 62% at 32% 52%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 58% 62% at 32% 52%, #000 0%, transparent 75%);
+  pointer-events: none;
+  z-index: -1;
+  animation: work-hero-grid-in 1.2s var(--ease-out) both;
+}
+
+@keyframes work-hero-grid-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .work-hero::before {
+    -webkit-mask-image: radial-gradient(ellipse 90% 60% at 40% 55%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 90% 60% at 40% 55%, #000 0%, transparent 75%);
+  }
+}
+
+/* ── Lab cards: thumbnail behind a pane of frosted glass ── */
+.lab-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.lab-card-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.75;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.7) 45%, rgba(0, 0, 0, 0.25) 100%);
+  mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.7) 45%, rgba(0, 0, 0, 0.25) 100%);
+}
+
+.lab-card-backdrop img,
+.lab-card-backdrop .lab-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(3px) saturate(1.25);
+  transform: scale(1.04);
+  transition: transform 1.2s var(--ease-out);
+}
+
+/* The glass: a translucent tint, fine grain and a lit top edge */
+.lab-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0.09'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    color-mix(in srgb, var(--surface-light) 62%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+:root[data-theme="dark"] .lab-card-backdrop {
+  opacity: 0.6;
+}
+
+:root[data-theme="dark"] .lab-card::after {
+  background-color: color-mix(in srgb, var(--surface-light) 70%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+@media (hover: hover) {
+  .lab-card:hover .lab-card-backdrop img,
+  .lab-card:hover .lab-card-backdrop .lab-art {
+    transform: scale(1.09);
+  }
+}
+
+/* ── Lab "Cast it": an ink pill with a slowly turning aurora rim ── */
+@property --cast-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.lab-cast {
+  --cast-ink: #15162a;
+  position: relative;
+  align-self: flex-start;
+  display: inline-flex;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  background:
+    radial-gradient(120% 140% at 0% 50%, rgba(124, 92, 255, 0.35), transparent 60%) padding-box,
+    linear-gradient(var(--cast-ink), var(--cast-ink)) padding-box,
+    conic-gradient(from var(--cast-angle), #7c5cff, #4fd1ff, #f3d38a, #ff8ad8, #7c5cff) border-box;
+  animation: lab-cast-spin 7s linear infinite;
+  transition:
+    transform 0.35s var(--ease-out),
+    box-shadow 0.45s var(--ease-out);
+}
+
+:root[data-theme="dark"] .lab-cast {
+  --cast-ink: #1d1f38;
+}
+
+/* Light sweep across the pill on hover (moves its background, so no clipping is needed) */
+.lab-cast::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%) no-repeat;
+  background-size: 250% 100%;
+  background-position: 130% 0;
+  pointer-events: none;
+}
+
+.lab-cast-body {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px 0 15px;
+}
+
+.lab-cast-star {
+  width: 15px;
+  height: 15px;
+  fill: #f3d38a;
+  filter: drop-shadow(0 0 4px rgba(243, 211, 138, 0.7));
+  animation: lab-cast-twinkle 3.2s ease-in-out infinite;
+  transition: transform 0.6s var(--ease-out);
+}
+
+.lab-cast-arrow {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+  transition:
+    transform 0.35s var(--ease-out),
+    opacity 0.35s ease;
+}
+
+@media (hover: hover) {
+  .lab-cast:hover {
+    animation-duration: 2.4s;
+    box-shadow:
+      0 0 0 4px rgba(124, 92, 255, 0.12),
+      0 12px 32px rgba(92, 76, 220, 0.35);
+  }
+
+  .lab-cast:hover::after {
+    background-position: -30% 0;
+    transition: background-position 0.9s var(--ease-out);
+  }
+
+  .lab-cast:hover .lab-cast-star {
+    transform: rotate(180deg) scale(1.15);
+  }
+
+  .lab-cast:hover .lab-cast-arrow {
+    opacity: 1;
+    transform: translate(2px, -2px);
+  }
+}
+
+.lab-cast:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Press: the star flares, a ring opens and sparks fly out from it */
+.lab-cast-burst {
+  position: absolute;
+  left: 22.5px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.lab-cast-burst::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid #f3d38a;
+  opacity: 0;
+}
+
+.lab-cast-burst i {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f3d38a;
+  box-shadow: 0 0 6px 1px rgba(243, 211, 138, 0.8);
+  opacity: 0;
+}
+
+.lab-cast-burst i:nth-child(even) {
+  width: 3px;
+  height: 3px;
+  background: #b7a6ff;
+  box-shadow: 0 0 6px 1px rgba(150, 128, 255, 0.8);
+}
+
+.lab-cast-body.is-casting .lab-cast-burst::before {
+  animation: lab-cast-ring 0.6s var(--ease-out) both;
+}
+
+.lab-cast-body.is-casting .lab-cast-burst i {
+  animation: lab-cast-spark 0.7s var(--ease-out) both;
+}
+
+.lab-cast-body.is-casting .lab-cast-burst i:nth-child(even) {
+  animation-duration: 0.55s;
+  --reach: -22px;
+}
+
+.lab-cast-body.is-casting .lab-cast-star {
+  animation: lab-cast-flare 0.6s var(--ease-out) both;
+}
+
+.lab-cast-body.is-casting::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 0 rgba(243, 211, 138, 0.55);
+  animation: lab-cast-halo 0.7s var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes lab-cast-spin {
+  to {
+    --cast-angle: 360deg;
+  }
+}
+
+@keyframes lab-cast-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.6;
+    scale: 0.82;
+  }
+}
+
+@keyframes lab-cast-flare {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  35% {
+    transform: rotate(140deg) scale(1.7);
+    filter: drop-shadow(0 0 10px rgba(243, 211, 138, 1));
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes lab-cast-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+@keyframes lab-cast-spark {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--a)) translateY(0) scale(0.4);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateY(var(--reach, -30px)) scale(1);
+  }
+}
+
+@keyframes lab-cast-halo {
+  to {
+    box-shadow: 0 0 0 12px rgba(243, 211, 138, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-hero::before,
+  .lab-cast,
+  .lab-cast-star {
+    animation: none;
+  }
+
+  .lab-cast::after,
+  .lab-cast-burst {
+    display: none;
+  }
+
+  .lab-card-backdrop img,
+  .lab-card-backdrop .lab-art,
+  .lab-cast-star,
+  .lab-cast-arrow {
+    transition: none;
+    transform: none;
+  }
+}

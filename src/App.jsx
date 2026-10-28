@@ -148,6 +148,67 @@ const joinClasses = (...values) => values.filter(Boolean).join(" ");
 
 // Left/right pager for a row of tiles: no scroll bar, the track glides one
 // page at a time. Arrows disappear when every tile already fits.
+const CAST_SPARKS = 8;
+const CAST_OPEN_DELAY_MS = 420;
+
+// Lab "Cast it": plays a short burst, then opens the page in a new tab.
+// Modifier clicks and reduced motion skip the burst and behave like a plain link.
+function LabCastLink({ href, label, reduceMotion }) {
+  const linkRef = useRef(null);
+  const [castCount, setCastCount] = useState(0);
+
+  const handleClick = (event) => {
+    if (reduceMotion || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    setCastCount((count) => count + 1);
+    linkRef.current?.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(0.94)", offset: 0.25 },
+        { transform: "scale(1.06)", offset: 0.6 },
+        { transform: "scale(1)" },
+      ],
+      { duration: 520, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+    window.setTimeout(() => {
+      const opened = window.open(href, "_blank");
+      if (opened) {
+        opened.opener = null;
+      } else {
+        window.location.assign(href);
+      }
+    }, CAST_OPEN_DELAY_MS);
+  };
+
+  return (
+    <a
+      ref={linkRef}
+      className="lab-cast"
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      onClick={handleClick}
+    >
+      <span className={`lab-cast-body ${castCount ? "is-casting" : ""}`} key={castCount}>
+        <span className="lab-cast-burst" aria-hidden="true">
+          {Array.from({ length: CAST_SPARKS }, (_, i) => (
+            <i key={i} style={{ "--a": `${(i * 360) / CAST_SPARKS}deg` }} />
+          ))}
+        </span>
+        <svg className="lab-cast-star" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 1.5c.6 6.2 4.3 9.9 10.5 10.5-6.2.6-9.9 4.3-10.5 10.5-.6-6.2-4.3-9.9-10.5-10.5C7.7 11.4 11.4 7.7 12 1.5Z" />
+        </svg>
+        <span>{label}</span>
+        <svg className="lab-cast-arrow" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 17 17 7M9 7h8v8" />
+        </svg>
+      </span>
+    </a>
+  );
+}
+
 function WorkCarousel({ label, children, prevLabel, nextLabel, reduceMotion }) {
   const items = React.Children.toArray(children);
   const total = items.length;
@@ -1096,6 +1157,13 @@ function App({ page = "profile" }) {
                             }
                       }
                     >
+                      <div className="lab-card-backdrop" aria-hidden="true">
+                        {item.thumb ? (
+                          <img src={item.thumb} alt="" loading="lazy" decoding="async" />
+                        ) : (
+                          <div className={`lab-art lab-art-${item.art || "spark"}`} />
+                        )}
+                      </div>
                       <div className="lab-card-top">
                         <span
                           className={`lab-status ${item.status === "Lit" ? "is-live" : ""}`}
@@ -1121,14 +1189,11 @@ function App({ page = "profile" }) {
                         ))}
                       </div>
                       {item.link ? (
-                        <a
-                          className="repo-link project-link"
+                        <LabCastLink
                           href={item.link}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {t.lab.tryIt}
-                        </a>
+                          label={t.lab.tryIt}
+                          reduceMotion={shouldReduceMotion}
+                        />
                       ) : null}
                     </motion.article>
                   ))}
