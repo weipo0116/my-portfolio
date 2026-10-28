@@ -257,6 +257,7 @@ export const siteData = {
         thumb: labWeekendThumb,
         stack: ["SVG map", "GSAP", "Editorial design"],
         link: `${import.meta.env.BASE_URL}lab/weekend/`,
+        unlisted: true, // 未公開：不顯示在 Lab 列表，但直接輸入網址可開。要公開時刪掉這行
       },
       {
         name: "Field Guide to Cities",
@@ -268,6 +269,7 @@ export const siteData = {
         thumb: labCitiesThumb,
         stack: ["d3-geo", "GSAP", "Information design"],
         link: `${import.meta.env.BASE_URL}lab/cities/`,
+        unlisted: true, // 未公開：不顯示在 Lab 列表，但直接輸入網址可開。要公開時刪掉這行
       },
       {
         name: "Room Brief — Bedroom Style Match",
@@ -279,6 +281,7 @@ export const siteData = {
         thumb: labRoomThumb,
         stack: ["Isometric SVG", "GSAP", "UX research"],
         link: `${import.meta.env.BASE_URL}lab/room/`,
+        unlisted: true, // 未公開：不顯示在 Lab 列表，但直接輸入網址可開。要公開時刪掉這行
       },
     ],
   },

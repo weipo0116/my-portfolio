@@ -312,7 +312,7 @@ function App({ page = "profile" }) {
   const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const siteData = getSiteData(lang);
   // Lit (live) first, then Casting (built, not live), then Decoding (ideas)
-  const labItems = [...(siteData.lab?.items ?? [])].sort(
+  const labItems = (siteData.lab?.items ?? []).filter((item) => !item.unlisted).sort(
     (a, b) => LAB_ORDER.indexOf(a.status) - LAB_ORDER.indexOf(b.status),
   );
   const t = ui[lang];
