@@ -62,12 +62,15 @@ button{cursor:pointer;background:none;border:0;padding:0}
 /* ---------- top bar ---------- */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:25;height:var(--bar-h);display:flex;align-items:center;gap:16px;
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:saturate(1.6) blur(18px);-webkit-backdrop-filter:saturate(1.6) blur(18px);border-bottom:1px solid var(--line)}
+.back{flex:none;display:inline-flex;align-items:center;gap:2px;min-width:44px;min-height:44px;margin-left:-8px;padding:0 10px 0 6px;border-radius:999px;color:var(--ink-2);text-decoration:none;font-family:var(--f-mono);font-size:12.5px;letter-spacing:.04em;transition:color .2s,background .2s}
+.back:hover{color:var(--ink);background:var(--raise)}
+.back svg{flex:none}
 .brand{display:flex;align-items:baseline;gap:12px;min-width:0;flex:none}
 .brand b{font-family:var(--f-display);font-weight:900;font-size:21px;letter-spacing:.04em;white-space:nowrap}
 .brand b span{display:inline-block}
 .brand .mono{white-space:nowrap}
 .search{position:relative;flex:1 1 auto;max-width:420px;margin-left:auto;min-width:0}
-.search input{width:100%;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding:0 14px 0 38px;outline:none;transition:border-color .2s,box-shadow .2s}
+.search input{width:100%;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding:0 14px 0 38px;outline:none;text-overflow:ellipsis;transition:border-color .2s,box-shadow .2s}
 .search input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
 .search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
 .results{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 24px 48px -20px rgba(0,0,0,.35);padding:6px;list-style:none;margin:0;max-height:min(60vh,420px);overflow:auto;z-index:40}
@@ -76,14 +79,17 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .results li b{font-weight:600}
 .results li small{color:var(--ink-3);font-size:12.5px;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .listbtn{flex:none;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--surface);padding:0 14px;display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:14px}
+.listbtn .ic{display:none}
 .listbtn .n{font-family:var(--f-mono);font-size:12px;min-width:20px;height:20px;border-radius:999px;background:var(--ink);color:var(--bg);display:inline-grid;place-items:center;padding:0 6px}
-@media (max-width:720px){.brand .mono{display:none}.listbtn .lbl{display:none}.bar{gap:10px}.brand b{font-size:19px}}
+@media (max-width:720px){.brand .mono{display:none}.listbtn .lbl{display:none}.listbtn .ic{display:block}.listbtn{padding:0 12px;gap:6px}.bar{gap:10px}.brand b{font-size:19px}}
+@media (max-width:480px){.brand{display:none}}
 
 /* ---------- atlas ---------- */
 .atlas{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);align-items:start}
 .globe-pane{position:sticky;top:calc(var(--bar-h) + env(safe-area-inset-top,0px));height:calc(100vh - var(--bar-h) - env(safe-area-inset-top,0px));min-height:520px;overflow:hidden;border-right:1px solid var(--line)}
 @supports (height:100svh){.globe-pane{height:calc(100svh - var(--bar-h) - env(safe-area-inset-top,0px))}}
 #globe{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+@media (pointer:coarse){#globe{touch-action:pan-y}}
 #globe.dragging{cursor:grabbing}
 .g-top{position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
 .g-top>*{pointer-events:auto}
@@ -170,6 +176,14 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .chip .mono{font-size:10.5px}
 .country-card .prose{margin-top:14px}
+.intro .title h2{font-size:clamp(34px,4.6vw,56px)}
+.intro .near{align-items:center;margin-top:18px}
+.intro .vibe{margin-top:22px}
+.skel{display:grid;gap:14px;padding-top:12px}
+.skel i{display:block;height:16px;border-radius:8px;background:linear-gradient(90deg,var(--raise),var(--line),var(--raise));background-size:200% 100%;animation:skel 1.4s linear infinite}
+.skel i:first-child{height:44px;width:55%}
+.skel i:last-child{width:70%}
+@keyframes skel{to{background-position:-200% 0}}
 
 /* ---------- sections below ---------- */
 .sec{padding-block:96px 24px;border-top:1px solid var(--line)}
@@ -202,7 +216,25 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .cmp-row>div{min-width:0;font-size:14.5px;color:var(--ink-2)}
 .cmp-row>div b{color:var(--ink);font-weight:600}
 .cmp-row ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
-@media (max-width:640px){.cmp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.cmp-row>.mono{grid-column:1/-1}}
+.cmp-row .mono .dd{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:middle}
+.cmp-row.same{padding:10px 0}
+.cmp-row.same>.sv{grid-column:2/-1;opacity:.55;font-size:13.5px}
+.cmp-row.same>.mono{opacity:.8}
+.tag{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;border:1px solid var(--line-2);font-style:normal;font-size:10.5px;letter-spacing:.06em;color:var(--ink-3);text-transform:none;vertical-align:middle}
+.tag.now{border-color:transparent;background:var(--accent-soft);color:var(--accent)}
+.cmp-note{margin:0 0 10px}
+.empty.cmp-empty{margin-top:28px}
+.cmp .pick{margin:0 0 28px}
+.pick{margin-top:28px;padding:20px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.pick h3{margin:6px 0 0;font-family:var(--f-display);font-weight:900;font-size:24px}
+.pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.pick-card{padding:14px;border-radius:12px;background:var(--raise);border:1px solid var(--line);min-width:0}
+.pick-card>p{margin:0;font-weight:600;font-size:15px;line-height:1.5}
+.pick-card dl{margin:10px 0 0;display:grid;gap:8px}
+.pick-card dt{margin:0}
+.pick-card dd{margin:2px 0 0;font-size:14px;color:var(--ink-2)}
+.pick-sum{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:14px;color:var(--ink-2)}
+@media (max-width:640px){.cmp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.cmp-row>.mono,.cmp-row.same>.sv{grid-column:1/-1}.pick-grid{grid-template-columns:minmax(0,1fr)}}
 
 .short{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
 @media (max-width:860px){.short{grid-template-columns:minmax(0,1fr)}}
@@ -225,7 +257,12 @@ button{cursor:pointer;background:none;border:0;padding:0}
 /* ---------- mobile: globe on top, dossier as draggable sheet ---------- */
 @media (max-width:959px){
   .atlas{display:block}
-  .globe-pane{position:relative;top:auto;height:62svh;min-height:420px;max-height:640px;border-right:0;border-bottom:1px solid var(--line)}
+  .globe-pane{position:relative;top:auto;height:calc(100svh - var(--bar-h) - env(safe-area-inset-top,0px) - 132px - env(safe-area-inset-bottom,0px));min-height:380px;max-height:640px;border-right:0;border-bottom:1px solid var(--line)}
+  .intro .eyebrow{display:none}
+  .intro .title h2{font-size:32px}
+  .intro .near{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-top:12px}
+  .intro .near::-webkit-scrollbar{display:none}
+  .intro .near .chip{flex:none}
   .g-top{top:12px;left:12px;right:12px}
   .lens button{padding:0 11px;font-size:13px;height:30px}
   .coord{display:none}
@@ -260,10 +297,22 @@ button{cursor:pointer;background:none;border:0;padding:0}
   .sec{padding-block:64px 16px}
 }
 @media (min-width:960px){.dscroll{display:contents}}
+@media (pointer:coarse){
+  .search input,.listbtn{height:44px}
+  .chip{min-height:44px}
+  .lens button{height:44px;min-width:44px}
+  .gctl button{width:44px;height:44px}
+  .keys button{min-height:44px}
+  .btn{min-height:44px}
+  .slist .x{width:44px;height:44px}
+  .pnav a{min-height:44px;display:inline-flex;align-items:center}
+  .results li{min-height:44px;align-items:center}
+}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 
 <header class="bar gut">
+  <a class="back" href="../../work/#lab" aria-label="回到 Lab"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3.5L5.5 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Lab</span></a>
   <a class="brand" href="#top" aria-label="城市說明書，回到頂部" style="color:inherit;text-decoration:none">
     <b id="wordmark">城市說明書</b><span class="mono" id="countMono">Field Guide to Cities</span>
   </a>
@@ -273,7 +322,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
     <input id="q" type="search" placeholder="搜尋城市、國家、體驗，例如：汗蒸幕、Lisbon" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list">
     <ul class="results" id="results" role="listbox" hidden></ul>
   </div>
-  <a class="listbtn" href="#shortlist" aria-label="我的清單"><span class="lbl">我的清單</span><span class="n" id="favN">0</span></a>
+  <a class="listbtn" id="favBtn" href="#shortlist" aria-label="我的清單，0 座城市"><svg class="ic" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="lbl">清單</span><span class="n" id="favN" aria-hidden="true">0</span></a>
 </header>
 
 <main id="top">
@@ -289,7 +338,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
         <button type="button" data-lens="ethnic" aria-pressed="false">民族</button>
         <button type="button" data-lens="religion" aria-pressed="false">宗教</button>
       </div>
-      <div class="coord" aria-live="polite"><div class="big" id="coordBig">—</div><div class="mono" id="coordSub">—</div></div>
+      <div class="coord" id="coord" aria-live="off"><div class="big" id="coordBig">—</div><div class="mono" id="coordSub">—</div></div>
     </div>
     <div class="g-bot">
       <div class="legend" id="legend" data-empty="true">
@@ -307,7 +356,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 
   <aside class="dossier" id="dossier" aria-label="城市說明書">
     <div class="sheet-handle" id="handle" role="button" tabindex="0" aria-label="展開或收合城市說明書"><i></i></div>
-    <div class="dscroll" id="dscroll"><div class="dz gut" id="dz"></div></div>
+    <div class="dscroll" id="dscroll"><div class="dz gut" id="dz"><div class="skel" role="status"><span class="sr">載入說明書中</span><i></i><i></i><i></i></div></div></div>
   </aside>
 </section>
 
@@ -795,6 +844,7 @@ const grat=d3.geoGraticule10();
 let W=0,H=0,DPR=1,baseScale=1,zoom=1,rot=[-127,-30,0],dirty=true;
 let lens='none',hiGroup=null,selected=null,hoverCountry=null,hoverCity=null;
 let autoSpin=!RM,lastInteract=0,pulseT0=0;
+const coordEl=document.getElementById('coord');const syncLive=()=>coordEl.setAttribute('aria-live',autoSpin&&!RM?'off':'polite');
 let colorsNow={},colorsTarget={};
 function computeTargets(){const o={};for(const f of countries){const n=f.properties.name;let col=cityCountries.has(n)?T.land2:T.land;
   if(lens!=='none'){const e=lensIndex[lens][n];col=e?T.c[e.i%14]:T.land;}
@@ -840,7 +890,7 @@ function draw(now){
 function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 let lastT=performance.now();
 function loop(now){const dt=Math.min(64,now-lastT);lastT=now;
-  if(autoSpin&&!dragging&&!flying&&now-lastInteract>2500){rot[0]+=dt*.006;applyProj();dirty=true;}
+  if(autoSpin&&!RM&&!dragging&&!flying&&now-lastInteract>2500){rot[0]+=dt*.006;applyProj();dirty=true;}
   if(dirty){dirty=false;draw(now);}
   requestAnimationFrame(loop);}
 
@@ -903,7 +953,8 @@ function clickAt(e){const [x,y]=localXY(e);const c=cityAt(x,y);if(c){select(c.id
   else showCountry(f);}
 $('#zin').onclick=()=>{zoom=Math.min(4,zoom*1.35);applyProj();dirty=true;lastInteract=performance.now();};
 $('#zout').onclick=()=>{zoom=Math.max(.8,zoom/1.35);applyProj();dirty=true;lastInteract=performance.now();};
-const spinBtn=$('#spin');spinBtn.setAttribute('aria-pressed',autoSpin);spinBtn.onclick=()=>{autoSpin=!autoSpin;spinBtn.setAttribute('aria-pressed',autoSpin);lastInteract=0;toast(autoSpin?'地球儀自動旋轉':'已停止旋轉');};
+const spinBtn=$('#spin');spinBtn.setAttribute('aria-pressed',autoSpin);if(RM)spinBtn.hidden=true;syncLive();
+spinBtn.onclick=()=>{autoSpin=!autoSpin;spinBtn.setAttribute('aria-pressed',autoSpin);lastInteract=0;syncLive();toast(autoSpin?'地球儀自動旋轉':'已停止旋轉');};
 
 /* ---------- dossier ---------- */
 const dz=$('#dz');
@@ -945,6 +996,14 @@ return `<div class="head">
  <div class="season"><div><span class="mono">適合去</span><p>${esc(c.season)}</p></div><div><span class="mono">節慶</span><p>${esc(c.fest)}</p></div></div>
  <div style="margin-top:34px"><span class="mono">附近的說明書</span><div class="near">${near.map(k=>`<button class="chip" type="button" data-go="${k.id}">${esc(k.zh)}<span class="mono">${esc(k.cz)}</span></button>`).join('')}</div></div></section>`;}
 
+function introHTML(){const hot=['tokyo','bangkok','seoul'].filter(id=>byId[id]);
+return `<div class="intro"><div class="eyebrow"><span class="mono">Field Guide to Cities</span></div>
+ <div class="title"><span class="clip"><h2 class="nm" tabindex="-1" id="dTitle">選一座城市</h2></span></div>
+ <div class="near" role="group" aria-label="熱門城市"><span class="mono">熱門：</span>${hot.map((id,i)=>`${i?'<span class="mono" aria-hidden="true">・</span>':''}<button class="chip" type="button" data-go="${id}">${esc(byId[id].zh)}</button>`).join('')}</div>
+ <p class="vibe">轉動地球儀，點一個圓點；或用上方搜尋。每本說明書從「去了一定要做的事」開始，再讀吃、人、信仰與禮儀。</p></div>`;}
+function showIntro(animate){selected=null;dirty=true;hiGroup=null;if(scrollSpyIO)scrollSpyIO.disconnect();dz.innerHTML=introHTML();setCoord(null);
+  if(animate&&HAS_GSAP&&!RM)gsap.from(dz.querySelectorAll('.intro > *'),{y:14,opacity:0,duration:.7,stagger:.06,ease:'expo.out'});
+  if(isMobile())setSheet('peek');}
 let scrollSpyIO=null;
 function renderDossier(c,animate){dz.innerHTML=dossierHTML(c);
   if(animate&&HAS_GSAP&&!RM){const tl=gsap.timeline({defaults:{ease:'expo.out'}});
@@ -957,7 +1016,7 @@ dz.addEventListener('click',e=>{const a=e.target.closest('[data-act]');const go=
   const nav=e.target.closest('.pnav a');if(nav){e.preventDefault();const t=document.getElementById(nav.dataset.p);if(t)t.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});return;}
   if(!a||!selected)return;
   if(a.dataset.act==='fav'){toggleFav(selected.id);}
-  if(a.dataset.act==='cmp'){$('#ca').value=selected.id;if($('#cb').value===selected.id)$('#cb').value=CITIES.find(k=>k.id!==selected.id).id;renderCompare();if(isMobile())setSheet('peek');document.getElementById('compare').scrollIntoView({behavior:RM?'auto':'smooth'});}
+  if(a.dataset.act==='cmp'){$('#ca').value=selected.id;$('#cb').value='';renderCompare();if(isMobile())setSheet('peek');document.getElementById('compare').scrollIntoView({behavior:RM?'auto':'smooth'});$('#cb').focus({preventScroll:true});}
   if(a.dataset.act==='rand'){const pool=CITIES.filter(k=>k.id!==selected.id&&(!activeRegion||k.region===activeRegion));select(pool[Math.floor(Math.random()*pool.length)].id,{fly:true,open:true,scrollTop:true});}});
 function setupSpy(){if(scrollSpyIO)scrollSpyIO.disconnect();const links=[...dz.querySelectorAll('.pnav a')],ind=dz.querySelector('.bar-ind');
   const setOn=id=>{links.forEach(l=>l.classList.toggle('on',l.dataset.p===id));const l=links.find(x=>x.dataset.p===id);if(l&&ind){const pad=l===links[0]?0:12;ind.style.width=(l.offsetWidth-pad-12)+'px';ind.style.transform=`translateX(${l.offsetLeft+pad}px)`;}};
@@ -976,17 +1035,17 @@ function showCountry(f){const n=f.properties.name;selected=null;dirty=true;hiGro
   const ll=d3.geoCentroid(f);flyTo(ll[0],ll[1],1100);setCoord(ll[1],ll[0],zhName(n));
   if(HAS_GSAP&&!RM){gsap.from(dz.querySelector('.nm'),{yPercent:105,duration:.8,ease:'expo.out'});gsap.from(dz.querySelectorAll('.vibe,.pillar'),{y:14,opacity:0,duration:.6,stagger:.06,ease:'expo.out'});}
   if(isMobile())setSheet('half');}
-function setCoord(lat,lon,label){$('#coordBig').textContent=`${fmtLat(lat)}  ${fmtLon(lon)}`;$('#coordSub').textContent=label;}
+function setCoord(lat,lon,label){if(lat==null){$('#coordBig').textContent='—';$('#coordSub').textContent='—';return;}$('#coordBig').textContent=`${fmtLat(lat)}  ${fmtLon(lon)}`;$('#coordSub').textContent=label;}
 
 function select(id,o={}){const c=byId[id];if(!c)return;const same=selected&&selected.id===id;selected=c;pulseT0=performance.now();dirty=true;
   if(o.fly!==false)flyTo(c.lon,c.lat,o.dur??1400);
   setCoord(c.lat,c.lon,`${c.zh} · ${utcLabel(c.utc)}`);
   if(!same||o.force)renderDossier(c,o.animate!==false);
-  try{if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);}catch(e){}
+  try{if(location.hash!=='#'+id){const fromCity=byId[location.hash.slice(1)];history[fromCity?'replaceState':'pushState'](null,'','#'+id);}}catch(e){}
   if(isMobile()){if(o.open)setSheet(sheetState==='full'?'full':'half');if(o.scrollTop)$('#dscroll').scrollTop=0;}
   else if(o.scrollTop){const a=document.querySelector('.atlas');if(window.scrollY>a.offsetTop+10)window.scrollTo({top:a.offsetTop-0,behavior:RM?'auto':'smooth'});}
   markIndex();}
-window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(byId[id]&&(!selected||selected.id!==id))select(id,{fly:true,open:true});});
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(byId[id]){if(!selected||selected.id!==id)select(id,{fly:true,open:true});}else if(!id)showIntro(true);});
 
 /* ---------- mobile sheet ---------- */
 const sheet=$('#dossier'),handle=$('#handle');let sheetState='peek';
@@ -1022,8 +1081,15 @@ function renderRes(){if(!hits.length){res.hidden=true;q.setAttribute('aria-expan
 q.addEventListener('input',()=>{hits=searchFor(q.value);hi=0;renderRes();});
 q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();hi=Math.min(hits.length-1,hi+1);renderRes();}else if(e.key==='ArrowUp'){e.preventDefault();hi=Math.max(0,hi-1);renderRes();}
   else if(e.key==='Enter'&&hits[hi]){e.preventDefault();pick(hits[hi][0].id);}else if(e.key==='Escape'){res.hidden=true;q.blur();}});
-res.addEventListener('mousedown',e=>{const li=e.target.closest('li[data-id]');if(li){e.preventDefault();pick(li.dataset.id);}});
-q.addEventListener('blur',()=>setTimeout(()=>{res.hidden=true;q.setAttribute('aria-expanded','false');},120));
+// 在 pointerdown 就選取：此時輸入框還沒失焦，不必靠計時器等 click。
+const pickFrom=e=>{e.preventDefault();const li=e.target.closest('li[data-id]');if(!li)return;
+  // 清單消失後，觸控會補送一個 click 到底下的元素（例如地球儀上的視角按鈕），把它吞掉。
+  const eat=ev=>{ev.stopPropagation();ev.preventDefault();};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),500);
+  pick(li.dataset.id);};
+res.addEventListener('pointerdown',pickFrom);res.addEventListener('mousedown',e=>e.preventDefault());
+res.addEventListener('click',e=>{const li=e.target.closest('li[data-id]');if(li)pick(li.dataset.id);});
+q.addEventListener('blur',()=>{res.hidden=true;q.setAttribute('aria-expanded','false');});
+q.addEventListener('focus',()=>{if(q.value.trim()){hits=searchFor(q.value);hi=0;renderRes();}});
 function pick(id){q.value='';hits=[];res.hidden=true;q.blur();select(id,{fly:true,open:true,scrollTop:true});
   if(!isMobile()){const a=document.querySelector('.atlas');if(window.scrollY>a.offsetTop+40)window.scrollTo({top:a.offsetTop,behavior:RM?'auto':'smooth'});}else window.scrollTo({top:0,behavior:RM?'auto':'smooth'});}
 
@@ -1047,19 +1113,37 @@ function revealCells(){if(!HAS_GSAP||RM||!('IntersectionObserver' in window))ret
   document.querySelectorAll('.cell').forEach(c=>{const r=c.getBoundingClientRect();if(r.top>innerHeight)cellIO.observe(c);});}
 
 /* ---------- compare ---------- */
-function opts(){return Object.keys(REG).map(r=>{const l=CITIES.filter(c=>c.region===r);return l.length?`<optgroup label="${REG[r][0]}">${l.map(c=>`<option value="${c.id}">${esc(c.zh)}　${esc(c.en)}</option>`).join('')}</optgroup>`:''}).join('');}
-$('#ca').innerHTML=opts();$('#cb').innerHTML=opts();$('#ca').value='seoul';$('#cb').value='bangkok';
-function renderCompare(){const a=byId[$('#ca').value],b=byId[$('#cb').value];const ul=l=>`<ul>${l.map(x=>`<li>${esc(Array.isArray(x)?x[0]:x)}</li>`).join('')}</ul>`;
-  const rows=[['一句話',c=>esc(c.vibe)],['必體驗',c=>ul(c.exp)],['吃什麼',c=>ul(c.eat)],['人與民族',c=>esc(c.people)],['信仰',c=>esc(c.faith)],['禮儀提醒',c=>ul(c.etiq)],['季節',c=>`<b>${esc(c.season)}</b><br>${esc(c.fest)}`],['預算感',c=>`<b>${BUD[c.bud]}</b>`],['時差',c=>`${tzDiff(c.utc)}　<span class="mono" style="text-transform:none">${utcLabel(c.utc)}</span>`]];
-  $('#cmp').innerHTML=`<div class="cmp-row head"><span class="mono"></span><div><b>${esc(a.zh)}</b><div class="mono">${esc(a.cz)}</div></div><div><b>${esc(b.zh)}</b><div class="mono">${esc(b.cz)}</div></div></div>`+rows.map(([t,f])=>`<div class="cmp-row"><span class="mono">${t}</span><div>${f(a)}</div><div>${f(b)}</div></div>`).join('');}
+function opts(ph){return `<option value="">${ph}</option>`+Object.keys(REG).map(r=>{const l=CITIES.filter(c=>c.region===r);return l.length?`<optgroup label="${REG[r][0]}">${l.map(c=>`<option value="${c.id}">${esc(c.zh)}　${esc(c.en)}</option>`).join('')}</optgroup>`:''}).join('');}
+$('#ca').innerHTML=opts('選第一座城市');$('#cb').innerHTML=opts('選另一座城市');$('#ca').value='';$('#cb').value='';
+/* 「這個月正合適」只在季節字串是單純的月份區間時才判斷（例如「3–4 月與 10–11 月」）；有括號、頓號、櫻花等附註的一律只顯示原文。 */
+const MONTH=new Date().getMonth()+1;
+function seasonFits(txt){const m=/^(\d{1,2})–(\d{1,2}) 月(?:與 (\d{1,2})–(\d{1,2}) 月)?[^\d；、，（）()]{0,3}$/.exec(txt.trim());if(!m)return false;
+  const inr=(a,b)=>a<=b?MONTH>=a&&MONTH<=b:MONTH>=a||MONTH<=b;return inr(+m[1],+m[2])||(m[3]!=null&&inr(+m[3],+m[4]));}
+function pickHTML(a,b){const fa=seasonFits(a.season),fb=seasonFits(b.season);
+  const card=(c,fit)=>`<div class="pick-card"><p>想要「${esc(c.exp[0][0])}」，選${esc(c.zh)}</p><dl><div><dt class="mono">最佳季節</dt><dd>${esc(c.season)}${fit?'<em class="tag now">這個月正合適</em>':''}</dd></div><div><dt class="mono">預算感</dt><dd>${BUD[c.bud]}</dd></div></dl></div>`;
+  const sum=[];
+  if(fa!==fb){const f=fa?a:b;sum.push(`想趕在這個月（${MONTH} 月）出發，選${esc(f.zh)}：${esc(f.season)}`);}
+  if(a.bud!==b.bud){const lo=a.bud<b.bud?a:b;sum.push(`想少花一點，選${esc(lo.zh)}：${BUD[lo.bud]}`);}
+  return `<div class="pick"><div class="mono">How to choose</div><h3>怎麼選</h3><div class="pick-grid">${card(a,fa)}${card(b,fb)}</div>${sum.length?`<ul class="pick-sum">${sum.map(t=>`<li>${t}</li>`).join('')}</ul>`:''}</div>`;}
+function renderCompare(){const a=byId[$('#ca').value],b=byId[$('#cb').value],box=$('#cmp');
+  if(!a||!b||a===b){const msg=!a&&!b?'選兩座城市，就會並排列出差異，並整理出「怎麼選」。':a===b&&a?'請選兩座不同的城市。':`再選一座城市，就能和${esc((a||b).zh)}對照。`;
+    box.className='';box.innerHTML=`<div class="empty cmp-empty"><b>先選城市</b>${msg}</div>`;return;}
+  box.className='cmp';
+  const ul=l=>`<ul>${l.map(x=>`<li>${esc(Array.isArray(x)?x[0]:x)}</li>`).join('')}</ul>`;
+  const names=l=>l.map(x=>Array.isArray(x)?x[0]:x).join('|');
+  const rows=[['一句話',c=>esc(c.vibe),c=>c.vibe],['必體驗',c=>ul(c.exp),c=>names(c.exp)],['吃什麼',c=>ul(c.eat),c=>names(c.eat)],['人與民族',c=>esc(c.people),c=>c.people],['信仰',c=>esc(c.faith),c=>c.faith],['禮儀提醒',c=>ul(c.etiq),c=>names(c.etiq)],['季節',c=>`<b>${esc(c.season)}</b><br>${esc(c.fest)}`,c=>c.season+'|'+c.fest],['預算感',c=>`<b>${BUD[c.bud]}</b>`,c=>c.bud],['時差',c=>`${tzDiff(c.utc)}　<span class="mono" style="text-transform:none">${utcLabel(c.utc)}</span>`,c=>c.utc]];
+  const nDiff=rows.filter(([,,k])=>k(a)!==k(b)).length;
+  box.innerHTML=pickHTML(a,b)+`<p class="mono cmp-note">${nDiff} 項不同，標有圓點；其餘相同的項目已淡化。</p><div class="cmp-row head"><span class="mono"></span><div><b>${esc(a.zh)}</b><div class="mono">${esc(a.cz)}</div></div><div><b>${esc(b.zh)}</b><div class="mono">${esc(b.cz)}</div></div></div>`+rows.map(([t,f,k])=>k(a)===k(b)
+    ?`<div class="cmp-row same"><span class="mono">${t}<em class="tag">相同</em></span><div class="sv">${f(a)}</div></div>`
+    :`<div class="cmp-row diff"><span class="mono"><i class="dd" aria-hidden="true"></i>${t}<span class="sr">（兩城不同）</span></span><div>${f(a)}</div><div>${f(b)}</div></div>`).join('');}
 $('#ca').onchange=renderCompare;$('#cb').onchange=renderCompare;
 
 /* ---------- shortlist ---------- */
 function toggleFav(id){const i=favs.indexOf(id);if(i>=0)favs.splice(i,1);else favs.push(id);store.set('fgc.shortlist',favs);
   toast(i>=0?`已從清單移除${byId[id].zh}`:`已把${byId[id].zh}加入清單`);renderShort();markIndex();dirty=true;
   const b=dz.querySelector('[data-act="fav"]');if(b&&selected&&selected.id===id){const on=favs.includes(id);b.setAttribute('aria-pressed',on);b.innerHTML=`${on?I.star:I.plus}<span>${on?'已在清單':'加入清單'}</span>`;
-    if(HAS_GSAP&&!RM&&on)gsap.fromTo(b,{scale:.92},{scale:1,duration:.6,ease:'elastic.out(1,.5)'});}}
-function renderShort(){$('#favN').textContent=favs.length;
+    if(HAS_GSAP&&!RM&&on)gsap.fromTo(b,{scale:.96},{scale:1,duration:.4,ease:'power3.out'});}}
+function renderShort(){$('#favN').textContent=favs.length;$('#favBtn').setAttribute('aria-label',`我的清單，${favs.length} 座城市`);
   if(!favs.length){$('#slist').innerHTML=`<div class="empty"><b>清單還是空的</b>在任何一本說明書按「加入清單」，這裡就會自動整理出行前清單。</div>`;$('#ctext').value='（加入城市後，這裡會產生可複製的行前清單）';return;}
   $('#slist').innerHTML=`<ul class="slist">${favs.map(id=>{const c=byId[id];return `<li><button type="button" data-id="${id}" style="text-align:left"><b>${esc(c.zh)}</b><span>${esc(c.cz)} · ${esc(c.season)}</span></button><button class="x" type="button" data-rm="${id}" aria-label="從清單移除${esc(c.zh)}"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></li>`}).join('')}</ul>`;
   $('#ctext').value=favs.map(id=>{const c=byId[id];return `■ ${c.zh}（${c.cz}）｜${c.season}｜${tzDiff(c.utc)}\n必做：\n${c.exp.map(x=>'  □ '+x[0]).join('\n')}\n要吃：${c.eat.map(x=>x[0]).join('、')}\n禮儀：\n${c.etiq.map(x=>'  · '+x).join('\n')}`}).join('\n\n');}
@@ -1072,18 +1156,18 @@ $('#clear').addEventListener('click',()=>{if(!favs.length)return;favs=[];store.s
 $('#nC').textContent=CITIES.length;$('#nK').textContent=new Set(CITIES.map(c=>c.cz)).size;
 $('#countMono').textContent=`Field Guide to Cities · ${CITIES.length}`;$('#idxMono').textContent=`Index · ${CITIES.length} cities`;
 readTokens();resize();renderIndex();renderCompare();renderShort();
-const start=byId[location.hash.slice(1)]?location.hash.slice(1):'seoul';
-const sc=byId[start];rot=[-sc.lon+70,-sc.lat*.85+8,0];applyProj();
-select(start,{fly:false,animate:false});
+const start=byId[location.hash.slice(1)]?location.hash.slice(1):null;
+const sc=start?byId[start]:null;
+if(sc){rot=[-sc.lon+70,-sc.lat*.85+8,0];applyProj();select(start,{fly:false,animate:false});}else showIntro(false);
 if(isMobile())setSheet('peek',false);
 requestAnimationFrame(t=>{lastT=t;loop(t);});
 // signature intro: globe settles onto the first city, wordmark letters rise
-if(!RM){flyTo(sc.lon,sc.lat,1900,1.25);
+if(!RM){if(sc)flyTo(sc.lon,sc.lat,1900,1.25);
   if(HAS_GSAP){const wm=$('#wordmark');wm.innerHTML=[...wm.textContent].map(ch=>`<span>${ch}</span>`).join('');
     gsap.from('#wordmark span',{yPercent:60,opacity:0,duration:.9,ease:'expo.out',stagger:.05});
     gsap.from('#pane canvas',{opacity:0,scale:.94,duration:1.4,ease:'expo.out'});
-    renderDossier(sc,true);}}
-else flyTo(sc.lon,sc.lat,0,1.25);
+    if(sc)renderDossier(sc,true);else gsap.from(dz.querySelectorAll('.intro > *'),{y:14,opacity:0,duration:.7,stagger:.06,ease:'expo.out'});}}
+else if(sc)flyTo(sc.lon,sc.lat,0,1.25);
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{resize();moveThumb();if(isMobile())setSheet(sheetState,false);else sheet.style.transform='';setupSpy();},120);});
 document.fonts&&document.fonts.ready.then(()=>{moveThumb();dirty=true;});
 moveThumb();renderLegend();

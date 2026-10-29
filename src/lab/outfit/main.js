@@ -37,34 +37,47 @@ const NEUTRAL = { n: "Cream 米白", hex: "#efe9dc" };
 
 /* ---------- outfit tables ---------- */
 const OCCASIONS = [
-  { id: "work", zh: "上班通勤", en: "WORK" },
-  { id: "date", zh: "約會", en: "DATE" },
-  { id: "sport", zh: "運動", en: "SPORT" },
-  { id: "formal", zh: "正式場合", en: "FORMAL" },
-  { id: "casual", zh: "週末休閒", en: "WEEKEND" },
+  { id: "work", zh: "上班通勤", en: "WORK", verb: "上班" },
+  { id: "date", zh: "約會", en: "DATE", verb: "約會" },
+  { id: "sport", zh: "運動", en: "SPORT", verb: "運動" },
+  { id: "formal", zh: "正式場合", en: "FORMAL", verb: "正式場合" },
+  { id: "casual", zh: "週末休閒", en: "WEEKEND", verb: "週末休閒" },
 ];
 
-// temperature band by apparent temperature
-const band = (t) => (t >= 30 ? 0 : t >= 25 ? 1 : t >= 20 ? 2 : t >= 15 ? 3 : 4);
+// Garment bands by feels-like temperature: ≥30 / 26–29 / 20–25 / 14–19 / <14 (°C).
+// Each band lists three variants, one per look, so the pieces differ between looks.
+const band = (t) => (t >= 30 ? 0 : t >= 26 ? 1 : t >= 20 ? 2 : t >= 14 ? 3 : 4);
 const BAND_NAME = ["炎熱", "溫暖", "舒適", "偏涼", "寒冷"];
+const BAND_WHY = ["選無袖或短袖，不加外層", "短袖為主，備一件薄外套應付冷氣", "長袖或一層輕薄外套就夠", "針織加一件外套", "保暖內層加大衣"];
+const RAIN_AT = 40; // rain probability (%) from which umbrella and water-resistant shoes are suggested
 
 const TOPS = {
-  work: ["棉麻無袖襯衫", "短袖挺版襯衫", "長袖府綢襯衫", "細針織衫", "高領羊毛衫"],
-  date: ["絲質吊帶背心", "短袖針織 polo", "緞面長袖襯衫", "合身針織衫", "細羊毛高領"],
-  sport: ["排汗背心", "透氣短袖 T", "輕量長袖排汗衣", "刷毛運動上衣", "發熱長袖＋刷毛"],
-  formal: ["無袖絲質襯衫", "短袖西裝式上衣", "白襯衫", "針織背心＋襯衫", "高領針織＋襯衫"],
-  casual: ["背心 T", "寬版短袖 T", "長袖 T", "連帽上衣", "厚磅衛衣"],
+  work: [["棉麻無袖襯衫", "透氣短袖襯衫", "涼感 polo 衫"], ["短袖挺版襯衫", "短袖針織 polo", "七分袖襯衫"], ["長袖府綢襯衫", "薄針織衫", "亞麻長袖襯衫"], ["細針織衫", "羊毛混紡襯衫", "針織背心＋襯衫"], ["高領羊毛衫", "厚針織衫", "發熱衣＋襯衫"]],
+  date: [["絲質吊帶背心", "無袖針織上衣", "短袖綁帶上衣"], ["短袖針織 polo", "緞面短袖襯衫", "方領短袖上衣"], ["緞面長袖襯衫", "薄針織開襟衫", "露肩長袖上衣"], ["合身針織衫", "絲質長袖襯衫", "針織背心＋襯衫"], ["細羊毛高領", "厚針織衫", "發熱衣＋羊毛衫"]],
+  sport: [["排汗背心", "透氣短袖 T", "運動內衣＋背心"], ["透氣短袖 T", "速乾短袖 T", "排汗背心"], ["輕量長袖排汗衣", "透氣短袖 T", "速乾長袖 T"], ["刷毛運動上衣", "長袖排汗衣", "輕量連帽上衣"], ["發熱長袖＋刷毛", "發熱長袖", "厚刷毛連帽上衣"]],
+  formal: [["無袖絲質襯衫", "短袖西裝式上衣", "薄棉短袖襯衫"], ["短袖西裝式上衣", "白色短袖襯衫", "絲質短袖襯衫"], ["白襯衫", "絲質長袖襯衫", "針織背心＋襯衫"], ["針織背心＋襯衫", "羊毛襯衫", "細針織衫"], ["高領針織＋襯衫", "羊毛襯衫＋背心", "厚針織衫"]],
+  casual: [["背心 T", "寬版短袖 T", "亞麻短袖襯衫"], ["寬版短袖 T", "短袖襯衫", "polo 衫"], ["長袖 T", "薄連帽上衣", "牛津布襯衫"], ["連帽上衣", "針織衫", "法蘭絨襯衫"], ["厚磅衛衣", "厚針織衫", "刷毛上衣"]],
 };
+// bottoms: [main, alternative]; the second look uses the alternative
 const BOTTOMS = {
-  work: ["寬褲（輕薄）", "高腰西裝褲", "直筒西裝褲", "羊毛西裝褲", "厚羊毛直筒褲"],
-  date: ["迷你短裙", "半身長裙", "高腰直筒褲", "皮革長裙", "針織長裙"],
-  sport: ["運動短褲", "運動短褲", "七分運動褲", "運動長褲", "發熱運動長褲"],
-  formal: ["高腰寬褲", "高腰寬褲", "西裝褲", "西裝褲", "羊毛西裝褲"],
-  casual: ["牛仔短褲", "寬版短褲", "寬版牛仔褲", "工裝褲", "燈芯絨長褲"],
+  work: [["寬褲（輕薄）", "亞麻直筒褲"], ["高腰西裝褲", "九分西裝褲"], ["直筒西裝褲", "錐形西裝褲"], ["羊毛混紡西裝褲", "厚織錐形褲"], ["厚羊毛直筒褲", "刷毛內裡西裝褲"]],
+  date: [["迷你短裙", "亞麻短褲"], ["半身長裙", "高腰寬褲"], ["高腰直筒褲", "緞面長裙"], ["皮革長裙", "高腰牛仔褲"], ["針織長裙", "羊毛直筒褲"]],
+  sport: [["運動短褲", "三分運動褲"], ["運動短褲", "五分運動褲"], ["七分運動褲", "輕量運動長褲"], ["運動長褲", "束口運動褲"], ["發熱運動長褲", "刷毛運動長褲"]],
+  formal: [["高腰寬褲", "薄西裝褲"], ["高腰寬褲", "九分西裝褲"], ["西裝褲", "及膝鉛筆裙"], ["西裝褲", "羊毛 A 字裙"], ["羊毛西裝褲", "羊毛長裙"]],
+  casual: [["牛仔短褲", "亞麻短褲"], ["寬版短褲", "輕薄寬褲"], ["寬版牛仔褲", "棉質直筒褲"], ["工裝褲", "直筒牛仔褲"], ["燈芯絨長褲", "厚磅牛仔褲"]],
 };
-const OUTER = [null, null, "輕薄襯衫外套", "西裝外套", "羊毛大衣"];
-const ACCESSORY = { work: "包款或絲巾", date: "耳環／小包", sport: "髮帶或襪子", formal: "胸針／手拿包", casual: "帽子或托特包" };
-const SHOES = { work: "樂福鞋", date: "細帶高跟／尖頭平底", sport: "跑鞋", formal: "牛津鞋／高跟鞋", casual: "德訓鞋" };
+const OUTER = {
+  base: [null, ["薄外套（備著應付冷氣）", "輕薄防曬外套", "棉麻薄外套"], ["輕薄襯衫外套", "針織開襟外套", "薄風衣外套"], ["西裝外套", "短版夾克", "風衣外套"], ["羊毛大衣", "長版羽絨外套", "厚呢大衣"]],
+  sport: [null, null, ["輕量風衣外套", "薄款運動外套", "防潑水外套"], ["防風運動外套", "刷毛運動外套", "防風外套"], ["保暖羽絨外套", "防風保暖外套", "刷毛防風外套"]],
+};
+const ACCESSORY = { work: ["通勤包", "絲巾", "托特包"], date: ["耳環", "小包", "絲巾"], sport: ["髮帶", "運動襪", "腰包"], formal: ["胸針", "手拿包", "絲巾"], casual: ["帽子", "托特包", "帆布包"] };
+const SHOES = {
+  work: ["樂福鞋", "德比鞋", "簡約皮革便鞋"],
+  date: ["細帶高跟／尖頭平底", "瑪莉珍鞋", "尖頭平底鞋"],
+  sport: ["跑鞋", "訓練鞋", "輕量慢跑鞋"],
+  formal: ["牛津鞋／高跟鞋", "尖頭高跟鞋", "德比鞋"],
+  casual: ["德訓鞋", "帆布鞋", "老爹鞋"],
+};
 const SHOES_RAIN = { work: "防水皮鞋", date: "防水短靴", sport: "防水跑鞋", formal: "防水短靴", casual: "防水球鞋" };
 
 /* looks: each piece tagged with a colour slot (g1 power, g2 boost, g3 steady) */
@@ -73,30 +86,33 @@ const TIER_EN = { g1: "POWER", g2: "BOOST", g3: "STEADY" };
 const WEIGHT = { g1: 3, g2: 2, g3: 1 };
 function buildLooks(occ, feel, rainy, uv, c) {
   const b = band(feel);
-  const top = TOPS[occ][b], bot = BOTTOMS[occ][b], outer = OUTER[b];
-  const shoe = rainy ? SHOES_RAIN[occ] : SHOES[occ];
+  const outers = (occ === "sport" ? OUTER.sport : OUTER.base)[b];
   const extra = [];
   if (rainy) extra.push({ part: "雨具", item: "折疊傘／防潑水外層", slot: "accent" });
   if (uv >= 8) extra.push({ part: "防曬", item: "寬簷帽或墨鏡", slot: "neutral" });
 
-  const mk = (id, name, note, slots) => {
+  // v = variant index (0..2): picks a different garment from each band list per look
+  const mk = (v, id, name, note, slots) => {
+    const outer = outers?.[v];
     const core = [
-      { part: "上身", item: top, slot: slots.top },
-      { part: "下身", item: bot, slot: slots.bot },
+      { part: "上身", item: TOPS[occ][b][v], slot: slots.top },
+      { part: "下身", item: BOTTOMS[occ][b][v === 1 ? 1 : 0], slot: slots.bot },
       ...(outer ? [{ part: "外層", item: outer, slot: slots.outer }] : []),
     ];
-    const pieces = [...core, { part: "鞋", item: shoe, slot: slots.shoe }, { part: "配件", item: ACCESSORY[occ], slot: slots.acc }, ...extra];
+    const shoe = rainy ? SHOES_RAIN[occ] : SHOES[occ][v];
+    const pieces = [...core, { part: "鞋", item: shoe, slot: slots.shoe }, { part: "配件", item: ACCESSORY[occ][v], slot: slots.acc }, ...extra];
     // energy score: weighted share of power / boost / steady across the visible pieces
     const scored = [...core, pieces[core.length], pieces[core.length + 1]];
     const pts = scored.reduce((n, p) => n + (WEIGHT[p.slot] ?? 0), 0);
     const score = Math.round((pts / (scored.length * 3)) * 10);
     return { id, name, note, pieces, score };
   };
-  return [
-    mk("01", "POWER UP 旺色滿格", "今日最旺的旺色佔大面積，助色做點綴，能量最集中。", { top: "g1", bot: "g1", outer: "g1", shoe: "dark", acc: "g2" }),
-    mk("02", "DUO 旺色＋助色", "旺色與助色對撞，一件主角單品配一件反差，時裝感最強。", { top: "g1", bot: "g2", outer: "g1", shoe: "neutral", acc: "g1" }),
-    mk("03", "TRIO 三色運勢", "用穩色打底、旺色壓軸、助色收尾，層次豐富但不搶戲。", { top: "g3", bot: "dark", outer: "g1", shoe: "g2", acc: "g1" }),
+  const looks = [
+    mk(0, "01", "POWER UP 旺色滿格", "今日最旺的旺色佔大面積，助色做點綴，能量最集中。", { top: "g1", bot: "g1", outer: "g1", shoe: "dark", acc: "g2" }),
+    mk(1, "02", "DUO 旺色＋助色", "旺色與助色對撞，一件主角單品配一件反差，時裝感最強。", { top: "g1", bot: "g2", outer: "g1", shoe: "neutral", acc: "g1" }),
+    mk(2, "03", "TRIO 三色運勢", "用穩色打底、旺色壓軸、助色收尾，層次豐富但不搶戲。", { top: "g3", bot: "dark", outer: "g1", shoe: "g2", acc: "g1" }),
   ].map((l) => ({ ...l, colors: c }));
+  return { looks, band: b };
 }
 
 /* ---------- state ---------- */
@@ -180,7 +196,7 @@ function sliceWeather(raw, city, off) {
     const hours = [];
     for (let k = Math.max(first, 0); k < Math.min(Math.max(first, 0) + 13, j.hourly.time.length); k++) hours.push(mk(k));
     const noon = hours[4] || hours[0];
-    return { ...common, mode: "day", temp: noon.temp, feel: noon.feel, hum: 70, code: j.daily.weather_code[di], rain: Math.max(...hours.map((x) => x.rain), 0), hours };
+    return { ...common, mode: "day", temp: noon.temp, feel: noon.feel, hum: null, code: j.daily.weather_code[di], rain: Math.max(...hours.map((x) => x.rain), 0), hours };
   }
   // seasonal fallback so the page still works offline (rough estimates, flagged in the UI)
   const tt = shiftDay(todayIn(c.tz), off);
@@ -192,7 +208,7 @@ function sliceWeather(raw, city, off) {
     return { label: `${String(hh).padStart(2, "0")}:00`, temp: t, feel: t, rain: 30, code: 3 };
   });
   const mid = off === 0 ? hours[0] : hours[4];
-  return { ok: false, est: !!raw?.ok, mode: off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: 70, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
+  return { ok: false, loading: !raw, est: !!raw?.ok, mode: off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: null, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
 }
 
 /* ---------- render ---------- */
@@ -236,6 +252,7 @@ function renderHero() {
   $("kicker").textContent = state.off === 0 ? "TODAY'S LOOK · 今日主色" : `${dayName(state.off).en} · ${dayName(state.off).zh}主色`;
   $("elZh").textContent = E.zh;
   splitChars($("elEn"), E.en);
+  $("heroStatus").textContent = `${dayName(state.off).zh}主色：${E.zh}（${E.en}）`;
   $("sub").textContent = state.off === 0 ? E.mood : E.mood.replaceAll("今天", dayName(state.off).zh);
 
   const pal = state.pal;
@@ -245,7 +262,7 @@ function renderHero() {
       [`${TIER.g1} ${TIER_EN.g1}`, pal.g1],
       [`${TIER.g2} ${TIER_EN.g2}`, pal.g2],
       [`${TIER.g3} ${TIER_EN.g3}`, pal.g3],
-      ["底色 BASE", pal.neutral],
+      ["中性色 NEUTRAL", pal.neutral],
     ].map(([label, c], i) => {
       const d = h("div", "chip", `<i style="background:${c.hex}"></i><span>${label}</span><b>${c.n}</b>`);
       d.style.setProperty("--i", i);
@@ -268,14 +285,16 @@ function tempBand(t) { return BAND_NAME[band(t)]; }
 
 function renderCityTabs() {
   const box = $("cityTabs");
-  box.replaceChildren(
-    ...Object.entries(CITIES).map(([id, c]) => {
-      const b = h("button", "tab city" + (id === state.city ? " on" : ""), `<b>${c.zh}</b><small>${c.en}</small>`);
-      b.type = "button";
-      b.setAttribute("aria-pressed", id === state.city);
-      b.addEventListener("click", () => { if (id !== state.city) switchCity(id); });
-      return b;
-    }),
+  keepFocus(box, () =>
+    box.replaceChildren(
+      ...Object.entries(CITIES).map(([id, c]) => {
+        const b = h("button", "tab city" + (id === state.city ? " on" : ""), `<b>${c.zh}</b><small>${c.en}</small>`);
+        b.type = "button";
+        b.setAttribute("aria-pressed", id === state.city);
+        b.addEventListener("click", () => { if (id !== state.city) switchCity(id); });
+        return b;
+      }),
+    ),
   );
   $("wCity").textContent = `${CITIES[state.city].zh} · ${state.off === 0 ? "現在與未來 12 小時" : "當日 08:00–20:00"}`;
 }
@@ -283,11 +302,12 @@ function renderCityTabs() {
 function renderWeather() {
   const w = state.weather;
   const g = $("wgrid");
+  const est = w.ok ? "" : " · 估計";
   const cells = [
-    [w.mode === "now" ? "現在體感" : "中午體感", `${Math.round(w.feel)}°`, `${tempBand(w.feel)} · 氣溫 ${Math.round(w.temp)}°`],
-    [w.mode === "now" ? "今日高低" : "當日高低", `${Math.round(w.min)}–${Math.round(w.max)}°`, WCODE(w.code)],
-    [w.mode === "now" ? "未來 12 小時降雨" : "日間降雨", `${Math.round(w.rain)}%`, w.rain >= 50 ? "帶傘、換防水鞋" : "出門可不帶傘"],
-    ["紫外線", String(Math.round(w.uv)), w.uv >= 8 ? "高：帽子與墨鏡" : "一般"],
+    [(w.mode === "now" ? "現在體感" : "中午體感") + est, `${Math.round(w.feel)}°`, `${tempBand(w.feel)} · 氣溫 ${Math.round(w.temp)}°`],
+    [(w.mode === "now" ? "今日高低" : "當日高低") + est, `${Math.round(w.min)}–${Math.round(w.max)}°`, WCODE(w.code)],
+    [(w.mode === "now" ? "未來 12 小時降雨" : "日間降雨") + est, `${Math.round(w.rain)}%`, w.rain >= RAIN_AT ? "帶傘、換防水鞋" : "出門可不帶傘"],
+    ["紫外線" + est, String(Math.round(w.uv)), w.uv >= 8 ? "高：帽子與墨鏡" : "一般"],
   ];
   g.replaceChildren(
     ...cells.map(([k, v, s], i) => {
@@ -296,7 +316,7 @@ function renderWeather() {
       return d;
     }),
   );
-  if (!w.ok) g.appendChild(h("p", "wnote", w.est ? "這天超出天氣預報範圍（約未來 16 天內），以下為季節平均的估算值。" : "即時天氣暫時讀不到，以下為季節平均的估算值。"));
+  if (!w.ok) g.appendChild(h("p", "wnote", w.loading ? "天氣載入中，先以季節平均估算；載入完成會自動更新。" : w.est ? "這天超出天氣預報範圍（約未來 16 天內），以下為季節平均的估算值。" : "即時天氣暫時讀不到，以下為季節平均的估算值。"));
 
   // hourly strip: temperature line + rain bars
   const hrs = w.hours;
@@ -329,26 +349,33 @@ function dayName(off) {
 
 const ymd = (t) => `${t.y}-${String(t.m).padStart(2, "0")}-${String(t.d).padStart(2, "0")}`;
 
-// Day buttons stay disabled until the weather request has settled.
+// Re-render a button group without dropping keyboard focus.
+function keepFocus(box, rebuild) {
+  const idx = [...box.children].indexOf(document.activeElement);
+  rebuild();
+  if (idx >= 0) box.children[idx]?.focus({ preventScroll: true });
+}
+
+// Day buttons work straight away (the lunar day needs no network); weather fills in when it arrives.
 function renderDayTabs() {
   const ready = !!state.raw;
   const box = $("dayTabs");
   box.setAttribute("aria-busy", String(!ready));
-  box.replaceChildren(
-    ...DAY_OFFSETS.map((o) => {
-      const n = dayName(o);
-      const b = h("button", "tab day" + (o === state.off ? " on" : ""), `<b>${n.zh}</b><small>${n.md}</small>`);
-      b.type = "button";
-      b.disabled = !ready;
-      b.setAttribute("aria-pressed", o === state.off);
-      b.addEventListener("click", () => { if (o !== state.off) switchDay(o); });
-      return b;
-    }),
+  keepFocus(box, () =>
+    box.replaceChildren(
+      ...DAY_OFFSETS.map((o) => {
+        const n = dayName(o);
+        const b = h("button", "tab day" + (o === state.off ? " on" : ""), `<b>${n.zh}</b><small>${n.md}</small>`);
+        b.type = "button";
+        b.setAttribute("aria-pressed", o === state.off);
+        b.addEventListener("click", () => { if (o !== state.off) switchDay(o); });
+        return b;
+      }),
+    ),
   );
-  $("dayPickBtn").disabled = !ready;
   if (state.day) $("dayPickVal").textContent = `${state.day.t.m}/${state.day.t.d}`;
-  if (!ready) $("dayState").textContent = "載入天氣中…";
-  else if ($("dayState").textContent.startsWith("載入")) $("dayState").textContent = "";
+  if (!ready) $("dayState").textContent = "天氣載入中，先以季節平均估算";
+  else if ($("dayState").textContent.startsWith("天氣載入")) $("dayState").textContent = "";
 }
 
 function offsetFor(value) {
@@ -357,7 +384,8 @@ function offsetFor(value) {
   return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(t.y, t.m - 1, t.d)) / 864e5);
 }
 
-function applyDay() {
+// quiet: refresh weather-dependent parts only (no hero wipe), used when the forecast arrives
+function applyDay(quiet = false) {
   const tz = CITIES[state.city].tz;
   const day = dayElement(tz, state.off);
   const pal = paletteFor(day.el);
@@ -366,12 +394,12 @@ function applyDay() {
   state.pal = pal;
   state.weather = weather;
   try {
-    renderHero();
+    if (!quiet) { renderHero(); renderRules(); }
     renderDayTabs();
-    renderRules();
     renderCityTabs();
     renderWeather();
-    renderLooks(true);
+    renderLooks(!quiet);
+    if (quiet) return;
     $("dayState").textContent = `已切換：${day.t.m}/${day.t.d} 週${WK_ZH[day.t.wd]} · ${day.gz}日 · ${EL[day.el].zh}`;
   } catch (err) {
     console.error(err);
@@ -454,9 +482,19 @@ function renderTabs() {
     ...OCCASIONS.map((o) => {
       const b = h("button", "tab" + (o.id === state.occ ? " on" : ""), `<b>${o.zh}</b><small>${o.en}</small>`);
       b.type = "button";
-      b.setAttribute("role", "tab");
-      b.setAttribute("aria-selected", o.id === state.occ);
-      b.addEventListener("click", () => { state.occ = o.id; renderTabs(); renderLooks(true); });
+      b.dataset.occ = o.id;
+      b.setAttribute("aria-pressed", o.id === state.occ);
+      b.addEventListener("click", () => {
+        if (o.id === state.occ) return;
+        state.occ = o.id;
+        // update in place so keyboard focus stays on the pressed button
+        tabs.querySelectorAll("button").forEach((x) => {
+          const on = x.dataset.occ === state.occ;
+          x.classList.toggle("on", on);
+          x.setAttribute("aria-pressed", on);
+        });
+        renderLooks(true);
+      });
       return b;
     }),
   );
@@ -489,8 +527,8 @@ const ICON_LINES = {
   sneaker: "M8 70 H96",
 };
 const ICON_RULES = [
-  [/外套|大衣/, "coat"], [/無袖|背心|吊帶/, "tank"], [/短袖|背心 T/, "tee"], [/短褲/, "shorts"], [/裙/, "skirt"],
-  [/寬褲|寬版牛仔褲/, "wide"], [/褲/, "trousers"], [/高跟|短靴/, "heel"], [/跑鞋|球鞋|德訓/, "sneaker"], [/鞋/, "flat"],
+  [/外套|大衣/, "coat"], [/無袖|吊帶|背心(?! T)/, "tank"], [/短袖|polo|背心 T/, "tee"], [/短褲/, "shorts"], [/裙/, "skirt"],
+  [/寬褲|寬版牛仔褲/, "wide"], [/褲/, "trousers"], [/高跟|短靴/, "heel"], [/跑鞋|球鞋|德訓|訓練鞋|老爹鞋|帆布鞋/, "sneaker"], [/鞋/, "flat"],
   [/傘/, "umbrella"], [/帽/, "hat"], [/墨鏡/, "shades"], [/包/, "bag"], [/絲巾/, "scarf"], [/耳環|胸針|髮帶|襪/, "gem"],
   [/襯衫|針織|長袖|衛衣|連帽|刷毛|發熱|高領/, "long"],
 ];
@@ -508,9 +546,36 @@ function slotColor(slot, pal) {
   return slot === "g1" ? pal.g1 : slot === "g2" ? pal.g2 : slot === "g3" ? pal.g3 : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
 }
 
+// Answer-first line under the hero word: built from the same weather + look state as the cards below.
+const stripNote = (item) => item.replace(/（.*?）/g, "");
+function renderAnswer(look) {
+  const w = state.weather;
+  const occ = OCCASIONS.find((o) => o.id === state.occ);
+  const wear = ["上身", "外層", "下身"].map((part) => look.pieces.find((p) => p.part === part)?.item).filter(Boolean).map(stripNote).join("＋");
+  const umbrella = w.rain >= RAIN_AT ? "記得帶傘" : "不用帶傘";
+  const tail = w.loading ? " · 天氣載入中，先以季節平均估算" : w.ok ? "" : " · 季節平均估算";
+  $("answerText").textContent = `${dayName(state.off).zh}${occ.verb}：${wear} · 體感 ${Math.round(w.feel)}° ${WCODE(w.code)} · 降雨 ${Math.round(w.rain)}%，${umbrella}${tail}`;
+}
+
+// One "why" sentence per source, tagged so computed weather and interpretive five-elements advice stay distinguishable.
+function renderWhy(b) {
+  const w = state.weather;
+  const pal = state.pal;
+  const E = EL[state.day.el];
+  const rainTxt = w.rain >= RAIN_AT ? `降雨機率 ${Math.round(w.rain)}%，帶傘並穿防水鞋` : `降雨機率 ${Math.round(w.rain)}%，不用帶傘`;
+  const uvTxt = w.uv >= 8 ? "；紫外線偏高，加帽子或墨鏡" : "";
+  const est = w.ok ? "" : `<span class="tag tag-est">估計</span>`;
+  const estNote = w.ok ? "" : "（季節平均估算，僅供參考）";
+  $("why").innerHTML =
+    `<p><span class="tag tag-calc">天氣 · 計算</span>${est}體感 ${Math.round(w.feel)}°（${BAND_NAME[b]}），${BAND_WHY[b]}；${rainTxt}${uvTxt}。${estNote}</p>` +
+    `<p><span class="tag tag-interp">五行 · 詮釋</span>${dayName(state.off).zh}是${E.zh}日：旺色 ${pal.g1.n} 放大面積，助色 ${pal.g2.n} 放下身或配件，穩色 ${pal.g3.n} 收尾；墨黑、米白為中性色，只用來打底。</p>`;
+}
+
 function renderLooks(animate) {
   const w = state.weather;
-  const looks = buildLooks(state.occ, w.feel, w.rain >= 50, w.uv, state.pal);
+  const { looks, band: b } = buildLooks(state.occ, w.feel, w.rain >= RAIN_AT, w.uv, state.pal);
+  renderAnswer(looks[0]);
+  renderWhy(b);
   const grid = $("lookGrid");
   grid.replaceChildren(
     ...looks.map((l, i) => {
@@ -521,7 +586,7 @@ function renderLooks(animate) {
       const rows = l.pieces
         .map((p) => {
           const c = slotColor(p.slot, state.pal);
-          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : c.n}</small></li>`;
+          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : `中性色 · ${c.n}`}</small></li>`;
         })
         .join("");
       const board = l.pieces.map((p, k) => stickerHTML(p, slotColor(p.slot, state.pal).hex, k)).join("");
@@ -559,17 +624,23 @@ async function init() {
   const tz = CITIES[state.city].tz;
   state.day = dayElement(tz);
   state.pal = paletteFor(state.day.el);
+  // first paint uses the offline seasonal estimate (flagged in the UI); the forecast replaces it when it arrives
+  state.weather = sliceWeather(null, state.city, state.off);
   renderHero();
   renderRules();
   renderCityTabs();
   renderDayTabs();
-  state.raw = await getWeather(state.city);
-  renderDayTabs();
-  state.weather = sliceWeather(state.raw, state.city, state.off);
   renderWeather();
   renderTabs();
   renderLooks(false);
+  $("hourly").classList.add("loading");
   observe();
+  const city = state.city;
+  const raw = await getWeather(city);
+  if (state.city !== city || state.raw) return; // the user switched city meanwhile; switchCity handles it
+  state.raw = raw;
+  $("hourly").classList.remove("loading");
+  applyDay(true);
 }
 
 // floating dock: appears once the hero has scrolled out of view

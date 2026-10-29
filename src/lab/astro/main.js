@@ -535,7 +535,7 @@ function rawFortune(pos) {
         parts.push({ b, house, c });
       }
       parts.sort((x, y) => Math.abs(y.c) - Math.abs(x.c));
-      res[cat] = { total, top: parts[0] };
+      res[cat] = { total, parts };
     }
     return res;
   });
@@ -547,12 +547,31 @@ function toStars(values) {
   return values.map((v) => 1 + Math.round((4 * (v - lo)) / span));
 }
 
-function fortuneNote(si, cat, stars, top) {
-  const { b, house, c } = top;
-  const tier = stars >= 4 ? "hi" : stars === 3 ? "mid" : "lo";
+// The reason must come from the transit that actually moved this score:
+// strongest helper for 4-5 stars, strongest drag for 1-2 stars, strongest of either for 3.
+function driverOf(parts, stars) {
+  const byC = parts.slice().sort((x, y) => y.c - x.c);
+  if (stars >= 4) return byC[0];
+  if (stars <= 2) return byC[byC.length - 1];
+  return parts.slice().sort((x, y) => Math.abs(y.c) - Math.abs(x.c))[0];
+}
+
+// category-specific wording, so 財運 never repeats the 事業 sentence
+const WHY_TAIL = {
+  love: { hi: "替感情運加分", mid: "對感情的影響不大，照常相處即可", lo: "要多留心感情上的敏感與誤會" },
+  career: { hi: "替工作推進加分", mid: "對工作的影響平穩，照節奏走", lo: "要多留心工作上的卡關與溝通" },
+  money: { hi: "替財運加分", mid: "對收支的影響平穩，照預算走", lo: "要多留心支出與金錢上的決定" },
+};
+
+function fortuneNote(si, cat, stars, parts, week = false) {
+  const { b, house, c } = driverOf(parts, stars);
+  const tier = tierOf(stars);
+  let tail = WHY_TAIL[cat][tier];
+  if (tier === "hi" && c < 0) tail = `對${CATS[cat]}的阻力相對小`; // all pulls were negative; this sign is least affected
+  if (tier === "lo" && c >= 0) tail = `對${CATS[cat]}的助力偏弱，要多留心`;
   return {
     text: `${SIGN_LINE[cat][si]}${TIP[cat][tier]}`,
-    why: `${b.zh}${b.retro ? "（逆行）" : ""}正走到你的「${AREA[house - 1]}」，${c >= 0 ? "帶來助力" : "要多留心"}`,
+    why: `${week ? "本週中段" : ""}${b.zh}${b.retro ? "（逆行）" : ""}走到你的「${AREA[house - 1]}」，${tail}`,
   };
 }
 
@@ -562,7 +581,7 @@ function dayFortune(pos) {
   for (const cat of Object.keys(CATS)) {
     const stars = toStars(raw.map((r) => r[cat].total));
     out[cat] = SIGNS.map((sg, i) => {
-      const n = fortuneNote(i, cat, stars[i], raw[i][cat].top);
+      const n = fortuneNote(i, cat, stars[i], raw[i][cat].parts);
       return { sign: sg, stars: stars[i], score: raw[i][cat].total, note: n.text, why: n.why };
     });
   }
@@ -584,7 +603,9 @@ function weekFortune(date) {
     out[cat] = SIGNS.map((sg, i) => {
       const per = raws.map((r) => r[i][cat].total);
       const best = per.indexOf(Math.max(...per)), worst = per.indexOf(Math.min(...per));
-      const n = fortuneNote(i, cat, stars[i], mid[i][cat].top);
+      // sum each planet's push over the seven days; keep the mid-week house for the wording
+      const parts = mid[i][cat].parts.map((p) => ({ ...p, c: raws.reduce((n, r) => n + r[i][cat].parts.find((q) => q.b.key === p.b.key).c, 0) / 7 }));
+      const n = fortuneNote(i, cat, stars[i], parts, true);
       return { sign: sg, stars: stars[i], score: avg[i], note: n.text, why: n.why, extra: `本週最順：${WK[best]}；較需留意：${WK[worst]}` };
     });
   }
@@ -657,6 +678,10 @@ function render({ dur = 1700 } = {}) {
 
   const pos = compute(date);
   const aspects = findAspects(pos);
+  // text equivalent of the wheel for screen readers (aria-describedby on #wheelMain)
+  $("wheelAlt").replaceChildren(
+    ...pos.map((b) => Object.assign(document.createElement("li"), { textContent: `${b.zh} ${b.sign.zh} ${Math.floor(b.deg)}°${b.retro ? " 逆行" : ""}` })),
+  );
 
   // baseline for comparisons = today; when browsing another day we draw the time track
   let ghost = null;
@@ -1038,6 +1063,7 @@ function setView(v) {
   try { localStorage.setItem(VIEW_KEY, v); } catch { /* storage unavailable */ }
   observeReveals();
 }
+$("toFortune").addEventListener("click", () => setView("fortune"));
 $("viewSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (b) setView(b.dataset.view);
@@ -1113,6 +1139,7 @@ function renderToday() {
     </div>
     <p class="lucky-note">幸運元素是依日期與星座固定產生的小彩蛋，純屬娛樂。</p>
     <div class="tadvice"><b>行動建議</b><p></p></div>
+    <p class="trust">行星位置：天文曆即時計算（台北時間）· <button type="button" class="linkbtn to-data">看數據</button></p>
     <details class="why">
       <summary>為什麼這樣說？看天象依據</summary>
       <div class="prose why-body"></div>
@@ -1153,6 +1180,7 @@ function renderToday() {
     setView("chart");
     $("sec-energy").scrollIntoView({ behavior: "smooth", block: "start" });
   });
+  card.querySelector(".to-data").addEventListener("click", () => $("openChart").click());
   card.querySelector(".share-btn").addEventListener("click", () => openShare(si));
   box.replaceChildren(card);
 }

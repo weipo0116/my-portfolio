@@ -58,13 +58,19 @@ p{margin:0}
 /* top bar */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-bottom:1px solid var(--line)}
 .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:56px}
+.hl{display:flex;align-items:center;gap:6px;min-width:0}
+.back{display:inline-flex;align-items:center;gap:2px;min-height:44px;min-width:44px;padding:0 12px 0 6px;margin-left:-6px;border-radius:999px;text-decoration:none;font-size:.9rem;font-weight:500;color:var(--ink2);transition:color .25s,background .25s}
+.back:hover{color:var(--ink);background:var(--surface2)}
+.back svg{width:18px;height:18px;flex:none}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .logo{display:flex;align-items:baseline;gap:8px;text-decoration:none;font-weight:700;letter-spacing:.02em;font-size:1rem;white-space:nowrap}
 .logo .it{font-size:1.05rem;color:var(--ink3)}
 .steps{display:flex;gap:2px;background:var(--surface2);border-radius:999px;padding:3px}
 .steps a{display:flex;align-items:center;gap:6px;text-decoration:none;font-size:.82rem;color:var(--ink2);padding:6px 12px;border-radius:999px;min-height:32px;white-space:nowrap;transition:background .3s var(--ease),color .3s}
 .steps a b{font-family:var(--mono);font-weight:500;font-size:.68rem;color:var(--ink3)}
 .steps a.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-@media (max-width:560px){.steps a span{display:none}.steps a{padding:6px 10px}.steps a b{font-size:.72rem}.logo .it{display:none}}
+@media (max-width:560px){.steps a{padding:6px 10px;gap:5px}.steps a b{font-size:.72rem}.logo .it{display:none}}
+@media (max-width:480px){.logo{display:none}.steps a{padding:6px 9px}}
 
 /* hero + stage */
 .hero{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;padding-block:36px 20px}
@@ -135,6 +141,7 @@ p{margin:0}
 .card{position:fixed;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--surface);border-radius:22px;padding:18px 18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--line);max-height:72vh;overflow:auto}
 @media (min-width:900px){.card{position:absolute;left:auto;right:16px;top:16px;bottom:auto;width:340px;max-height:calc(100% - 32px)}}
 .card .x{position:absolute;right:10px;top:10px;width:36px;height:36px;border:0;border-radius:50%;background:var(--surface2);font-size:1.1rem;line-height:1}
+.card:focus{outline:none}
 .card h3{font-size:1.15rem;margin:6px 40px 6px 0;line-height:1.35}
 .card p{color:var(--ink2);font-size:.9rem}
 .chan{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 0;border-top:1px solid var(--line);align-items:baseline}
@@ -174,9 +181,19 @@ section.step{padding-block:72px 8px}
 .opt[aria-pressed="true"] b::after{box-shadow:inset 0 0 0 5px var(--ink)}
 .opt.multi[aria-pressed="true"] b::after{box-shadow:inset 0 0 0 9px var(--ink)}
 .opt small{font-size:.8rem;color:var(--ink3)}
+.opt .smp{display:none;justify-self:start;margin-top:4px;font-style:normal;font-size:.7rem;line-height:1;padding:3px 8px;border-radius:999px;background:var(--surface2);color:var(--ink2)}
+.opt.ghost .smp{display:inline-block}
+.opt.ghost[aria-pressed="true"]{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--line2)}
+.opt.ghost[aria-pressed="true"] b{color:var(--ink2)}
+.opt.ghost[aria-pressed="true"] b::after{box-shadow:inset 0 0 0 5px var(--ink3)}
+.opt.ghost.multi[aria-pressed="true"] b::after{box-shadow:inset 0 0 0 9px var(--ink3)}
+.qt:focus{outline:none}
+.sh h2:focus{outline:none}
 .qnav{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 22px 22px;border-top:1px solid var(--line)}
 @media (min-width:860px){.qnav{padding:18px 32px 26px}}
 .qnav .note{font-size:.8rem;color:var(--ink3)}
+.qnav .btn{flex:none;white-space:nowrap}
+.qnav .note{flex:1;min-width:0;text-align:center}
 
 /* result */
 .res{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
@@ -199,13 +216,17 @@ section.step{padding-block:72px 8px}
 .match .cta{margin-top:22px}
 .runner h4{font-size:.95rem;margin:0 0 12px}
 .rk{list-style:none;padding:0;margin:0;display:grid;gap:0}
-.rk li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.smpbar{display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px;margin:0 0 14px;padding:10px 16px;border-radius:14px;background:var(--surface2);font-size:.86rem;color:var(--ink2)}
+.smpbar a{font-weight:500;color:var(--ink);display:inline-flex;align-items:center;min-height:32px}
+.rk li{display:grid;grid-template-columns:22px 2.3rem minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
 .rk li:first-child{border-top:0}
 .rk .n{font-family:var(--mono);font-size:.74rem;color:var(--ink3)}
-.rk .nm{font-weight:500;font-size:.93rem;display:flex;gap:8px;align-items:center;min-width:0}
+.rk .sc{font-family:var(--latin);font-weight:600;font-size:1.25rem;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.rk .nm{font-weight:500;font-size:.93rem;display:grid;gap:1px;justify-items:start;min-width:0;border:0;background:none;padding:0;text-align:left;min-height:32px;align-content:center}
 .rk .nm small{font-weight:400;color:var(--ink3);font-size:.76rem}
+.runner .note{font-size:.8rem;color:var(--ink3);margin:-4px 0 10px}
 .rk .fit{display:flex;align-items:center;gap:10px;font-family:var(--latin);font-size:.84rem;font-variant-numeric:tabular-nums;color:var(--ink2)}
-.meter{width:84px;height:5px;border-radius:3px;background:var(--surface2);overflow:hidden}
+.meter{width:64px;height:5px;border-radius:3px;background:var(--surface2);overflow:hidden}
 .meter i{display:block;height:100%;background:var(--ink);border-radius:3px;transform-origin:left}
 
 /* scorecard */
@@ -287,12 +308,19 @@ section.step{padding-block:72px 8px}
 footer{padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));color:var(--ink3);font-size:.8rem}
 footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:20px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--btn);color:var(--btn-ink);padding:10px 18px;border-radius:999px;font-size:.86rem;z-index:50;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+@media (pointer:coarse){
+  .steps a,.seg button,.accs button,.btn.sm,.rk .nm,.smpbar a{min-height:44px}
+  .card .x{width:44px;height:44px;right:6px;top:6px}
+}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 </style>
 
 <header class="bar">
   <div class="wrap g">
-    <a class="logo" href="#top">房間理想型 <span class="it">Room Brief</span></a>
+    <div class="hl">
+      <a class="back" href="../../work/#lab" aria-label="回到 Lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Lab</a>
+      <a class="logo" href="#top">房間理想型 <span class="it">Room Brief</span></a>
+    </div>
     <nav class="steps" aria-label="步驟">
       <a href="#intake" data-step="intake"><b>01</b><span>訪談</span></a>
       <a href="#result" data-step="result"><b>02</b><span>結果</span></a>
@@ -329,7 +357,7 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
             <div class="seg" id="timeSeg" role="group" aria-label="時段"></div>
             <div class="seg" id="sizeSeg" role="group" aria-label="房間大小"></div>
           </div>
-          <div class="card" id="card" hidden role="dialog" aria-modal="false" aria-labelledby="cardTitle"></div>
+          <div class="card" id="card" hidden role="dialog" aria-modal="false" aria-labelledby="cardTitle" tabindex="-1"></div>
         </div>
         <div class="rail" id="rail" role="group" aria-label="切換風格"></div>
         <p class="hint">點房間裡的家具，看怎麼挑、在哪裡買。</p>
@@ -343,14 +371,16 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
         <p>沒有標準答案。每題都附上設計師為什麼要問，答完立刻算出你的風格與提案。</p>
       </div>
       <div class="intake" id="intakeBox"></div>
+      <div class="sr" id="qLive" aria-live="polite" aria-atomic="true"></div>
     </section>
 
     <section class="step" id="result">
       <div class="sh">
         <p class="eyebrow"><b>02</b> · 結果</p>
-        <h2>適合你的，也要住得久</h2>
+        <h2 id="resultTitle" tabindex="-1">適合你的，也要住得久</h2>
         <p>配對分數看你的需求，留得住指數看這個風格三年後你還喜不喜歡、好不好照顧。兩個一起看。</p>
       </div>
+      <div class="smpbar" id="smpBar" role="status" hidden></div>
       <div class="res" id="resBox"></div>
       <div class="panel score" id="scoreBox"></div>
     </section>
@@ -367,11 +397,11 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
 </main>
 
 <footer class="g"><div class="wrap">
-  <p>價格為規劃用概估區間（新台幣），不是報價；通路連結只到官網首頁，請以單品名稱搜尋。房間為示意圖，不代表實際尺寸。</p>
+  <p>價格為規劃用概估區間（新台幣），不是報價；通路連結只到官網首頁，請以單品名稱搜尋。價格概估於 2026/10。房間為示意圖，不代表實際尺寸。</p>
   <p>MUJI 台灣有免費的<a href="https://www.muji.com/tw/interior_advisor/" target="_blank" rel="noopener">家具配置諮詢服務</a>，拿著這份提案去問會很有效率。</p>
 </div></footer>
 
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script src="/lab/vendor/gsap.min.js"></script>
 <script src="/lab/vendor/ScrollTrigger.min.js"></script>
@@ -783,11 +813,15 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const RM=matchMedia('(prefers-reduced-motion: reduce)');
 const G=()=>(!RM.matches&&window.gsap)?window.gsap:null;
 const LSK='roomtype-v1';
-const state={style:'japandi',time:'ta',acc:0,ans:JSON.parse(JSON.stringify(SAMPLE)),done:false,qi:0,draft:{},sel:null,open:null};
-try{const v=JSON.parse(localStorage.getItem(LSK)||'null');if(v&&v.ans){Object.assign(state,{style:ST[v.style]?v.style:state.style,time:v.time||'ta',acc:v.acc|0,ans:v.ans,done:!!v.done})}}catch(e){}
-const save=()=>{try{localStorage.setItem(LSK,JSON.stringify({style:state.style,time:state.time,acc:state.acc,ans:state.ans,done:state.done}))}catch(e){}};
+const state={style:'japandi',time:'ta',acc:0,ans:JSON.parse(JSON.stringify(SAMPLE)),done:false,qi:0,draft:{},sel:null,open:null,touched:{},openerId:null,advT:null};
+try{const v=JSON.parse(localStorage.getItem(LSK)||'null');if(v&&v.ans){Object.assign(state,{style:ST[v.style]?v.style:state.style,time:v.time||'ta',acc:v.acc|0,ans:v.ans,done:!!v.done});
+  /* touched：只接受已知題目 id 且值為 true；未完成訪談時草稿不會保存，所以一併歸零 */
+  if(v.done&&v.touched&&typeof v.touched==='object')Q.forEach(q=>{if(v.touched[q.id]===true)state.touched[q.id]=true})}}catch(e){}
+const save=()=>{try{localStorage.setItem(LSK,JSON.stringify({style:state.style,time:state.time,acc:state.acc,ans:state.ans,done:state.done,touched:state.touched}))}catch(e){}};
 const fmt=n=>Math.round(n).toLocaleString('en-US');
 const band=(a,b)=>`NT$ ${fmt(a)}–${fmt(b)}`;
+const PRICE_AS_OF='2026/10';
+const sampleCount=()=>state.done?Q.filter(q=>!state.touched[q.id]).length:Q.length;
 const r100=n=>Math.round(n/100)*100;
 let toastT;function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>e.hidden=true,1800)}
 const has=(id,v)=>{const a=state.ans[id];return Array.isArray(a)?a.includes(v):a===v};
@@ -875,39 +909,63 @@ function openCard(id){const S=ST[state.style],t=TIER[state.ans.budget||'t2'],p=t
     tierChans().map(c=>`<div class="chan">${c.u?`<a href="${c.u}" target="_blank" rel="noopener">${c.n}</a>`:`<b style="font-weight:500;font-size:.9rem">${c.n}</b>`}<span>${band(r100(p[0]*CHMUL[c.c]),r100(p[1]*CHMUL[c.c]))}</span></div>`).join('')+
     `<div class="chan"><small>預算級距「${t.n}」的概估價，搜尋關鍵字：${info.name}</small></div>`;
   const was=card.hidden;card.hidden=false;const g=G();if(g&&was)g.fromTo(card,{y:16,opacity:0,scale:.98},{y:0,opacity:1,scale:1,duration:.45,ease:'power3.out',clearProps:'transform,opacity'});
-  card.querySelector('.x').focus({preventScroll:true})}
-function closeCard(){const c=$('#card');if(c.hidden)return;c.hidden=true;state.sel=null;bindPieces()}
+  state.openerId=id;card.focus({preventScroll:true})}
+function closeCard(restore=false){const c=$('#card');if(c.hidden)return;c.hidden=true;state.sel=null;bindPieces();
+  if(restore&&state.openerId){const p=$$('#room .piece').find(x=>x.dataset.id===state.openerId);if(p)p.focus({preventScroll:true})}
+  state.openerId=null}
 
 /* ================= 訪談 ================= */
-function renderIntake(dir=0){const box=$('#intakeBox'),q=Q[state.qi],cur=state.draft[q.id];
+const progHTML=()=>{const q=Q[state.qi],cur=state.draft[q.id],ok=q.multi?(cur||[]).length>0:!!cur;return Q.map((_,i)=>`<i class="${i<state.qi||(i===state.qi&&ok)?'on':''}"></i>`).join('')};
+const noteText=()=>{const q=Q[state.qi];return state.touched[q.id]?(state.done?'已完成訪談，可隨時修改':'選好後會自動進入下一題，可按上一題返回'):(state.done?'這題還是範例答案，點選你的答案來取代':'範例答案已先填入，照你的狀況改就好')};
+function renderIntake(dir=0,focus=false){const box=$('#intakeBox'),q=Q[state.qi],cur=state.draft[q.id];
   const sel=v=>q.multi?(cur||[]).includes(v):cur===v;
   const ok=q.multi?(cur||[]).length>0:!!cur;
-  box.innerHTML=`<div class="prog" aria-hidden="true">${Q.map((_,i)=>`<i class="${i<state.qi||(i===state.qi&&ok)?'on':''}"></i>`).join('')}</div>
-   <div class="qbox"><div><p class="qn">QUESTION ${String(state.qi+1).padStart(2,'0')} / 08${q.multi?' · 可複選':''}</p><h3 class="qt" id="qt">${q.t}</h3><p class="why"><b>設計師為什麼問</b>${q.why}</p></div>
-   <div class="opts" role="group" aria-labelledby="qt">${q.o.map(([v,l,s])=>`<button type="button" class="opt${q.multi?' multi':''}" data-v="${v}" aria-pressed="${sel(v)}"><b>${l}</b>${s?`<small>${s}</small>`:''}</button>`).join('')}</div></div>
-   <div class="qnav"><button type="button" class="btn sec sm" id="qBack" ${state.qi===0?'disabled':''}>上一題</button><span class="note">${state.done?'已完成訪談，可隨時修改':'範例答案已先填入，照你的狀況改就好'}</span><button type="button" class="btn pri sm" id="qNext" ${ok?'':'disabled'}>${state.qi===Q.length-1?'看結果':'下一題'}</button></div>`;
-  const g=G();if(g&&dir)g.from(box.querySelector('.qbox'),{x:dir*28,opacity:0,duration:.45,ease:'power3.out',clearProps:'transform,opacity'})}
+  box.innerHTML=`<div class="prog" aria-hidden="true">${progHTML()}</div>
+   <div class="qbox"><div><p class="qn">QUESTION ${String(state.qi+1).padStart(2,'0')} / 08${q.multi?' · 可複選':''}</p><h3 class="qt" id="qt" tabindex="-1">${q.t}</h3><p class="why"><b>設計師為什麼問</b>${q.why}</p></div>
+   <div class="opts" role="group" aria-labelledby="qt">${q.o.map(([v,l,s])=>`<button type="button" class="opt${q.multi?' multi':''}${sel(v)&&!state.touched[q.id]?' ghost':''}" data-v="${v}" aria-pressed="${sel(v)}"><b>${l}</b>${s?`<small>${s}</small>`:''}<i class="smp">範例</i></button>`).join('')}</div></div>
+   <div class="qnav"><button type="button" class="btn sec sm" id="qBack" ${state.qi===0?'disabled':''}>上一題</button><span class="note">${noteText()}</span><button type="button" class="btn pri sm" id="qNext" ${ok?'':'disabled'}>${state.qi===Q.length-1?'看結果':'下一題'}</button></div>`;
+  const g=G();if(g&&dir)g.from(box.querySelector('.qbox'),{x:dir*28,opacity:0,duration:.45,ease:'power3.out',clearProps:'transform,opacity'});
+  if(focus){const h=$('#qt');h.focus({preventScroll:true});
+    const r=h.getBoundingClientRect();if(r.top<72||r.bottom>innerHeight)h.scrollIntoView({block:'start',behavior:RM.matches?'instant':'smooth'});
+    const lv=$('#qLive');lv.textContent='';setTimeout(()=>{lv.textContent=`第 ${state.qi+1} 題，共 ${Q.length} 題`},60)}}
+/* 選答案時只更新狀態，不重繪，焦點留在剛點的選項 */
+function syncIntake(){const q=Q[state.qi],cur=state.draft[q.id],box=$('#intakeBox');
+  const sel=v=>q.multi?(cur||[]).includes(v):cur===v;
+  box.querySelectorAll('.opt').forEach(b=>{const on=sel(b.dataset.v);b.setAttribute('aria-pressed',on);b.classList.toggle('ghost',on&&!state.touched[q.id])});
+  box.querySelector('.prog').innerHTML=progHTML();
+  box.querySelector('.note').textContent=noteText();
+  box.querySelector('#qNext').disabled=!(q.multi?(cur||[]).length>0:!!cur)}
+function cancelAdvance(){clearTimeout(state.advT);state.advT=null}
+function goQ(delta){cancelAdvance();state.qi=Math.max(0,Math.min(Q.length-1,state.qi+delta));renderIntake(delta,true)}
 function pick(v){const q=Q[state.qi];let cur=state.draft[q.id];
+  cancelAdvance();
   if(q.multi){cur=[...(cur||[])];const none=['none','sleep'];
     if(cur.includes(v))cur=cur.filter(x=>x!==v);else{if(none.includes(v))cur=[v];else{cur=cur.filter(x=>!none.includes(x));cur.push(v);if(q.max&&cur.length>q.max)cur.shift()}}}
   else cur=v;
-  state.draft[q.id]=cur;renderIntake(0);
-  if(!q.multi&&state.qi<Q.length-1)setTimeout(()=>{state.qi++;renderIntake(1)},RM.matches?0:260)}
-function finish(){state.ans=JSON.parse(JSON.stringify(state.draft));state.done=true;const r=compute(state.ans);
+  state.draft[q.id]=cur;state.touched[q.id]=true;syncIntake();
+  /* 單選：先讓人看到選中狀態，約 0.45 秒後前進；期間再選或按上一題會取消 */
+  if(!q.multi&&state.qi<Q.length-1)state.advT=setTimeout(()=>{state.advT=null;state.qi++;renderIntake(1,true)},450)}
+function toResult(){const sec=$('#result .sh'),h=$('#resultTitle'),rm=RM.matches;
+  const top=()=>sec.getBoundingClientRect().top+scrollY-(parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)||0)-12;
+  requestAnimationFrame(()=>{scrollTo({top:top(),behavior:rm?'instant':'smooth'});h.focus({preventScroll:true});
+    /* 平滑捲動中途若被重排打斷，就直接跳到位 */
+    if(!rm)setTimeout(()=>{if(Math.abs(scrollY-top())>40)scrollTo({top:top(),behavior:'instant'})},1000)})}
+function finish(){cancelAdvance();state.ans=JSON.parse(JSON.stringify(state.draft));state.done=true;const r=compute(state.ans);
   state.style=r.primary.k;state.acc=0;state.sel=null;closeCard();
   renderRail();renderTitle();renderCtl();renderRoom('swap');renderResult(true);renderScore();renderDoc(true);renderIntake(0);save();
-  $('#result').scrollIntoView({behavior:RM.matches?'auto':'smooth'});toast('已產生你的結果與提案')}
+  toResult();toast('已更新你的結果與提案')}
 
 /* ================= 結果 ================= */
-function renderResult(anim){const r=compute(state.ans),k=r.primary.k,S=ST[k];
+function renderBanner(){const n=sampleCount(),b=$('#smpBar');b.hidden=n===0;if(!n)return;
+  b.innerHTML=`<span>目前結果含 ${n} 題範例答案 · ${state.done?'改答這些題後會更新':'完成訪談後會更新'}</span><a href="#intake">${state.done?'回到訪談':'開始訪談'}</a>`}
+function renderResult(anim){const r=compute(state.ans),k=r.primary.k,S=ST[k];renderBanner();
   $('#resBox').innerHTML=`<div class="panel match"><div class="tag"><span class="kind ${KIND[S.kind][1]}"><i></i><span>${KIND[S.kind][0]}</span></span>${state.done?'':'<span class="sample">範例：租屋、4–6 坪、朝北、想要安靜療癒</span>'}</div>
    <h3>${S.n}<span class="it">${S.en}</span></h3>
    <div class="idx"><span class="big" data-count="${r.primary.fit}">${r.primary.fit}</span><span class="lbl"><b>配對分數</b>依你的訪談</span><span class="big" data-count="${r.primary.ret}" style="color:var(--ink3)">${r.primary.ret}</span><span class="lbl"><b>留得住指數</b>耐看、維護、住感</span></div>
    <ul class="reasons">${reasons(k,state.ans).map(t=>`<li><span>${t}</span></li>`).join('')}</ul>
    <div class="layer">${r.accent?`<b>點綴層：${ST[r.accent.k].n}</b><span>${ST[r.accent.k].keep}</span>`:`<b>不需要點綴層</b><span>用一張單椅或一盞燈當焦點就夠，房間會更耐看。</span>`}</div>
    <div class="cta"><button type="button" class="btn pri" data-apply="${k}">在房間裡看</button><a class="btn sec" href="#proposal">看設計提案</a></div></div>
-   <div class="panel runner"><h4>風格排行 · 前 6 名</h4><ol class="rk">${r.rank.slice(0,6).map((x,i)=>`<li><span class="n">${String(i+1).padStart(2,'0')}</span><button type="button" class="nm" data-apply="${x.k}" style="border:0;background:none;padding:0;text-align:left;min-height:32px">${ST[x.k].n}<small>配對 ${x.fit} · 留得住 ${x.ret}</small></button><span class="fit"><span class="meter"><i style="width:${Math.round(x.final)}%"></i></span>${Math.round(x.final)}</span></li>`).join('')}</ol>
-   <p class="hint" style="padding:14px 0 0">綜合分數 = 配對 70% + 留得住 30%。配對只比較這 9 種風格誰更接近你的答案；點風格名稱可以在房間裡看。</p></div>`;
+   <div class="panel runner"><h4>風格排行 · 前 6 名</h4><p class="note">排序依綜合分數 = 配對 70% + 留得住 30%。配對只比較這 9 種風格誰更接近你的答案；點風格名稱可以在房間裡看。</p><ol class="rk">${r.rank.slice(0,6).map((x,i)=>`<li><span class="n">${String(i+1).padStart(2,'0')}</span><span class="sc"><span class="sr">綜合分數 </span>${Math.round(x.final)}</span><button type="button" class="nm" data-apply="${x.k}">${ST[x.k].n}<small>配對 ${x.fit} · 留得住 ${x.ret}</small></button><span class="meter" aria-hidden="true"><i style="width:${Math.round(x.final)}%"></i></span></li>`).join('')}</ol></div>`;
   const g=G();if(g&&anim){$$('#resBox [data-count]').forEach(el=>{const o={v:0};g.to(o,{v:+el.dataset.count,duration:1.2,ease:'power2.out',onUpdate:()=>el.textContent=Math.round(o.v)})});
     g.from('#resBox .meter i',{scaleX:0,duration:1,ease:'power3.out',stagger:.06,clearProps:'transform'});g.from('#resBox .reasons li',{y:12,opacity:0,duration:.5,stagger:.08,delay:.2,clearProps:'transform,opacity'})}}
 function dots(n,bad){return `<span class="dots${bad?' bad':''}">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`}
@@ -958,22 +1016,22 @@ function renderDoc(anim){const P_=proposal(),S=P_.S,a=state.ans,acc=S.acc[state.
      <ul class="swl"><li><i style="background:${S.s60[1]}"></i><span><b>主色 ${S.s60[0]}</b>：牆、窗簾、大面積寢具</span></li><li><i style="background:${S.s30[1]}"></i><span><b>輔色 ${S.s30[0]}</b>：家具、床架、地毯</span></li><li><i style="background:${acc[1]}"></i><span><b>重點色 ${acc[0]}</b>：抱枕、一件單椅、燈或畫</span></li></ul>
      <div class="accs" role="group" aria-label="換重點色">${S.acc.map((c,i)=>`<button type="button" data-acc="${i}" aria-pressed="${i===state.acc}"><i style="background:${c[1]}"></i>${c[0]}</button>`).join('')}</div></div>
     <div class="blk bl"><h4>配置與動線</h4><div class="kv">${P_.plan.map((p,i)=>`<div><b>${i===0?SIZE[sizeKey()].n:'用途'}</b><span>${p}</span></div>`).join('')}<div><b>基準</b><span>床邊 ≥ 60 cm · 主要走道 70–90 cm · 床尾 ≥ 80 cm</span></div></div></div>
-    <div class="blk full"><h4>8 件關鍵單品</h4><div class="tablebox"><table class="items"><thead><tr><th>品項</th><th>單品與挑選重點</th><th>建議通路</th><th style="text-align:right">概估</th></tr></thead><tbody>
-     ${P_.items.map(x=>`<tr><td>${ROLE_ZH[x.id]}</td><td><b>${x.name}</b><small>${x.tip}</small></td><td class="c">${x.ch.u?`<a href="${x.ch.u}" target="_blank" rel="noopener">${x.ch.n}</a>`:x.ch.n}</td><td class="p">${band(x.lo,x.hi)}</td></tr>`).join('')}
-     <tr class="tot"><td></td><td>家具合計（不含床墊）</td><td class="c"></td><td class="p">${band(P_.lo,P_.hi)}</td></tr>
-     <tr><td>床墊</td><td><b>另列預算</b><small>每天用 8 小時，建議至少試躺 10 分鐘再買。</small></td><td class="c">實體門市試躺</td><td class="p">${band(P_.t.mat[0],P_.t.mat[1])}</td></tr></tbody></table></div></div>
+    <div class="blk full"><h4>8 件關鍵單品</h4><div class="tablebox"><table class="items"><thead><tr><th>品項</th><th>單品與挑選重點</th><th>建議通路</th><th style="text-align:right">概估價（約）</th></tr></thead><tbody>
+     ${P_.items.map(x=>`<tr><td>${ROLE_ZH[x.id]}</td><td><b>${x.name}</b><small>${x.tip}</small></td><td class="c">${x.ch.u?`<a href="${x.ch.u}" target="_blank" rel="noopener">${x.ch.n}</a>`:x.ch.n}</td><td class="p">約 ${band(x.lo,x.hi)}</td></tr>`).join('')}
+     <tr class="tot"><td></td><td>家具合計（概估，不含床墊）</td><td class="c"></td><td class="p">約 ${band(P_.lo,P_.hi)}</td></tr>
+     <tr><td>床墊</td><td><b>另列預算</b><small>每天用 8 小時，建議至少試躺 10 分鐘再買。</small></td><td class="c">實體門市試躺</td><td class="p">約 ${band(P_.t.mat[0],P_.t.mat[1])}</td></tr></tbody></table></div></div>
     <div class="blk"><h4>燈光計畫</h4><div class="kv">${P_.light.map(([k,v])=>`<div><b>${k}</b><span>${v}</span></div>`).join('')}</div>${P_.extra.length?`<ul class="tips" style="margin-top:14px">${P_.extra.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}</div>
     <div class="blk bl"><h4>${a.home==='own'?'施工建議':'租屋改造：全部免施工'}</h4><ul class="tips">${P_.rent.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <div class="blk"><h4>生活條件</h4><ul class="tips">${P_.life.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <div class="blk bl"><h4>避雷</h4><ul class="tips">${S.bad.map(x=>`<li>${x}</li>`).join('')}</ul></div>
    </div>
-   <div class="doc-f"><p>提案已存在這台裝置，下次打開會回到這裡。價格為規劃用概估，不是報價。</p><div class="cta"><button type="button" class="btn sec sm" id="redo">重新訪談</button><button type="button" class="btn pri sm" id="copyDoc">複製提案文字</button></div></div>`;
+   <div class="doc-f"><p>提案已存在這台裝置，下次打開會回到這裡。價格為規劃用概估，不是報價；概估於 ${PRICE_AS_OF}。</p><div class="cta"><button type="button" class="btn sec sm" id="redo">重新訪談</button><button type="button" class="btn pri sm" id="copyDoc">複製提案文字</button></div></div>`;
   const g=G();if(g&&anim)g.from('#docBox .blk',{y:14,opacity:0,duration:.5,stagger:.04,ease:'power2.out',clearProps:'transform,opacity'})}
 function docText(){const P_=proposal(),S=P_.S,a=state.ans,acc=S.acc[state.acc];
   return [`房間理想型｜設計提案`,`風格：${S.n} ${S.en}（${KIND[S.kind][0]}，留得住指數 ${retention(state.style)}）`,`房間：${SIZE[sizeKey()].full}｜預算：${P_.t.n}｜${a.home==='own'?'自有可施工':'租屋免施工'}`,'',
    `【配色 60·30·10】主色 ${S.s60[0]} ${S.s60[1]}／輔色 ${S.s30[0]} ${S.s30[1]}／重點色 ${acc[0]} ${acc[1]}`,'',`【配置】`,...P_.plan.map(x=>'・'+x),'',
-   `【8 件關鍵單品】`,...P_.items.map(x=>`・${ROLE_ZH[x.id]}｜${x.name}｜${x.ch.n}｜${band(x.lo,x.hi)}\n  ${x.tip}`),`家具合計（不含床墊）：${band(P_.lo,P_.hi)}`,`床墊另列：${band(P_.t.mat[0],P_.t.mat[1])}`,'',
-   `【燈光】`,...P_.light.map(([k,v])=>`・${k}：${v}`),...P_.extra.map(x=>'・'+x),'',`【${a.home==='own'?'施工建議':'租屋改造'}】`,...P_.rent.map(x=>'・'+x),'',`【生活條件】`,...P_.life.map(x=>'・'+x),'',`【避雷】`,...S.bad.map(x=>'・'+x),'','價格為規劃用概估區間，非報價。'].join('\n')}
+   `【8 件關鍵單品】`,...P_.items.map(x=>`・${ROLE_ZH[x.id]}｜${x.name}｜${x.ch.n}｜約 ${band(x.lo,x.hi)}\n  ${x.tip}`),`家具合計（概估，不含床墊）：約 ${band(P_.lo,P_.hi)}`,`床墊另列：約 ${band(P_.t.mat[0],P_.t.mat[1])}`,'',
+   `【燈光】`,...P_.light.map(([k,v])=>`・${k}：${v}`),...P_.extra.map(x=>'・'+x),'',`【${a.home==='own'?'施工建議':'租屋改造'}】`,...P_.rent.map(x=>'・'+x),'',`【生活條件】`,...P_.life.map(x=>'・'+x),'',`【避雷】`,...S.bad.map(x=>'・'+x),'',`價格為規劃用概估區間，非報價；概估於 ${PRICE_AS_OF}。`].join('\n')}
 
 /* ================= 事件 ================= */
 document.addEventListener('click',e=>{
@@ -982,22 +1040,22 @@ document.addEventListener('click',e=>{
   if(t.classList.contains('piece')){openCard(t.dataset.id);return}
   if(!t.closest('#card')&&!t.closest('.piece')&&!$('#card').hidden&&!t.dataset.close)closeCard();
   const d=t.dataset;
-  if(d.close!=null)closeCard();
+  if(d.close!=null)closeCard(true);
   else if(d.style)setStyle(d.style);
   else if(d.apply)setStyle(d.apply,{scroll:true});
   else if(d.time){state.time=d.time;renderCtl();$('#roomWrap').className=state.time;save()}
-  else if(d.size){state.ans.size=d.size;state.draft.size=d.size;renderCtl();renderRoom('swap');renderDoc(false);save()}
+  else if(d.size){state.ans.size=d.size;state.draft.size=d.size;state.touched.size=true;renderBanner();renderCtl();renderRoom('swap');renderDoc(false);save()}
   else if(d.acc!=null&&t.closest('.accs')){state.acc=+d.acc;renderTitle();renderRoom('plain');renderDoc(false);save()}
   else if(d.v!=null&&t.classList.contains('opt'))pick(d.v);
-  else if(t.id==='qNext'){if(state.qi<Q.length-1){state.qi++;renderIntake(1)}else finish()}
-  else if(t.id==='qBack'&&state.qi>0){state.qi--;renderIntake(-1)}
+  else if(t.id==='qNext'){if(state.qi<Q.length-1)goQ(1);else finish()}
+  else if(t.id==='qBack'&&state.qi>0)goQ(-1)
   else if(d.row){openRow=openRow===d.row?null:d.row;renderScore();const g=G(),dt=$('#scoreBox .detail');if(g&&dt)g.from(dt,{height:0,opacity:0,duration:.4,ease:'power2.out',clearProps:'height,opacity'})}
   else if(t.id==='copyDoc'){const txt=docText();const fb=()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已複製提案文字')}catch(er){toast('請手動複製')}ta.remove()};
     try{navigator.clipboard.writeText(txt).then(()=>toast('已複製提案文字'),fb)}catch(er){fb()}}
-  else if(t.id==='redo'){state.qi=0;state.draft=JSON.parse(JSON.stringify(state.ans));renderIntake(1);$('#intake').scrollIntoView({behavior:RM.matches?'auto':'smooth'})}
+  else if(t.id==='redo'){cancelAdvance();state.qi=0;state.draft=JSON.parse(JSON.stringify(state.ans));renderIntake(1,true);$('#intake').scrollIntoView({behavior:RM.matches?'auto':'smooth'})}
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')closeCard();
+  if(e.key==='Escape')closeCard(true);
   const p=e.target.closest&&e.target.closest('.piece');if(p&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openCard(p.dataset.id)}});
 addEventListener('resize',()=>{placePill($('#timeSeg'));placePill($('#sizeSeg'))});
 
@@ -1009,8 +1067,9 @@ if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.for
   state.draft=JSON.parse(JSON.stringify(state.ans));
   renderRail();renderTitle();renderCtl();renderRoom('intro');renderIntake(0);renderResult(false);renderScore();renderDoc(false);
   const g=G();if(g){
-    g.from('.hero h1 .ln>span',{yPercent:110,duration:1.1,ease:'expo.out',stagger:.09});
-    g.from('.hero .sub,.hero .cta,.hero .facts',{y:18,opacity:0,duration:.8,ease:'power3.out',stagger:.08,delay:.35,clearProps:'transform,opacity'});
+    const mob=matchMedia('(max-width:700px)').matches; /* 手機：縮短揭示，CTA 約 0.6 秒內就位 */
+    g.from('.hero h1 .ln>span',{yPercent:110,duration:mob?.6:1.1,ease:'expo.out',stagger:mob?.05:.09});
+    g.from('.hero .sub,.hero .cta,.hero .facts',{y:mob?12:18,opacity:0,duration:mob?.45:.8,ease:'power3.out',stagger:mob?.04:.08,delay:mob?.05:.35,clearProps:'transform,opacity'});
     g.from('.stage',{scale:.97,duration:1.2,ease:'expo.out',clearProps:'transform'});
     g.from('.sty',{x:24,opacity:0,duration:.6,ease:'power3.out',stagger:.04,delay:.6,clearProps:'transform,opacity'});
     if(window.ScrollTrigger){g.registerPlugin(ScrollTrigger);$$('.sh,.intake,.res,.score,.doc').forEach(el=>g.from(el,{y:40,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 92%',once:true}}))}

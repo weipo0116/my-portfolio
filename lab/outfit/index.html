@@ -24,15 +24,15 @@
     <main id="app"><span id="top"></span>
       <header class="hero">
         <div class="topbar">
+          <a class="back" href="../../work/#lab" aria-label="回到 Lab"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Lab</span></a>
           <span>FIVE ELEMENTS</span>
           <span id="dateLine">—</span>
-          <a href="../../work/">LAB ↗</a>
         </div>
         <p class="kicker" id="kicker">TODAY'S LOOK · 今日主色</p>
         <div class="daybar">
           <div class="tabs days" id="dayTabs" role="group" aria-label="選擇日期"></div>
           <div class="datepick" id="datepick">
-            <button type="button" class="pickbtn" id="dayPickBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal" disabled><span>任選日期</span><b id="dayPickVal">—</b><i aria-hidden="true">▾</i></button>
+            <button type="button" class="pickbtn" id="dayPickBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal"><span>任選日期</span><b id="dayPickVal">—</b><i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i></button>
             <div class="cal" id="cal" role="dialog" aria-label="選擇日期" hidden>
               <div class="cal-head">
                 <button type="button" id="calPrevY" aria-label="上一年">«</button>
@@ -48,7 +48,12 @@
           </div>
           <span class="daystate" id="dayState" role="status"></span>
         </div>
-        <h1 class="mega" id="mega" aria-live="polite"><span class="mega-zh" id="elZh">木</span><span class="mega-en" id="elEn">WOOD</span></h1>
+        <h1 class="mega" id="mega"><span class="mega-zh" id="elZh">木</span><span class="mega-en" id="elEn">WOOD</span></h1>
+        <p class="sr-only" id="heroStatus" role="status" aria-live="polite"></p>
+        <div class="answer" id="answer">
+          <p class="answer-text" id="answerText"></p>
+          <a class="answer-jump" href="#sec-looks"><span>看穿搭</span><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
         <p class="sub" id="sub"></p>
         <div class="chips" id="chips"></div>
         <nav class="jump" aria-label="快速導覽">
@@ -75,15 +80,16 @@
       <section class="looks" id="sec-looks" aria-labelledby="h-l">
         <div class="looks-head reveal">
           <h2 id="h-l">THE LOOKS <span>選擇場合</span></h2>
-          <div class="tabs" role="tablist" id="tabs"></div>
+          <div class="tabs" id="tabs" role="group" aria-label="選擇場合"></div>
         </div>
+        <div class="why reveal" id="why"></div>
         <div class="look-grid" id="lookGrid"></div>
       </section>
 
       <section class="rules reveal" id="sec-colors" aria-labelledby="h-r">
         <h2 id="h-r">LUCKY COLORS <span>今日色運排序</span></h2>
         <div class="rule-grid" id="rules"></div>
-        <p class="rule-note">排序依「與當日五行的關係」：剋我＝旺色、我剋＝助色、同我＝穩色；生我與我生兩類暫不排序，只當中性底色參考。</p>
+        <p class="rule-note">排序依「與當日五行的關係」：剋我＝旺色、我剋＝助色、同我＝穩色；生我與我生兩類暫不排序，只當中性底色參考。墨黑與米白屬「中性色」，不在今日排序內，只用來打底。</p>
       </section>
 
       <footer class="foot">
@@ -92,7 +98,7 @@
       </footer>
     </main>
     <nav class="dock" id="dock" aria-label="頁面導覽">
-      <a href="#top">↑ <span>TOP</span></a>
+      <a href="#top"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>TOP</span></a>
       <a href="#sec-weather">天氣</a>
       <a href="#sec-looks">穿搭</a>
       <a href="#sec-colors">色運</a>
