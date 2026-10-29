@@ -342,7 +342,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 }
 
 /* ---------- events ---------- */
-.posters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.posters{display:block}
 .pcol{display:flex;flex-direction:column;gap:12px;min-width:0}
 .pcol h3{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1.5px solid var(--ink);padding-bottom:6px}
 .pcol h3 .scrawl{font-size:40px}
@@ -358,6 +358,29 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .srcs .lab{font-size:13.5px;color:var(--ink-2);margin-right:4px}
 .disclaim{margin-top:18px;font-size:13.5px;color:var(--ink-2);max-width:52em;border-left:2px solid var(--stamp);padding-left:12px}
 @media (max-width:860px){.posters{grid-template-columns:1fr}}
+
+/* ---------- play modes & real events ---------- */
+.modes{display:inline-flex;align-self:flex-start;border:1.5px solid var(--ink);border-radius:999px;padding:3px;gap:2px;background:var(--card)}
+.modes button{height:38px;padding:0 16px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--ink);transition:background .2s,color .2s}
+.modes button .mn{font-size:11px;font-weight:500;color:var(--sub)}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.modes button[aria-pressed="true"] .mn{color:color-mix(in srgb,var(--paper) 70%,transparent)}
+.modes button:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+.pgroup+.pgroup{margin-top:34px}
+.pgroup h3{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1.5px solid var(--ink);padding-bottom:6px;margin-bottom:16px}
+.pgroup h3 .scrawl{font-size:40px}
+.pgroup h3 span:last-child{font-family:var(--f-hand);font-size:15px;color:var(--sub)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:18px}
+.poster .ptag{position:absolute;right:12px;top:10px;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;color:var(--stamp);border:1.5px solid var(--stamp);padding:2px 7px;transform:rotate(3deg)}
+.poster .pt{display:block;margin:0;padding-right:68px}
+.poster .pd{margin:0;font-size:12.5px;color:var(--ink-2)}
+.poster .pn{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.poster .pa{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.poster .pa .btn{min-height:38px;padding:0 14px;font-size:13px}
+.pgroup .more{margin-top:14px}
+.evmode,.evnone{margin:0 0 18px;font-size:14px;color:var(--ink-2);border-left:2px solid var(--stamp);padding-left:12px}
+@media (max-width:420px){.modes{align-self:stretch}.modes button{flex:1;justify-content:center;padding:0 8px;gap:5px}}
+@media (pointer:coarse){.modes button{min-height:44px}.poster .pa .btn,.pgroup .more{min-height:44px}}
 
 /* ---------- plan ---------- */
 .planwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(24px,5vw,64px);align-items:start}
@@ -460,7 +483,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <a class="brand" href="#top" aria-label="週末趣哪裡，回到頂端"><span class="scrawl">Weekend Museum</span><span class="zh">週末趣哪裡</span></a>
     <nav class="nav" aria-label="頁面導覽">
       <a href="#explore" class="opt">地圖</a>
-      <a href="#events" class="opt">本週展期</a>
+      <a href="#events" class="opt">本週活動</a>
       <a href="#plan" id="planLink">行程卡 <span class="badge" id="planCount">0</span></a>
     </nav>
     <button class="iconbtn" id="themeBtn" type="button" aria-label="切換深色或淺色">
@@ -505,6 +528,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="inner">
     <h2 class="sr" id="exTitle">雙北週末地圖</h2>
     <div class="tools">
+      <div class="modes" id="modes" role="group" aria-label="玩法"></div>
       <div class="row1">
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
@@ -548,13 +572,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 <section class="sec gut" id="events" aria-labelledby="evTitle">
   <div class="inner">
     <div class="sh rv">
-      <div><span class="scrawl">This weekend</span><h2 id="evTitle">本週末展期</h2></div>
-      <p class="desc">依上午、下午、晚上排好的活動。點一張就會跳回地圖，看它在哪一站。</p>
+      <div><span class="scrawl">This weekend</span><h2 id="evTitle">本週末活動</h2></div>
+      <p class="desc">跟著上面選的玩法，列出這個週末與接下來的活動。點「在地圖看」會跳回地圖，看它靠近哪一站。</p>
     </div>
     <div class="posters" id="posters"></div>
-    <p class="disclaim">這一區目前是<b>示範資料</b>，用來展示版面，不是真實活動。真實活動還沒接上，要接需要臺北旅遊網或文化局的開放資料，加上每天更新的程式。出門前請先看下面的官方網站。</p>
-    <div class="srcs"><span class="lab">查真實活動</span>
-      <a class="btn" href="https://www.travel.taipei/" target="_blank" rel="noopener">臺北旅遊網</a>
+    <p class="disclaim">活動由人工整理自<b>臺北旅遊網</b>活動年曆與公開報導，資料整理於 <b id="evAsOf">…</b>，每張卡片都附來源。時間、地點與交通管制可能調整，出門前請以主辦單位公告為準。已結束的活動會自動隱藏，但名單不會自動更新。<span id="evStale" hidden> <b>這份資料已超過兩週沒更新，請以下方官方網站為準。</b></span></p>
+    <div class="srcs"><span class="lab">查更多活動</span>
+      <a class="btn" href="https://www.travel.taipei/zh-tw/event-calendar" target="_blank" rel="noopener">臺北旅遊網活動年曆</a>
       <a class="btn" href="https://www.culture.gov.taipei/" target="_blank" rel="noopener">臺北市文化局</a>
       <a class="btn" href="https://www.gov.taipei/" target="_blank" rel="noopener">臺北市政府</a>
       <a class="btn" href="https://www.accupass.com/" target="_blank" rel="noopener">Accupass 活動通</a>
@@ -804,17 +828,43 @@ const SPM={};
 SP.forEach(p=>{SPM[p.id]=p;p.h=!!p.h;p.r=!!p.r;p.free=/^(免費|博物館免費|寺廟免費|吊橋免費|公共空間免費)/.test(p.price)||p.price.indexOf('免費入園')>=0;p.area=ST[p.s].area;});
 SP.sort((a,b)=>AREA_ORDER.indexOf(a.area)-AREA_ORDER.indexOf(b.area)||STL.indexOf(ST[a.s])-STL.indexOf(ST[b.s]));
 SP.forEach((p,i)=>p.no=String(i+1).padStart(3,'0'));
+/* 玩法：愛運動＝爬山、健行、河濱等戶外活動；愛都市＝市集、展覽、夜市、老街等。兩者可以重疊。 */
+const SPORT_TAGS=['健行','吊橋','騎車','小山','岩頂','草原','火山','初學者','濕地','賞鳥','河岸','公園'];
+const URBAN_TAGS=['夜市','市集','展覽','博物館','藝術','文創','設計','老街','逛街','購物','百貨','書店','電影','咖啡','選物','巷弄','老屋','建築','古蹟','市景','夜生活','活動','演唱會','小吃','市區','老字號','南北貨','廣場'];
+SP.forEach(p=>{p.sport=p.h||p.tags.some(t=>SPORT_TAGS.indexOf(t)>=0);p.urban=p.tags.some(t=>URBAN_TAGS.indexOf(t)>=0)||(p.e!=='out'&&!p.sport);});
 
-const EV=[
-{s:'zhongxiao_xinsheng',slots:'ap',t:'週末創意市集'},
-{s:'sunyat',slots:'ap',t:'設計主題展'},
-{s:'yuanshan',slots:'ap',t:'花卉與植物市集'},
-{s:'xinbeitou',slots:'p',t:'溫泉季體驗'},
-{s:'exhib',slots:'p',t:'大型消費展'},
-{s:'arena',slots:'n',t:'演唱會'},
-{s:'dadaocheng',slots:'n',t:'河岸音樂夜'},
-{s:'tamsui',slots:'n',t:'夕陽音樂會'}
-];
+/* 活動資料：人工整理自臺北旅遊網活動年曆與公開報導（整理於 2026-10-29）。
+   k：ev＝一般活動、ex＝展覽；c：urban／sport／both；s：靠近的捷運站（沒有把握就填 null，不上地圖）。 */
+/* 活動資料從 events.json 載入（由 scripts/build-weekend-events.mjs 產生）。
+   k：ev＝一般活動、ex＝展覽；c：urban／sport／both；s：靠近的捷運站，沒有把握就是 null，不上地圖。 */
+let EV=[],EV_META={state:'loading'};
+const isDay=d=>/^\d{4}-\d{2}-\d{2}$/.test(d);
+async function loadEvents(){
+  try{const r=await fetch('events.json',{cache:'no-cache'});if(!r.ok)throw new Error(r.status);
+    const j=await r.json();if(!j||!Array.isArray(j.items))throw new Error('format');
+    EV=j.items.filter(e=>e&&e.t&&isDay(e.from)&&isDay(e.to)&&/^https:\/\//.test(e.src)).map(e=>({...e,
+      s:ST[e.s]?e.s:null,k:e.k==='ex'?'ex':'ev',c:e.c==='sport'||e.c==='both'?e.c:'urban',
+      slots:/^[apn]{1,3}$/.test(e.slots)?e.slots:'apn',tag:e.tag||'活動',tm:e.tm||'',place:e.place||'',note:e.note||'',srcn:e.srcn||'來源'}));
+    EV_META={state:'ok',asOf:j.asOf};
+    const el=$('#evAsOf');if(el&&isDay(j.asOf)){el.textContent=j.asOf.replace(/-0?/g,'/');
+      const age=(Date.parse(weekendRange().today)-Date.parse(j.asOf))/864e5;
+      if(age>14)$('#evStale').hidden=false;}
+  }catch(err){EV=[];EV_META={state:'error'};}
+  renderAll();
+}
+
+/* 日期以台北時間計算：本週末＝最近的週六、週日（今天是週末就是這個週末） */
+const addDays=(d,n)=>{const x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10);};
+function weekendRange(){const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'}),dow=new Date(today+'T00:00:00Z').getUTCDay();
+  const sat=dow===0?addDays(today,-1):addDays(today,(6-dow+7)%7);return {today,sat,sun:addDays(sat,1)};}
+const WD=['日','一','二','三','四','五','六'];
+const mdw=(d,withYear)=>{const x=new Date(d+'T00:00:00Z');return (withYear?x.getUTCFullYear()+'/':'')+(x.getUTCMonth()+1)+'/'+x.getUTCDate()+'（'+WD[x.getUTCDay()]+'）';};
+/* 起訖不在今年時帶上年份，避免「10/18 – 4/30」看不出跨年 */
+const evDate=e=>{const cy=weekendRange().today.slice(0,4),y=e.from.slice(0,4)!==cy||e.to.slice(0,4)!==cy;
+  return e.from===e.to?mdw(e.from,y):mdw(e.from,y)+' – '+mdw(e.to,y);};
+function evGroup(e,w){if(e.to<w.today)return null;if(e.from>w.sun)return e.from<=addDays(w.sun,90)?'next':null;return e.k==='ex'?'ex':'wk';}
+const evModeOk=e=>S.mode==='all'||e.c==='both'||e.c===S.mode;
+const liveEvents=()=>{const w=weekendRange();return EV.filter(e=>{const g=evGroup(e,w);return g&&g!=='next'&&evModeOk(e);});};
 const TOURS=[
 {t:'山系慢活日',en:'Ridge & skyline',steps:{a:'xiangshan',p:'101',n:'linjiang'}},
 {t:'老台北散步日',en:'Old Taipei',steps:{a:'longshan',p:'dadaocheng',n:'dadaocheng-pier'}},
@@ -830,10 +880,11 @@ const saveFav=()=>{try{localStorage.setItem('wkm.fav',JSON.stringify(FAV));}catc
 const savePlan=()=>{try{localStorage.setItem('wkm.plan',JSON.stringify(PLAN));}catch(e){}};
 
 /* ---------- state ---------- */
-const S={env:new Set(),time:new Set(),hike:false,free:false,rain:false,fav:false,events:true,area:'all',station:null,spot:null};
+const S={env:new Set(),time:new Set(),hike:false,free:false,rain:false,fav:false,events:true,mode:'all',area:'all',station:null,spot:null};
 function match(p,o){o=o||S;
   if(o.env.size===1){if(o.env.has('in')&&p.e==='out')return false;if(o.env.has('out')&&p.e==='in')return false;}
   if(o.time.size){let ok=false;o.time.forEach(t=>{if(p.t.indexOf(t)>=0)ok=true;});if(!ok)return false;}
+  if(o.mode==='sport'&&!p.sport)return false;if(o.mode==='urban'&&!p.urban)return false;
   if(o.hike&&!p.h)return false;if(o.free&&!p.free)return false;if(o.rain&&!p.r)return false;if(o.fav&&!FAV[p.id])return false;
   return true;}
 function scoped(p){if(S.station)return p.s===S.station;if(S.area!=='all')return p.area===S.area;return true;}
@@ -843,8 +894,9 @@ try{const f=JSON.parse(localStorage.getItem('wkm.filters')||'null');if(f&&typeof
   (Array.isArray(f.env)?f.env:[]).forEach(k=>{if(k==='in'||k==='out')S.env.add(k);});
   (Array.isArray(f.time)?f.time:[]).forEach(k=>{if(k==='a'||k==='p'||k==='n')S.time.add(k);});
   ['hike','free','rain','fav'].forEach(k=>{if(f[k]===true)S[k]=true;});
+  if(f.mode==='sport'||f.mode==='urban')S.mode=f.mode;
   restored=!!anyFilter();}}catch(e){}
-const saveFilters=()=>{try{localStorage.setItem('wkm.filters',JSON.stringify({env:[...S.env],time:[...S.time],hike:S.hike,free:S.free,rain:S.rain,fav:S.fav}));}catch(e){}};
+const saveFilters=()=>{try{localStorage.setItem('wkm.filters',JSON.stringify({env:[...S.env],time:[...S.time],hike:S.hike,free:S.free,rain:S.rain,fav:S.fav,mode:S.mode}));}catch(e){}};
 function hideRestored(){restored=false;const r=$('#restored');if(r)r.hidden=true;}
 function clearFilters(){S.env.clear();S.time.clear();S.hike=S.free=S.rain=S.fav=false;hideRestored();renderAll();}
 const dots=lines=>'<span class="dots" aria-hidden="true">'+lines.map(l=>'<i style="background:'+LINE[l].c+'"></i>').join('')+'</span>';
@@ -929,7 +981,7 @@ function buildMap(){
   $('#legend').innerHTML=Object.keys(LINE).map(k=>'<li><i style="background:'+LINE[k].c+'"></i>'+LINE[k].n+'</li>').join('')
    +'<li><svg viewBox="0 0 20 14"><circle cx="10" cy="7" r="5" fill="var(--ink)"/></svg>有符合的去處</li>'
    +'<li><svg viewBox="0 0 20 14"><path d="M1 13 8 1l4 6 2.5-3.2L19 13z" fill="var(--card)" stroke="var(--ink)" stroke-width="1.2"/></svg>可爬山</li>'
-   +'<li><svg viewBox="0 0 20 14"><path d="m10 1 1.6 3.7 4 .4-3 2.7.9 4-3.5-2.1-3.5 2.1.9-4-3-2.7 4-.4z" fill="var(--stamp)" stroke="var(--ink)" stroke-width=".8"/></svg>示範活動</li>';
+   +'<li><svg viewBox="0 0 20 14"><path d="m10 1 1.6 3.7 4 .4-3 2.7.9 4-3.5-2.1-3.5 2.1.9-4-3-2.7 4-.4z" fill="var(--stamp)" stroke="var(--ink)" stroke-width=".8"/></svg>本週活動</li>';
 }
 function textW(t,fs){let w=0;for(const c of t)w+=/[\u0000-ÿ]/.test(c)?fs*.58:fs*1.02;return w;}
 
@@ -1079,7 +1131,7 @@ function paintMap(){
     const el=st.el;
     el.classList.toggle('on',st.on);el.classList.toggle('off',!st.on);
     el.classList.toggle('hike',ms.some(p=>p.h));
-    el.classList.toggle('ev',S.events&&EV.some(ev=>ev.s===st.id&&(!S.time.size||[...S.time].some(t=>ev.slots.indexOf(t)>=0))));
+    el.classList.toggle('ev',S.events&&liveEvents().some(ev=>ev.s===st.id&&(!S.time.size||[...S.time].some(t=>ev.slots.indexOf(t)>=0))));
     el.classList.toggle('sel',S.station===st.id);
     const b=el.querySelector('.bdg');b.querySelector('text').textContent=st.n;b.querySelector('rect').setAttribute('width',st.n>9?22:17);b.querySelector('text').setAttribute('x',st.n>9?11:8.5);
     el.setAttribute('aria-label',stn(st)+'，'+st.n+' 個符合條件的去處');
@@ -1107,8 +1159,14 @@ const CHIPS=[
 {k:'events',l:'活動層',ic:'star',layer:1}
 ];
 function chipOn(c){if(c.g==='env')return S.env.has(c.k);if(c.g==='time')return S.time.has(c.k);return !!S[c.k];}
-function cloneS(){return {env:new Set(S.env),time:new Set(S.time),hike:S.hike,free:S.free,rain:S.rain,fav:S.fav};}
+function cloneS(){return {env:new Set(S.env),time:new Set(S.time),hike:S.hike,free:S.free,rain:S.rain,fav:S.fav,mode:S.mode};}
 function toggleChip(c,o){o=o||S;if(c.g==='env'){o.env.has(c.k)?o.env.delete(c.k):o.env.add(c.k);}else if(c.g==='time'){o.time.has(c.k)?o.time.delete(c.k):o.time.add(c.k);}else o[c.k]=!o[c.k];}
+const MODES=[{k:'all',l:'全部',d:'所有去處'},{k:'sport',l:'愛運動',d:'爬山、健行、河濱、騎車'},{k:'urban',l:'愛都市',d:'市集、展覽、夜市、老街、咖啡'}];
+function buildModes(){const box=$('#modes');
+  MODES.forEach(m=>{const b=document.createElement('button');b.type='button';b.dataset.m=m.k;b.title=m.d;
+    b.innerHTML='<span>'+m.l+'</span><span class="mn mono"></span>';b.addEventListener('click',()=>setMode(m.k));box.appendChild(b);m.el=b;});}
+function setMode(k){if(S.mode===k)return;S.mode=k;S.spot=null;hideRestored();renderAll();
+  const n=SP.filter(p=>match(p)&&(!S.station||p.s===S.station)).length;toast(MODES.find(m=>m.k===k).l+'：'+n+' 個去處');}
 function buildChips(){
   const rail=$('#chipRail');
   const sc=document.createElement('button');sc.type='button';sc.className='chip scope';sc.id='scopeChip';sc.hidden=true;sc.setAttribute('aria-pressed','true');
@@ -1126,6 +1184,7 @@ function buildChips(){
   $('#restoredClear').addEventListener('click',clearFilters);
   $('#rainPreset').addEventListener('click',rainPreset);
   rail.appendChild(cl);
+  buildModes();
   const ar=$('#areaRail');
   AREAS.forEach(a=>{const b=document.createElement('button');b.type='button';b.className='area';b.dataset.a=a.id;b.textContent=a.n;
     b.addEventListener('click',()=>pickArea(a.id));ar.appendChild(b);a.el=b;});
@@ -1135,12 +1194,14 @@ function paintChips(){
     if(!c.layer){const o=cloneS();if(!on)toggleChip(c,o);const n=SP.filter(p=>scoped(p)&&match(p,o)).length;
       c.el.querySelector('.n').textContent=n;c.el.dataset.empty=(n===0&&!on)?'true':'false';
       c.el.setAttribute('aria-label',c.l+(c.d?'（'+c.d+'）':'')+'，'+n+' 個去處');}});
+  MODES.forEach(m=>{const o=cloneS();o.mode=m.k;const n=SP.filter(p=>scoped(p)&&match(p,o)).length;
+    m.el.setAttribute('aria-pressed',S.mode===m.k?'true':'false');m.el.querySelector('.mn').textContent=n;m.el.setAttribute('aria-label',m.l+'（'+m.d+'），'+n+' 個去處');});
   $('#clearF').hidden=!anyFilter();
   AREAS.forEach(a=>a.el.setAttribute('aria-pressed',S.area===a.id&&!S.station?'true':'false'));
   const sc=$('#scopeChip');sc.hidden=!S.station;
   if(S.station){const nm=ST[S.station].name;sc.innerHTML='<span>站：'+esc(nm)+'</span>'+IC.x;sc.setAttribute('aria-label','取消站別範圍：'+nm);}
   const res=SP.filter(p=>match(p)&&(!S.station||p.s===S.station)),sts=new Set(res.map(p=>p.s));
-  $('#summary').innerHTML='<b>'+res.length+'</b> 個去處・'+(S.station?'限「'+esc(stn(ST[S.station]))+'」':'<b>'+sts.size+'</b> 站符合條件')+(S.rain?'・雨天OK＝室內或有遮蔽':'');
+  $('#summary').innerHTML='<b>'+res.length+'</b> 個去處・'+(S.station?'限「'+esc(stn(ST[S.station]))+'」':'<b>'+sts.size+'</b> 站符合條件')+(S.mode!=='all'?'・'+MODES.find(m=>m.k===S.mode).l:'')+(S.rain?'・雨天OK＝室內或有遮蔽':'');
   $('#rainPreset').setAttribute('aria-pressed',S.rain&&S.time.size===1&&S.time.has('p')?'true':'false');
   saveFilters();
 }
@@ -1188,7 +1249,7 @@ function shortPrice(s){if(/^免費/.test(s))return '免費';const m=s.match(/NT\
 function renderDetail(){
   const p=SPM[S.spot],st=ST[p.s];
   phd.innerHTML='<div class="ph-top"><button class="backbtn" type="button" data-act="back">'+IC.back+(S.station?esc(stn(st)):'回到清單')+'</button><span class="eyebrow">Exhibit No.'+p.no+'</span></div>';
-  const evs=EV.filter(e=>e.s===p.s);
+  const evs=liveEvents().filter(e=>e.s===p.s);
   const sibs=SP.filter(q=>q.s===p.s&&q.id!==p.id);
   const inPlan=k=>PLAN[k].indexOf(p.id)>=0;
   pbd.innerHTML='<div class="dt">'
@@ -1200,7 +1261,7 @@ function renderDetail(){
    +['a','p','n'].map(k=>'<button type="button" data-add="'+k+'" class="'+(p.t.indexOf(k)>=0?'rec':'')+(inPlan(k)?' in':'')+'" aria-pressed="'+inPlan(k)+'">'+SLOT[k]+'<small>'+SLOT_EN[k]+'</small></button>').join('')+'</div></div>'
    +'<div class="acts"><button class="btn fav" type="button" data-act="fav" aria-pressed="'+(!!FAV[p.id])+'">'+IC.heart+(FAV[p.id]?'已收藏':'收藏')+'</button>'
    +'<a class="btn" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.n)+'" target="_blank" rel="noopener">'+IC.pin+'Google 地圖</a></div>'
-   +(evs.length?'<div class="evnote"><b>SAMPLE · 示範活動</b>'+evs.map(e=>e.slots.split('').map(c=>SLOT[c]).join('、')+'：'+esc(e.t)).join('<br>')+'</div>':'')
+   +(evs.length?'<div class="evnote"><b>這一站附近的活動</b>'+evs.map(e=>esc(e.t)+'・'+evDate(e)).join('<br>')+'</div>':'')
    +(sibs.length?'<div><p class="eyebrow" style="margin-bottom:8px">同一站還有</p><div class="sibs">'+sibs.map(q=>'<button type="button" data-spot="'+q.id+'">'+esc(q.n)+'</button>').join('')+'</div></div>':'')
    +'</div>';
   pbd.scrollTop=0;
@@ -1386,13 +1447,31 @@ $('#autoPlan').addEventListener('click',()=>{
 });
 
 /* ---------- events & tours ---------- */
+const EVG=[['wk','This weekend','本週末'],['ex','On view','展覽中'],['next','Coming up','接下來']];
+const evCard=e=>{const st=e.s?ST[e.s]:null;
+  return '<article class="poster"><span class="ptag">'+esc(e.tag)+'</span><h4 class="pt">'+esc(e.t)+'</h4>'
+   +'<p class="pd mono">'+evDate(e)+(e.tm?' ・ '+esc(e.tm):'')+'</p>'
+   +'<p class="pm">'+(st?dots(st.lines)+'靠近 '+esc(stn(st))+' ・ ':'')+esc(e.place)+'</p>'
+   +'<p class="pn">'+esc(e.note)+'</p>'
+   +'<div class="pa">'+(st?'<button class="btn" type="button" data-ev="'+e.s+'">在地圖看</button>':'')
+   +'<a class="btn" href="'+e.src+'" target="_blank" rel="noopener">來源：'+esc(e.srcn)+' ↗</a></div></article>';};
+let lastEv='';
+const MORE_AT=6,openGroups=new Set();
+/* 已經開始的活動用「本週末」當排序起點，這樣長期活動不會把這個週末的活動擠到後面 */
+const evStart=(e,w)=>e.from<w.sat&&e.to>=w.sat?w.sat:e.from;
+const evCards=x=>x.list.slice(0,openGroups.has(x.g)?x.list.length:MORE_AT).map(evCard).join('');
+const evMore=x=>x.list.length>MORE_AT?'<button class="btn more" type="button" data-more="'+x.g+'" aria-expanded="'+openGroups.has(x.g)+'">'+(openGroups.has(x.g)?'收合':'再看 '+(x.list.length-MORE_AT)+' 項')+'</button>':'';
+function paintPosters(){const w=weekendRange(),host=$('#posters');
+  const gs=EVG.map(([g,en,zh])=>({g,en,zh,list:EV.filter(e=>evGroup(e,w)===g&&evModeOk(e)).sort((a,b)=>evStart(a,w).localeCompare(evStart(b,w))||a.t.localeCompare(b.t))})).filter(x=>x.list.length);
+  const note=S.mode==='sport'?'<p class="evmode">收錄的運動賽事不多。山徑、河濱和步道請直接看上方地圖，它已經切到愛運動。</p>'
+    :S.mode==='urban'?'<p class="evmode">已切到愛都市：市集、展覽、遊行和夜市都在這裡。</p>':'';
+  const html=note+(gs.length?gs.map(x=>'<div class="pgroup"><h3><span class="scrawl">'+x.en+'</span><span>'+x.zh+'・'+x.list.length+' 項</span></h3><div class="pgrid">'+evCards(x)+'</div>'+evMore(x)+'</div>').join('')
+    :'<p class="evnone">'+(EV_META.state==='loading'?'活動載入中…':EV_META.state==='error'?'活動資料載入失敗，請看下方的官方網站。':'目前沒有收錄這一類的活動，請看下方的官方網站。')+'</p>');
+  if(html!==lastEv){host.innerHTML=html;lastEv=html;}}
 function renderEvents(){
-  $('#posters').innerHTML=['a','p','n'].map(k=>{
-    const evs=EV.filter(e=>e.slots.indexOf(k)>=0);
-    return '<div class="pcol"><h3><span class="scrawl">'+SLOT_EN[k]+'</span><span>'+SLOT[k]+'</span></h3>'
-      +evs.map(e=>{const st=ST[e.s];return '<button class="poster" type="button" data-ev="'+e.s+'"><span class="smp">SAMPLE</span><span class="pt">'+esc(e.t)+'</span><span class="pm">'+dots(st.lines)+esc(stn(st))+'・'+e.slots.split('').map(c=>SLOT[c]).join('、')+'</span></button>';}).join('')
-      +'</div>';}).join('');
-  $('#posters').addEventListener('click',e=>{const b=e.target.closest('[data-ev]');if(!b)return;S.events=true;
+  paintPosters();
+  $('#posters').addEventListener('click',e=>{const m=e.target.closest('[data-more]');if(m){const g=m.dataset.more;openGroups.has(g)?openGroups.delete(g):openGroups.add(g);lastEv='';paintPosters();return;}
+    const b=e.target.closest('[data-ev]');if(!b)return;S.events=true;
     revealApp();setTimeout(()=>selectStation(b.dataset.ev),RM?0:450);});
   $('#tours').innerHTML=TOURS.map((t,i)=>'<article class="tour rv"><header><span class="mono">Guided tour '+String(i+1).padStart(2,'0')+'</span><h3>'+esc(t.t)+'</h3></header><ol>'
     +['a','p','n'].map(k=>{const p=SPM[t.steps[k]];return '<li><span class="scrawl">'+SLOT_EN[k].slice(0,3)+'.</span><button type="button" data-spot-go="'+p.id+'">'+esc(p.n)+'</button></li>';}).join('')
@@ -1416,10 +1495,10 @@ function weekendLabel(){const d=new Date();const day=d.getDay();const sat=new Da
 $('#themeBtn').addEventListener('click',()=>{const r=document.documentElement;const cur=r.getAttribute('data-theme');
   const dark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;r.setAttribute('data-theme',dark?'light':'dark');});
 
-function renderAll(dir){paintChips();paintMap();renderPanel(dir);}
+function renderAll(dir){paintChips();paintMap();renderPanel(dir);paintPosters();}
 
 /* ---------- init ---------- */
-buildChips();buildMap();renderEvents();
+buildChips();buildMap();renderEvents();loadEvents();
 $('#kSpots').textContent=SP.length;$('#kAreas').textContent=AREAS.length-1;
 const wl=weekendLabel();$('#kWeek').textContent=wl.replace('SAT ','週六 ').replace('SUN ','週日 ');$('#rcDate').textContent=planDayLabel();
 resize();layoutMode();

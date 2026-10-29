@@ -1,0 +1,33 @@
+{
+  "fetchedAt": "2026-10-29T06:47:42.815Z",
+  "source": "https://www.travel.taipei/open-api/zh-tw/Events/{Calendar,Activity}",
+  "items": [
+    {"id":66376,"kind":"calendar","title":"2026臺北夜市打牙祭","begin":"2026-05-14","beginTime":"00:00","end":"2026-10-31","endTime":"23:59","lat":"25.0886","lng":"121.524","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66376"},
+    {"id":66397,"kind":"calendar","title":"2026臺北白晝之夜","begin":"2026-10-31","beginTime":"14:00","end":"2026-11-01","endTime":"02:00","lat":"25.0717","lng":"121.522","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66397"},
+    {"id":66398,"kind":"calendar","title":"2026士林官邸菊展","begin":"2026-11-27","beginTime":"00:00","end":"2026-12-13","endTime":"23:59","lat":"25.0914","lng":"121.529","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66398"},
+    {"id":66400,"kind":"calendar","title":"2026艋舺青山宮暗訪暨遶境","begin":"2026-11-28","beginTime":"00:00","end":"2026-11-30","endTime":"23:59","lat":"25.04","lng":"121.5","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66400"},
+    {"id":66402,"kind":"calendar","title":"2026繽紛耶誕玩台北(日期暫定）","begin":"2026-12-01","beginTime":"00:00","end":"2027-01-31","endTime":"23:59","lat":"","lng":"","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66402"},
+    {"id":66401,"kind":"calendar","title":"2026臺北耶誕愛無限","begin":"2026-12-03","beginTime":"00:00","end":"2027-01-01","endTime":"23:59","lat":"25.0297","lng":"121.536","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66401"},
+    {"id":66399,"kind":"calendar","title":"2026 公館聖誕季","begin":"2026-12-05","beginTime":"00:00","end":"2026-12-31","endTime":"23:59","lat":"25.0133","lng":"121.53","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66399"},
+    {"id":66404,"kind":"calendar","title":"2026臺北馬拉松","begin":"2026-12-20","beginTime":"00:00","end":"2026-12-20","endTime":"23:59","lat":"25.0368","lng":"121.563","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66404"},
+    {"id":66403,"kind":"calendar","title":"臺北最High新年城-2027跨年活動","begin":"2026-12-31","beginTime":"00:00","end":"2027-01-01","endTime":"23:59","lat":"25.0375","lng":"121.564","url":"https://www.travel.taipei/zh-tw/event-calendar/details/66403"},
+    {"id":68251,"kind":"activity","title":"《如果我們不再說If We No Longer Speak》國立臺北藝術大學原住民社群聯展","begin":"2026-10-03","beginTime":"00:00","end":"2026-12-22","endTime":"23:59","lat":"25.1371","lng":"121.506","url":"https://www.travel.taipei/zh-tw/activity/details/68251"},
+    {"id":67997,"kind":"activity","title":"陳寬睿 創作個展【落地之前】 Chen Kuang-Jui Solo Exhibition: Before It Lands","begin":"2026-10-23","beginTime":"00:00","end":"2026-12-06","endTime":"23:59","lat":"25.0674","lng":"121.519","url":"https://www.travel.taipei/zh-tw/activity/details/67997"},
+    {"id":67996,"kind":"activity","title":"物．我｜林宇軒個展  The Self in Things：Lin Yu Shuan Solo Exhibition","begin":"2026-10-16","beginTime":"00:00","end":"2026-11-08","endTime":"23:59","lat":"25.0539","lng":"121.508","url":"https://www.travel.taipei/zh-tw/activity/details/67996"},
+    {"id":67994,"kind":"activity","title":"蔡尚孚 創作個展 【疊‧加｛幕｝】Tsai Shang-Fu Solo Exhibition: Déjà｛Move｝","begin":"2026-10-23","beginTime":"00:00","end":"2026-12-06","endTime":"23:59","lat":"25.0674","lng":"121.519","url":"https://www.travel.taipei/zh-tw/activity/details/67994"},
+    {"id":67991,"kind":"activity","title":"《把風織成歌：原住民族聲景特展》","begin":"2026-09-30","beginTime":"00:00","end":"2026-12-31","endTime":"23:45","lat":"25.1371","lng":"121.506","url":"https://www.travel.taipei/zh-tw/activity/details/67991"},
+    {"id":67987,"kind":"activity","title":"「魔幻日常」","begin":"2026-09-10","beginTime":"00:00","end":"2026-10-31","endTime":"23:59","lat":"25.06","lng":"121.59","url":"https://www.travel.taipei/zh-tw/activity/details/67987"},
+    {"id":67981,"kind":"activity","title":"身心修復式─2026故宮樂齡月","begin":"2026-10-15","beginTime":"00:00","end":"2026-11-15","endTime":"23:59","lat":"25.1024","lng":"121.548","url":"https://www.travel.taipei/zh-tw/activity/details/67981"},
+    {"id":67973,"kind":"activity","title":"埋藏與浮現 | 張凱鈞","begin":"2026-10-10","beginTime":"00:00","end":"2026-12-30","endTime":"23:59","lat":"25.0466","lng":"121.549","url":"https://www.travel.taipei/zh-tw/activity/details/67973"},
+    {"id":67957,"kind":"activity","title":"Mind & Rights 心理與人權《跨領域專家研討會》","begin":"2026-10-30","beginTime":"00:00","end":"2026-11-01","endTime":"23:59","lat":"25.0441","lng":"121.561","url":"https://www.travel.taipei/zh-tw/activity/details/67957"},
+    {"id":67882,"kind":"activity","title":"張安萱 創作個展【眼花練習】","begin":"2026-10-08","beginTime":"00:00","end":"2026-11-01","endTime":"23:59","lat":"25.0523","lng":"121.528","url":"https://www.travel.taipei/zh-tw/activity/details/67882"},
+    {"id":67827,"kind":"activity","title":"《誰的遊戲》胡鈞荃個展","begin":"2026-09-15","beginTime":"00:00","end":"2026-11-15","endTime":"23:59","lat":"25.1251","lng":"121.499","url":"https://www.travel.taipei/zh-tw/activity/details/67827"},
+    {"id":67416,"kind":"activity","title":"從前從前－繪說童話郵票特展","begin":"2026-07-11","beginTime":"00:00","end":"2027-01-03","endTime":"23:59","lat":"25.0468","lng":"121.511","url":"https://www.travel.taipei/zh-tw/activity/details/67416"},
+    {"id":67378,"kind":"activity","title":"郵政博物館「Oh!海郵-海洋生物郵票特展」","begin":"2026-06-17","beginTime":"00:00","end":"2026-11-29","endTime":"23:59","lat":"25.0317","lng":"121.515","url":"https://www.travel.taipei/zh-tw/activity/details/67378"},
+    {"id":67155,"kind":"activity","title":"大稻埕戲苑《請戲–布袋戲一條街》特展","begin":"2026-03-12","beginTime":"00:00","end":"2026-12-06","endTime":"23:59","lat":"","lng":"","url":"https://www.travel.taipei/zh-tw/activity/details/67155"},
+    {"id":66942,"kind":"activity","title":"鐵道文化常設展","begin":"2026-02-26","beginTime":"00:00","end":"2026-12-31","endTime":"23:59","lat":"25.0428","lng":"121.515","url":"https://www.travel.taipei/zh-tw/activity/details/66942"},
+    {"id":66551,"kind":"activity","title":"2026馬年特展「霍斯辦案」從「走馬看花」到解密「馬」","begin":"2025-12-01","beginTime":"00:00","end":"2026-11-30","endTime":"23:59","lat":"24.9986","lng":"121.581","url":"https://www.travel.taipei/zh-tw/activity/details/66551"},
+    {"id":66411,"kind":"activity","title":"內湖戶政「印象內湖．鑑往知來」特展","begin":"2025-12-19","beginTime":"08:30","end":"2026-12-31","endTime":"17:30","lat":"25.0693","lng":"121.589","url":"https://www.travel.taipei/zh-tw/activity/details/66411"},
+    {"id":66146,"kind":"activity","title":"昆蟲小腦袋大學問！「看你什麼嘴臉！昆蟲的頭等大事特展」10月18日新奇登場","begin":"2025-10-18","beginTime":"09:00","end":"2027-04-30","endTime":"17:00","lat":"24.9986","lng":"121.581","url":"https://www.travel.taipei/zh-tw/activity/details/66146"}
+  ]
+}
