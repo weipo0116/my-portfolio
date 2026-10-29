@@ -18,12 +18,16 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-CtwzbNPL.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-B014S7HO.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-Cj-uwmkL.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-Yzo6QY6Y.css">
   </head>
   <body>
     <span id="top"></span>
+    <a class="back-lab" href="../../work/#lab" aria-label="回到 Lab">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      <span>Lab</span>
+    </a>
     <button id="themeBtn" class="theme-btn" type="button" aria-pressed="false" aria-label="切換為淺色模式">
       <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" /></svg>
       <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" /></svg>
@@ -45,6 +49,8 @@
           <button id="today" type="button">今日</button>
           <button id="next" type="button" aria-label="後一天">明日 ›</button>
         </div>
+        <p class="tz-note">日期與時間以台北時間為準</p>
+        <p class="mode-note v-chart">星盤模式 · <button type="button" class="linkbtn" id="toFortune">切換到運勢</button></p>
         <button id="openChart" class="cta v-chart" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
         <p class="hint v-chart" id="motionHint"></p>
         <p class="updated" id="updated"></p>
@@ -74,7 +80,7 @@
         <details class="how">
           <summary>這段能量是怎麼算出來的？</summary>
           <div class="prose">
-            <p><b>1. 位置是即時算的。</b>每次開頁，瀏覽器會用天文曆算（astronomy-engine）算出此刻 10 顆星體在黃道上的真實位置，不是查表、也不用網路。</p>
+            <p><b>1. 位置是即時算的。</b>每次開頁，瀏覽器會用天文曆算（astronomy-engine）算出此刻 10 顆星體在黃道上的位置，不是查表、也不用網路。這是以地球為中心的視位置（geocentric apparent positions），依畫面顯示的台北時間計算（本週運勢以各日台北 12:00 計算），誤差約一角分；但從位置推出的解讀文字是模板化的詮釋，不是測量結果。</p>
             <p><b>2. 每顆星有固定角色。</b>太陽＝今天的主題、月亮＝情緒底色、水星＝溝通（逆行要多確認）、金星＝關係與金錢、火星＝行動力；它們落在哪個星座，就決定語氣。</p>
             <p><b>3. 角度決定順不順。</b>兩顆星之間的角度（相位）：合相放大、六分與三分順暢、四分與對分有張力。只挑誤差最小的幾組。</p>
             <p><b>4. 文字是模板組合，不是 AI 即時生成。</b>同樣的天象一定得到同樣的文字，所以很穩定，但也比較制式。</p>
@@ -86,7 +92,7 @@
       <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
         <h2 id="h-moon"><span class="num">II</span> 月相 <em>Luna</em></h2>
         <div class="moon-row">
-          <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相"></svg>
+          <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相" aria-describedby="moonText"></svg>
           <div id="moonText" class="prose"></div>
         </div>
       </section>
@@ -152,7 +158,10 @@
       <div class="dlg-body">
         <div class="dlg-grid">
           <aside class="dlg-left">
-            <div class="dlg-wheel"><svg id="wheelMain" viewBox="-400 -400 800 800" role="img" aria-label="行星黃道輪盤"></svg></div>
+            <div class="dlg-wheel">
+              <svg id="wheelMain" viewBox="-400 -400 800 800" role="img" aria-label="行星黃道輪盤" aria-describedby="wheelAlt"></svg>
+              <ul id="wheelAlt" class="sr-only" aria-label="行星位置文字版"></ul>
+            </div>
             <div class="timebox">
               <p class="tb-label" id="tbLabel"></p>
               <input id="tbRange" type="range" min="-30" max="30" step="1" value="0" aria-label="相對今天的天數" />
