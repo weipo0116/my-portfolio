@@ -472,12 +472,13 @@ function renderHero() {
   const chips = $("chips");
   chips.replaceChildren(
     ...[
-      [`${TIER.g1} ${TIER_EN.g1}`, pal.g1],
-      [`${TIER.g2} ${TIER_EN.g2}`, pal.g2],
-      [`${TIER.g3} ${TIER_EN.g3}`, pal.g3],
-      ["中性色 NEUTRAL", pal.neutral],
-    ].map(([label, c], i) => {
-      const d = h("div", "chip", `<i style="background:${c.hex}"></i><span>${label}</span><b>${c.n}</b>`);
+      [TIER.g1, TIER_EN.g1, pal.g1],
+      [TIER.g2, TIER_EN.g2, pal.g2],
+      [TIER.g3, TIER_EN.g3, pal.g3],
+      ["中性色", "NEUTRAL", pal.neutral],
+    ].map(([zh, en, c], i) => {
+      const [cen, ...czh] = c.n.split(" ");
+      const d = h("div", "chip", `<i style="background:${c.hex}"></i><span>${zh}<small> ${en}</small></span><b>${czh.join(" ") || cen}<small> ${cen}</small></b>`);
       d.style.setProperty("--i", i);
       return d;
     }),
@@ -735,7 +736,7 @@ function renderPrefs() {
     g.setAttribute("role", "group");
     g.setAttribute("aria-label", label);
     list.forEach(([v, zh]) => {
-      const b = h("button", "chip" + (state.prefs[key] === v ? " on" : ""), zh);
+      const b = h("button", "pchip" + (state.prefs[key] === v ? " on" : ""), zh);
       b.type = "button";
       b.dataset.k = key;
       b.dataset.v = v;
@@ -747,13 +748,13 @@ function renderPrefs() {
   box.replaceChildren(group("fit", FITS, "版型"), group("style", STYLES, "風格"));
 }
 document.addEventListener("click", (e) => {
-  const chip = e.target.closest("#prefs .chip");
+  const chip = e.target.closest("#prefs .pchip");
   if (chip) {
     const { k, v } = chip.dataset;
     if (state.prefs[k] === v) return;
     state.prefs[k] = v;
     try { localStorage.setItem(k === "fit" ? "cinq-fit" : "cinq-style", v); } catch { /* storage unavailable */ }
-    chip.parentElement.querySelectorAll(".chip").forEach((x) => { const on = x === chip; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+    chip.parentElement.querySelectorAll(".pchip").forEach((x) => { const on = x === chip; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
     renderLooks(true);
     return;
   }

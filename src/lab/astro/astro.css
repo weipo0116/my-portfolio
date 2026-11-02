@@ -558,7 +558,7 @@ html[data-view="chart"] .view-seg { border-color: var(--gold); }
   .hero .cta { margin-top: 14px; }
   .hint { margin-top: 10px; }
   .updated { margin-top: 4px; }
-  .jump { flex-wrap: nowrap; justify-content: safe center; overflow-x: auto; overflow-y: hidden; gap: 8px; margin: 14px -20px 0; padding: 4px 20px; scroll-snap-type: x proximity; scroll-padding-inline: 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .jump { flex-wrap: nowrap; justify-content: safe center; overflow-x: auto; overflow-y: hidden; gap: 8px; margin: 14px 0 0; padding: 4px 0; max-width: 100%; scroll-snap-type: x proximity; scroll-padding-inline: 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .jump::-webkit-scrollbar { display: none; }
   .jump a { flex: none; scroll-snap-align: start; white-space: nowrap; }
   #sec-today { margin-top: 12px; padding-top: 28px; }
@@ -725,3 +725,4 @@ html[data-theme="light"] .natal select, html[data-theme="light"] .birth input, h
 .houses .moon-tag { font-size: 0.72rem; color: var(--night); background: var(--gold); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
 .houses .moon-tag { display: inline-block; line-height: 1.6; }
 @media (max-width: 720px) { .block { scroll-margin-top: 72px; } }
+html, body { overflow-x: clip; }
