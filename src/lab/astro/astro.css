@@ -566,7 +566,7 @@ html[data-view="chart"] .view-seg { border-color: var(--gold); }
 }
 
 @media (pointer: coarse) {
-  .stepper button, .jump a, .dock a, .seg button, .tb-btns button, .tb-row.r3 button, .how summary { min-height: 44px; }
+  .stepper button, .daybar button, .jump a, .dock a, .seg button, .tb-btns button, .tb-row.r3 button, .how summary { min-height: 44px; }
   .dlg-bar button, .signbar button, .cta { min-height: 48px; }
   .dlg-bar button { min-width: 44px; }
   #tbRange { height: 44px; }
@@ -576,3 +576,47 @@ html[data-view="chart"] .view-seg { border-color: var(--gold); }
   .view-seg button::after { inset: -4px 0; }
 }
 @media (prefers-reduced-motion: reduce) { .back-lab svg { transition: none; } .back-lab:hover svg { transform: none; } }
+
+/* ---- v5: fixed day bar, daily rhythm ---- */
+:root { --soft-c: #7fc79b; --hard-c: #e0907f; --conj-c: #e6c877; }
+html[data-theme="light"] { --soft-c: #3d8a5b; --hard-c: #b8523f; --conj-c: #a77f1f; }
+.daybar { position: fixed; left: 50%; bottom: 80px; z-index: 41; transform: translate(-50%, 220%); display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 999px; background: rgba(var(--night-rgb), 0.92); backdrop-filter: blur(10px); border: 1px solid var(--line); box-shadow: 0 10px 40px rgba(var(--shadow-rgb), 0.5); transition: transform 0.5s var(--ease); max-width: calc(100vw - 20px); }
+.daybar.show { transform: translate(-50%, 0); }
+dialog[open] ~ .daybar { display: none; }
+.daybar button { font: inherit; color: var(--gold-soft); background: transparent; border: 0; border-radius: 999px; min-width: 44px; min-height: 44px; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: background 0.3s var(--ease), transform 0.2s var(--ease); }
+.daybar button:hover { background: rgba(var(--gold-rgb), 0.16); }
+.daybar button:active { transform: scale(0.94); }
+.daybar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.daybar .db-today { white-space: nowrap; font-size: 0.82rem; letter-spacing: 0.08em; padding: 0 14px; border-left: 1px solid var(--line); border-radius: 0 999px 999px 0; }
+.daybar .db-today.on { color: var(--night); background: var(--gold); }
+.db-mid { display: flex; flex-direction: column; align-items: center; min-width: 124px; padding: 0 6px; line-height: 1.25; }
+.db-mid b { font-size: 0.95rem; color: var(--marble); letter-spacing: 0.04em; font-weight: 600; white-space: nowrap; }
+.db-mid small { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+.sub-h { font-size: 1.02rem; color: var(--gold-soft); letter-spacing: 0.08em; margin: 30px 0 12px; font-weight: 600; }
+.sub-h small { font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-left: 8px; letter-spacing: 0.04em; }
+.daystrip { position: relative; height: 46px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; max-width: 62ch; background: rgba(var(--panel-rgb), 0.55); }
+.daystrip .seg { position: absolute; top: 0; bottom: 0; border-right: 1px dashed var(--line); background: rgba(var(--gold-rgb), 0.08); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.daystrip .seg:nth-child(even) { background: rgba(var(--gold-rgb), 0.15); }
+.daystrip .seg span { font-size: 0.74rem; color: var(--gold-soft); white-space: nowrap; padding: 0 4px; }
+.daystrip .voc { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, rgba(var(--shadow-rgb), 0.32) 0 4px, transparent 4px 8px); }
+.daystrip .tick, .strip-key .tick { position: absolute; bottom: 0; width: 3px; height: 16px; border-radius: 2px; background: var(--gold); transform: translateX(-50%); }
+.strip-key .tick { position: static; display: inline-block; transform: none; height: 10px; margin: 0 4px 0 12px; vertical-align: -1px; }
+.tick.soft { background: var(--soft-c); } .tick.hard { background: var(--hard-c); } .tick.conj { background: var(--conj-c); } .tick.ing { background: var(--marble); height: 22px; }
+.daystrip .nowmark { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--crimson); transform: translateX(-50%); }
+.stripscale { display: flex; justify-content: space-between; max-width: 62ch; font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+.strip-key { font-size: 0.74rem; color: var(--muted); margin: 4px 0 14px; }
+.strip-key .vockey { display: inline-block; width: 18px; height: 10px; margin: 0 4px 0 12px; vertical-align: -1px; border: 1px solid var(--line); background: repeating-linear-gradient(135deg, rgba(var(--shadow-rgb), 0.4) 0 3px, transparent 3px 6px); }
+.timeline, .difflist { list-style: none; padding: 0; margin: 0; max-width: 62ch; }
+.tl { display: grid; grid-template-columns: 48px 26px 1fr; gap: 6px; padding: 10px 0; border-top: 1px dashed var(--line); align-items: start; }
+.tl time { font-variant-numeric: tabular-nums; color: var(--gold-soft); font-size: 0.9rem; padding-top: 1px; }
+.tl > i { font-style: normal; font-family: var(--glyph); color: var(--gold); text-align: center; }
+.tl b { display: block; color: var(--marble); font-size: 0.95rem; font-weight: 600; }
+.tl span { display: block; color: var(--body); font-size: 0.9rem; line-height: 1.7; }
+.tl.soft > i { color: var(--soft-c); } .tl.hard > i { color: var(--hard-c); } .tl.conj > i { color: var(--conj-c); }
+.tl.voc { opacity: 0.85; } .tl.voc > i { color: var(--muted); }
+.tl.past { opacity: 0.5; }
+.difflist li { display: grid; grid-template-columns: 52px 1fr; gap: 10px; padding: 9px 0; border-top: 1px dashed var(--line); }
+.difflist b { color: var(--gold); font-size: 0.78rem; letter-spacing: 0.12em; padding-top: 2px; }
+.difflist span { color: var(--body); font-size: 0.92rem; line-height: 1.7; }
+@media (max-width: 480px) { .db-mid { min-width: 108px; } .daybar { bottom: 78px; } }
+@media (prefers-reduced-motion: reduce) { .daybar { transition: none; } }
