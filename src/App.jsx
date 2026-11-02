@@ -694,7 +694,7 @@ function App({ page = "profile" }) {
     const handleScroll = () => {
       setShowBackToTop(window.scrollY > window.innerHeight);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
