@@ -999,7 +999,7 @@ function renderHouses(info) {
       if (i === mine) li.className = "mine";
       li.innerHTML = "<i></i><b></b><em></em><span></span>";
       li.querySelector("i").textContent = TXT(sg.g);
-      li.querySelector("b").textContent = sg.zh.replace("座", "");
+      li.querySelector("b").textContent = sg.zh.replace("座", "") + (i === mine ? "（你）" : "");
       li.querySelector("em").textContent = h1 == null ? `${h0 + 1} 宮` : `${h0 + 1} → ${h1 + 1} 宮`;
       const h = HOUSES[h1 ?? h0];
       li.querySelector("span").textContent = `${h[0]}：${h[1]}`;
@@ -1052,6 +1052,13 @@ const CITIES = [
   ["新加坡", 1.35, 103.82, 8], ["吉隆坡", 3.14, 101.69, 8], ["曼谷", 13.76, 100.50, 7], ["東京", 35.68, 139.69, 9], ["首爾", 37.57, 126.98, 9],
   ["雪梨", -33.87, 151.21, 10], ["倫敦", 51.51, -0.13, 0], ["紐約", 40.71, -74.01, -5], ["洛杉磯", 34.05, -118.24, -8], ["溫哥華", 49.28, -123.12, -8],
 ];
+const COUNTRIES = [["台灣", 0, 20], ["港澳與中國", 20, 25], ["亞洲其他", 25, 30], ["歐美與大洋洲", 30, 36]];
+function fillCities(sel) {
+  const c = COUNTRIES.find(([n]) => n === $("bCountry").value) || COUNTRIES[0];
+  $("bCity").innerHTML = CITIES.map((x, i) => [x, i]).slice(c[1], c[2]).map(([x, i]) => `<option value="${i}">${x[0]}</option>`).join("");
+  if (sel != null) $("bCity").value = String(sel);
+  $("bTz").value = String(CITIES[Number($("bCity").value)][3]);
+}
 const TZS = [-10, -9, -8, -7, -6, -5, -4, -3, 0, 1, 2, 3, 5.5, 7, 8, 9, 9.5, 10, 11, 12];
 
 let NATAL = { sign: {}, deg: {}, birth: null };
@@ -1083,7 +1090,8 @@ function buildNatalForm() {
   };
   $("natalMain").replaceChildren(...NATAL_KEYS.slice(0, 3).map(([k, zh]) => mk(k, zh)));
   $("natalMore").replaceChildren(...NATAL_KEYS.slice(3).map(([k, zh]) => mk(k, zh)));
-  $("bCity").innerHTML = CITIES.map((c, i) => `<option value="${i}">${c[0]}</option>`).join("");
+  $("bCountry").innerHTML = COUNTRIES.map(([n]) => `<option>${n}</option>`).join("");
+  fillCities();
   $("bTz").innerHTML = TZS.map((z) => `<option value="${z}">UTC${z >= 0 ? "+" : "−"}${Math.abs(z)}</option>`).join("");
   $("natal").addEventListener("change", (e) => {
     const sel = e.target.closest("select[data-k]");
@@ -1094,6 +1102,7 @@ function buildNatalForm() {
       saveNatal();
       renderPersonal();
     }
+    if (e.target.id === "bCountry") fillCities();
     if (e.target.id === "bCity") $("bTz").value = String(CITIES[Number(e.target.value)][3]);
   });
   $("bCalc").addEventListener("click", calcBirth);
@@ -1109,7 +1118,9 @@ function buildNatalForm() {
 function syncNatalForm() {
   $("natal").querySelectorAll("select[data-k]").forEach((s) => { const v = NATAL.sign[s.dataset.k]; s.value = v == null ? "" : String(v); });
   const b = NATAL.birth;
-  $("bCity").value = String(b?.city ?? 0);
+  const ci = b?.city ?? 0;
+  $("bCountry").value = (COUNTRIES.find(([, a, z]) => ci >= a && ci < z) || COUNTRIES[0])[0];
+  fillCities(ci);
   $("bTz").value = String(b?.tz ?? CITIES[b?.city ?? 0][3]);
   if (b) { $("bDate").value = b.date || ""; $("bTime").value = b.time || ""; }
 }
