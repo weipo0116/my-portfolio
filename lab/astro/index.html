@@ -56,7 +56,7 @@
           <a href="#sec-fortune" class="v-fortune">十二星座</a>
           <a href="#sec-energy" class="v-chart">今日能量</a>
           <a href="#sec-moon" class="v-chart">月相</a>
-          <a href="#sec-fortune" class="v-chart">星座運勢</a>
+          <a href="#sec-houses" class="v-chart">宮位</a>
           <a href="#sec-notes">說明</a>
         </nav>
       </header>
@@ -81,7 +81,7 @@
         <h3 class="sub-h" id="diffTitle">和昨天哪裡不一樣</h3>
         <ul id="diff" class="difflist"></ul>
         <h3 class="sub-h">背景天象 <small>幾週才變一次</small></h3>
-        <div id="energy" class="prose"></div>
+        <ul id="energy" class="bglist"></ul>
         <details class="how">
           <summary>這段能量是怎麼算出來的？</summary>
           <div class="prose">
@@ -103,8 +103,14 @@
         </div>
       </section>
 
-      <section class="block reveal" id="sec-fortune" aria-labelledby="h-fortune">
-        <h2 id="h-fortune"><span class="num"><span class="v-chart">III</span><span class="v-fortune">II</span></span> <span class="v-chart">星座運勢</span><span class="v-fortune">十二星座一覽</span> <em>Fortuna</em></h2>
+      <section class="block reveal v-chart" id="sec-houses" aria-labelledby="h-houses">
+        <h2 id="h-houses"><span class="num">III</span> 月亮走到你的哪一宮 <em>Domus</em></h2>
+        <p class="prose sub-note" id="housesNote"></p>
+        <ul id="houses" class="houses"></ul>
+      </section>
+
+      <section class="block reveal v-fortune" id="sec-fortune" aria-labelledby="h-fortune">
+        <h2 id="h-fortune"><span class="num">II</span> 十二星座一覽 <em>Fortuna</em></h2>
         <p class="prose sub-note" id="fortuneNote"></p>
         <div class="signbar" id="signBar" role="group" aria-label="選擇星座"></div>
         <div class="fortune-ctl">
@@ -144,7 +150,7 @@
       <a href="#sec-fortune" class="v-fortune">十二星座</a>
       <a href="#sec-energy" class="v-chart">能量</a>
       <a href="#sec-moon" class="v-chart">月相</a>
-      <a href="#sec-fortune" class="v-chart">運勢</a>
+      <a href="#sec-houses" class="v-chart">宮位</a>
       <a href="#sec-notes">說明</a>
     </nav>
 

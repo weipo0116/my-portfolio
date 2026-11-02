@@ -257,16 +257,13 @@ function buildEnergy(pos, aspects, phaseIdx, info) {
   const sun = pos[0], moon = pos[1], mer = pos[2], ven = pos[3], mar = pos[4];
   const deanIdx = Math.min(2, Math.floor(sun.deg / 10));
   const decRuler = RULER_ZH[SIGN_RULER[(sun.signIndex + 4 * deanIdx) % 12]];
-  const parts = [];
-  parts.push(`太陽在${sun.sign.zh} ${Math.floor(sun.deg)}°（第 ${deanIdx + 1} 旬，副主星${decRuler}）：這個月的主旋律是「${sun.sign.tone}」。太陽一個月才換一次星座，所以這段每天只會有一點點變化。`);
-  parts.push(
-    mer.retro
-      ? `水星逆行中（${mer.sign.zh}）：合約、行程、訊息先再確認一次，備份重要檔案，舊事重提比開新局順利。`
-      : `水星在${mer.sign.zh}，順行：溝通與判斷如常，適合談事情與簽約。`,
-  );
-  parts.push(`金星在${ven.sign.zh}${ven.retro ? "（逆行）" : ""}：關係與消費取向是「${ven.sign.tone}」。火星在${mar.sign.zh}${mar.retro ? "（逆行）" : ""}：行動風格是「${mar.sign.tone}」。這兩顆通常要幾週才換座。`);
-  parts.push(`月相「${PHASES[phaseIdx][0]}」（月齡約 ${info.age.toFixed(1)} 天）：${PHASES[phaseIdx][1]}`);
-  return parts;
+  const rx = (b) => (b.retro ? " ℞" : "");
+  return [
+    { g: sun.g, k: `太陽 · ${sun.sign.zh} ${Math.floor(sun.deg)}°`, t: `這個月的主旋律：${sun.sign.tone}。目前在第 ${deanIdx + 1} 旬，帶一點${decRuler}的味道。` },
+    { g: mer.g, k: `水星 · ${mer.sign.zh}${rx(mer)}`, t: mer.retro ? "逆行中：合約、行程、訊息再確認一次，備份檔案；舊事重提比開新局順。" : "順行：溝通與判斷如常，適合談事情與簽約。" },
+    { g: ven.g, k: `金星 · ${ven.sign.zh}${rx(ven)}`, t: `關係與花錢的取向：${ven.sign.tone}。${ven.retro ? "逆行時適合回頭整理舊關係與舊帳，不急著買大東西。" : ""}` },
+    { g: mar.g, k: `火星 · ${mar.sign.zh}${rx(mar)}`, t: `做事的方式：${mar.sign.tone}。${mar.retro ? "逆行時力氣容易內耗，先把舊的收尾。" : ""}` },
+  ];
 }
 
 function headline(pos, info) {
@@ -287,9 +284,7 @@ function buildSummary(pos, aspects, phaseIdx, info) {
   const s2 = sg2 == null ? `月亮在${ms.zh}：${m.feel}` : `月亮上半天在${SIGNS[info.segs[0].sign].zh}：${MOON_SIGN[info.segs[0].sign].feel}${fmtT(info.segs[1].from)} 後進${SIGNS[sg2].zh}：${MOON_SIGN[sg2].feel}`;
   const hard = bestHard(info), soft = bestSoft(info);
   const key = [hard, soft].filter(Boolean).sort((a, b) => evScore(b) - evScore(a))[0];
-  let s3 = "";
-  if (key) { const t = evText(key); s3 = `${timeAt(key)} ${t.name}：${t.mean}`; }
-  else if (mer.retro) s3 = "水星逆行中，重要訊息與合約多確認一次。";
+  const s3 = !key && mer.retro ? "水星逆行中，重要訊息與合約多確認一次。" : "";
   return { text: [s1, s2, s3].filter(Boolean).join(""), advice: `${m.doit}${key && evKind(key) === "hard" ? `留意：${m.avoid}。` : `少碰：${m.avoid}。`}` };
 }
 
@@ -297,10 +292,11 @@ function buildTags(pos, aspects, phaseIdx, info) {
   const mer = pos[2];
   const soft = bestSoft(info), hard = bestHard(info), v = info.voc[0];
   const m = MOON_SIGN[info.dom];
+  const when = (e) => `${timeAt(e)} 前後最明顯（${evText(e).name}）`;
   return [
-    ["適合", soft ? `${timeAt(soft)} ${evText(soft).name}：${evText(soft).mean.split("，")[0].split("；")[0]}` : m.doit.split("、")[0].split("，")[0]],
-    ["留意", v ? `${fmtT(v.from)}–${fmtT(v.to)} 月亮空轉：不開新局` : hard ? `${timeAt(hard)} ${evText(hard).name}：${evText(hard).mean.split("；")[0].split("，")[0]}` : mer.retro ? "水星逆行：訊息、合約、行程多確認" : `${m.avoid.split("，")[0]}`],
-    ["月相", `${PHASES[phaseIdx][0]} · 月齡 ${info.age.toFixed(1)} 天`],
+    ["適合", m.doit, soft ? when(soft) : ""],
+    ["留意", `${m.avoid}。`, v ? `${fmtT(v.from)}–${fmtT(v.to)} 月亮空轉，不開新局` : hard ? when(hard) : mer.retro ? "水星逆行：訊息、合約多確認" : ""],
+    ["月相", `${PHASES[phaseIdx][0]}：${PHASES[phaseIdx][1]}`, `月齡 ${info.age.toFixed(1)} 天`],
   ];
 }
 
@@ -317,11 +313,12 @@ function diffLines(info, prev, pos, prevPos) {
   const cnt = (i, kinds) => i.events.filter((e) => e.kind === "asp" && kinds.includes(evKind(e))).length;
   const cs = cnt(info, ["soft"]), ch = cnt(info, ["hard"]), ps = cnt(prev, ["soft"]), ph = cnt(prev, ["hard"]);
   const net = cs - ch - (ps - ph);
-  out.push({ k: "相位", t: `順的 ${cs}（前一天 ${ps}）、緊的 ${ch}（前一天 ${ph}）——${net > 0 ? "比前一天順一些" : net < 0 ? "比前一天緊一些" : "和前一天差不多"}。` });
+  out.push({ k: "相位", t: `順的 ${cs}（前一天 ${ps}）、緊的 ${ch}（前一天 ${ph}）——${cs + ch === 0 ? "今天幾乎沒有相位，比較安靜" : net > 0 ? "比前一天順一些" : net < 0 && ch > ph ? "比前一天緊一些" : net < 0 ? "順的變少，節奏平淡一些" : "和前一天差不多"}。` });
   out.push({ k: "空轉", t: info.voc.length ? `${info.voc.map((v) => `${fmtT(v.from)}–${fmtT(v.to)}`).join("、")} 月亮空轉${prev.voc.length ? "（前一天也有）" : "（前一天沒有）"}。` : `沒有月亮空轉${prev.voc.length ? "（前一天有）" : ""}，時段都可以正常開始新事。` });
   out.push({ k: "月齡", t: `${prev.age.toFixed(1)} → ${info.age.toFixed(1)} 天${Math.round(prev.age / 3.69) !== Math.round(info.age / 3.69) ? "，月相換了一階" : ""}。` });
   const slow = [];
   pos.forEach((p, i) => {
+    if (p.key === "Moon") return;
     const q = prevPos[i];
     if (q.signIndex !== p.signIndex) slow.push(`${p.zh}進入${p.sign.zh}`);
     if (q.retro !== p.retro) slow.push(`${p.zh}${p.retro ? "開始逆行" : "恢復順行"}`);
@@ -860,14 +857,25 @@ function render({ dur = 1700 } = {}) {
     $("advice").textContent = sm.advice;
   }
   $("tags").replaceChildren(
-    ...buildTags(pos, aspects, phaseIdx, info).map(([k, v]) => {
+    ...buildTags(pos, aspects, phaseIdx, info).map(([k, v, w]) => {
       const li = document.createElement("li");
-      li.innerHTML = `<b>${k}</b><span></span>`;
+      li.innerHTML = `<b>${k}</b><span></span><small></small>`;
       li.querySelector("span").textContent = v;
+      li.querySelector("small").textContent = w;
       return li;
     }),
   );
-  $("energy").replaceChildren(...buildEnergy(pos, aspects, phaseIdx, info).map(para));
+  $("energy").replaceChildren(
+    ...buildEnergy(pos, aspects, phaseIdx, info).map((r) => {
+      const li = document.createElement("li");
+      li.innerHTML = "<i></i><div><b></b><span></span></div>";
+      li.querySelector("i").textContent = TXT(r.g);
+      li.querySelector("b").textContent = r.k;
+      li.querySelector("span").textContent = r.t;
+      return li;
+    }),
+  );
+  renderHouses(info);
   renderRhythm(info, prevInfo, pos, compute(new Date(date.getTime() - DAY)));
   $("dbDate").textContent = `${tp.m}/${tp.d} ${info.wk.zh}`;
   $("dbSub").textContent = `${offsetDays === 0 ? "今日" : offsetDays === -1 ? "昨日" : offsetDays === 1 ? "明日" : offsetDays > 0 ? `+${offsetDays}天` : `${offsetDays}天`} · 月${SIGNS[info.dom].zh.replace("座", "")} · ${info.wk.pl}日`;
@@ -947,6 +955,37 @@ function render({ dur = 1700 } = {}) {
   renderFortune();
   renderToday();
   observeReveals();
+}
+
+// Solar houses: treat your Sun sign as the 1st house, so the Moon's sign today
+// tells which area of life it is passing through for you.
+const HOUSES = [
+  ["自我", "外表、狀態、主動開始"], ["金錢", "收入、花費、自我價值"], ["溝通", "訊息、學習、短程移動"],
+  ["家", "家人、居所、內在安全感"], ["玩樂", "戀愛、創作、興趣"], ["日常", "工作流程、健康、作息"],
+  ["伴侶", "合作、一對一關係"], ["深層", "共享資源、信任、親密"], ["遠方", "旅行、進修、信念"],
+  ["事業", "目標、名聲、上司"], ["朋友", "社群、團隊、願望"], ["休息", "獨處、潛意識、收尾"],
+];
+function renderHouses(info) {
+  const segs = info.segs;
+  let mine = null;
+  try { const v = localStorage.getItem(SIGN_KEY); if (v != null && v !== "all") mine = Number(v); } catch { /* storage unavailable */ }
+  $("housesNote").textContent = segs.length > 1
+    ? `把你的太陽星座當成第 1 宮，月亮所在的星座就是它今天走過的生活領域。月亮 ${fmtT(segs[1].from)} 換座，箭頭後是換座後的宮位。`
+    : "把你的太陽星座當成第 1 宮（太陽宮位制），月亮今天所在的星座，就是它走過你哪個生活領域。月亮約兩天半換一宮。";
+  $("houses").replaceChildren(
+    ...SIGNS.map((sg, i) => {
+      const h0 = ((segs[0].sign - i + 12) % 12), h1 = segs.length > 1 ? ((segs[1].sign - i + 12) % 12) : null;
+      const li = document.createElement("li");
+      if (i === mine) li.className = "mine";
+      li.innerHTML = "<i></i><b></b><em></em><span></span>";
+      li.querySelector("i").textContent = TXT(sg.g);
+      li.querySelector("b").textContent = sg.zh.replace("座", "");
+      li.querySelector("em").textContent = h1 == null ? `${h0 + 1} 宮` : `${h0 + 1} → ${h1 + 1} 宮`;
+      const h = HOUSES[h1 ?? h0];
+      li.querySelector("span").textContent = `${h[0]}：${h[1]}`;
+      return li;
+    }),
+  );
 }
 
 function renderRhythm(info, prev, pos, prevPos) {
