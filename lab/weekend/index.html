@@ -506,6 +506,26 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .pnav button:disabled{opacity:.35;cursor:default;border-color:var(--rule)}
 .prow2{display:flex;flex-wrap:wrap;gap:6px}
 .prow2 button{font-size:14px;padding:0 12px}
+/* 一天三站清單 */
+.prows{display:grid;margin:0 0 8px}
+.pitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:4px 8px;border-radius:12px}
+.pitem[aria-current="true"]{background:var(--paper-2)}
+.rowbtn{background:none;border:0;text-align:left;font:inherit;color:inherit;padding:6px 0;min-height:44px;cursor:pointer;min-width:0}
+.rowbtn:focus-visible{outline:2px solid var(--stamp);outline-offset:2px;border-radius:8px}
+.rowbtn .sl{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:var(--stamp)}
+.rowbtn .nm{display:block;font-family:var(--f-hand);font-weight:700;font-size:18px;line-height:1.25}
+.rowbtn .mt{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+.swap{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:background .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),transform .15s}
+.swap:hover{background:var(--ink);color:var(--paper)}
+.swap:active{transform:scale(.98)}
+.swap:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+.pexp{grid-column:1/-1;padding:0 0 8px;display:grid;gap:6px}
+.pexp .see2{margin:0}
+.pexp .prow2{margin:0}
+.hopline{margin:0;padding:0 8px;font-size:12px;color:var(--sub)}
+.ptitle{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 4px}
+.ptitle b{font-family:var(--f-hand);font-size:22px}
+.ptitle span{font-size:13px;color:var(--sub)}
 @media (min-width:960px){.pickdock{position:relative;left:auto;right:auto;bottom:auto;max-height:none;border-radius:6px;padding:18px;box-shadow:none}.pickdock h2{font-size:28px}}
 @media (max-width:480px){.brand .scrawl{font-size:18px}.bar .inner{gap:6px}}
 </style>
@@ -517,7 +537,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <nav class="nav" aria-label="頁面導覽">
       <a href="#explore" class="opt">地圖</a>
       <a href="#events" class="opt">本週活動</a>
-      <a href="#plan" id="planLink">行程卡 <span class="badge" id="planCount">0</span></a>
+      <a href="#explore" id="planLink">行程卡 <span class="badge" id="planCount">0</span></a>
     </nav>
     <button class="iconbtn" id="themeBtn" type="button" aria-label="切換深色或淺色">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
@@ -607,6 +627,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
           <div class="prowg"><span class="lab">預算</span><div class="pseg" data-pg="budget"><button type="button" data-v="any" aria-pressed="true">不限</button><button type="button" data-v="free" aria-pressed="false">免費就好</button></div></div>
           <div class="prowg"><span class="lab">方式</span><div class="pseg" data-pg="how"><button type="button" data-v="day" aria-pressed="true">排一整天</button><button type="button" data-v="one" aria-pressed="false">單點隨機</button></div></div>
           <button class="btn solid pgo" type="button" id="pickGo">幫我決定</button>
+          <button class="btn pfold" type="button" data-act="mine" id="pdMine" hidden>回到目前的行程</button>
           <button class="btn pfold" type="button" data-act="browse">想自己逛，看篩選與清單</button>
         </div>
         <div id="pdRes" hidden aria-live="polite"></div>
@@ -632,7 +653,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   </div>
 </section>
 
-<section class="sec gut" id="plan" aria-labelledby="plTitle" style="padding-top:0">
+<section class="sec gut" id="plan" aria-labelledby="plTitle" style="padding-top:0" hidden>
   <div class="inner">
     <div class="sh rv">
       <div><span class="scrawl">Your weekend</span><h2 id="plTitle">週末行程卡</h2></div>
@@ -1562,7 +1583,7 @@ const bar=$('#bar');const onScroll=()=>bar.classList.toggle('lined',window.scrol
 
 
 /* ---------- 懶人模式：地圖當底圖，幫我決定 ---------- */
-const pk={how:'day',day:{a:null,p:null,n:null},idx:0,hist:[],hi:-1,started:false,relaxed:false};
+const pk={view:'setup',hist:[],hi:-1,focus:null,relaxed:false};
 const PCH={weather:'dry',mood:'all',budget:'any',how:'day'};
 const dock=$('#pickDock'),pdSetup=$('#pdSetup'),pdRes=$('#pdRes'),exploreEl=$('#explore');
 const svgEl=n=>document.createElementNS('http://www.w3.org/2000/svg',n);
@@ -1573,6 +1594,8 @@ pickLine.setAttribute('vector-effect','non-scaling-stroke');pickLine.style.point
 world.appendChild(pickLine);
 const pickM=svgEl('g');pickM.style.pointerEvents='none';svg.appendChild(pickM);
 
+const dayItems=()=>['a','p','n'].reduce((acc,k)=>acc.concat(PLAN[k].filter(id=>SPM[id]).map(id=>({id,k}))),[]);
+const hasPlan=()=>dayItems().length>0;
 function openExplore(){if(!PM.on)return false;enterBrowse();return true;}
 function enterBrowse(){
   PM.on=false;exploreEl.classList.remove('pickmode');
@@ -1583,6 +1606,7 @@ function enterPick(){
   PM.on=true;exploreEl.classList.add('pickmode');
   S.station=null;S.spot=null;S.area='all';renderAll();
   pickLine.style.display='';pickM.style.display='';
+  if(pk.view==='setup'&&hasPlan())pk.view='day';
   resize();layoutMode();lastS=-1;measureDock();showPick(0);
 }
 function measureDock(){PM.h=dock.offsetHeight+16;}
@@ -1604,79 +1628,106 @@ function pickOne(k,area,used){
   }
   return null;
 }
-function runDay(keep){
-  const used=new Set();let area=null,relaxed=false;
+function fillDay(){
+  const before={a:PLAN.a.slice(),p:PLAN.p.slice(),n:PLAN.n.slice()};
+  const next={a:[],p:[],n:[]},used=new Set();let area=null,relaxed=false;
   ['a','p','n'].forEach(k=>{
-    if(keep&&keep[k]&&SPM[keep[k]]){pk.day[k]=keep[k];used.add(keep[k]);area=SPM[keep[k]].area;return;}
     const r=pickOne(k,area,used);
-    if(r){pk.day[k]=r.p.id;used.add(r.p.id);area=r.p.area;if(r.relaxed)relaxed=true;}else pk.day[k]=null;
+    if(r){next[k]=[r.p.id];used.add(r.p.id);area=r.p.area;if(r.relaxed)relaxed=true;}
   });
-  pk.relaxed=relaxed;
+  if(!next.a.length&&!next.p.length&&!next.n.length){toast('這組條件排不出行程，換個選項再試試');return false;}
+  PLAN=next;savePlan();renderPlan();pk.relaxed=relaxed;pk.focus=null;
+  if(before.a.length+before.p.length+before.n.length)toast('已重排',{label:'復原',fn:()=>{PLAN=before;savePlan();renderPlan();pk.view='day';showPick(.6);}});
+  return true;
+}
+function rerollItem(id,k){
+  const idx=PLAN[k].indexOf(id);if(idx<0)return;
+  const used=new Set(dayItems().map(x=>x.id));
+  const r=pickOne(k,SPM[id].area,used);
+  if(!r){toast('這個時段沒有別的選擇了');return;}
+  PLAN[k][idx]=r.p.id;if(pk.focus===id)pk.focus=r.p.id;savePlan();renderPlan();showPick(.7);
 }
 function pickNew(){
   const r=pickOne(null,null,new Set(pk.hist));
   if(!r)return false;
   pk.hist.push(r.p.id);pk.hi=pk.hist.length-1;pk.relaxed=r.relaxed;return true;
 }
-const pickIds=()=>pk.how==='day'?['a','p','n'].map(k=>pk.day[k]).filter(Boolean):(pk.hi>=0?[pk.hist[pk.hi]]:[]);
 function pickText(){
-  const ids=pickIds();if(!ids.length)return '';
-  if(pk.how==='one'){const p=SPM[ids[0]];return '週末趣哪裡｜推薦：'+p.n+'（'+stn(ST[p.s])+'，'+p.price+'）\n票價與開放時間以官方公告為準。';}
+  if(pk.view==='one'){if(pk.hi<0)return '';const p=SPM[pk.hist[pk.hi]];return '週末趣哪裡｜推薦：'+p.n+'（'+stn(ST[p.s])+'，'+p.price+'）\n票價與開放時間以官方公告為準。';}
   let t='週末趣哪裡｜我的週末行程\n',prev=null;
-  ['a','p','n'].forEach(k=>{if(!pk.day[k])return;const p=SPM[pk.day[k]];
+  dayItems().forEach(({id,k},i)=>{const p=SPM[id];
     t+='\n【'+SLOT[k]+'】'+p.n+'（'+stn(ST[p.s])+'，'+p.price+'）\n';
-    if(prev)t+='  ↳ '+lineRoute(SPM[prev].s,p.s)+'\n';prev=p.id;});
+    if(prev)t+='  ↳ '+lineRoute(SPM[prev].s,p.s)+'\n';prev=id;});
   return t+'\n票價與開放時間以官方公告為準。';
 }
 function renderRes(){
-  const ids=pickIds();
-  if(!ids.length){pdRes.innerHTML='<p class="pnote">這組條件排不出行程，換個選項再試試。</p><div class="prow2"><button type="button" data-act="setup">調整條件</button></div>';return;}
-  const day=pk.how==='day',i=day?Math.min(pk.idx,ids.length-1):0,id=ids[i],p=SPM[id],st=ST[p.s];
-  const k=day?['a','p','n'].find(x=>pk.day[x]===id):p.t[0];
-  const atStart=day?i===0:pk.hi<=0,atEnd=day&&i===ids.length-1;
   let h='';
-  if(pk.relaxed)h+='<p class="pnote">條件太嚴，有些項目放寬了（例如不限預算）。</p>';
-  if(day&&i>0)h+='<p class="hop2">'+esc(lineRoute(SPM[ids[i-1]].s,p.s))+'</p>';
-  h+='<span class="slot2">'+(day?SLOT[k]+' '+SLOT_EN[k].toUpperCase()+' · '+(i+1)+'/'+ids.length:'隨機推薦 · '+(pk.hi+1)+'/'+pk.hist.length)+'</span>'
-    +'<h3>'+esc(p.n)+'</h3><p class="pm2">'+dots(st.lines)+esc(stn(st))+'・'+esc(shortPrice(p.price))+'・'+esc(ENVL[p.e]||'')+'</p>'
-    +'<p class="see2">'+esc(p.see)+'</p>'
-    +'<div class="pnav"><button type="button" data-act="prev"'+(atStart?' disabled':'')+'>◀ 上一個</button><button type="button" data-act="next"'+(atEnd?' disabled':'')+'>下一個 ▶</button></div>'
-    +'<div class="prow2">'+(day?'<button type="button" data-act="reroll">換這一站</button>':'')
-    +'<button type="button" data-act="detail">看詳細</button><button type="button" data-act="line">傳 LINE</button><button type="button" data-act="copy">複製</button><button type="button" data-act="save">存行程</button><button type="button" data-act="setup">調整條件</button></div>';
+  if(pk.view==='one'){
+    if(pk.hi<0){pdRes.innerHTML='<p class="pnote">這組條件找不到去處，換個選項再試試。</p><div class="prow2"><button type="button" data-act="setup">調整條件</button></div>';return;}
+    const id=pk.hist[pk.hi],p=SPM[id],st=ST[p.s];
+    if(pk.relaxed)h+='<p class="pnote">條件太嚴，有放寬一點（例如不限預算）。</p>';
+    h+='<span class="slot2">隨機推薦 · '+(pk.hi+1)+'/'+pk.hist.length+'</span><h3>'+esc(p.n)+'</h3>'
+      +'<p class="pm2">'+dots(st.lines)+esc(stn(st))+'・'+esc(shortPrice(p.price))+'・'+esc(ENVL[p.e]||'')+'</p><p class="see2">'+esc(p.see)+'</p>'
+      +'<div class="pnav"><button type="button" data-act="prev"'+(pk.hi<=0?' disabled':'')+'>◀ 上一個</button><button type="button" data-act="next">下一個 ▶</button></div>'
+      +'<div class="prow2"><button type="button" data-act="detail" data-id="'+id+'">看詳細</button><button type="button" data-act="save1" data-id="'+id+'">加入我的行程</button>'
+      +'<button type="button" data-act="line">傳 LINE</button><button type="button" data-act="copy">複製</button>'
+      +(hasPlan()?'<button type="button" data-act="mine">我的行程（'+dayItems().length+'）</button>':'')
+      +'<button type="button" data-act="setup">調整條件</button></div>';
+    pdRes.innerHTML=h;return;
+  }
+  const items=dayItems();
+  if(!items.length){pdRes.innerHTML='<p class="pnote">行程還是空的。</p><div class="prow2"><button type="button" data-act="setup">幫我排一天</button></div>';return;}
+  h+='<div class="ptitle"><b>我的週末</b><span>'+items.length+' 站'+(pk.relaxed?'・條件有放寬':'')+'</span></div><div class="prows">';
+  let prev=null;
+  items.forEach(({id,k},i)=>{
+    const p=SPM[id],st=ST[p.s],on=pk.focus===id;
+    if(prev)h+='<p class="hopline">'+esc(lineRoute(SPM[prev].s,p.s))+'</p>';
+    h+='<div class="pitem" '+(on?'aria-current="true"':'')+'><button type="button" class="rowbtn" data-focus="'+id+'"><span class="sl">'+(i+1)+' · '+SLOT[k]+' '+SLOT_EN[k].toUpperCase()+'</span>'
+      +'<span class="nm">'+esc(p.n)+'</span><span class="mt">'+dots(st.lines)+esc(stn(st))+'・'+esc(shortPrice(p.price))+'・'+esc(ENVL[p.e]||'')+'</span></button>'
+      +'<button type="button" class="swap" data-swap="'+id+'" data-k="'+k+'" aria-label="換掉 '+esc(p.n)+'">換一個</button>'
+      +(on?'<div class="pexp"><p class="see2">'+esc(p.see)+'</p><div class="prow2"><button type="button" data-act="detail" data-id="'+id+'">看詳細</button><button type="button" data-act="remove" data-id="'+id+'" data-k="'+k+'">移除</button><button type="button" data-act="overview">看全部</button></div></div>':'')
+      +'</div>';
+    prev=id;
+  });
+  h+='</div><div class="prow2"><button type="button" data-act="again">再排一次</button><button type="button" data-act="line">傳 LINE</button><button type="button" data-act="copy">複製文字</button><button type="button" data-act="setup">調整條件</button></div>';
   pdRes.innerHTML=h;
 }
-function drawPickMap(ids,cur,day){
+function drawPickMap(ids,cur,numbered){
   const pts=ids.map(id=>ST[SPM[id].s]);
   pickLine.setAttribute('d',pts.length>1?'M'+pts.map(q2=>q2.x+' '+q2.y).join('L'):'');
   pickM.textContent='';PM.mk=[];
   pts.forEach((pt,i)=>{
-    const g=svgEl('g'),c=svgEl('circle'),t=svgEl('text'),on=i===cur;
+    const g=svgEl('g'),c=svgEl('circle'),t=svgEl('text'),on=ids[i]===cur;
     c.setAttribute('r',on?15:11);c.setAttribute('fill',on?'#1B1915':'#B4432C');c.setAttribute('stroke','#F2EDE3');c.setAttribute('stroke-width','2.5');
-    t.textContent=day?String(i+1):'★';t.setAttribute('text-anchor','middle');t.setAttribute('y','5');t.setAttribute('fill','#fff');
+    t.textContent=numbered?String(i+1):'★';t.setAttribute('text-anchor','middle');t.setAttribute('y','5');t.setAttribute('fill','#fff');
     t.setAttribute('font-size',on?'14':'12');t.setAttribute('font-weight','700');
     g.appendChild(c);g.appendChild(t);pickM.appendChild(g);PM.mk.push({el:g,x:pt.x,y:pt.y});
   });
   apply();
 }
 function showPick(dur){
-  pdSetup.hidden=pk.started;pdRes.hidden=!pk.started;
-  if(!pk.started){pickLine.setAttribute('d','');pickM.textContent='';PM.mk=[];setCam(fitCam(BOUNDS,16),dur);return;}
+  const v=pk.view,mine=$('#pdMine');
+  pdSetup.hidden=v!=='setup';pdRes.hidden=v==='setup';
+  if(mine){mine.hidden=!hasPlan();mine.textContent='回到目前的行程（'+dayItems().length+' 站）';}
+  if(v==='setup'){pickLine.setAttribute('d','');pickM.textContent='';PM.mk=[];measureDock();setCam(fitCam(BOUNDS,16),dur);return;}
   renderRes();measureDock();
-  const ids=pickIds();if(!ids.length)return;
-  const day=pk.how==='day',i=day?Math.min(pk.idx,ids.length-1):0;
-  drawPickMap(ids,i,day);
+  const ids=v==='one'?(pk.hi>=0?[pk.hist[pk.hi]]:[]):dayItems().map(x=>x.id);
+  if(!ids.length){pickLine.setAttribute('d','');pickM.textContent='';PM.mk=[];setCam(fitCam(BOUNDS,16),dur);return;}
+  const cur=v==='one'?ids[0]:pk.focus;
+  drawPickMap(ids,cur,v==='day');
   let b;
-  if(day&&i===0&&ids.length>1)b=boundsOf(ids.map(id=>SPM[id].s),70);
-  else{const prev=day&&i>0?ids[i-1]:null;b=boundsOf([SPM[ids[i]].s].concat(prev?[SPM[prev].s]:[]),prev?60:150);}
+  if(v==='day'&&pk.focus&&ids.indexOf(pk.focus)>=0){
+    const i=ids.indexOf(pk.focus);b=boundsOf([SPM[pk.focus].s].concat(i>0?[SPM[ids[i-1]].s]:[]),i>0?60:150);
+  }else b=boundsOf(ids.map(id=>SPM[id].s),ids.length>1?70:150);
   setCam(fitCam(b,28),dur);
 }
 function pickGo(){
-  pk.how=PCH.how;pk.started=true;pk.idx=0;
-  if(pk.how==='day')runDay(null);else{pk.hist=[];pk.hi=-1;if(!pickNew()){toast('這組條件找不到去處');}}
+  pk.relaxed=false;
+  if(PCH.how==='day'){if(!fillDay())return;pk.view='day';}
+  else{pk.hist=[];pk.hi=-1;pk.view='one';if(!pickNew())toast('這組條件找不到去處');}
   showPick(.9);
 }
 function pickStep(dir){
-  if(pk.how==='day'){const n=pickIds().length;pk.idx=Math.max(0,Math.min(n-1,pk.idx+dir));showPick(.8);return;}
   if(dir<0){if(pk.hi>0){pk.hi--;showPick(.8);}return;}
   if(pk.hi<pk.hist.length-1){pk.hi++;showPick(.8);return;}
   if(!pickNew()){toast('這組條件的去處都看完了，調整條件再試試');return;}
@@ -1686,29 +1737,33 @@ dock.addEventListener('click',e=>{
   const seg=e.target.closest('.pseg button[data-v]');
   if(seg){const g=seg.parentElement;PCH[g.dataset.pg]=seg.dataset.v;$$('button',g).forEach(x=>x.setAttribute('aria-pressed',String(x===seg)));return;}
   if(e.target.closest('#pickGo')){pickGo();return;}
+  const sw=e.target.closest('[data-swap]');if(sw){rerollItem(sw.dataset.swap,sw.dataset.k);return;}
+  const fc=e.target.closest('[data-focus]');if(fc){pk.focus=pk.focus===fc.dataset.focus?null:fc.dataset.focus;showPick(.7);return;}
   const b=e.target.closest('[data-act]');if(!b)return;
-  const act=b.dataset.act,ids=pickIds(),day=pk.how==='day',i=day?Math.min(pk.idx,ids.length-1):0,id=ids[i];
+  const act=b.dataset.act,id=b.dataset.id;
   if(act==='browse'){enterBrowse();return;}
-  if(act==='setup'){pk.started=false;showPick(.6);return;}
+  if(act==='setup'){pk.view='setup';showPick(.6);return;}
+  if(act==='mine'){pk.view='day';showPick(.7);return;}
+  if(act==='again'){if(fillDay())showPick(.9);return;}
+  if(act==='overview'){pk.focus=null;showPick(.7);return;}
   if(act==='prev'){pickStep(-1);return;}
   if(act==='next'){pickStep(1);return;}
-  if(!id)return;
-  if(act==='reroll'){const keep=Object.assign({},pk.day),k=['a','p','n'].find(x=>pk.day[x]===id),old=id;keep[k]=null;
-    runDay(keep);if(pk.day[k]===old&&old){const used=new Set(ids),r=pickOne(k,SPM[old].area,used);if(r)pk.day[k]=r.p.id;}
-    showPick(.7);return;}
-  if(act==='detail'){enterBrowse();setTimeout(()=>openSpot(id),320);return;}
-  if(act==='line'){window.open('https://line.me/R/msg/text/?'+encodeURIComponent(pickText()),'_blank','noopener');return;}
-  if(act==='copy'){const txt=pickText();
-    try{navigator.clipboard.writeText(txt).then(()=>toast('已複製行程文字'),()=>toast('無法自動複製，請改用傳 LINE'));}catch(err){toast('無法自動複製，請改用傳 LINE');}return;}
-  if(act==='save'){
-    if(day){['a','p','n'].forEach(k=>{PLAN[k]=pk.day[k]?[pk.day[k]]:[];});savePlan();renderPlan();toast('已放進行程卡',{label:'去看',fn:()=>$('#plan').scrollIntoView({behavior:RM?'auto':'smooth'})});}
-    else{const k=SPM[id].t[0];if(PLAN[k].indexOf(id)>=0){toast('已經在行程卡了');return;}addToPlan(id,k,b);}
-  }
+  if(act==='detail'&&id){enterBrowse();setTimeout(()=>openSpot(id),320);return;}
+  if(act==='remove'&&id){const k=b.dataset.k;PLAN[k]=PLAN[k].filter(x=>x!==id);pk.focus=null;savePlan();renderPlan();showPick(.6);toast('已移除');return;}
+  if(act==='save1'&&id){const k=SPM[id].t[0];if(PLAN[k].indexOf(id)>=0){toast('已經在行程裡了');return;}addToPlan(id,k,b);showPick(0);return;}
+  if(act==='line'){const t=pickText();if(!t)return;window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank','noopener');return;}
+  if(act==='copy'){const t=pickText();if(!t)return;
+    try{navigator.clipboard.writeText(t).then(()=>toast('已複製行程文字'),()=>toast('無法自動複製，請改用傳 LINE'));}catch(err){toast('無法自動複製，請改用傳 LINE');}return;}
 });
 $('#backPick').addEventListener('click',enterPick);
-$$('a[href="#explore"]').forEach(a=>a.addEventListener('click',()=>{if(!PM.on)return;}));
-if('ResizeObserver' in window){let roT=0;new ResizeObserver(()=>{clearTimeout(roT);roT=setTimeout(()=>{if(!PM.on)return;const h=dock.offsetHeight+16;if(Math.abs(h-PM.h)>4){PM.h=h;if(pk.started)showPick(0);else setCam(fitCam(BOUNDS,16),0);}},120);}).observe(dock);}
+$('#planLink').addEventListener('click',e=>{
+  e.preventDefault();
+  if(!PM.on){enterPick();}else{pk.view=hasPlan()?'day':'setup';showPick(.6);}
+  exploreEl.scrollIntoView({behavior:RM?'auto':'smooth'});
+});
+if('ResizeObserver' in window){let roT=0;new ResizeObserver(()=>{clearTimeout(roT);roT=setTimeout(()=>{if(!PM.on)return;const h=dock.offsetHeight+16;if(Math.abs(h-PM.h)>4){PM.h=h;showPick(0);}},120);}).observe(dock);}
 window.addEventListener('resize',()=>{setTimeout(()=>{if(PM.on){measureDock();showPick(0);}},220);});
+if(hasPlan())pk.view='day';
 measureDock();showPick(0);
 
 /* ---------- motion ---------- */
