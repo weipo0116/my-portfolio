@@ -724,3 +724,4 @@ html[data-theme="light"] .natal select, html[data-theme="light"] .birth input, h
 .houses li i { padding-top: 3px; }
 .houses .moon-tag { font-size: 0.72rem; color: var(--night); background: var(--gold); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
 .houses .moon-tag { display: inline-block; line-height: 1.6; }
+@media (max-width: 720px) { .block { scroll-margin-top: 72px; } }

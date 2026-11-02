@@ -336,7 +336,7 @@ const readCity = () => {
   return "taipei";
 };
 const readPref = (k, ok, d) => { try { const v = localStorage.getItem(k); if (v && ok.some(([x]) => x === v)) return v; } catch { /* storage unavailable */ } return d; };
-let state = { occ: "work", city: readCity(), off: 0, day: null, pal: null, weather: null, raw: null, prefs: { fit: readPref("cinq-fit", FITS, "u"), style: readPref("cinq-style", STYLES, "any") }, rolls: [0, 0, 0], rollKey: "" };
+let state = { shift: 0, occ: "work", city: readCity(), off: 0, day: null, pal: null, weather: null, raw: null, prefs: { fit: readPref("cinq-fit", FITS, "u"), style: readPref("cinq-style", STYLES, "any") }, rolls: [0, 0, 0], rollKey: "" };
 
 function todayIn(tz) {
   const f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" }).formatToParts(new Date());
@@ -380,7 +380,7 @@ async function getWeather(city) {
   }
 }
 
-function sliceWeather(raw, city, off) {
+function sliceWeather(raw, city, off, shift = 0) {
   const c = CITIES[city];
   if (raw?.ok && off >= -PAST_DAYS && off < FUTURE_DAYS) {
     const j = raw.j;
@@ -398,27 +398,30 @@ function sliceWeather(raw, city, off) {
       const nowHour = j.current.time.slice(0, 13);
       let start = j.hourly.time.findIndex((t) => t.slice(0, 13) >= nowHour);
       if (start < 0) start = 0;
+      start = Math.min(start + shift, j.hourly.time.length - 13);
       const hours = [];
       for (let k = start; k < Math.min(start + 13, j.hourly.time.length); k++) hours.push(mk(k));
+      if (shift) return { ...common, mode: "at", temp: hours[0].temp, feel: hours[0].feel, hum: null, code: hours[0].code, rain: Math.max(...hours.map((x) => x.rain), 0), hours };
       return { ...common, mode: "now", temp: j.current.temperature_2m, feel: j.current.apparent_temperature, hum: j.current.relative_humidity_2m, code: j.current.weather_code, rain: Math.max(...hours.map((x) => x.rain), 0), hours };
     }
-    const first = j.hourly.time.findIndex((t) => t.startsWith(date) && t.slice(11, 13) === "08");
+    const first = Math.max(0, Math.min(j.hourly.time.findIndex((t) => t.startsWith(date) && t.slice(11, 13) === "08") + shift, j.hourly.time.length - 13));
     const hours = [];
-    for (let k = Math.max(first, 0); k < Math.min(Math.max(first, 0) + 13, j.hourly.time.length); k++) hours.push(mk(k));
+    for (let k = first; k < Math.min(first + 13, j.hourly.time.length); k++) hours.push(mk(k));
+    if (shift) return { ...common, mode: "at", temp: hours[0].temp, feel: hours[0].feel, hum: null, code: hours[0].code, rain: Math.max(...hours.map((x) => x.rain), 0), hours };
     const noon = hours[4] || hours[0];
     return { ...common, mode: "day", temp: noon.temp, feel: noon.feel, hum: null, code: j.daily.weather_code[di], rain: Math.max(...hours.map((x) => x.rain), 0), hours };
   }
   // seasonal fallback so the page still works offline (rough estimates, flagged in the UI)
   const tt = shiftDay(todayIn(c.tz), off);
   const base = ({ taipei: [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18], tokyo: [6, 7, 11, 16, 21, 24, 28, 30, 26, 20, 14, 9], seoul: [-1, 2, 8, 15, 20, 24, 27, 28, 23, 16, 8, 1], newyork: [1, 3, 7, 13, 19, 24, 27, 26, 22, 16, 10, 4] })[city][tt.m - 1];
-  const hour0 = off === 0 ? Number(new Intl.DateTimeFormat("en-GB", { timeZone: c.tz, hour: "2-digit", hour12: false }).format(new Date())) : 8;
+  const hour0 = (off === 0 ? Number(new Intl.DateTimeFormat("en-GB", { timeZone: c.tz, hour: "2-digit", hour12: false }).format(new Date())) : 8) + shift;
   const hours = Array.from({ length: 13 }, (_, k) => {
     const hh = (hour0 + k) % 24;
     const t = base + 3 * Math.sin(((hh - 9) / 24) * Math.PI * 2);
     return { label: `${String(hh).padStart(2, "0")}:00`, temp: t, feel: t, rain: 30, code: 3 };
   });
-  const mid = off === 0 ? hours[0] : hours[4];
-  return { ok: false, loading: !raw, est: !!raw?.ok, mode: off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: null, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
+  const mid = off === 0 || shift ? hours[0] : hours[4];
+  return { ok: false, loading: !raw, est: !!raw?.ok, mode: shift ? "at" : off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: null, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
 }
 
 /* ---------- render ---------- */
@@ -506,17 +509,19 @@ function renderCityTabs() {
       }),
     ),
   );
-  $("wCity").textContent = `${CITIES[state.city].zh} · ${state.off === 0 ? "現在與未來 12 小時" : "當日 08:00–20:00"}`;
+  const w0 = state.weather?.hours?.[0]?.label, w1 = state.weather?.hours?.[12]?.label;
+  $("wCity").textContent = `${CITIES[state.city].zh} · ${state.off === 0 && !state.shift ? "現在與未來 12 小時" : w0 ? `${w0}–${w1}` : "當日 08:00–20:00"}`;
 }
 
 function renderWeather() {
   const w = state.weather;
   const g = $("wgrid");
   const est = w.ok ? "" : " · 估計";
+  const at = w.hours[0]?.label || "";
   const cells = [
-    [(w.mode === "now" ? "現在體感" : "中午體感") + est, `${Math.round(w.feel)}°`, `${tempBand(w.feel)} · 氣溫 ${Math.round(w.temp)}°`],
+    [(w.mode === "now" ? "現在體感" : w.mode === "at" ? `${at} 體感` : "中午體感") + est, `${Math.round(w.feel)}°`, `${tempBand(w.feel)} · 氣溫 ${Math.round(w.temp)}°`],
     [(w.mode === "now" ? "今日高低" : "當日高低") + est, `${Math.round(w.min)}–${Math.round(w.max)}°`, WCODE(w.code)],
-    [(w.mode === "now" ? "未來 12 小時降雨" : "日間降雨") + est, `${Math.round(w.rain)}%`, w.rain >= RAIN_AT ? "帶傘、換防水鞋" : "出門可不帶傘"],
+    [(w.mode === "day" ? "日間降雨" : `${w.mode === "now" ? "未來" : `${at} 起`} 12 小時降雨`) + est, `${Math.round(w.rain)}%`, w.rain >= RAIN_AT ? "帶傘、換防水鞋" : "出門可不帶傘"],
     ["紫外線" + est, String(Math.round(w.uv)), w.uv >= 8 ? "高：帽子與墨鏡" : "一般"],
   ];
   g.replaceChildren(
@@ -538,18 +543,47 @@ function renderWeather() {
     ...hrs.map((x, i) => {
       const y = 1 - (x.temp - lo) / span; // 0 top .. 1 bottom
       const d = h(
-        "div", "hour" + (i === 0 && w.mode === "now" ? " now" : ""),
-        `<small>${i === 0 && w.mode === "now" ? "NOW" : x.label}</small>` +
+        "button", "hour" + (i === 0 && w.mode !== "day" ? " now" : ""),
+        `<small>${i === 0 && w.mode === "now" ? "NOW" : i === 0 && w.mode === "at" ? `出門 ${x.label}` : x.label}</small>` +
           `<span class="dotwrap"><i class="dot" style="--y:${y.toFixed(3)}"></i></span>` +
           `<strong>${Math.round(x.temp)}°</strong>` +
           `<span class="rainbar"><i style="--p:${Math.round(x.rain)}%"></i></span>` +
           `<em>${Math.round(x.rain)}%</em>`,
       );
       d.style.setProperty("--i", i);
+      d.type = "button";
+      d.dataset.k = i;
+      d.setAttribute("aria-label", `${x.label} 出門：氣溫 ${Math.round(x.temp)}°，降雨 ${Math.round(x.rain)}%`);
       return d;
     }),
   );
+  const [lo2, hi2] = shiftRange();
+  $("hsPrev").disabled = state.shift <= lo2;
+  $("hsNext").disabled = state.shift >= hi2;
+  $("hsNow").hidden = !state.shift;
+  $("hsLabel").textContent = w.mode === "now" ? "現在出門" : w.mode === "day" ? "08:00 出門（預設）" : `${w.hours[0].label} 出門`;
 }
+
+// how far the window may move: today from now up to ~1.5 days ahead; other days within that date
+function shiftRange() {
+  if (state.off === 0) return [0, 36];
+  return [-8, 15];
+}
+function setShift(n) {
+  const [lo, hi] = shiftRange();
+  state.shift = Math.max(lo, Math.min(hi, n));
+  state.weather = sliceWeather(state.raw, state.city, state.off, state.shift);
+  renderCityTabs();
+  renderWeather();
+  renderLooks(true);
+  $("hourly").scrollTo({ left: 0, behavior: "smooth" });
+}
+document.addEventListener("click", (e) => {
+  const hr = e.target.closest("#hourly .hour");
+  if (hr && Number(hr.dataset.k) > 0) { setShift(state.shift + Number(hr.dataset.k)); return; }
+  const b = e.target.closest("[data-sh]");
+  if (b) setShift(b.dataset.sh === "0" ? 0 : state.shift + Number(b.dataset.sh));
+});
 
 function dayName(off) {
   const t = shiftDay(todayIn(CITIES[state.city].tz), off);
@@ -583,7 +617,11 @@ function renderDayTabs() {
       }),
     ),
   );
-  if (state.day) $("dayPickVal").textContent = `${state.day.t.m}/${state.day.t.d}`;
+  if (state.day) {
+    $("dayPickVal").textContent = `${state.day.t.m}/${state.day.t.d}`;
+    const n = dayName(state.off);
+    $("dayToggleVal").textContent = `${n.zh} ${n.md}`;
+  }
   if (!ready) $("dayState").textContent = "天氣載入中，先以季節平均估算";
   else if ($("dayState").textContent.startsWith("天氣載入")) $("dayState").textContent = "";
 }
@@ -599,7 +637,7 @@ function applyDay(quiet = false) {
   const tz = CITIES[state.city].tz;
   const day = dayElement(tz, state.off);
   const pal = paletteFor(day.el);
-  const weather = sliceWeather(state.raw, state.city, state.off);
+  const weather = sliceWeather(state.raw, state.city, state.off, state.shift);
   state.day = day;
   state.pal = pal;
   state.weather = weather;
@@ -619,6 +657,9 @@ function applyDay(quiet = false) {
 
 function switchDay(off) {
   state.off = off;
+  state.shift = 0;
+  $("daybar").classList.add("collapsed");
+  $("dayToggle").setAttribute("aria-expanded", "false");
   applyDay();
   closeCal();
 }
@@ -676,6 +717,7 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("cal"
 
 async function switchCity(id) {
   state.city = id;
+  state.shift = 0;
   try { localStorage.setItem("cinq-city", id); } catch { /* storage unavailable */ }
   renderCityTabs();
   $("hourly").classList.add("loading");
@@ -811,7 +853,8 @@ function renderAnswer(look) {
   const wear = ["上身", "外層", "下身"].map((part) => look.pieces.find((p) => p.part === part)?.item).filter(Boolean).map(stripNote).join("＋");
   const umbrella = w.rain >= RAIN_AT ? "記得帶傘" : "不用帶傘";
   const tail = w.loading ? " · 天氣載入中，先以季節平均估算" : w.ok ? "" : " · 季節平均估算";
-  $("answerText").textContent = `${dayName(state.off).zh}${occ.verb}：${wear} · 體感 ${Math.round(w.feel)}° ${WCODE(w.code)} · 降雨 ${Math.round(w.rain)}%，${umbrella}${tail}`;
+  const when = w.mode === "at" ? ` ${w.hours[0].label}` : "";
+  $("answerText").textContent = `${dayName(state.off).zh}${when}${occ.verb}：${wear} · 體感 ${Math.round(w.feel)}° ${WCODE(w.code)} · 降雨 ${Math.round(w.rain)}%，${umbrella}${tail}`;
 }
 
 // One "why" sentence per source, tagged so computed weather and interpretive five-elements advice stay distinguishable.
@@ -888,7 +931,7 @@ async function init() {
   state.day = dayElement(tz);
   state.pal = paletteFor(state.day.el);
   // first paint uses the offline seasonal estimate (flagged in the UI); the forecast replaces it when it arrives
-  state.weather = sliceWeather(null, state.city, state.off);
+  state.weather = sliceWeather(null, state.city, state.off, state.shift);
   renderHero();
   renderRules();
   renderCityTabs();
@@ -912,3 +955,20 @@ const heroEl = document.querySelector(".hero");
 new IntersectionObserver(([e]) => $("dock").classList.toggle("show", !e.isIntersecting), { threshold: 0.05 }).observe(heroEl);
 
 init();
+
+$("dayToggle").addEventListener("click", () => {
+  const bar = $("daybar");
+  const open = bar.classList.toggle("collapsed") === false;
+  $("dayToggle").setAttribute("aria-expanded", String(open));
+});
+
+// in-page links: JS scroll so tapping the same link twice still works on mobile Safari
+document.addEventListener("click", (e) => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey) return;
+  const id = a.getAttribute("href").slice(1);
+  const smooth = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  if (id === "top" || id === "") { e.preventDefault(); scrollTo({ top: 0, behavior: smooth }); }
+  else { const t = document.getElementById(id); if (!t) return; e.preventDefault(); t.scrollIntoView({ behavior: smooth, block: "start" }); }
+  history.replaceState(null, "", location.pathname + location.search);
+});
