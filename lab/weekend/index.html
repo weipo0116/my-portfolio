@@ -475,6 +475,39 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   html{scroll-behavior:auto}
   *,*::before,*::after{transition:none!important;animation:none!important}
 }
+/* ---- 懶人模式：幫我決定 ---- */
+.pick{padding-block:clamp(24px,6vw,64px) 8px}
+.pick .inner{max-width:760px;margin:0 auto}
+.pick h1{font-family:var(--f-hand);font-weight:700;font-size:clamp(34px,9vw,60px);line-height:1.1;margin:0 0 8px;text-wrap:balance}
+.pick .psub{color:var(--sub);margin:0 0 22px;font-size:16px;text-wrap:pretty}
+.pgroup{margin:0 0 16px;padding:0;border:0;min-width:0}
+.pgroup legend{padding:0;font-size:13px;color:var(--sub);margin-bottom:8px}
+.pseg{display:flex;flex-wrap:wrap;gap:8px}
+.pseg button{min-height:48px;padding:0 18px;border-radius:999px;border:1.5px solid var(--rule);background:var(--card);color:var(--ink);font:inherit;font-size:16px;cursor:pointer;transition:background .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),transform .15s}
+.pseg button:hover{border-color:var(--ink)}
+.pseg button:active{transform:scale(.98)}
+.pseg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pseg button:focus-visible,.pgo:focus-visible,.pcard button:focus-visible,.pacts .btn:focus-visible,.pfold:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+.pgo{width:100%;height:58px;justify-content:center;font-size:18px;font-weight:700;margin-top:6px}
+.pout{margin-top:22px;display:grid;gap:12px}
+.pnote{margin:0;font-size:14px;color:var(--sub)}
+.pcard{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:14px 16px;display:grid;gap:6px}
+.pcard .hop2{margin:0;font-size:13px;color:var(--sub)}
+.pcard .ph{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.pcard .slot2{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;color:var(--stamp)}
+.pcard h3{margin:0;font-family:var(--f-hand);font-size:22px;line-height:1.25}
+.pcard .pm2{margin:0;font-size:14px;color:var(--ink-2);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pcard .see2{margin:0;font-size:14px;color:var(--ink-2);text-wrap:pretty}
+.pcard .prow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.pcard .prow button{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.pcard .prow button:hover{border-color:var(--ink)}
+.pacts{display:flex;gap:8px;flex-wrap:wrap}
+.pacts .btn{height:48px;flex:1 1 140px;justify-content:center}
+.pfold{margin-top:18px;min-height:48px;width:100%;justify-content:center}
+.explore.is-folded{display:none}
+@media (prefers-reduced-motion:no-preference){.pcard{animation:pin .6s cubic-bezier(.22,1,.36,1) both}.pcard:nth-child(2){animation-delay:.06s}.pcard:nth-child(3){animation-delay:.12s}}
+@keyframes pin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (max-width:480px){.brand .scrawl{font-size:18px}.bar .inner{gap:6px}}
 </style>
 
 <header class="bar gut" id="bar">
@@ -493,7 +526,26 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 </header>
 
 <main id="top">
-<section class="hero gut" aria-labelledby="heroTitle">
+<section class="pick gut" id="pick" aria-labelledby="pickTitle">
+  <div class="inner">
+    <h1 id="pickTitle">週末要去哪？</h1>
+    <p class="psub">點三個選項，剩下交給我。什麼都不選也可以，直接按「幫我決定」。</p>
+    <fieldset class="pgroup"><legend>天氣</legend><div class="pseg" data-pg="weather">
+      <button type="button" data-v="dry" aria-pressed="true">晴天或陰天</button>
+      <button type="button" data-v="rain" aria-pressed="false">下雨</button></div></fieldset>
+    <fieldset class="pgroup"><legend>想幹嘛</legend><div class="pseg" data-pg="mood">
+      <button type="button" data-v="all" aria-pressed="true">都可以</button>
+      <button type="button" data-v="sport" aria-pressed="false">動一動</button>
+      <button type="button" data-v="urban" aria-pressed="false">逛街吃吃</button></div></fieldset>
+    <fieldset class="pgroup"><legend>預算</legend><div class="pseg" data-pg="budget">
+      <button type="button" data-v="any" aria-pressed="true">不限</button>
+      <button type="button" data-v="free" aria-pressed="false">免費就好</button></div></fieldset>
+    <button class="btn solid pgo" type="button" id="pickGo">幫我決定</button>
+    <div class="pout" id="pickOut" aria-live="polite"></div>
+    <button class="btn pfold" type="button" id="openExplore" aria-expanded="false" aria-controls="explore">想自己逛地圖</button>
+  </div>
+</section>
+<section class="hero gut" aria-labelledby="heroTitle" hidden>
   <div class="inner">
     <div>
       <p class="kicker"><span>Taipei &amp; New Taipei</span><span>Weekend edition</span><span>No. 01</span></p>
@@ -524,7 +576,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   <div class="marquee" aria-hidden="true"><div class="mq-track" id="mq"><span>Hike in the morning</span><span>Museums after lunch</span><span>Night markets after dark</span><span>Hike in the morning</span><span>Museums after lunch</span><span>Night markets after dark</span></div></div>
 </section>
 
-<section class="explore gut" id="explore" aria-labelledby="exTitle">
+<section class="explore gut is-folded" id="explore" aria-labelledby="exTitle">
   <div class="inner">
     <h2 class="sr" id="exTitle">雙北週末地圖</h2>
     <div class="tools">
@@ -616,7 +668,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   </div>
 </section>
 
-<section class="sec gut" id="notes" aria-labelledby="ntTitle" style="padding-top:0">
+<section class="sec gut" id="notes" aria-labelledby="ntTitle" style="padding-top:0" hidden>
   <div class="inner">
     <div class="sh rv">
       <div><span class="scrawl">Curator's notes</span><h2 id="ntTitle">館長的週末建議</h2></div>
@@ -1332,7 +1384,7 @@ function runSearch(){
   ql.innerHTML=qr.length?qr.map((r,i)=>'<li role="option" id="qo'+i+'" aria-selected="'+(i===qi)+'" data-i="'+i+'"><span class="k">'+(r.k==='station'?'Station':'Exhibit')+'</span><span class="t">'+esc(r.t)+'</span><span class="s">'+esc(r.s)+'</span></li>').join(''):'<li class="none" role="option" aria-disabled="true">找不到，換個關鍵字試試，例如「夜市」「溫泉」。</li>';
   ql.hidden=false;q.setAttribute('aria-expanded','true');q.setAttribute('aria-activedescendant',qi>=0?'qo'+qi:'');
 }
-function revealApp(){const el=desk()?$('#explore'):$('#app');const r=el.getBoundingClientRect();if(r.top<-20||r.top>window.innerHeight*.35)el.scrollIntoView({behavior:RM?'auto':'smooth'});}
+function revealApp(){if(openExplore()){setTimeout(()=>{if(S.station)focusStation(S.station,0);revealApp();},260);return;}const el=desk()?$('#explore'):$('#app');const r=el.getBoundingClientRect();if(r.top<-20||r.top>window.innerHeight*.35)el.scrollIntoView({behavior:RM?'auto':'smooth'});}
 function pickResult(i){const r=qr[i];if(!r)return;ql.hidden=true;q.setAttribute('aria-expanded','false');q.value='';q.blur();
   if(r.k==='station')selectStation(r.id);else{openSpot(r.id);}
   revealApp();}
@@ -1511,6 +1563,99 @@ let rzT=0;
 window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{const was=cam.s;resize();layoutMode();lastS=-1;
   if(S.station)focusStation(S.station,0);else if(S.area!=='all')setCam(fitCam(boundsOf(STL.filter(s=>s.area===S.area).map(s=>s.id),46),24),0);else setCam(fitCam(BOUNDS,16),0);},120);});
 const bar=$('#bar');const onScroll=()=>bar.classList.toggle('lined',window.scrollY>8);window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+
+/* ---------- 懶人模式：幫我決定 ---------- */
+function openExplore(){
+  const ex=$('#explore');if(!ex.classList.contains('is-folded'))return false;
+  ex.classList.remove('is-folded');$('#openExplore').setAttribute('aria-expanded','true');
+  window.dispatchEvent(new Event('resize'));
+  setTimeout(()=>{if(window.ScrollTrigger)window.ScrollTrigger.refresh();},300);
+  return true;
+}
+const PICK={a:null,p:null,n:null,relaxed:false};
+const PCH={weather:'dry',mood:'all',budget:'any'};
+$$('.pseg').forEach(g=>g.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-v]');if(!b)return;
+  PCH[g.dataset.pg]=b.dataset.v;
+  $$('button',g).forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+}));
+function pickOpts(relax){
+  const o=cloneS();o.env=new Set();o.time=new Set();o.hike=false;o.fav=false;
+  o.rain=PCH.weather==='rain';o.free=PCH.budget==='free'&&relax<2;
+  o.mode=(PCH.mood!=='all'&&relax<1)?PCH.mood:'all';
+  return o;
+}
+function pickOne(k,area,used){
+  for(let r=0;r<3;r++){
+    const o=pickOpts(r);
+    const arr=SP.filter(p=>p.t.indexOf(k)>=0&&!used.has(p.id)&&match(p,o));
+    if(!arr.length)continue;
+    const near=area?arr.filter(p=>p.area===area):[];
+    const src=near.length?near:arr;
+    return {p:src[Math.floor(Math.random()*src.length)],relaxed:r>0};
+  }
+  return null;
+}
+function runPick(keep){
+  const used=new Set();let area=null,relaxed=false;
+  ['a','p','n'].forEach(k=>{
+    if(keep&&keep[k]&&SPM[keep[k]]){PICK[k]=keep[k];used.add(keep[k]);area=SPM[keep[k]].area;return;}
+    const r=pickOne(k,area,used);
+    if(r){PICK[k]=r.p.id;used.add(r.p.id);area=r.p.area;if(r.relaxed)relaxed=true;}else PICK[k]=null;
+  });
+  PICK.relaxed=relaxed;renderPick();
+}
+function pickRoute(a,b){return lineRoute(SPM[a].s,SPM[b].s);}
+function renderPick(){
+  const out=$('#pickOut');const ids=['a','p','n'].filter(k=>PICK[k]);
+  if(!ids.length){out.innerHTML='<p class="pnote">這組條件排不出行程，換個選項再試試。</p>';return;}
+  let h='';
+  if(PICK.relaxed)h+='<p class="pnote">條件太嚴，有些時段放寬了一點（例如不限預算）。</p>';
+  let prev=null;
+  ids.forEach(k=>{
+    const p=SPM[PICK[k]],st=ST[p.s];
+    h+='<article class="pcard">';
+    if(prev)h+='<p class="hop2">'+esc(pickRoute(prev,p.id))+'</p>';
+    h+='<div class="ph"><span class="slot2">'+SLOT[k]+' '+SLOT_EN[k].toUpperCase()+'</span></div>'
+      +'<h3>'+esc(p.n)+'</h3>'
+      +'<p class="pm2">'+dots(st.lines)+esc(stn(st))+'・'+esc(shortPrice(p.price))+'・'+esc(ENVL[p.e]||'')+'</p>'
+      +'<p class="see2">'+esc(p.see)+'</p>'
+      +'<div class="prow"><button type="button" data-reroll="'+k+'">換一個</button><button type="button" data-pmap="'+p.id+'">在地圖看</button></div></article>';
+    prev=p.id;
+  });
+  h+='<div class="pacts"><button class="btn" type="button" id="pickAgain">再抽一次</button>'
+    +'<button class="btn solid" type="button" id="pickLine">傳 LINE 給朋友</button>'
+    +'<button class="btn" type="button" id="pickCopy">複製文字</button>'
+    +'<button class="btn" type="button" id="pickSave">放進行程卡</button></div>';
+  out.innerHTML=h;
+}
+function pickText(){
+  let t='週末趣哪裡｜我的週末行程\n';let prev=null;
+  ['a','p','n'].forEach(k=>{if(!PICK[k])return;const p=SPM[PICK[k]],st=ST[p.s];
+    t+='\n【'+SLOT[k]+'】'+p.n+'（'+stn(st)+'，'+p.price+'）\n';
+    if(prev)t+='  ↳ '+pickRoute(prev,p.id)+'\n';prev=p.id;});
+  return t+'\n票價與開放時間以官方公告為準。';
+}
+$('#pickGo').addEventListener('click',()=>{runPick(null);const o=$('#pickOut');if(o.firstElementChild)o.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});});
+$('#pickOut').addEventListener('click',e=>{
+  const rr=e.target.closest('[data-reroll]');
+  if(rr){const k=rr.dataset.reroll,keep=Object.assign({},PICK);keep[k]=null;const old=PICK[k];
+    runPick(keep);if(PICK[k]===old&&old)runPick(Object.assign({},keep));return;}
+  const pm=e.target.closest('[data-pmap]');
+  if(pm){const id=pm.dataset.pmap,was=openExplore();
+    setTimeout(()=>{openSpot(id);const el=desk()?$('#explore'):$('#app');el.scrollIntoView({behavior:RM?'auto':'smooth'});},was?300:0);return;}
+  if(e.target.closest('#pickAgain')){runPick(null);return;}
+  if(e.target.closest('#pickLine')){window.open('https://line.me/R/msg/text/?'+encodeURIComponent(pickText()),'_blank','noopener');return;}
+  if(e.target.closest('#pickCopy')){const txt=pickText();
+    try{navigator.clipboard.writeText(txt).then(()=>toast('已複製行程文字'),()=>toast('無法自動複製，請改用傳 LINE'));}catch(err){toast('無法自動複製，請改用傳 LINE');}return;}
+  if(e.target.closest('#pickSave')){
+    ['a','p','n'].forEach(k=>{PLAN[k]=PICK[k]?[PICK[k]]:[];});savePlan();renderPlan();
+    toast('已放進行程卡',{label:'去看',fn:()=>$('#plan').scrollIntoView({behavior:RM?'auto':'smooth'})});}
+});
+$('#openExplore').addEventListener('click',()=>{const was=openExplore();setTimeout(()=>$('#explore').scrollIntoView({behavior:RM?'auto':'smooth'}),was?300:0);});
+$$('a[href="#explore"]').forEach(a=>a.addEventListener('click',()=>{openExplore();}));
+if(location.hash==='#explore')openExplore();
 
 /* ---------- motion ---------- */
 if(ANIM){
