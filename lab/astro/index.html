@@ -69,19 +69,30 @@
 
       <section class="block reveal v-chart" id="sec-energy" aria-labelledby="h-energy">
         <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
+        <div id="vocAlert" class="voc-alert" role="status" hidden></div>
         <p id="headline" class="headline"></p>
-        <p id="summary" class="summary"></p>
+        <div id="summary" class="summary"></div>
         <div class="advice"><b>建議</b><p id="advice"></p></div>
         <ul id="tags" class="tags"></ul>
-        <h3 class="sub-h">一天的節奏 <small>台北時間・月亮每天都不一樣</small></h3>
-        <div id="dayStrip" class="daystrip" role="img" aria-label="全天月亮換座與相位時間軸"></div>
-        <div class="stripscale" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
-        <p class="strip-key" aria-hidden="true"><i class="tick soft"></i>順 <i class="tick hard"></i>緊 <i class="tick conj"></i>合 <i class="tick ing"></i>換座 <i class="vockey"></i>空轉</p>
-        <ol id="timeline" class="timeline"></ol>
-        <h3 class="sub-h" id="diffTitle">和昨天哪裡不一樣</h3>
-        <ul id="diff" class="difflist"></ul>
-        <h3 class="sub-h">背景天象 <small>幾週才變一次</small></h3>
-        <ul id="energy" class="bglist"></ul>
+        <details class="fold" open>
+          <summary><span>一天的節奏</span><small id="foldRhythm"></small></summary>
+          <div id="dayStrip" class="daystrip" role="img" aria-label="全天月亮換座與相位時間軸"></div>
+          <div class="stripscale" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
+          <p class="strip-key" aria-hidden="true"><i class="tick soft"></i>順 <i class="tick hard"></i>緊 <i class="tick conj"></i>合 <i class="tick ing"></i>換座 <i class="vockey"></i>空轉</p>
+          <ol id="timeline" class="timeline"></ol>
+        </details>
+        <details class="fold">
+          <summary><span id="diffTitle">和昨天哪裡不一樣</span><small id="foldDiff"></small></summary>
+          <ul id="diff" class="difflist"></ul>
+        </details>
+        <details class="fold">
+          <summary><span>接下來 7 天</span><small id="foldWeek"></small></summary>
+          <ul id="ahead" class="difflist ahead"></ul>
+        </details>
+        <details class="fold">
+          <summary><span>背景天象</span><small>幾週才變一次</small></summary>
+          <ul id="energy" class="bglist"></ul>
+        </details>
         <details class="how">
           <summary>這段能量是怎麼算出來的？</summary>
           <div class="prose">
@@ -90,7 +101,8 @@
             <p><b>3. 每天的差別主要來自月亮。</b>太陽一個月才換一次座，水星、金星、火星也要幾週；但月亮約 2.3 天就換一個星座，每隔幾小時還會和某顆行星形成一次準確的相位。所以「一天的節奏」是把當天 24 小時掃一遍（月亮每 30 分鐘、行星每 6 小時取樣），找出換座與相位的準確時間。</p>
             <p><b>4. 相位與月亮空轉。</b>合相放大、六分與三分順暢、四分與對分有張力。月亮在離開一個星座前，如果不再和太陽到土星形成主要相位，就叫「空轉」（void of course），傳統上這段時間不適合開新局。再加上週間的當值星（週日太陽、週一月亮、週二火星、週三水星、週四木星、週五金星、週六土星）。</p>
             <p><b>5. 文字是模板組合，不是 AI 即時生成。</b>同樣的天象一定得到同樣的文字；但時間與組合每天不同，所以每天的結果也不同。</p>
-            <p><b>6. 會自動更新。</b>每天（台北時間）開頁就是當天的天象；頁面開著跨午夜，也會自動換成新的一天。</p>
+            <p><b>6. 「你的今日」怎麼算。</b>只填星座時，把你的太陽（或上升）星座當第 1 宮，用整個星座比對月亮和大行星的相位；填了出生資料，會算出你出生當下各行星的準確度數與上升星座，相位用度數比對、算到準確時間。出生資料只存在這台裝置的瀏覽器裡，不會上傳。</p>
+            <p><b>7. 會自動更新。</b>每天（台北時間）開頁就是當天的天象；頁面開著跨午夜，也會自動換成新的一天。</p>
           </div>
         </details>
       </section>
@@ -104,9 +116,32 @@
       </section>
 
       <section class="block reveal v-chart" id="sec-houses" aria-labelledby="h-houses">
-        <h2 id="h-houses"><span class="num">III</span> 月亮走到你的哪一宮 <em>Domus</em></h2>
-        <p class="prose sub-note" id="housesNote"></p>
-        <ul id="houses" class="houses"></ul>
+        <h2 id="h-houses"><span class="num">III</span> 你的今日 <em>Domus</em></h2>
+        <p class="prose sub-note">選你的星座就能看月亮今天走到你的哪一宮；知道月亮、上升或其他行星的話也填上，分析會更貼近你。資料只存在這台裝置。</p>
+        <div class="natal" id="natal">
+          <div class="natal-row" id="natalMain"></div>
+          <details class="natal-more">
+            <summary>更多行星（水星、金星、火星）</summary>
+            <div class="natal-row" id="natalMore"></div>
+          </details>
+          <details class="natal-more" id="birthBox">
+            <summary>用出生資料自動算（含上升與準確度數）</summary>
+            <div class="birth">
+              <label>出生日期<input type="date" id="bDate" min="1900-01-01" max="2100-12-31" /></label>
+              <label>出生時間<input type="time" id="bTime" /></label>
+              <label>出生地<select id="bCity"></select></label>
+              <label>時區<select id="bTz"></select></label>
+              <div class="birth-act"><button type="button" id="bCalc" class="pillbtn">計算並填入</button><button type="button" id="bClear" class="linkbtn">清除我的資料</button></div>
+              <p class="birth-note" id="bNote">不知道出生時間也可以算，只是月亮會有幾度誤差、也算不出上升。海外出生若當時是夏令時間，時區請選快一小時的那個。</p>
+            </div>
+          </details>
+        </div>
+        <div id="personal" class="personal"></div>
+        <details class="fold">
+          <summary><span>十二星座一覽</span><small>太陽宮位制</small></summary>
+          <p class="prose sub-note" id="housesNote"></p>
+          <ul id="houses" class="houses"></ul>
+        </details>
       </section>
 
       <section class="block reveal v-fortune" id="sec-fortune" aria-labelledby="h-fortune">

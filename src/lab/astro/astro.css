@@ -638,3 +638,66 @@ dialog[open] ~ .daybar { display: none; }
 .houses b { color: var(--marble); font-size: 0.92rem; font-weight: 600; }
 .houses em { font-style: normal; color: var(--gold-soft); font-size: 0.85rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .houses span { color: var(--body); font-size: 0.86rem; line-height: 1.6; }
+
+/* ---- v7: readable summary, folds, alert, personal ---- */
+#sec-energy .summary { padding: 6px 20px; font-size: 1rem; line-height: 1.8; }
+.summary p { display: grid; grid-template-columns: 44px 1fr; gap: 12px; margin: 0; padding: 12px 0; }
+.summary p + p { border-top: 1px dashed rgba(var(--gold-rgb), 0.25); }
+.summary p b { font-family: var(--serif-zh); font-size: 0.8rem; letter-spacing: 0.16em; color: var(--gold); padding-top: 3px; }
+.summary strong { display: block; font-weight: 600; color: var(--marble); font-size: 1.08rem; letter-spacing: 0.04em; }
+.summary em { display: block; font-style: normal; color: var(--body); }
+.voc-alert { margin: 0 0 18px; padding: 12px 16px; max-width: 62ch; border: 1px solid rgba(var(--gold-rgb), 0.45); border-left: 3px solid var(--hard-c); border-radius: 6px; background: rgba(var(--panel-rgb), 0.7); font-size: 0.92rem; line-height: 1.7; color: var(--body); }
+.voc-alert::before { content: "月亮空轉 · "; color: var(--hard-c); font-weight: 600; }
+.fold { max-width: 62ch; border-top: 1px solid var(--line); }
+.fold:last-of-type { border-bottom: 1px solid var(--line); }
+.fold + .how { border-top: 0; }
+.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 0; color: var(--gold-soft); font-size: 1.02rem; font-weight: 600; letter-spacing: 0.06em; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before { content: ""; width: 8px; height: 8px; border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(-45deg); transition: transform 0.35s var(--ease); flex: none; }
+.fold[open] > summary::before { transform: rotate(45deg); }
+.fold > summary small { margin-left: auto; font-size: 0.76rem; color: var(--muted); font-weight: 400; letter-spacing: 0.02em; text-align: right; }
+.fold > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.fold > :not(summary) { margin-bottom: 14px; }
+.ahead li { grid-template-columns: 76px 1fr; }
+.ahead li b { letter-spacing: 0.04em; font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.ahead li.hot span { color: var(--marble); font-weight: 600; }
+.ahead li.warn span { color: var(--hard-c); }
+#sec-houses .fold { max-width: none; margin-top: 18px; }
+.natal { margin: 6px 0 18px; }
+.natal-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.natal-row label, .birth label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; letter-spacing: 0.12em; color: var(--gold); }
+.natal select, .birth input, .birth select { font: inherit; font-size: 0.95rem; letter-spacing: 0; color: var(--marble); background: rgba(var(--panel-rgb), 0.8); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; min-height: 44px; width: 100%; min-width: 0; color-scheme: dark; }
+html[data-theme="light"] .natal select, html[data-theme="light"] .birth input, html[data-theme="light"] .birth select { color-scheme: light; }
+.natal select:focus-visible, .birth input:focus-visible, .birth select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.natal-more { margin-top: 10px; }
+.natal-more > summary { cursor: pointer; color: var(--gold-soft); font-size: 0.9rem; min-height: 44px; display: flex; align-items: center; }
+.birth { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-bottom: 6px; }
+.birth-act { grid-column: 1 / -1; display: flex; gap: 18px; align-items: center; }
+.pillbtn { font: inherit; font-size: 0.9rem; color: var(--night); background: var(--gold); border: 0; border-radius: 999px; padding: 0 20px; min-height: 44px; cursor: pointer; transition: transform 0.2s var(--ease); }
+.pillbtn:active { transform: scale(0.96); }
+.pillbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.birth-note { grid-column: 1 / -1; margin: 0; font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+.personal { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.p-card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; background: rgba(var(--panel-rgb), 0.6); }
+.p-house { border-color: rgba(var(--gold-rgb), 0.55); background: linear-gradient(160deg, rgba(var(--gold-rgb), 0.14), rgba(var(--panel-rgb), 0.6)); }
+.p-k { margin: 0 0 6px; font-size: 0.78rem; letter-spacing: 0.14em; color: var(--gold); }
+.p-big { margin: 0 0 8px; font-size: 1.35rem; font-weight: 600; color: var(--marble); letter-spacing: 0.04em; }
+.p-t { margin: 0 0 8px; color: var(--body); line-height: 1.75; font-size: 0.95rem; }
+.p-m { margin: 8px 0 0; font-size: 0.76rem; color: var(--muted); }
+.p-list { list-style: none; margin: 0; padding: 0; }
+.p-list li { display: grid; grid-template-columns: 52px 1fr; gap: 8px; padding: 9px 0; border-top: 1px dashed var(--line); }
+.p-list li:first-child { border-top: 0; }
+.p-list li.none { display: block; color: var(--body); font-size: 0.9rem; }
+.p-list time { font-size: 0.82rem; color: var(--gold-soft); font-variant-numeric: tabular-nums; font-family: var(--glyph), var(--serif-body); padding-top: 2px; }
+.p-list b { display: block; color: var(--marble); font-size: 0.92rem; font-weight: 600; }
+.p-list span { display: block; color: var(--body); font-size: 0.88rem; line-height: 1.7; }
+.p-list li.soft b { color: var(--soft-c); } .p-list li.hard b { color: var(--hard-c); } .p-list li.conj b { color: var(--conj-c); }
+.p-empty, .p-hint { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+@media (max-width: 480px) { .natal-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .natal select { padding: 0 6px; font-size: 0.88rem; } .personal { grid-template-columns: 1fr; } }
+.natal-more > summary { list-style: none; gap: 10px; }
+.natal-more > summary::-webkit-details-marker { display: none; }
+.natal-more > summary::before { content: ""; width: 7px; height: 7px; border-right: 1.5px solid var(--gold); border-bottom: 1.5px solid var(--gold); transform: rotate(-45deg); transition: transform 0.35s var(--ease); flex: none; }
+.natal-more[open] > summary::before { transform: rotate(45deg); }
+.natal-more > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.natal-row, .birth { max-width: 720px; }
+.personal { align-items: start; }

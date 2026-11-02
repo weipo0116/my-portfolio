@@ -236,7 +236,7 @@ function dayInfo(date) {
   const events = [...ing, ...asp].filter((e) => e.t >= start && e.t < end).sort((a, b) => a.t - b.t);
   const sunN = lonP("Sun", start + 12 * H);
   const age = (norm(moon[Math.round((start + 12 * H - t0) / STEP)] - sunN) / 360) * 29.53;
-  const info = { key, start, end, wk: WEEK[WK_IDX[tp.wk]], events, segs, voc, age, dom: segs.reduce((m, s) => (s.to - s.from > m.to - m.from ? s : m)).sign };
+  const info = { ms: { t0, STEP, moon }, key, start, end, wk: WEEK[WK_IDX[tp.wk]], events, segs, voc, age, dom: segs.reduce((m, s) => (s.to - s.from > m.to - m.from ? s : m)).sign };
   dayCache.set(key, info);
   return info;
 }
@@ -285,7 +285,14 @@ function buildSummary(pos, aspects, phaseIdx, info) {
   const hard = bestHard(info), soft = bestSoft(info);
   const key = [hard, soft].filter(Boolean).sort((a, b) => evScore(b) - evScore(a))[0];
   const s3 = !key && mer.retro ? "水星逆行中，重要訊息與合約多確認一次。" : "";
-  return { text: [s1, s2, s3].filter(Boolean).join(""), advice: `${m.doit}${key && evKind(key) === "hard" ? `留意：${m.avoid}。` : `少碰：${m.avoid}。`}` };
+  const lines = [["當值", `${info.wk.zh} · ${info.wk.pl}日`, info.wk.theme]];
+  if (sg2 == null) lines.push(["月亮", `在${ms.zh}`, m.feel]);
+  else {
+    lines.push(["月亮", `${fmtT(info.segs[1].from)} 前在${SIGNS[info.segs[0].sign].zh}`, MOON_SIGN[info.segs[0].sign].feel]);
+    lines.push(["", `${fmtT(info.segs[1].from)} 後進${SIGNS[sg2].zh}`, MOON_SIGN[sg2].feel]);
+  }
+  if (s3) lines.push(["水星", "逆行中", "重要訊息與合約多確認一次。"]);
+  return { lines, text: [s1, s2, s3].filter(Boolean).join(""), advice: `${m.doit}${key && evKind(key) === "hard" ? `留意：${m.avoid}。` : `少碰：${m.avoid}。`}` };
 }
 
 function buildTags(pos, aspects, phaseIdx, info) {
@@ -853,7 +860,16 @@ function render({ dur = 1700 } = {}) {
   $("headline").textContent = headline(pos, info);
   {
     const sm = buildSummary(pos, aspects, phaseIdx, info);
-    $("summary").textContent = sm.text;
+    $("summary").replaceChildren(
+      ...sm.lines.map(([k, h, t]) => {
+        const p = document.createElement("p");
+        p.innerHTML = "<b></b><span><strong></strong><em></em></span>";
+        p.querySelector("b").textContent = k;
+        p.querySelector("strong").textContent = h;
+        p.querySelector("em").textContent = t;
+        return p;
+      }),
+    );
     $("advice").textContent = sm.advice;
   }
   $("tags").replaceChildren(
@@ -876,6 +892,10 @@ function render({ dur = 1700 } = {}) {
     }),
   );
   renderHouses(info);
+  renderAlert(info);
+  renderAhead(date);
+  lastSky = { info, pos };
+  renderPersonal();
   renderRhythm(info, prevInfo, pos, compute(new Date(date.getTime() - DAY)));
   $("dbDate").textContent = `${tp.m}/${tp.d} ${info.wk.zh}`;
   $("dbSub").textContent = `${offsetDays === 0 ? "今日" : offsetDays === -1 ? "昨日" : offsetDays === 1 ? "明日" : offsetDays > 0 ? `+${offsetDays}天` : `${offsetDays}天`} · 月${SIGNS[info.dom].zh.replace("座", "")} · ${info.wk.pl}日`;
@@ -988,6 +1008,286 @@ function renderHouses(info) {
   );
 }
 
+/* ---------- personal: your placements × today's sky ---------- */
+const NATAL_KEY = "astra-natal";
+const NATAL_KEYS = [["Sun", "太陽"], ["Moon", "月亮"], ["Asc", "上升"], ["Mercury", "水星"], ["Venus", "金星"], ["Mars", "火星"]];
+const NATAL_ZH = Object.fromEntries(NATAL_KEYS);
+const NATAL_ROLE = { Sun: "核心與自信", Moon: "情緒需求", Asc: "身體與第一印象", Mercury: "想法與溝通", Venus: "感情與喜好", Mars: "行動與脾氣", Jupiter: "信念與機會", Saturn: "責任與界線" };
+const NATAL_TIP = {
+  Sun: { soft: "做自己很順，適合主動爭取、讓人看見你。", hard: "外在要求和你想走的方向有點衝突，先把力氣留給最重要的一件事。", conj: "你的主場日，精神和存在感都高，適合開始新計畫。" },
+  Moon: { soft: "心情穩、容易被理解，適合和親近的人相處。", hard: "情緒比較容易被觸動，咖啡少一點、早點休息。", conj: "月亮回到你的月亮星座（每月一次）：情緒很真實，最適合照顧自己的需要。" },
+  Asc: { soft: "氣色和人緣都不錯，適合見新朋友、面試、拍照。", hard: "容易覺得被注視、有點累，穿舒服一點、行程別排太滿。", conj: "存在感特別強，也比較敏感，適合打理外表、換個新開始。" },
+  Mercury: { soft: "腦袋清楚，適合寫東西、提案、解釋複雜的事。", hard: "想法亂、容易說錯話，重要訊息晚點再發。", conj: "直覺和思考同步，隨手記下冒出來的點子。" },
+  Venus: { soft: "人緣和桃花都好，適合約會、買喜歡的東西。", hard: "在感情裡比較敏感、想要更多；花錢先冷靜一下。", conj: "特別想被寵愛，好好犒賞自己。" },
+  Mars: { soft: "幹勁足，適合運動、處理拖很久的事。", hard: "容易不耐煩，避免硬碰硬，把火氣花在運動上。", conj: "衝勁很強，去做一件需要一點勇氣的事。" },
+  Jupiter: { soft: "樂觀和運氣站在你這邊，適合提出請求。", hard: "容易誇口或吃太多，量力而為。", conj: "心胸打開，適合學新東西。" },
+  Saturn: { soft: "踏實、穩得住，適合處理長期的事。", hard: "壓力感上升，別一次扛太多。", conj: "比較嚴肅，適合收尾和整理。" },
+};
+const HOUSE_TIP = [
+  "注意力回到自己身上：狀態、外表、想開始的事。", "在意錢和安全感：適合記帳、整理物品、想想什麼對你有價值。",
+  "訊息變多：適合回信、學習、短程移動、和兄弟姊妹或鄰居聊聊。", "想待在家：適合整理居所、陪家人、早點休息。",
+  "想玩想愛：適合約會、創作、做喜歡的事。", "專注日常：適合整理工作流程、運動、照顧身體。",
+  "注意力在別人身上：適合一對一的談話、合作、陪伴另一半。", "情緒變深：適合談信任、處理共同財務，也適合獨自消化。",
+  "想往外走：適合規劃旅行、上課、讀一本有分量的書。", "目光放在事業：適合處理工作上的大事、和上司溝通。",
+  "想和朋友在一起：適合社群、團隊、聊聊未來想做的事。", "需要休息：適合獨處、睡飽、把事情收尾，不急著開新局。",
+];
+const SLOW = [
+  ["Saturn", "土星", 3, "這一兩年"], ["Jupiter", "木星", 3, "這幾個月"], ["Mars", "火星", 2.5, "這幾週"],
+  ["Uranus", "天王星", 2, "這幾年"], ["Neptune", "海王星", 2, "這幾年"], ["Pluto", "冥王星", 2, "這幾年"],
+];
+const SLOW_TIP = {
+  Saturn: { soft: "慢慢打地基的時期，努力會被看見。", hard: "正在被考驗，壓力是在逼你調整結構。", conj: "進入重整期，責任變多，也會變得更成熟。" },
+  Jupiter: { soft: "有機會擴張，適合提出請求、往外走。", hard: "容易過度，小心承諾太多或花太多。", conj: "迎來一段成長期，好運和機會被放大。" },
+  Mars: { soft: "得到一股推力，適合衝刺。", hard: "容易起摩擦，衝動前先數到十。", conj: "被點燃，精力旺，但也容易急。" },
+  Uranus: { soft: "有新鮮的轉機，可以試試不一樣的方法。", hard: "可能有意外變動，保持彈性。", conj: "想打破舊框架，變化來得突然。" },
+  Neptune: { soft: "直覺和想像力變強，適合創作與靈性。", hard: "容易看不清或過度理想化，重要的事多查證。", conj: "界線變模糊，敏感也更有同理心。" },
+  Pluto: { soft: "有力量深入改造，適合斷捨離。", hard: "被推著面對深層議題，放手會比較輕鬆。", conj: "正在經歷深層轉變，舊的自己慢慢退場。" },
+};
+const CITIES = [
+  ["台北", 25.04, 121.56, 8], ["新北", 25.01, 121.46, 8], ["基隆", 25.13, 121.74, 8], ["桃園", 24.99, 121.30, 8], ["新竹", 24.80, 120.97, 8],
+  ["苗栗", 24.56, 120.82, 8], ["台中", 24.15, 120.67, 8], ["彰化", 24.08, 120.54, 8], ["南投", 23.91, 120.68, 8], ["雲林", 23.71, 120.43, 8],
+  ["嘉義", 23.48, 120.45, 8], ["台南", 22.99, 120.21, 8], ["高雄", 22.63, 120.30, 8], ["屏東", 22.67, 120.49, 8], ["宜蘭", 24.75, 121.75, 8],
+  ["花蓮", 23.99, 121.60, 8], ["台東", 22.76, 121.14, 8], ["澎湖", 23.57, 119.58, 8], ["金門", 24.43, 118.32, 8], ["馬祖", 26.16, 119.95, 8],
+  ["香港", 22.32, 114.17, 8], ["澳門", 22.20, 113.54, 8], ["上海", 31.23, 121.47, 8], ["北京", 39.90, 116.41, 8], ["廣州", 23.13, 113.26, 8],
+  ["新加坡", 1.35, 103.82, 8], ["吉隆坡", 3.14, 101.69, 8], ["曼谷", 13.76, 100.50, 7], ["東京", 35.68, 139.69, 9], ["首爾", 37.57, 126.98, 9],
+  ["雪梨", -33.87, 151.21, 10], ["倫敦", 51.51, -0.13, 0], ["紐約", 40.71, -74.01, -5], ["洛杉磯", 34.05, -118.24, -8], ["溫哥華", 49.28, -123.12, -8],
+];
+const TZS = [-10, -9, -8, -7, -6, -5, -4, -3, 0, 1, 2, 3, 5.5, 7, 8, 9, 9.5, 10, 11, 12];
+
+let NATAL = { sign: {}, deg: {}, birth: null };
+try {
+  const raw = JSON.parse(localStorage.getItem(NATAL_KEY) || "null");
+  if (raw && typeof raw === "object") NATAL = { sign: raw.sign || {}, deg: raw.deg || {}, birth: raw.birth || null };
+} catch { /* storage unavailable */ }
+if (NATAL.sign.Sun == null) {
+  try { const v = localStorage.getItem("astra-sign"); if (v != null && v !== "all" && Number(v) >= 0 && Number(v) < 12) NATAL.sign.Sun = Number(v); } catch { /* storage unavailable */ }
+}
+const saveNatal = () => { try { localStorage.setItem(NATAL_KEY, JSON.stringify(NATAL)); } catch { /* storage unavailable */ } };
+let lastSky = null; // { info, pos }
+
+const signDist = (a, b) => (a - b + 12) % 12;
+const SIGN_ASP = { 0: "conj", 2: "soft", 10: "soft", 4: "soft", 8: "soft", 3: "hard", 9: "hard", 6: "hard" };
+const ASP_WORD = { 0: "合相", 2: "六分", 10: "六分", 4: "三分", 8: "三分", 3: "四分", 9: "四分", 6: "對分" };
+
+function ascendant(date, lat, lon) {
+  const lst = ((A.SiderealTime(date) * 15 + lon) % 360 + 360) % 360;
+  const r = Math.PI / 180, th = lst * r, eps = 23.4393 * r, ph = lat * r;
+  return norm(Math.atan2(Math.cos(th), -(Math.sin(th) * Math.cos(eps) + Math.tan(ph) * Math.sin(eps))) / r);
+}
+
+function buildNatalForm() {
+  const mk = (k, zh) => {
+    const lab = document.createElement("label");
+    lab.innerHTML = `<span>${zh}</span><select data-k="${k}"><option value="">不知道</option>${SIGNS.map((s, i) => `<option value="${i}">${s.g}︎ ${s.zh}</option>`).join("")}</select>`;
+    return lab;
+  };
+  $("natalMain").replaceChildren(...NATAL_KEYS.slice(0, 3).map(([k, zh]) => mk(k, zh)));
+  $("natalMore").replaceChildren(...NATAL_KEYS.slice(3).map(([k, zh]) => mk(k, zh)));
+  $("bCity").innerHTML = CITIES.map((c, i) => `<option value="${i}">${c[0]}</option>`).join("");
+  $("bTz").innerHTML = TZS.map((z) => `<option value="${z}">UTC${z >= 0 ? "+" : "−"}${Math.abs(z)}</option>`).join("");
+  $("natal").addEventListener("change", (e) => {
+    const sel = e.target.closest("select[data-k]");
+    if (sel) {
+      const k = sel.dataset.k, v = sel.value === "" ? null : Number(sel.value);
+      if (v == null) delete NATAL.sign[k]; else NATAL.sign[k] = v;
+      if (NATAL.deg[k] != null && (v == null || Math.floor(NATAL.deg[k] / 30) !== v)) delete NATAL.deg[k]; // manual change overrides the computed degree
+      saveNatal();
+      renderPersonal();
+    }
+    if (e.target.id === "bCity") $("bTz").value = String(CITIES[Number(e.target.value)][3]);
+  });
+  $("bCalc").addEventListener("click", calcBirth);
+  $("bClear").addEventListener("click", () => {
+    NATAL = { sign: {}, deg: {}, birth: null };
+    saveNatal();
+    $("bDate").value = ""; $("bTime").value = "";
+    syncNatalForm();
+    renderPersonal();
+  });
+  syncNatalForm();
+}
+function syncNatalForm() {
+  $("natal").querySelectorAll("select[data-k]").forEach((s) => { const v = NATAL.sign[s.dataset.k]; s.value = v == null ? "" : String(v); });
+  const b = NATAL.birth;
+  $("bCity").value = String(b?.city ?? 0);
+  $("bTz").value = String(b?.tz ?? CITIES[b?.city ?? 0][3]);
+  if (b) { $("bDate").value = b.date || ""; $("bTime").value = b.time || ""; }
+}
+function calcBirth() {
+  const d = $("bDate").value, tm = $("bTime").value, ci = Number($("bCity").value), tz = Number($("bTz").value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { $("bNote").textContent = "請先填出生日期。"; return; }
+  const [y, m, dd] = d.split("-").map(Number);
+  const [hh, mi] = tm ? tm.split(":").map(Number) : [12, 0];
+  const date = new Date(Date.UTC(y, m - 1, dd, hh, mi) - tz * H);
+  const deg = {};
+  for (const k of ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"]) deg[k] = lonOf(k, date);
+  const c = CITIES[ci];
+  if (tm) deg.Asc = ascendant(date, c[1], c[2]);
+  NATAL.deg = deg;
+  NATAL.sign = Object.fromEntries(Object.entries(deg).map(([k, v]) => [k, Math.floor(v / 30)]));
+  NATAL.birth = { date: d, time: tm, city: ci, tz };
+  saveNatal();
+  syncNatalForm();
+  $("bNote").textContent = tm
+    ? `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}、上升${SIGNS[NATAL.sign.Asc].zh}。宮位改用上升起算，相位用準確度數。`
+    : `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}（沒填時間，月亮可能差幾度、也沒有上升）。`;
+  renderPersonal();
+}
+
+// exact moments today when the transiting Moon hits an aspect to a natal degree
+function moonHits(info, natalLon) {
+  const { t0, STEP, moon } = info.ms, out = [];
+  for (let i = 0; i < moon.length - 1; i++) {
+    const ta = t0 + i * STEP;
+    if (ta + STEP < info.start || ta >= info.end) continue;
+    for (const [ang, ai] of ASP_ANGS) {
+      const f0 = wrap180(moon[i] - natalLon - ang), f1 = wrap180(moon[i + 1] - natalLon - ang);
+      if (f0 < 0 && f1 >= 0 && f1 - f0 < 10) {
+        const t = ta + (-f0 / (f1 - f0)) * STEP;
+        if (t >= info.start && t < info.end) out.push({ t, ang, ai });
+      }
+    }
+  }
+  return out;
+}
+
+function renderPersonal() {
+  const box = $("personal");
+  if (!lastSky) return;
+  const { info, pos } = lastSky;
+  const sg = NATAL.sign;
+  const base = sg.Asc ?? sg.Sun;
+  if (base == null) {
+    box.replaceChildren(Object.assign(document.createElement("p"), { className: "p-empty", textContent: "先選你的太陽星座（就是一般說的星座），就能看今天月亮走到你的哪一宮。" }));
+    return;
+  }
+  const frag = [];
+  const card = (cls, html) => { const d = document.createElement("div"); d.className = `p-card ${cls}`; d.innerHTML = html; frag.push(d); return d; };
+  // 1. house
+  const h0 = signDist(info.segs[0].sign, base), h1 = info.segs.length > 1 ? signDist(info.segs[1].sign, base) : null;
+  const method = sg.Asc != null ? `以上升${SIGNS[sg.Asc].zh}起算（整宮制）` : `以太陽${SIGNS[sg.Sun].zh}起算（太陽宮位制）`;
+  const hc = card("p-house", `<p class="p-k">月亮今天在你的</p><p class="p-big"></p><p class="p-t"></p><p class="p-m"></p>`);
+  hc.querySelector(".p-big").textContent = h1 == null ? `第 ${h0 + 1} 宮 · ${HOUSES[h0][0]}` : `第 ${h0 + 1} 宮 → 第 ${h1 + 1} 宮`;
+  hc.querySelector(".p-t").textContent = h1 == null ? HOUSE_TIP[h0] : `${fmtT(info.segs[1].from)} 前：${HOUSE_TIP[h0]}${fmtT(info.segs[1].from)} 後：${HOUSE_TIP[h1]}`;
+  hc.querySelector(".p-m").textContent = method;
+
+  // 2. today's Moon × your placements
+  const rows = [];
+  for (const [k] of [...NATAL_KEYS, ["Jupiter"], ["Saturn"]]) {
+    if (sg[k] == null) continue;
+    if (NATAL.deg[k] != null) {
+      for (const hit of moonHits(info, NATAL.deg[k])) {
+        const kind = aspKind(hit.ang);
+        rows.push({ t: hit.t, time: fmtT(hit.t), kind, title: `月亮${ASPECTS[hit.ai].name}你的${NATAL_ZH[k] || PL_ZH[k]}`, text: NATAL_TIP[k][kind] });
+      }
+    } else if (NATAL_ZH[k]) {
+      info.segs.forEach((s, si) => {
+        const dd = signDist(s.sign, sg[k]), kind = SIGN_ASP[dd];
+        if (!kind) return;
+        const time = info.segs.length === 1 ? "全天" : si === 0 ? `~${fmtT(s.to)}` : `${fmtT(s.from)}~`;
+        rows.push({ t: s.from, time, kind, title: `月亮${ASP_WORD[dd]}你的${NATAL_ZH[k]}（${SIGNS[sg[k]].zh}）`, text: NATAL_TIP[k][kind] });
+      });
+    }
+  }
+  rows.sort((a, b) => a.t - b.t);
+  const exact = Object.keys(NATAL.deg).length > 0;
+  const mc = card("p-moon", `<p class="p-k">今天月亮和你的星盤</p><ul class="p-list"></ul><p class="p-m"></p>`);
+  mc.querySelector(".p-list").replaceChildren(
+    ...(rows.length
+      ? rows.map((r) => {
+          const li = document.createElement("li");
+          li.className = r.kind;
+          li.innerHTML = "<time></time><div><b></b><span></span></div>";
+          li.querySelector("time").textContent = r.time;
+          li.querySelector("b").textContent = r.title;
+          li.querySelector("span").textContent = r.text;
+          return li;
+        })
+      : [Object.assign(document.createElement("li"), { className: "none", textContent: "今天月亮和你填的行星沒有形成主要相位，是比較平穩、照自己步調的一天。" })]),
+  );
+  mc.querySelector(".p-m").textContent = exact ? "用出生資料算出的準確度數，時間是相位最準的時刻。" : "只知道星座時用「整個星座」來比對；填出生資料可以算到準確時間。";
+
+  // 3. slow transits to Sun / Moon / Asc (and Venus / Mars when known)
+  const slow = [];
+  for (const [pk, pzh, orb, span] of SLOW) {
+    const p = pos.find((b) => b.key === pk);
+    for (const k of ["Sun", "Moon", "Asc", "Venus", "Mars", "Mercury"]) {
+      if (sg[k] == null) continue;
+      let kind = null, word = "";
+      if (NATAL.deg[k] != null) {
+        let d = Math.abs(p.lon - NATAL.deg[k]); if (d > 180) d = 360 - d;
+        const hit = ASPECTS.find((a) => Math.abs(d - a.ang) <= orb);
+        if (hit) { kind = hit.ang === 0 ? "conj" : hit.ang === 60 || hit.ang === 120 ? "soft" : "hard"; word = hit.name; }
+      } else if (["Saturn", "Jupiter"].includes(pk) && ["Sun", "Moon", "Asc"].includes(k)) {
+        const dd = signDist(p.signIndex, sg[k]);
+        kind = SIGN_ASP[dd] || null; word = ASP_WORD[dd] || "";
+      }
+      if (kind) slow.push({ pk, text: `${pzh}${p.retro ? "（逆行）" : ""}${word}你的${NATAL_ZH[k]}`, tip: `${span}，你的${NATAL_ROLE[k]}${SLOW_TIP[pk][kind]}`, kind });
+    }
+  }
+  if (slow.length) {
+    const sc = card("p-slow", `<p class="p-k">這段時間的大行運</p><ul class="p-list"></ul>`);
+    sc.querySelector(".p-list").replaceChildren(
+      ...slow.slice(0, 5).map((r) => {
+        const li = document.createElement("li");
+        li.className = r.kind;
+        li.innerHTML = "<time></time><div><b></b><span></span></div>";
+        li.querySelector("time").textContent = TXT(PL_G[r.pk] || BODIES.find((b) => b.key === r.pk).g);
+        li.querySelector("b").textContent = r.text;
+        li.querySelector("span").textContent = r.tip;
+        return li;
+      }),
+    );
+  }
+  if (sg.Moon == null && sg.Asc == null) {
+    const p = Object.assign(document.createElement("p"), { className: "p-hint", textContent: "知道自己的月亮或上升星座嗎？填上去，分析會更貼近你；不知道的話，可以用下方「出生資料」自動算。" });
+    frag.push(p);
+  }
+  box.replaceChildren(...frag);
+}
+
+function renderAlert(info) {
+  const box = $("vocAlert");
+  const now = Date.now();
+  const cur = offsetDays === 0 ? info.voc.find((v) => now >= v.from && now < v.to) : null;
+  const total = info.voc.reduce((n, v) => n + (v.to - v.from), 0);
+  if (cur) box.textContent = `現在月亮空轉中，到 ${fmtT(cur.to)} 結束。例行公事照做，新的開始、簽約、大採購等空轉結束再說。`;
+  else if (total >= 12 * H) box.textContent = `這天有約 ${Math.round(total / H)} 小時月亮空轉（${info.voc.map((v) => `${fmtT(v.from)}–${fmtT(v.to)}`).join("、")}）。重要的事盡量排在空轉以外的時段。`;
+  else { box.hidden = true; return; }
+  box.hidden = false;
+}
+
+const WK_ZH = ["日", "一", "二", "三", "四", "五", "六"];
+function renderAhead(date) {
+  const items = [];
+  for (let k = 1; k <= 7; k++) {
+    const di = dayInfo(new Date(date.getTime() + k * DAY));
+    di.events.filter((e) => e.kind === "ing").forEach((e) => items.push({ t: e.t, text: `月亮進入${SIGNS[e.sign].zh}：${MOON_SIGN[e.sign].short}` }));
+    di.events.filter((e) => e.kind === "asp" && e.p === "Sun").forEach((e) => {
+      const ph = { 0: 0, 90: 2, 180: 4, 270: 6 }[e.ang];
+      if (ph != null) items.push({ t: e.t, text: `${PHASES[ph][0]}：${PHASES[ph][1]}`, hot: e.ang === 0 || e.ang === 180 });
+    });
+    const tot = di.voc.reduce((n, v) => n + (v.to - v.from), 0);
+    if (tot >= 12 * H) items.push({ t: di.voc[0].from, text: `月亮空轉約 ${Math.round(tot / H)} 小時，不適合開新局`, warn: true });
+  }
+  const end = new Date(date.getTime() + 7 * DAY);
+  periodEvents(date, end).filter((e) => e.kind !== "moon" && !e.text.startsWith("月亮")).forEach((e) => items.push({ t: e.t.getTime(), text: e.text, hot: true, day: true }));
+  items.sort((a, b) => a.t - b.t);
+  $("foldWeek").textContent = `${items.filter((i) => i.hot).length ? items.filter((i) => i.hot).map((i) => i.text.split("：")[0]).slice(0, 2).join("、") : `${items.length} 件事`}`;
+  $("ahead").replaceChildren(
+    ...items.map((i) => {
+      const li = document.createElement("li");
+      if (i.hot) li.className = "hot";
+      if (i.warn) li.className = "warn";
+      const tp = taipeiParts(new Date(i.t));
+      li.innerHTML = "<b></b><span></span>";
+      li.querySelector("b").textContent = `${tp.m}/${tp.d} 週${WK_ZH[WK_IDX[tp.wk]]}`;
+      li.querySelector("span").textContent = i.day ? i.text : `${fmtT(i.t)} ${i.text}`;
+      return li;
+    }),
+  );
+}
+
 function renderRhythm(info, prev, pos, prevPos) {
   const pct = (t) => `${(((t - info.start) / (24 * H)) * 100).toFixed(2)}%`;
   const strip = $("dayStrip");
@@ -1042,6 +1342,9 @@ function renderRhythm(info, prev, pos, prevPos) {
       return li;
     }),
   );
+  const na = info.events.filter((e) => e.kind === "asp").length;
+  $("foldRhythm").textContent = [`${na} 個月亮相位`, info.segs.length > 1 ? `${fmtT(info.segs[1].from)} 換座` : "", info.voc.length ? "有空轉" : ""].filter(Boolean).join(" · ");
+  $("foldDiff").textContent = `${prev.wk.pl}日 → ${info.wk.pl}日`;
   $("diffTitle").textContent = offsetDays === 0 ? "和昨天哪裡不一樣" : "和前一天哪裡不一樣";
   $("diff").replaceChildren(
     ...diffLines(info, prev, pos, prevPos).map((d) => {
@@ -1265,6 +1568,7 @@ setInterval(() => {
 
 renderLegend();
 stars_();
+buildNatalForm();
 render();
 
 // floating dock once the hero has scrolled away
