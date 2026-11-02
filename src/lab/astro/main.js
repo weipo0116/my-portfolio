@@ -987,22 +987,23 @@ const HOUSES = [
 ];
 function renderHouses(info) {
   const segs = info.segs;
-  let mine = null;
-  try { const v = localStorage.getItem(SIGN_KEY); if (v != null && v !== "all") mine = Number(v); } catch { /* storage unavailable */ }
-  $("housesNote").textContent = segs.length > 1
-    ? `把你的太陽星座當成第 1 宮，月亮所在的星座就是它今天走過的生活領域。月亮 ${fmtT(segs[1].from)} 換座，箭頭後是換座後的宮位。`
-    : "把你的太陽星座當成第 1 宮（太陽宮位制），月亮今天所在的星座，就是它走過你哪個生活領域。月亮約兩天半換一宮。";
+  const base = NATAL.sign.Asc ?? NATAL.sign.Sun ?? 0;
+  const set = NATAL.sign.Asc != null || NATAL.sign.Sun != null;
+  const cur = segs.map((sg) => signDist(sg.sign, base));
+  $("housesNote").textContent = (set ? `以你的${NATAL.sign.Asc != null ? "上升" : "太陽"}${SIGNS[base].zh}為第 1 宮。` : "還沒選星座，先以牡羊座為第 1 宮示範；上方選好星座後會自動換成你的。") +
+    (segs.length > 1 ? `月亮 ${fmtT(segs[1].from)} 換座，換宮。` : "月亮約兩天半換一宮。");
   $("houses").replaceChildren(
-    ...SIGNS.map((sg, i) => {
-      const h0 = ((segs[0].sign - i + 12) % 12), h1 = segs.length > 1 ? ((segs[1].sign - i + 12) % 12) : null;
+    ...HOUSES.map((h, i) => {
+      const sg = SIGNS[(base + i) % 12];
       const li = document.createElement("li");
-      if (i === mine) li.className = "mine";
-      li.innerHTML = "<i></i><b></b><em></em><span></span>";
-      li.querySelector("i").textContent = TXT(sg.g);
-      li.querySelector("b").textContent = sg.zh.replace("座", "") + (i === mine ? "（你）" : "");
-      li.querySelector("em").textContent = h1 == null ? `${h0 + 1} 宮` : `${h0 + 1} → ${h1 + 1} 宮`;
-      const h = HOUSES[h1 ?? h0];
-      li.querySelector("span").textContent = `${h[0]}：${h[1]}`;
+      const here = cur.indexOf(i);
+      if (here >= 0) li.className = "now";
+      li.innerHTML = "<em></em><div><b></b><span></span></div><i></i>";
+      li.querySelector("em").textContent = i + 1;
+      li.querySelector("b").textContent = `${h[0]}`;
+      li.querySelector("span").textContent = h[1];
+      li.querySelector("i").textContent = here >= 0 ? `${TXT("☽")} 月亮${segs.length > 1 ? (here === 0 ? "前半" : "後半") : "在此"}` : `${TXT(sg.g)} ${sg.zh.replace("座", "")}`;
+      if (here >= 0) li.querySelector("i").title = `${sg.zh}`;
       return li;
     }),
   );
@@ -1166,6 +1167,7 @@ function renderPersonal() {
   const box = $("personal");
   if (!lastSky) return;
   const { info, pos } = lastSky;
+  renderHouses(info);
   const sg = NATAL.sign;
   const base = sg.Asc ?? sg.Sun;
   if (base == null) {

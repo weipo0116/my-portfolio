@@ -701,3 +701,12 @@ html[data-theme="light"] .natal select, html[data-theme="light"] .birth input, h
 .natal-more > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .natal-row, .birth { max-width: 720px; }
 .personal { align-items: start; }
+
+.houses { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.houses li { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(var(--panel-rgb), 0.5); }
+.houses li em { font-family: var(--serif-la); font-style: normal; font-size: 1.15rem; color: var(--gold); text-align: center; }
+.houses li b { display: block; color: var(--marble); font-size: 0.95rem; }
+.houses li span { display: block; color: var(--muted); font-size: 0.78rem; line-height: 1.5; }
+.houses li i { font-style: normal; font-size: 0.8rem; color: var(--gold-soft); white-space: nowrap; }
+.houses li.now { border-color: var(--gold); background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.22), rgba(var(--panel-rgb), 0.6)); }
+.houses li.now i { color: var(--marble); font-weight: 600; }
