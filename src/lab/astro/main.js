@@ -980,30 +980,49 @@ function render({ dur = 1700 } = {}) {
 // Solar houses: treat your Sun sign as the 1st house, so the Moon's sign today
 // tells which area of life it is passing through for you.
 const HOUSES = [
-  ["自我", "外表、狀態、主動開始"], ["金錢", "收入、花費、自我價值"], ["溝通", "訊息、學習、短程移動"],
-  ["家", "家人、居所、內在安全感"], ["玩樂", "戀愛、創作、興趣"], ["日常", "工作流程、健康、作息"],
-  ["伴侶", "合作、一對一關係"], ["深層", "共享資源、信任、親密"], ["遠方", "旅行、進修、信念"],
-  ["事業", "目標、名聲、上司"], ["朋友", "社群、團隊、願望"], ["休息", "獨處、潛意識、收尾"],
+  ["自我", "外表、狀態、主動開始", "命宮", "別人第一眼看到的你，也是你開始一件事的方式。"],
+  ["金錢", "收入、花費、自我價值", "財帛宮", "你怎麼賺錢、怎麼花錢，什麼讓你覺得踏實。"],
+  ["溝通", "訊息、學習、短程移動", "兄弟宮", "你說話和學習的方式，以及身邊的兄弟姊妹、鄰居。"],
+  ["家", "家人、居所、內在安全感", "田宅宮", "家和根源，你真正能放鬆、做回自己的地方。"],
+  ["玩樂", "戀愛、創作、興趣", "子女宮", "戀愛、玩樂和創作，讓你發光、覺得好玩的事。"],
+  ["日常", "工作流程、健康、作息", "奴僕宮", "每天的工作和作息，你怎麼照顧身體與流程。"],
+  ["伴侶", "合作、一對一關係", "夫妻宮", "伴侶與合作對象，你在一對一關係裡的樣子。"],
+  ["深層", "共享資源、信任、親密", "疾厄宮", "共同的金錢、信任與親密，也是你蛻變的地方。"],
+  ["遠方", "旅行、進修、信念", "遷移宮", "遠行、進修和信念，讓你眼界打開的事。"],
+  ["事業", "目標、名聲、上司", "官祿宮", "事業與社會角色，你希望被世界記住的樣子。"],
+  ["朋友", "社群、團隊、願望", "福德宮", "朋友、社群和對未來的願望，你屬於哪一群人。"],
+  ["休息", "獨處、潛意識、收尾", "玄秘宮", "潛意識與獨處，需要休息、放下和收尾的地方。"],
 ];
 function renderHouses(info) {
   const segs = info.segs;
   const base = NATAL.sign.Asc ?? NATAL.sign.Sun ?? 0;
   const set = NATAL.sign.Asc != null || NATAL.sign.Sun != null;
   const cur = segs.map((sg) => signDist(sg.sign, base));
-  $("housesNote").textContent = (set ? `以你的${NATAL.sign.Asc != null ? "上升" : "太陽"}${SIGNS[base].zh}為第 1 宮。` : "還沒選星座，先以牡羊座為第 1 宮示範；上方選好星座後會自動換成你的。") +
-    (segs.length > 1 ? `月亮 ${fmtT(segs[1].from)} 換座，換宮。` : "月亮約兩天半換一宮。");
+  const placed = NATAL_KEYS.filter(([k]) => k !== "Asc" && NATAL.sign[k] != null).map(([k, zh]) => ({ k, zh, h: signDist(NATAL.sign[k], base) }));
+  $("housesNote").textContent = (set ? `以你的${NATAL.sign.Asc != null ? "上升" : "太陽"}${SIGNS[base].zh}為第 1 宮，每宮對應一個星座（整宮制）。` : "還沒選星座，先以牡羊座為第 1 宮示範；上方選好星座後會換成你的。") +
+    (placed.length ? "小字是你的行星落在哪一宮，那個領域就是你天生比較用力的地方。" : "");
   $("houses").replaceChildren(
     ...HOUSES.map((h, i) => {
       const sg = SIGNS[(base + i) % 12];
       const li = document.createElement("li");
       const here = cur.indexOf(i);
       if (here >= 0) li.className = "now";
-      li.innerHTML = "<em></em><div><b></b><span></span></div><i></i>";
+      li.innerHTML = '<em></em><div class="hb"><p class="hn"><b></b><small></small></p><p class="hs"></p><p class="hp"></p></div><i></i>';
       li.querySelector("em").textContent = i + 1;
-      li.querySelector("b").textContent = `${h[0]}`;
-      li.querySelector("span").textContent = h[1];
-      li.querySelector("i").textContent = here >= 0 ? `${TXT("☽")} 月亮${segs.length > 1 ? (here === 0 ? "前半" : "後半") : "在此"}` : `${TXT(sg.g)} ${sg.zh.replace("座", "")}`;
-      if (here >= 0) li.querySelector("i").title = `${sg.zh}`;
+      li.querySelector("b").textContent = h[0];
+      li.querySelector("small").textContent = h[2];
+      li.querySelector(".hs").textContent = h[3];
+      const mine = placed.filter((x) => x.h === i);
+      const hp = li.querySelector(".hp");
+      if (mine.length) hp.textContent = `你的${mine.map((x) => x.zh).join("、")}在這`;
+      else hp.remove();
+      li.querySelector("i").textContent = `${TXT(sg.g)} ${sg.zh.replace("座", "")}`;
+      if (here >= 0) {
+        const tag = document.createElement("span");
+        tag.className = "moon-tag";
+        tag.textContent = segs.length > 1 ? (here === 0 ? `☽ 月亮 ~${fmtT(segs[1].from)}` : `☽ 月亮 ${fmtT(segs[1].from)}~`) : "☽ 月亮在此";
+        li.querySelector(".hn").appendChild(tag);
+      }
       return li;
     }),
   );
@@ -1011,9 +1030,10 @@ function renderHouses(info) {
 
 /* ---------- personal: your placements × today's sky ---------- */
 const NATAL_KEY = "astra-natal";
-const NATAL_KEYS = [["Sun", "太陽"], ["Moon", "月亮"], ["Asc", "上升"], ["Mercury", "水星"], ["Venus", "金星"], ["Mars", "火星"]];
+const NATAL_KEYS = [["Sun", "太陽"], ["Moon", "月亮"], ["Asc", "上升"], ["Mercury", "水星"], ["Venus", "金星"], ["Mars", "火星"], ["Jupiter", "木星"], ["Saturn", "土星"], ["Uranus", "天王星"], ["Neptune", "海王星"], ["Pluto", "冥王星"]];
+const PERSONAL_KEYS = ["Sun", "Moon", "Asc", "Mercury", "Venus", "Mars"]; // outer planets stay in one sign for years, so a sign-only match says little
 const NATAL_ZH = Object.fromEntries(NATAL_KEYS);
-const NATAL_ROLE = { Sun: "核心與自信", Moon: "情緒需求", Asc: "身體與第一印象", Mercury: "想法與溝通", Venus: "感情與喜好", Mars: "行動與脾氣", Jupiter: "信念與機會", Saturn: "責任與界線" };
+const NATAL_ROLE = { Sun: "核心與自信", Moon: "情緒需求", Asc: "身體與第一印象", Mercury: "想法與溝通", Venus: "感情與喜好", Mars: "行動與脾氣", Jupiter: "信念與機會", Saturn: "責任與界線", Uranus: "求變的衝動", Neptune: "想像與理想", Pluto: "深層的執著" };
 const NATAL_TIP = {
   Sun: { soft: "做自己很順，適合主動爭取、讓人看見你。", hard: "外在要求和你想走的方向有點衝突，先把力氣留給最重要的一件事。", conj: "你的主場日，精神和存在感都高，適合開始新計畫。" },
   Moon: { soft: "心情穩、容易被理解，適合和親近的人相處。", hard: "情緒比較容易被觸動，咖啡少一點、早點休息。", conj: "月亮回到你的月亮星座（每月一次）：情緒很真實，最適合照顧自己的需要。" },
@@ -1023,6 +1043,9 @@ const NATAL_TIP = {
   Mars: { soft: "幹勁足，適合運動、處理拖很久的事。", hard: "容易不耐煩，避免硬碰硬，把火氣花在運動上。", conj: "衝勁很強，去做一件需要一點勇氣的事。" },
   Jupiter: { soft: "樂觀和運氣站在你這邊，適合提出請求。", hard: "容易誇口或吃太多，量力而為。", conj: "心胸打開，適合學新東西。" },
   Saturn: { soft: "踏實、穩得住，適合處理長期的事。", hard: "壓力感上升，別一次扛太多。", conj: "比較嚴肅，適合收尾和整理。" },
+  Uranus: { soft: "冒出新點子，適合試試不一樣的做法。", hard: "坐不住、想打破常規，計畫可能臨時變動。", conj: "很想做點不一樣的事，靈感來得突然。" },
+  Neptune: { soft: "直覺和同理心變強，適合創作、聽音樂。", hard: "容易恍神或想太美，重要的事多確認。", conj: "感受特別細膩，留點時間放空。" },
+  Pluto: { soft: "專注力很深，適合處理需要毅力的事。", hard: "情緒容易鑽牛角尖，別在這時翻舊帳。", conj: "會想把一件事徹底弄清楚。" },
 };
 const HOUSE_TIP = [
   "注意力回到自己身上：狀態、外表、想開始的事。", "在意錢和安全感：適合記帳、整理物品、想想什麼對你有價值。",
@@ -1132,7 +1155,7 @@ function calcBirth() {
   const [hh, mi] = tm ? tm.split(":").map(Number) : [12, 0];
   const date = new Date(Date.UTC(y, m - 1, dd, hh, mi) - tz * H);
   const deg = {};
-  for (const k of ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"]) deg[k] = lonOf(k, date);
+  for (const k of ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]) deg[k] = lonOf(k, date);
   const c = CITIES[ci];
   if (tm) deg.Asc = ascendant(date, c[1], c[2]);
   NATAL.deg = deg;
@@ -1186,14 +1209,14 @@ function renderPersonal() {
 
   // 2. today's Moon × your placements
   const rows = [];
-  for (const [k] of [...NATAL_KEYS, ["Jupiter"], ["Saturn"]]) {
+  for (const [k] of NATAL_KEYS) {
     if (sg[k] == null) continue;
     if (NATAL.deg[k] != null) {
       for (const hit of moonHits(info, NATAL.deg[k])) {
         const kind = aspKind(hit.ang);
-        rows.push({ t: hit.t, time: fmtT(hit.t), kind, title: `月亮${ASPECTS[hit.ai].name}你的${NATAL_ZH[k] || PL_ZH[k]}`, text: NATAL_TIP[k][kind] });
+        rows.push({ t: hit.t, time: fmtT(hit.t), kind, title: `月亮${ASPECTS[hit.ai].name}你的${NATAL_ZH[k]}`, text: NATAL_TIP[k][kind] });
       }
-    } else if (NATAL_ZH[k]) {
+    } else if (PERSONAL_KEYS.includes(k)) {
       info.segs.forEach((s, si) => {
         const dd = signDist(s.sign, sg[k]), kind = SIGN_ASP[dd];
         if (!kind) return;

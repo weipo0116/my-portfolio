@@ -710,3 +710,17 @@ html[data-theme="light"] .natal select, html[data-theme="light"] .birth input, h
 .houses li i { font-style: normal; font-size: 0.8rem; color: var(--gold-soft); white-space: nowrap; }
 .houses li.now { border-color: var(--gold); background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.22), rgba(var(--panel-rgb), 0.6)); }
 .houses li.now i { color: var(--marble); font-weight: 600; }
+
+/* ---- v8: houses with meanings ---- */
+.houses { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.houses li { grid-template-columns: 34px 1fr auto; align-items: start; padding: 12px 14px; }
+.houses li em { padding-top: 2px; }
+.houses .hb p { margin: 0; }
+.houses .hn { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.houses .hn b { font-size: 1rem; }
+.houses .hn small { font-size: 0.74rem; color: var(--muted); letter-spacing: 0.08em; }
+.houses .hs { color: var(--body); font-size: 0.86rem; line-height: 1.65; margin-top: 4px !important; }
+.houses .hp { color: var(--gold-soft); font-size: 0.78rem; margin-top: 6px !important; }
+.houses li i { padding-top: 3px; }
+.houses .moon-tag { font-size: 0.72rem; color: var(--night); background: var(--gold); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.houses .moon-tag { display: inline-block; line-height: 1.6; }
