@@ -51,7 +51,7 @@ const OCCASIONS = [
 // Each band lists three variants, one per look, so the pieces differ between looks.
 const band = (t) => (t >= 30 ? 0 : t >= 26 ? 1 : t >= 20 ? 2 : t >= 14 ? 3 : 4);
 const BAND_NAME = ["炎熱", "溫暖", "舒適", "偏涼", "寒冷"];
-const BAND_WHY = ["選無袖或短袖，不加外層", "短袖為主，備一件薄外套應付冷氣", "長袖或一層輕薄外套就夠", "針織加一件外套", "保暖內層加大衣"];
+const BAND_WHY = ["選無袖或短袖，不加外層", "短袖為主，備一件薄外套應付冷氣", "短袖或長袖都可以，外面加一層輕薄外套", "針織加一件外套", "保暖內層加大衣"];
 const RAIN_AT = 40; // rain probability (%) from which umbrella and water-resistant shoes are suggested
 
 /* ---------- wardrobe ----------
@@ -63,7 +63,7 @@ const RAIN_AT = 40; // rain probability (%) from which umbrella and water-resist
 const STYLES = [["any", "不限"], ["m", "簡約"], ["s", "街頭"], ["j", "日系"], ["k", "韓系"], ["v", "復古"]];
 const FITS = [["w", "女生"], ["m", "男生"], ["u", "中性"]];
 const RAW = {
-  top: `白色短袖 T 恤|u|mjk|c|012
+  top: `圓領短袖 T 恤|u|mjk|c|012
 寬版落肩 T 恤|u|sk|c|012
 印花 oversized T|u|s|c|01
 條紋短袖 T|u|jv|c|012
@@ -81,8 +81,8 @@ const RAW = {
 緞面短袖襯衫|w|mk|dw|01
 絲質無袖上衣|w|m|wf|01
 素色 T 恤（扎進褲頭）|u|m|w|01
-白色府綢襯衫|u|mjk|wf|23
-藍色牛津襯衫|u|jvm|wc|23
+府綢襯衫|u|mjk|wf|23
+牛津襯衫|u|jvm|wc|23
 條紋長袖襯衫|u|jvk|wc|23
 寬版長袖襯衫|u|kj|c|23
 法蘭絨格紋襯衫|u|vs|c|34
@@ -113,7 +113,7 @@ const RAW = {
   bottom: `牛仔短褲|u|sv|c|01
 亞麻短褲|u|mj|cd|01
 寬版短褲|u|sk|c|01
-卡其短褲|m|vm|c|01
+斜紋短褲|m|vm|c|01
 百褶短裙|w|kj|cd|01
 迷你短裙|w|ks|d|01
 碎花長裙|w|jv|dc|012
@@ -135,13 +135,13 @@ A 字裙|w|vk|wd|123
 直筒牛仔褲|u|mv|cd|1234
 寬版牛仔褲|u|sk|c|1234
 喇叭牛仔褲|w|v|cd|234
-黑色窄管褲|u|ms|cd|234
+窄管褲|u|ms|cd|234
 工裝褲|u|s|c|234
 傘兵褲|u|s|c|234
 棉質休閒褲|u|jm|cwd|0123
 束口棉褲|u|sj|c|234
 燈芯絨長褲|u|vj|c|34
-卡其褲|u|vm|wc|1234
+斜紋棉褲|u|vm|wc|1234
 亞麻西裝褲|u|mj|wfd|01
 涼感九分西裝褲|u|m|wf|01`,
   dress: `細肩帶洋裝|w|mk|dc|0
@@ -149,7 +149,7 @@ A 字裙|w|vk|wd|123
 亞麻連身裙|w|mj|c|01
 襯衫洋裝|w|mj|wc|12
 針織洋裝|w|mk|wd|234
-小黑裙|w|m|fd|123
+修身洋裝|w|m|fd|123
 緞面洋裝|w|k|fd|12
 背心裙＋T 恤|w|j|c|12
 毛衣洋裝|w|kj|dc|34
@@ -172,7 +172,7 @@ A 字裙|w|vk|wd|123
 鋪棉夾克|u|js|c|34
 雙排扣西裝外套|u|mv|f|23
 開襟毛衣外套|u|jv|c|3`,
-  shoe: `白色帆布鞋|u|mjk|c|0123
+  shoe: `帆布鞋|u|mjk|c|0123
 德訓鞋|u|mk|cd|0123
 老爹鞋|u|sk|c|*
 高筒籃球鞋|u|s|c|1234
@@ -314,6 +314,15 @@ function buildLooks(occ, feel, rainy, uv, c, prefs, rolls, seedKey, keep = null,
     const shoe = rainy ? SHOES_RAIN[occ] : pickItem(sport ? W.sportShoe : W.shoe, ctx, rand, used);
     const acc = pickItem(sport ? W.sportAcc : W.acc, ctx, rand, used);
     const pieces = [...core, { part: "鞋", item: shoe, slot: slots.shoe }, { part: "配件", item: acc, slot: slots.acc }, ...extra];
+    // a dress drops the bottom slot, so a look can lose a colour its name promises (DUO without 助色):
+    // move the missing colour onto the accessory or shoes, whichever does not carry a needed colour alone
+    const need = [["g1"], ["g1", "g2"], ["g1", "g2", "g3"]][v];
+    for (const g of need) {
+      if (pieces.some((p) => p.slot === g)) continue;
+      const spare = ["配件", "鞋"].map((part) => pieces.find((p) => p.part === part))
+        .find((p) => p && (!need.includes(p.slot) || pieces.filter((q) => q.slot === p.slot).length > 1));
+      if (spare) spare.slot = g;
+    }
     const scored = [...core, pieces[core.length], pieces[core.length + 1]];
     const pts = scored.reduce((n, p) => n + (WEIGHT[p.slot] ?? 0), 0);
     const score = Math.round((pts / (scored.length * 3)) * 10);
@@ -487,7 +496,11 @@ function renderHero() {
   $("elZh").textContent = E.zh;
   splitChars($("elEn"), E.en);
   $("heroStatus").textContent = `${dayName(state.off).zh}主色：${E.zh}（${E.en}）`;
-  $("sub").textContent = state.off === 0 ? E.mood : E.mood.replaceAll("今天", dayName(state.off).zh);
+  // plain answer first: the day is X, but the colour that helps most is Y (people otherwise assume X's colour)
+  const zhOf = (c) => c.n.split(" ")[1] || c.n;
+  const plain = `今天屬${E.zh}，最旺你的顏色是${zhOf(state.pal.g1)}，其次是${zhOf(state.pal.g2)}。`;
+  const mood = `${plain}${E.mood}`;
+  $("sub").textContent = state.off === 0 ? mood : mood.replaceAll("今天", dayName(state.off).zh);
 
   const pal = state.pal;
   const chips = $("chips");
@@ -531,8 +544,7 @@ function renderCityTabs() {
       }),
     ),
   );
-  const w0 = state.weather?.hours?.[0]?.label, w1 = state.weather?.hours?.[12]?.label;
-  $("wCity").textContent = `${CITIES[state.city].zh} · ${state.off === 0 && !state.shift ? "現在與未來 12 小時" : w0 ? `${w0}–${w1}` : "當日 08:00–20:00"}`;
+  $("wCity").textContent = `${CITIES[state.city].zh} · ${state.off === 0 ? "現在天氣" : `${dayName(state.off).md} 當天天氣`}`;
 }
 
 function renderWeather() {
@@ -656,6 +668,7 @@ function applyDay(quiet = false) {
   state.day = day;
   state.pal = pal;
   state.weather = weather;
+  defaultOccasion();
   try {
     if (!quiet) { renderHero(); renderRules(); }
     renderDayTabs();
@@ -781,6 +794,16 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// Saturday and Sunday open on 週末休閒, weekdays on 上班通勤, until the visitor picks one themselves
+function defaultOccasion() {
+  if (state.occManual) return;
+  const wd = state.day.t.wd;
+  const occ = wd === 0 || wd === 6 ? "casual" : "work";
+  if (occ === state.occ) return;
+  state.occ = occ;
+  if ($("tabs").children.length) renderTabs();
+}
+
 function renderTabs() {
   const tabs = $("tabs");
   tabs.replaceChildren(
@@ -792,6 +815,7 @@ function renderTabs() {
       b.addEventListener("click", () => {
         if (o.id === state.occ) return;
         state.occ = o.id;
+        state.occManual = true;
         // update in place so keyboard focus stays on the pressed button
         tabs.querySelectorAll("button").forEach((x) => {
           const on = x.dataset.occ === state.occ;
@@ -905,6 +929,7 @@ function syncSlide(i) {
   grid.querySelector('[data-lk="-1"]').disabled = state.slide === 0;
   grid.querySelector('[data-lk="1"]').disabled = state.slide === n - 1;
   grid.querySelectorAll(".lk-dots button").forEach((b, k) => b.setAttribute("aria-current", k === state.slide ? "true" : "false"));
+  grid.querySelectorAll(".look").forEach((c, k) => { c.inert = k !== state.slide; });
 }
 function goSlide(i) {
   const track = $("lookTrack");
@@ -928,14 +953,14 @@ document.addEventListener("keydown", (e) => {
 function renderRules() {
   const el = state.day.el;
   const rows = [
-    ["g1", ctrlBy(el), `${EL[ctrlBy(el)].zh}剋${EL[el].zh}（剋我者）。今天最有助力的顏色，優先放在上身、外套等大面積。`],
-    ["g2", CTRL[el], `${EL[el].zh}剋${EL[CTRL[el]].zh}（我剋者）。第二順位，適合下身、鞋或配件，補上第二層能量。`],
-    ["g3", el, `與今天同為${EL[el].zh}（同我者）。不加分也不扣分，當作底色或點綴就好。`],
+    ["g1", ctrlBy(el), "今天最有助力的顏色，優先放在上身、外套這些大面積的地方。", `五行：${EL[ctrlBy(el)].zh}剋${EL[el].zh}（剋我者）`],
+    ["g2", CTRL[el], "第二順位，放在下身、鞋子或配件，補上第二層能量。", `五行：${EL[el].zh}剋${EL[CTRL[el]].zh}（我剋者）`],
+    ["g3", el, "和今天同屬性，不加分也不扣分，當底色或小點綴就好。", `五行：同為${EL[el].zh}（同我者）`],
   ];
   $("rules").replaceChildren(
-    ...rows.map(([slot, e, t], i) => {
+    ...rows.map(([slot, e, t, why], i) => {
       const E = EL[e];
-      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${TIER[slot]} · ${TIER_EN[slot]}</small><strong>${E.zh}（${E.en}）</strong><b class="rc">${E.colors[0].n}</b><p>${t}</p>`);
+      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${TIER[slot]} · ${TIER_EN[slot]}</small><strong>${E.colors[0].n.split(" ")[1]}</strong><b class="rc">${E.zh}（${E.en}）· ${E.colors[0].n.split(" ")[0]}</b><p>${t}</p><p class="rwhy">${why}</p>`);
       d.style.setProperty("--i", i);
       return d;
     }),
@@ -953,6 +978,7 @@ async function init() {
   const tz = CITIES[state.city].tz;
   state.day = dayElement(tz);
   state.pal = paletteFor(state.day.el);
+  defaultOccasion();
   // first paint uses the offline seasonal estimate (flagged in the UI); the forecast replaces it when it arrives
   state.weather = sliceWeather(null, state.city, state.off, state.shift);
   renderHero();
@@ -976,6 +1002,16 @@ async function init() {
 // floating dock: appears once the hero has scrolled out of view
 const heroEl = document.querySelector(".hero");
 new IntersectionObserver(([e]) => $("dock").classList.toggle("show", !e.isIntersecting), { threshold: 0.05 }).observe(heroEl);
+// the dock only comes back when scrolling up, so it never sits on top of what you are reading
+{
+  let lastY = scrollY;
+  addEventListener("scroll", () => {
+    const y = scrollY;
+    if (Math.abs(y - lastY) < 6) return;
+    $("dock").classList.toggle("up", y < lastY);
+    lastY = y;
+  }, { passive: true });
+}
 
 init();
 

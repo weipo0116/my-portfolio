@@ -772,3 +772,33 @@ html, body { overflow-x: clip; }
 .dlg-right .aspects article { grid-template-columns: 3.4em 1fr; padding: 8px 12px; }
 .dlg-right .aspects .ag { white-space: nowrap; font-size: 0.9rem; letter-spacing: 0.04em; }
 @media (max-width: 560px) { .dlg-right .aspects .la { display: none; } .dlg-right .aspects h3 { margin-bottom: 2px; } }
+
+/* v7 — one bottom bar (dates + back to top), solid top band, more opaque cards */
+.daybar { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 480px) { .daybar { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); } }
+.daybar .db-top { display: grid; place-items: center; min-width: 44px; min-height: 44px; border-left: 1px solid var(--line); color: var(--gold-soft); text-decoration: none; font-size: 1.1rem; border-radius: 0 999px 999px 0; }
+.daybar .db-top:hover { background: rgba(var(--gold-rgb), 0.16); }
+.daybar .db-top:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.daybar .db-today { border-radius: 0; }
+body { padding-bottom: 88px; }
+/* fixed top controls sit on a solid band, so scrolled text never shows through them */
+body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-index: 55; pointer-events: none; background: linear-gradient(to bottom, rgb(var(--night-rgb)) 0, rgba(var(--night-rgb), 0.96) 62%, rgba(var(--night-rgb), 0) 100%); }
+.signcard { background: linear-gradient(160deg, rgba(var(--gold-rgb), 0.1), rgba(var(--panel-rgb), 0.6)), rgba(var(--night-rgb), 0.35); }
+@media (max-width: 380px) { .tsky > summary small { display: none; } }
+.tb-btns button { min-height: 44px; }
+/* phones: the date controls stay reachable while reading the planet list */
+@media (max-width: 860px) {
+  dialog > .timebox { flex: none; margin: 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: rgba(var(--night-rgb), 0.97); padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
+  dialog > .timebox #tbRange, dialog > .timebox .tb-hint { display: none; }
+  dialog > .timebox .tb-label { margin: 0 0 6px; font-size: 0.85rem; }
+  .tb-btns { gap: 4px; }
+}
+.wk-sky .events { margin-bottom: 8px; }
+.wk-sky .ev { grid-template-columns: 22px 48px 1fr; gap: 6px; padding: 4px 0; }
+.wk-extra { font-size: 1rem; }
+/* wide screens, chart view: reading column + details column instead of one narrow column */
+@media (min-width: 1240px) {
+  html[data-view="chart"] #app { max-width: 1280px; }
+  #sec-energy .en-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 48px; align-items: start; }
+  #sec-energy .en-side { position: sticky; top: 84px; }
+}

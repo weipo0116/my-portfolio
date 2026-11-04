@@ -98,6 +98,10 @@ function compute(date) {
   });
 }
 
+// aspect text that names what the two bodies stand for, so cards of the same aspect type differ
+const ASP_PHRASE = { 合相: "綁在一起、互相放大", 六分相: "互相幫一把，主動開口就有回應", 四分相: "互相拉扯，逼你做取捨", 三分相: "配合得很順，適合往前推", 對分相: "兩邊拉鋸，要找中間點" };
+const pairMean = (a) => `${a.a.zh}管「${a.a.role}」，${a.b.zh}管「${a.b.role}」：兩者${ASP_PHRASE[a.asp.name] || a.asp.mean}。`;
+
 function findAspects(pos) {
   const main = pos.slice(0, 7);
   const out = [];
@@ -583,7 +587,7 @@ function periodEvents(d0, d1) {
     now.forEach((b, i) => {
       const was = prev[i];
       if (b.key === "Moon" && days > 8) return; // too frequent for long ranges
-      if (b.signIndex !== was.signIndex) ev.push({ t: when, icon: "→", text: `${b.zh}進入${b.sign.zh}`, kind: "ingress" });
+      if (b.signIndex !== was.signIndex) ev.push({ t: when, icon: TXT(b.g), text: `${b.zh}進入${b.sign.zh}`, kind: "ingress" });
       if (b.retro !== was.retro) ev.push({ t: when, icon: "℞", text: `${b.zh}${b.retro ? "轉為逆行" : "恢復順行"}`, kind: "retro" });
     });
     prev = now;
@@ -750,24 +754,31 @@ function vocSpan(info, v) {
   if (b) return `${plainTime(v.from)}以後`;
   return `${plainTime(v.from)}到${plainTime(v.to)}之間`;
 }
-function dayAspectFor(info, cat) {
-  const evs = info.events.filter((e) => e.kind === "asp" && ASP_CAT[e.p]?.cats.includes(cat));
+function dayAspectFor(info, cat, used = new Set()) {
+  // each Moon aspect is told once per card, so two categories never repeat the same sentence
+  const evs = info.events.filter((e) => e.kind === "asp" && ASP_CAT[e.p]?.cats.includes(cat) && !used.has(e));
   if (!evs.length) return null;
   // the planet's main category first, then the stronger aspect
   const e = evs.sort((a, b) => (ASP_CAT[a.p].cats[0] === cat ? 0 : 1) - (ASP_CAT[b.p].cats[0] === cat ? 0 : 1) || evScore(b) - evScore(a))[0];
+  used.add(e);
   const k = evKind(e);
   const hard = k === "hard" || (k === "conj" && (e.p === "Mars" || e.p === "Saturn"));
-  return { hard, text: `${plainTime(e.t)}前後，${ASP_CAT[e.p][hard ? "hard" : "soft"]}` };
+  // the last aspect before a void-of-course stretch sits right on its start: say "before X" so it
+  // never reads as "good around 3pm" next to "decisions after 3pm go nowhere"
+  const v = info.voc.find((x) => Math.abs(e.t - x.full[0]) < H || (e.t >= x.from && e.t <= x.to));
+  const when = v ? `${plainTime(v.full[0])}以前` : `${plainTime(e.t)}前後`;
+  const tail = v && !hard ? "，把要談的事趁這之前談完" : "";
+  return { hard, text: `${when}，${ASP_CAT[e.p][hard ? "hard" : "soft"].replace(/。$/, "")}${tail}。` };
 }
 function moonHouseOf(info, si) {
   // the house the Moon spends most of the shown day in, for this sun sign
   return signDist(info.dom, si);
 }
-function dailyNote(si, cat) {
+function dailyNote(si, cat, used) {
   const info = currentDay.info;
   const h = moonHouseOf(info, si);
   const [text, doit, avoid] = HOUSE_CAT[cat][h];
-  const asp = dayAspectFor(info, cat);
+  const asp = dayAspectFor(info, cat, used);
   const v = info.voc[0];
   // a void-of-course window is said once in the headline; here only when it is the day's whole story
   const extra = asp ? asp.text : v ? VOC_CAT[cat] : "";
@@ -864,6 +875,14 @@ function dayFortune(pos) {
     });
   }
   return out;
+}
+
+// "11/2–11/8" for the Monday-to-Sunday week that contains date (Taipei)
+function weekSpan(date) {
+  const tp = taipeiParts(date);
+  const dow = (new Date(Date.UTC(tp.y, tp.m - 1, tp.d)).getUTCDay() + 6) % 7;
+  const mon = new Date(noonTaipei(tp).getTime() - dow * DAY);
+  return `${md(mon)}–${md(new Date(mon.getTime() + 6 * DAY))}`;
 }
 
 function weekFortune(date) {
@@ -1019,7 +1038,7 @@ function render({ dur = 1700 } = {}) {
   lastSky = { info, pos };
   renderPersonal();
   renderRhythm(info, prevInfo, pos, compute(new Date(date.getTime() - DAY)));
-  $("dbDate").textContent = `${tp.m}/${tp.d} ${info.wk.zh}`;
+  $("dbDate").textContent = fortuneMode === "week" && document.documentElement.dataset.view !== "chart" ? `${weekSpan(date)}` : `${tp.m}/${tp.d} ${info.wk.zh}`;
   $("dbSub").textContent = `${offsetDays === 0 ? "今日" : offsetDays === -1 ? "昨日" : offsetDays === 1 ? "明日" : offsetDays > 0 ? `+${offsetDays}天` : `${offsetDays}天`} · 月${SIGNS[info.dom].zh.replace("座", "")} · ${info.wk.pl}日`;
   $("dbToday").classList.toggle("on", offsetDays === 0);
 
@@ -1078,7 +1097,7 @@ function render({ dur = 1700 } = {}) {
           const d = document.createElement("article");
           d.dataset.pair = `${a.a.key}-${a.b.key}`;
           d.dataset.keys = `${a.a.key},${a.b.key}`;
-          d.innerHTML = `<div class="ag">${TXT(a.a.g)} ${TXT(a.asp.g)} ${TXT(a.b.g)}</div><h3>${a.a.zh} ${a.asp.name} ${a.b.zh}</h3><p class="la">${a.a.la} · ${a.asp.la} · ${a.b.la}　誤差 ${a.off.toFixed(1)}°</p><p>${a.asp.mean}</p>`;
+          d.innerHTML = `<div class="ag">${TXT(a.a.g)} ${TXT(a.asp.g)} ${TXT(a.b.g)}</div><h3>${a.a.zh} ${a.asp.name} ${a.b.zh}</h3><p class="la">${a.a.la} · ${a.asp.la} · ${a.b.la}　誤差 ${a.off.toFixed(1)}°</p><p>${pairMean(a)}</p>`;
           return d;
         })
       : [Object.assign(document.createElement("p"), { className: "prose", textContent: "今天沒有特別緊密的相位，是比較平靜、可以照自己步調走的一天。" })]),
@@ -1589,9 +1608,18 @@ $("next").addEventListener("click", () => go(offsetDays + 1));
 $("today").addEventListener("click", () => go(0));
 $("dayBar").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-go]"); if (!b) return;
-  go(b.dataset.go === "0" ? 0 : offsetDays + Number(b.dataset.go));
+  const weekly = fortuneMode === "week" && document.documentElement.dataset.view !== "chart";
+  go(b.dataset.go === "0" ? 0 : offsetDays + Number(b.dataset.go) * (weekly ? 7 : 1));
 });
 // relative steps, so 後一天 / 後一週 can be pressed again and again
+// phones: the date controls become a footer of the dialog, so they stay reachable while reading
+{
+  const box = document.querySelector(".timebox"), home = box.parentElement, mq = matchMedia("(max-width: 860px)");
+  const place = () => (mq.matches ? $("chartDialog").append(box) : home.append(box));
+  mq.addEventListener("change", place);
+  place();
+}
+if (matchMedia("(hover: none)").matches) $("tbHint").textContent = "按鈕可以連續按，最多前後各看半年。點行星或相位，星盤會標出位置。";
 $("tbBtns").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
@@ -1651,7 +1679,6 @@ render();
 
 // floating dock once the hero has scrolled away
 new IntersectionObserver(([e]) => {
-  $("dock").classList.toggle("show", !e.isIntersecting);
   $("dayBar").classList.toggle("show", !e.isIntersecting);
 }, { threshold: 0.05 }).observe(document.querySelector(".hero"));
 
@@ -1734,7 +1761,7 @@ function skyFor(si) {
     rows.push(["關鍵", `${timeAt(key)} ${tx.name}`, tx.mean]);
   }
   const v = info.voc[0];
-  if (v) rows.push(["空亡", `${fmtT(v.from)}–${fmtT(v.to)} 月亮空亡`, "這段時間做的決定容易沒下文，適合收尾、休息，不適合開新局或簽約。"]);
+  if (v) rows.push(["空轉", `${fmtT(v.from)}–${fmtT(v.to)} 月亮空轉`, "這段時間做的決定容易沒下文，適合收尾、休息，不適合開新局或簽約。"]);
   rows.push(["當值", `${info.wk.zh} · ${info.wk.pl}日`, info.wk.theme]);
   return rows;
 }
@@ -1767,6 +1794,7 @@ function weekCard(si) {
   const rows = Object.keys(CATS).map((cat) => ({ cat, ...data[cat][si] }));
   const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
   const tier = tierOf(avg);
+  const sameExtra = rows.every((r) => r.extra === rows[0].extra);
   const card = document.createElement("article");
   card.className = "signcard tcard";
   card.innerHTML = `
@@ -1775,12 +1803,16 @@ function weekCard(si) {
       <div><h3>${sg.zh}</h3><p>${sg.la} · ${SIGN_DATES[si]} · ${md(from)}（一）–${md(to)}（日）</p></div>
       <div class="sa"><small>本週綜合</small><span class="fs big"></span><b class="tier t-${tier}">${TIER_ZH[tier]}</b></div>
     </header>
+    <p class="tquote wk-extra"></p>
     <ul class="tcats"></ul>
-    <div class="tsky"><p class="tsky-k">本週天象</p><ul class="events"></ul></div>
+    <div class="tsky wk-sky"><p class="tsky-k">本週天象</p><ul class="events"></ul></div>
     <p class="lucky-note">本週分數取週一到週日每天的平均，星數是 12 個星座之間的相對高低。</p>`;
   const fs = card.querySelector(".sa .fs");
   fs.textContent = stars(avg);
   fs.setAttribute("aria-label", `${avg} 顆星`);
+  const wx = card.querySelector(".wk-extra");
+  if (sameExtra) wx.textContent = `${rows[0].extra}。`;
+  else wx.remove();
   const ul = card.querySelector(".tcats");
   rows.forEach((r, i) => {
     const li = document.createElement("li");
@@ -1790,7 +1822,7 @@ function weekCard(si) {
     li.querySelector(".fs").textContent = stars(r.stars);
     li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
     li.querySelector(".ft-main").textContent = r.note.replace("今天", "這週");
-    li.querySelector(".ft-why").textContent = `${r.extra}。${r.why}。`;
+    li.querySelector(".ft-why").textContent = sameExtra ? `${r.why}。` : `${r.extra}。${r.why}。`;
     ul.appendChild(li);
   });
   const evs = periodEvents(from, to);
@@ -1814,7 +1846,7 @@ $("modeSeg").addEventListener("click", (e) => {
     x.classList.toggle("on", x === b);
     x.setAttribute("aria-pressed", String(x === b));
   });
-  renderToday();
+  render({ dur: 300 }); // also refreshes the day bar (one day vs one week per step)
 });
 
 function renderToday() {
@@ -1843,7 +1875,6 @@ function renderToday() {
       <div class="sa"><small>${dayWord()}綜合</small><span class="fs big"></span><b class="tier t-${d.tier}">${TIER_ZH[d.tier]}</b></div>
     </header>
     <p class="tquote"></p>
-    <details class="tsky"><summary><span class="tsky-k"></span><small>月亮、相位、空亡</small></summary><div class="summary tsky-rows"></div></details>
     <ul class="tcats"></ul>
     <div class="lucky">
       <div><small>幸運色</small><span><i class="sw"></i><b class="lc"></b></span></div>
@@ -1853,8 +1884,9 @@ function renderToday() {
     <p class="lucky-note">幸運元素是依日期與星座固定產生的小彩蛋，純屬娛樂。</p>
     <div class="tadvice"><b>行動建議</b><p></p></div>
     <p class="trust">行星位置：天文曆即時計算（台北時間）· <button type="button" class="linkbtn to-data">看數據</button></p>
-    <details class="why">
-      <summary>為什麼這樣說？看天象依據</summary>
+    <details class="why tsky">
+      <summary><span class="tsky-k">為什麼這樣說？看星象依據</span><small>月亮、相位、空轉</small></summary>
+      <div class="summary tsky-rows"></div>
       <div class="prose why-body"></div>
       <button type="button" class="linkbtn to-chart">切換到星盤模式，看完整天象 →</button>
     </details>
@@ -1863,7 +1895,6 @@ function renderToday() {
   fs.textContent = stars(d.avg);
   fs.setAttribute("aria-label", `${d.avg} 顆星`);
   card.querySelector(".tquote").textContent = d.line;
-  card.querySelector(".tsky-k").textContent = `看${dayNoun()}的星象依據`;
   card.querySelector(".tsky-rows").replaceChildren(
     ...skyFor(si).map(([k, h, t]) => {
       const p = document.createElement("p");
@@ -1875,9 +1906,10 @@ function renderToday() {
     }),
   );
   const ul = card.querySelector(".tcats");
+  const used = new Set();
   d.rows.forEach((r, i) => {
     const [tdos, tdonts] = DO_DONT[r.cat][tierOf(r.stars)];
-    const dn = dailyNote(si, r.cat);
+    const dn = dailyNote(si, r.cat, used);
     const dos = [dn.doit, tdos[0]], donts = [dn.avoid, tdonts[0]];
     const li = document.createElement("li");
     li.style.setProperty("--i", i);
@@ -1897,9 +1929,7 @@ function renderToday() {
   card.querySelector(".ld").textContent = d.lucky.dir;
   card.querySelector(".tadvice p").textContent = currentDay.advice;
   card.querySelector(".why-body").replaceChildren(
-    para(currentDay.headline),
-    para(currentDay.summary),
-    ...d.rows.map((r) => para(`${CATS[r.cat]}：${r.why}。`)),
+    ...d.rows.map((r) => para(`${CATS[r.cat]}星數：${r.why}。`)),
     Object.assign(para("星數是 12 個星座之間的相對高低，看個大方向就好。"), { className: "muted" }),
   );
   card.querySelector(".to-chart").addEventListener("click", () => {
