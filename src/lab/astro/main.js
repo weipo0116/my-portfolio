@@ -1161,39 +1161,152 @@ const PLANET_IN_HOUSE = {
   Neptune: (a) => `你在「${a}」比較浪漫、理想化，也容易看不清。`,
   Pluto: (a) => `「${a}」是你會很投入、也會經歷深刻轉變的地方。`,
 };
+// ---- teacher notes: what each house covers, what each planet does, and how to work with it ----
+const HQ = { a: ["角宮", "最有力量、最容易被看見的位置，事情會直接發生在你身上"], s: ["續宮", "累積與穩定的位置，事情在這裡慢慢存起來"], c: ["果宮", "學習與調整的位置，力量偏幕後、偏轉換"] };
+const HOUSE_INFO = [
+  { q: "a", domain: "身體、外貌、性格給人的第一印象，也是你面對人生的起手式", ask: "我是怎麼出場的？別人第一眼看到什麼？" },
+  { q: "s", domain: "自己賺的錢、能動用的資源、才能，以及對自己價值的感受", ask: "我靠什麼養活自己？什麼讓我覺得有底氣？" },
+  { q: "c", domain: "日常溝通、文字、基礎學習、短途移動，以及兄弟姊妹和鄰居", ask: "我怎麼想、怎麼說、怎麼學？" },
+  { q: "a", domain: "家庭與父母、房子、根源，以及人生後段的生活", ask: "我從哪裡來？哪裡讓我真正安心？" },
+  { q: "s", domain: "戀愛、創作、子女、娛樂與投機", ask: "什麼讓我快樂、讓我想表現自己？" },
+  { q: "c", domain: "日常工作、作息、健康、勞務，以及同事、下屬和寵物", ask: "我每天怎麼過？身體和工作習慣好不好？" },
+  { q: "a", domain: "伴侶、婚姻、合夥、客戶，也包括公開的競爭對手", ask: "我會遇到什麼樣的人？一對一的關係怎麼經營？" },
+  { q: "s", domain: "別人的錢（貸款、遺產、伴侶的收入）、稅、信任與親密，以及危機和轉化", ask: "我怎麼面對共享、失去與重生？" },
+  { q: "c", domain: "高等教育、出國與遠行、信仰與人生觀、出版與法律", ask: "我相信什麼？眼界往哪裡打開？" },
+  { q: "a", domain: "事業、社會地位、名聲、上司與權威", ask: "我想讓世界記得我做了什麼？" },
+  { q: "s", domain: "朋友、社群與人脈、對未來的願望，也包括工作帶來的收益", ask: "我屬於哪一群人？想要什麼樣的未來？" },
+  { q: "c", domain: "潛意識、獨處、隱藏的事、休養與修行，也是容易自我耗損的地方", ask: "我在哪裡需要退一步、放下或療癒？" },
+];
+const PLANET_INFO = {
+  Sun: { func: "自我認同與生命力", light: "在這裡容易被看見、有主導權", shadow: "也容易太想證明自己", guide: "把這個領域當成你的舞台，主動承擔角色" },
+  Moon: { func: "情緒需求與安全感", light: "直覺準，照顧別人很自然", shadow: "情緒起伏也最常從這裡來", guide: "先照顧好這個領域的安全感，你整個人才會穩" },
+  Mercury: { func: "思考、溝通與技能", light: "腦筋快、資訊靈通", shadow: "容易想太多或說太多", guide: "把想法寫下來、整理成方法，這裡是你的專業工具箱" },
+  Venus: { func: "喜好、關係與價值", light: "人緣好、有品味，容易得到幫助", shadow: "也可能太求和諧，或花太多", guide: "用美感和合作去經營，這裡會帶來好關係，也帶來收入" },
+  Mars: { func: "行動力、慾望與競爭心", light: "衝勁強、敢爭取", shadow: "急躁，容易起衝突或受傷", guide: "給它一個明確目標當出口，別讓火力變成爭吵" },
+  Jupiter: { func: "擴張、信念與好運", light: "機會多、容易遇到貴人", shadow: "容易過度樂觀、答應太多", guide: "大方投入、多學多分享，但要量力而為" },
+  Saturn: { func: "責任、限制與時間", light: "能力是一步一步練出來的，晚成但紮實", shadow: "年輕時常覺得不夠好、壓力大", guide: "給自己時間和規則，通常過了 30 歲會越來越穩" },
+  Uranus: { func: "改變與獨立", light: "有新想法、不走老路", shadow: "不穩定、常有突然的變動", guide: "在這裡保留自由和彈性，別硬套別人的規則" },
+  Neptune: { func: "理想、靈感與模糊的界線", light: "敏感，有藝術感和慈悲心", shadow: "容易理想化或被誤導", guide: "多確認事實、守好界線，把想像力放進創作" },
+  Pluto: { func: "深層力量與蛻變", light: "能看穿本質，越挫越強", shadow: "容易執著或想掌控", guide: "放下想控制的念頭，這裡每一次結束都是重生" },
+};
+
+function natalEmphasis(base) {
+  const keys = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].filter((k) => NATAL.sign[k] != null);
+  const hs = keys.map((k) => signDist(NATAL.sign[k], base.sign));
+  const out = [];
+  // a crowded house counts when at least two personal planets (Sun–Saturn) are in it; outer planets alone are generational
+  const by = Array.from({ length: 12 }, () => []);
+  for (const [k, zh] of NATAL_KEYS) if (k !== "Asc" && NATAL.sign[k] != null) by[signDist(NATAL.sign[k], base.sign)].push([k, zh]);
+  by.forEach((ps, i) => {
+    const personal = ps.filter(([k]) => keys.includes(k)).length;
+    if (ps.length >= 3 && personal >= 2) out.push(`${ps.map(([, zh]) => zh).join("、")}都在第 ${i + 1} 宮（${HOUSES[i][0]}）：人生的重心明顯在「${HOUSES[i][1]}」，這裡的事會一再回來找你，也是你最能長出實力的地方。`);
+  });
+  if (base.by === "asc" && keys.length >= 6) {
+    const up = hs.filter((h) => h >= 6).length, east = hs.filter((h) => h >= 9 || h <= 2).length;
+    if (up >= 5) out.push("大部分行星在地平線上方（第 7–12 宮）：你的舞台偏向外面的世界，關係、事業、社群會推著你成長。");
+    if (keys.length - up >= 5) out.push("大部分行星在地平線下方（第 1–6 宮）：你的力量偏向自己的生活、家庭和實際技能，先把自己的地基打好最重要。");
+    if (east >= 5) out.push("行星偏東邊（靠近上升）：你習慣自己作主、自己開路，主動出擊比等待更適合你。");
+    if (keys.length - east >= 5) out.push("行星偏西邊（靠近下降）：很多機會來自別人，合作和人際會是你的槓桿。");
+  }
+  return out;
+}
+
 function renderHouseRead(base) {
   const box = $("houseRead");
   if (base.sign == null) { box.replaceChildren(); return; }
-  const rows = [];
+  const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
+  const parts = [el("p", "hr-head", "你的星盤怎麼讀")];
+
+  // 0. at a glance: every body, its sign and its house
+  const BODY_G = Object.fromEntries(BODIES.map((b) => [b.key, b.g]));
+  const rowsT = NATAL_KEYS.filter(([k]) => NATAL.sign[k] != null).map(([k, zh]) => {
+    const sg = SIGNS[NATAL.sign[k]], h = signDist(NATAL.sign[k], base.sign);
+    const deg = NATAL.deg[k] != null ? ` ${Math.floor(NATAL.deg[k] % 30)}°` : "";
+    return [k === "Asc" ? "AC" : TXT(BODY_G[k]), zh, `${TXT(sg.g)} ${sg.zh}${deg}`, `第 ${h + 1} 宮 · ${HOUSES[h][0]}`];
+  });
+  const tbl = document.createElement("table");
+  tbl.className = "hr-table";
+  tbl.innerHTML = "<thead><tr><th scope=\"col\" colspan=\"2\">星體</th><th scope=\"col\">星座</th><th scope=\"col\">宮位</th></tr></thead><tbody></tbody>";
+  tbl.querySelector("tbody").append(...rowsT.map((r) => {
+    const tr = document.createElement("tr");
+    r.forEach((c, i) => tr.append(el(i === 1 ? "th" : "td", i === 0 ? "g" : "", c)));
+    tr.children[1].setAttribute("scope", "row");
+    return tr;
+  }));
+  parts.push(tbl);
+
+  // 1. overall emphasis
+  const emph = natalEmphasis(base);
+  if (emph.length) {
+    const ul = el("ul", "hr-emph");
+    ul.append(...emph.map((t) => el("li", "", t)));
+    parts.push(el("p", "hr-sub", "先看重點"), ul);
+  }
+
+  // 2. planet by planet: one-line summary, expand for the teacher's notes
+  parts.push(el("p", "hr-sub", "每顆行星在哪一宮（點開看說明與建議）"));
+  const list = el("div", "hr-list");
   if (NATAL.sign.Asc != null) {
     const a = SIGNS[NATAL.sign.Asc];
     const ah = signDist(NATAL.sign.Asc, base.sign);
-    rows.push([`上升${a.zh.replace("座", "")}`, base.by === "asc" ? "第 1 宮的起點" : `第 ${ah + 1} 宮 · ${HOUSES[ah][0]}`, `別人第一眼看到的你偏向${a.zh}：${a.tone}。`]);
+    const d = document.createElement("details");
+    d.className = "hr-item";
+    d.innerHTML = "<summary><b></b><span><strong></strong><em></em></span></summary><div class=\"hr-body\"></div>";
+    d.querySelector("b").textContent = `上升${a.zh.replace("座", "")}`;
+    d.querySelector("strong").textContent = base.by === "asc" ? "第 1 宮的起點" : `第 ${ah + 1} 宮 · ${HOUSES[ah][0]}`;
+    d.querySelector("em").textContent = `別人第一眼看到的你偏向${a.zh}：${a.tone}。`;
+    d.querySelector(".hr-body").append(
+      el("p", "", `上升是你出生那一刻東方地平線升起的星座，決定整張盤的十二宮怎麼排。它不是「你的本質」（那是太陽），而是你面對世界的方式、身體和外表給人的感覺。`),
+      el("p", "", `上升${a.zh}的守護星是${RULER_ZH[SIGN_RULER[NATAL.sign.Asc]]}，它落在哪一宮，就是你人生最常投入心力的方向（見下方「宮主星」）。`),
+    );
+    list.append(d);
   }
   for (const [k, zh] of NATAL_KEYS) {
     if (k === "Asc" || NATAL.sign[k] == null) continue;
     const h = signDist(NATAL.sign[k], base.sign);
-    rows.push([`${zh}`, `第 ${h + 1} 宮 · ${HOUSES[h][0]}`, PLANET_IN_HOUSE[k](HOUSES[h][1])]);
+    const hi = HOUSE_INFO[h], pi = PLANET_INFO[k], sg = SIGNS[NATAL.sign[k]];
+    const d = document.createElement("details");
+    d.className = "hr-item";
+    d.innerHTML = "<summary><b></b><span><strong></strong><em></em></span></summary><div class=\"hr-body\"></div>";
+    d.querySelector("b").textContent = zh;
+    d.querySelector("strong").textContent = `第 ${h + 1} 宮 · ${HOUSES[h][0]} · ${sg.zh}`;
+    d.querySelector("em").textContent = PLANET_IN_HOUSE[k](HOUSES[h][1]);
+    d.querySelector(".hr-body").append(
+      el("p", "", `${zh}代表你的「${pi.func}」。它落在第 ${h + 1} 宮，這是${HQ[hi.q][0]}（${HQ[hi.q][1]}），管的是${hi.domain}。`),
+      el("p", "", `在${sg.zh}，它的表現方式偏向：${sg.tone}。`),
+      el("p", "", `優勢：${pi.light}。要留意：${pi.shadow}。`),
+      el("p", "hr-guide", `建議：${pi.guide}。可以常問自己：「${hi.ask}」`),
+    );
+    list.append(d);
   }
-  const head = document.createElement("p");
-  head.className = "hr-head";
-  head.textContent = "你的星盤怎麼讀";
-  const list = document.createElement("ul");
-  list.className = "hr-list";
-  list.append(...rows.map(([k, h, t]) => {
-    const li = document.createElement("li");
-    li.innerHTML = "<b></b><span><strong></strong><em></em></span>";
-    li.querySelector("b").textContent = k;
-    li.querySelector("strong").textContent = h;
-    li.querySelector("em").textContent = t;
-    return li;
-  }));
-  const tip = document.createElement("p");
-  tip.className = "hr-tip";
-  tip.textContent = base.by === "asc"
-    ? "宮位以上升起算，是一般看星盤的方式。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
-    : "目前以太陽星座當第 1 宮（太陽宮位制），只能看大方向。填準確的出生時間算出上升，或在上面選上升星座，宮位會更準。";
-  box.replaceChildren(head, list, tip);
+  parts.push(list);
+
+  // 3. house rulers: where each house's ruling planet sits shows where that area's energy goes
+  const rulers = [];
+  for (let i = 0; i < 12; i++) {
+    const sign = (base.sign + i) % 12, r = SIGN_RULER[sign];
+    if (NATAL.sign[r] == null) continue;
+    const j = signDist(NATAL.sign[r], base.sign);
+    const t = i === j
+      ? `宮主${RULER_ZH[r]}就在本宮。這件事你很能自己作主，力量集中。`
+      : `宮主${RULER_ZH[r]}在第 ${j + 1} 宮，這件事常常要透過「${HOUSES[j][0]}：${HOUSES[j][1]}」來展開。`;
+    rulers.push([`第 ${i + 1} 宮`, `${HOUSES[i][0]}（${HOUSES[i][1]}）`, t]);
+  }
+  if (rulers.length) {
+    const d = document.createElement("details");
+    d.className = "hr-rulers";
+    d.innerHTML = "<summary>進階：宮主星飛到哪裡</summary>";
+    d.append(el("p", "hr-tip", "每一宮所在的星座都有一顆守護星（宮主星）。宮主星落在哪一宮，就表示這一宮的事情會往哪裡發展、要從哪裡著手。這是看盤時把十二宮串成故事的方法。"));
+    const ul = el("ul", "hr-rl");
+    ul.append(...rulers.map(([a, b, t]) => { const li = document.createElement("li"); li.append(el("b", "", a), el("span", "", `${b}：${t}`)); return li; }));
+    d.append(ul);
+    parts.push(d);
+  }
+
+  parts.push(el("p", "hr-tip", base.by === "asc"
+    ? "這裡用整宮制（一個星座就是一宮），是最古老、也最容易上手的分宮法。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
+    : "目前以太陽星座當第 1 宮（太陽宮位制），只能看大方向。填準確的出生時間算出上升，或在上面選上升星座，宮位才會準。"));
+  box.replaceChildren(...parts);
 }
 
 function renderHouses(info) {
@@ -1219,10 +1332,10 @@ function renderHouses(info) {
       li.querySelector("em").textContent = i + 1;
       li.querySelector("b").textContent = h[0];
       li.querySelector("small").textContent = h[2];
-      li.querySelector(".hs").textContent = h[3];
+      li.querySelector(".hs").textContent = `${HOUSE_INFO[i].domain}。${HQ[HOUSE_INFO[i].q][0]}：${HOUSE_INFO[i].ask}`;
       const mine = placed.filter((x) => x.h === i);
       const hp = li.querySelector(".hp");
-      if (mine.length) hp.textContent = `你的${mine.map((x) => x.zh).join("、")}在這`;
+      if (mine.length) hp.textContent = `你的${mine.map((x) => `${x.zh}（${SIGNS[NATAL.sign[x.k]].zh}）`).join("、")}在這`;
       else hp.remove();
       li.querySelector("i").textContent = `${TXT(sg.g)} ${sg.zh.replace("座", "")}`;
       if (here >= 0) {
