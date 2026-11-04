@@ -18,9 +18,9 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-wcxxe4U1.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-DkN25iCe.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-Bhnm_i7G.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-Yzo6QY6Y.css">
   </head>
   <body>
     <span id="top"></span>
@@ -59,7 +59,7 @@
           <a href="#sec-fortune" class="v-fortune">十二星座</a>
           <a href="#sec-energy" class="v-chart">今日能量</a>
           <a href="#sec-moon" class="v-chart">月相</a>
-          <a href="#sec-houses" class="v-chart">宮位</a>
+          <a href="#sec-fortune" class="v-chart">星座運勢</a>
           <a href="#sec-notes">說明</a>
         </nav>
       </header>
@@ -72,40 +72,19 @@
 
       <section class="block reveal v-chart" id="sec-energy" aria-labelledby="h-energy">
         <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
-        <div id="vocAlert" class="voc-alert" role="status" hidden></div>
         <p id="headline" class="headline"></p>
-        <div id="summary" class="summary"></div>
+        <p id="summary" class="summary"></p>
         <div class="advice"><b>建議</b><p id="advice"></p></div>
         <ul id="tags" class="tags"></ul>
-        <details class="fold" open>
-          <summary><span>一天的節奏</span><small id="foldRhythm"></small></summary>
-          <div id="dayStrip" class="daystrip" role="img" aria-label="全天月亮換座與相位時間軸"></div>
-          <div class="stripscale" aria-hidden="true"><span>0</span><span>6</span><span>12</span><span>18</span><span>24</span></div>
-          <p class="strip-key" aria-hidden="true"><i class="tick soft"></i>順 <i class="tick hard"></i>緊 <i class="tick conj"></i>合 <i class="tick ing"></i>換座 <i class="vockey"></i>空轉</p>
-          <ol id="timeline" class="timeline"></ol>
-        </details>
-        <details class="fold">
-          <summary><span id="diffTitle">和昨天哪裡不一樣</span><small id="foldDiff"></small></summary>
-          <ul id="diff" class="difflist"></ul>
-        </details>
-        <details class="fold">
-          <summary><span>接下來 7 天</span><small id="foldWeek"></small></summary>
-          <ul id="ahead" class="difflist ahead"></ul>
-        </details>
-        <details class="fold">
-          <summary><span>背景天象</span><small>幾週才變一次</small></summary>
-          <ul id="energy" class="bglist"></ul>
-        </details>
+        <div id="energy" class="prose"></div>
         <details class="how">
           <summary>這段能量是怎麼算出來的？</summary>
           <div class="prose">
             <p><b>1. 位置是即時算的。</b>每次開頁，瀏覽器會用天文曆算（astronomy-engine）算出此刻 10 顆星體在黃道上的位置，不是查表、也不用網路。這是以地球為中心的視位置（geocentric apparent positions），依畫面顯示的台北時間計算（本週運勢以各日台北 12:00 計算），誤差約一角分；但從位置推出的解讀文字是模板化的詮釋，不是測量結果。</p>
             <p><b>2. 每顆星有固定角色。</b>太陽＝今天的主題、月亮＝情緒底色、水星＝溝通（逆行要多確認）、金星＝關係與金錢、火星＝行動力；它們落在哪個星座，就決定語氣。</p>
-            <p><b>3. 每天的差別主要來自月亮。</b>太陽一個月才換一次座，水星、金星、火星也要幾週；但月亮約 2.3 天就換一個星座，每隔幾小時還會和某顆行星形成一次準確的相位。所以「一天的節奏」是把當天 24 小時掃一遍（月亮每 30 分鐘、行星每 6 小時取樣），找出換座與相位的準確時間。</p>
-            <p><b>4. 相位與月亮空轉。</b>合相放大、六分與三分順暢、四分與對分有張力。月亮在離開一個星座前，如果不再和太陽到土星形成主要相位，就叫「空轉」（void of course），傳統上這段時間不適合開新局。再加上週間的當值星（週日太陽、週一月亮、週二火星、週三水星、週四木星、週五金星、週六土星）。</p>
-            <p><b>5. 文字是模板組合，不是 AI 即時生成。</b>同樣的天象一定得到同樣的文字；但時間與組合每天不同，所以每天的結果也不同。</p>
-            <p><b>6. 「你的今日」怎麼算。</b>只填星座時，把你的太陽（或上升）星座當第 1 宮，用整個星座比對月亮和大行星的相位；填了出生資料，會算出你出生當下各行星的準確度數與上升星座，相位用度數比對、算到準確時間。出生資料只存在這台裝置的瀏覽器裡，不會上傳。</p>
-            <p><b>7. 會自動更新。</b>每天（台北時間）開頁就是當天的天象；頁面開著跨午夜，也會自動換成新的一天。</p>
+            <p><b>3. 角度決定順不順。</b>兩顆星之間的角度（相位）：合相放大、六分與三分順暢、四分與對分有張力。只挑誤差最小的幾組。</p>
+            <p><b>4. 文字是模板組合，不是 AI 即時生成。</b>同樣的天象一定得到同樣的文字，所以很穩定，但也比較制式。</p>
+            <p><b>5. 會自動更新。</b>每天（台北時間）開頁就是當天的天象；頁面開著跨午夜，也會自動換成新的一天。</p>
           </div>
         </details>
       </section>
@@ -118,38 +97,8 @@
         </div>
       </section>
 
-      <section class="block reveal v-chart" id="sec-houses" aria-labelledby="h-houses">
-        <h2 id="h-houses"><span class="num">III</span> 你的今日 <em>Domus</em></h2>
-        <p class="prose sub-note">選你的星座就能看月亮今天走到你的哪一宮；知道月亮、上升或其他行星的話也填上，分析會更貼近你。資料只存在這台裝置。</p>
-        <div class="natal" id="natal">
-          <div class="natal-row" id="natalMain"></div>
-          <details class="natal-more">
-            <summary>更多行星（水星到冥王星）</summary>
-            <div class="natal-row" id="natalMore"></div>
-          </details>
-          <details class="natal-more" id="birthBox">
-            <summary>用出生資料自動算（含上升與準確度數）</summary>
-            <div class="birth">
-              <label>出生日期<input type="date" id="bDate" min="1900-01-01" max="2100-12-31" /></label>
-              <label>出生時間<input type="time" id="bTime" /></label>
-              <label>出生地區<select id="bCountry"></select></label>
-              <label>城市<select id="bCity"></select></label>
-              <label>時區<select id="bTz"></select></label>
-              <div class="birth-act"><button type="button" id="bCalc" class="pillbtn">計算並填入</button><button type="button" id="bClear" class="linkbtn">清除我的資料</button></div>
-              <p class="birth-note" id="bNote">不知道出生時間也可以算，只是月亮會有幾度誤差、也算不出上升。海外出生若當時是夏令時間，時區請選快一小時的那個。</p>
-            </div>
-          </details>
-        </div>
-        <div id="personal" class="personal"></div>
-        <details class="fold">
-          <summary><span>你的十二宮</span><small>每一宮代表什麼</small></summary>
-          <p class="prose sub-note" id="housesNote"></p>
-          <ul id="houses" class="houses"></ul>
-        </details>
-      </section>
-
-      <section class="block reveal v-fortune" id="sec-fortune" aria-labelledby="h-fortune">
-        <h2 id="h-fortune"><span class="num">II</span> 十二星座一覽 <em>Fortuna</em></h2>
+      <section class="block reveal" id="sec-fortune" aria-labelledby="h-fortune">
+        <h2 id="h-fortune"><span class="num"><span class="v-chart">III</span><span class="v-fortune">II</span></span> <span class="v-chart">星座運勢</span><span class="v-fortune">十二星座一覽</span> <em>Fortuna</em></h2>
         <p class="prose sub-note" id="fortuneNote"></p>
         <div class="signbar" id="signBar" role="group" aria-label="選擇星座"></div>
         <div class="fortune-ctl">
@@ -176,20 +125,13 @@
       </footer>
     </main>
 
-    <div class="daybar" id="dayBar" role="group" aria-label="切換日期（固定）">
-      <button type="button" data-go="-1" aria-label="前一天">‹</button>
-      <div class="db-mid"><b id="dbDate">&nbsp;</b><small id="dbSub">&nbsp;</small></div>
-      <button type="button" data-go="1" aria-label="後一天">›</button>
-      <button type="button" data-go="0" id="dbToday" class="db-today">今日</button>
-    </div>
-
     <nav class="dock" id="dock" aria-label="頁面導覽">
       <a href="#top">↑ TOP</a>
       <a href="#sec-today" class="v-fortune">我的運勢</a>
       <a href="#sec-fortune" class="v-fortune">十二星座</a>
       <a href="#sec-energy" class="v-chart">能量</a>
       <a href="#sec-moon" class="v-chart">月相</a>
-      <a href="#sec-houses" class="v-chart">宮位</a>
+      <a href="#sec-fortune" class="v-chart">運勢</a>
       <a href="#sec-notes">說明</a>
     </nav>
 
@@ -204,7 +146,7 @@
           <button id="shareNative" type="button" class="cta" hidden>分享</button>
           <a id="shareDl" class="cta ghost" download="astra-dies.png">下載圖片</a>
         </div>
-        <p class="share-hint">手機上也可以長按圖片儲存。</p>
+        <p id="shareHint" class="share-hint">手機上也可以長按圖片儲存。</p>
       </div>
     </dialog>
 
