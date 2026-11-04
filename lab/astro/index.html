@@ -18,9 +18,9 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-4fewXLG5.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-TpwLPL2c.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-D_pKRHd5.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-BOWKN6Fz.css">
   </head>
   <body>
     <span id="top"></span>
@@ -142,12 +142,19 @@
             <summary>用出生資料自動算（含上升與準確度數）</summary>
             <div class="birth">
               <label>出生日期<input type="date" id="bDate" min="1900-01-01" max="2100-12-31" /></label>
-              <label>出生時間<input type="time" id="bTime" /></label>
+              <label>出生時段<select id="bSlot">
+                <option value="exact">知道準確時間</option>
+                <option value="day">只知道是白天（06–18 點）</option>
+                <option value="eve">只知道是晚上（18 點以後）</option>
+                <option value="night">只知道是半夜（0–6 點）</option>
+                <option value="unknown">完全不知道</option>
+              </select></label>
+              <label id="bTimeWrap">出生時間<input type="time" id="bTime" /></label>
               <label>出生地區<select id="bCountry"></select></label>
               <label>城市<select id="bCity"></select></label>
               <label>時區<select id="bTz"></select></label>
               <div class="birth-act"><button type="button" id="bCalc" class="pillbtn">計算並填入</button><button type="button" id="bClear" class="linkbtn">清除我的資料</button></div>
-              <p class="birth-note" id="bNote">不知道出生時間也可以算，只是月亮會有幾度誤差、也算不出上升。海外出生若當時是夏令時間，時區請選快一小時的那個。</p>
+              <p class="birth-note" id="bNote">不知道準確時間也可以算：選白天、晚上或半夜，會用那段時間的中間估算；月亮如果在那段時間換了星座，會兩個都列出來。沒有準確時間就算不出上升。海外出生若當時是夏令時間，時區請選快一小時的那個。</p>
             </div>
           </details>
         </div>
