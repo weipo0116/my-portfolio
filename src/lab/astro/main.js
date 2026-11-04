@@ -2036,7 +2036,8 @@ async function openShare(si) {
   const cv = await drawShareCard(si);
   const url = cv.toDataURL("image/png");
   const tp = currentDay.tp;
-  const name = `astra-dies-${tp.y}${String(tp.m).padStart(2, "0")}${String(tp.d).padStart(2, "0")}-${SIGNS[si].la.toLowerCase()}.png`;
+  // e.g. 巨蟹座今日運勢_2026-11-04.png — readable in the photo library and Files
+  const name = `${SIGNS[si].zh}${dayWord()}運勢_${tp.y}-${String(tp.m).padStart(2, "0")}-${String(tp.d).padStart(2, "0")}.png`;
   $("shareImg").src = url;
   $("shareDl").href = url;
   $("shareDl").setAttribute("download", name);

@@ -412,3 +412,21 @@ section[id] { scroll-margin-top: 24px; }
 .look-body h3, .look-body > p, .look-body ul { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
 .look-body > p { margin: 0 0 14px; font-size: 0.92rem; color: #333; }
 .look-body .reroll { margin-left: 0; }
+
+/* v6: hourly strip is a plain swipeable chart (24 h), no click-to-reload */
+.hourly { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(64px, 1fr); scroll-snap-type: x proximity; scrollbar-width: none; overscroll-behavior-x: contain; }
+.hourly::-webkit-scrollbar { display: none; }
+.hour { scroll-snap-align: start; cursor: default; }
+.hourly:focus-visible { outline: 3px solid var(--bg); outline-offset: 2px; }
+@media (min-width: 721px) { .hourly { grid-auto-columns: 72px; } }
+@media (max-width: 720px) { .hourly { grid-template-columns: none; grid-auto-columns: 64px; } }
+
+/* style chips: one swipeable row */
+.pref:last-child { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; padding: 2px 0; }
+.pref:last-child::-webkit-scrollbar { display: none; }
+.pref:last-child .pchip { flex: 0 0 auto; }
+.pref:last-child .pref-k { flex: 0 0 auto; position: sticky; left: 0; z-index: 1; background: var(--paper); padding-right: 6px; }
+@media (max-width: 720px) { .prefs { flex-direction: column; align-items: stretch; } }
+
+/* page background picks up the day's power colour */
+body { background: var(--paper); transition: background-color 0.6s var(--ease); }

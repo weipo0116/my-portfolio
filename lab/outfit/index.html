@@ -73,16 +73,15 @@
         </div>
         <div class="wgrid" id="wgrid"></div>
         <div class="hourly-wrap" aria-label="未來 12 小時氣溫與降雨機率">
-          <div class="hshift" role="group" aria-label="調整出門時間">
+          <div class="hshift">
             <b id="hsLabel" aria-live="polite">現在出門</b>
-            <button type="button" data-sh="0" id="hsNow" class="hsnow" hidden>回到預設</button>
           </div>
           <div class="hourly-frame">
-            <button type="button" class="hs-side" data-sh="-3" id="hsPrev" aria-label="出門時間提早 3 小時"><span aria-hidden="true">‹</span><small>早 3h</small></button>
-            <div class="hourly" id="hourly"></div>
-            <button type="button" class="hs-side" data-sh="3" id="hsNext" aria-label="出門時間延後 3 小時"><span aria-hidden="true">›</span><small>晚 3h</small></button>
+            <button type="button" class="hs-side" data-sh="-3" id="hsPrev" aria-label="往前看 3 小時"><span aria-hidden="true">‹</span><small>前</small></button>
+            <div class="hourly" id="hourly" role="list" tabindex="0" aria-label="逐時氣溫與降雨，可左右滑動"></div>
+            <button type="button" class="hs-side" data-sh="3" id="hsNext" aria-label="往後看 3 小時"><span aria-hidden="true">›</span><small>後</small></button>
           </div>
-          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率　· 點任一小時＝從那時出門，穿搭會跟著換</p>
+          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率　· 左右滑動看更多小時</p>
         </div>
       </section>
 

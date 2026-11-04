@@ -405,12 +405,15 @@ function sliceWeather(raw, city, off, shift = 0) {
       start = Math.min(start + shift, j.hourly.time.length - 13);
       const hours = [];
       for (let k = start; k < Math.min(start + 13, j.hourly.time.length); k++) hours.push(mk(k));
+      common.strip = [];
+      for (let k = start; k < Math.min(start + 24, j.hourly.time.length); k++) common.strip.push(mk(k));
       if (shift) return { ...common, mode: "at", temp: hours[0].temp, feel: hours[0].feel, hum: null, code: hours[0].code, rain: Math.max(...hours.map((x) => x.rain), 0), hours };
       return { ...common, mode: "now", temp: j.current.temperature_2m, feel: j.current.apparent_temperature, hum: j.current.relative_humidity_2m, code: j.current.weather_code, rain: Math.max(...hours.map((x) => x.rain), 0), hours };
     }
     const first = Math.max(0, Math.min(j.hourly.time.findIndex((t) => t.startsWith(date) && t.slice(11, 13) === "08") + shift, j.hourly.time.length - 13));
     const hours = [];
     for (let k = first; k < Math.min(first + 13, j.hourly.time.length); k++) hours.push(mk(k));
+    common.strip = j.hourly.time.map((t, k) => (t.startsWith(date) ? mk(k) : null)).filter(Boolean);
     if (shift) return { ...common, mode: "at", temp: hours[0].temp, feel: hours[0].feel, hum: null, code: hours[0].code, rain: Math.max(...hours.map((x) => x.rain), 0), hours };
     const noon = hours[4] || hours[0];
     return { ...common, mode: "day", temp: noon.temp, feel: noon.feel, hum: null, code: j.daily.weather_code[di], rain: Math.max(...hours.map((x) => x.rain), 0), hours };
@@ -425,7 +428,13 @@ function sliceWeather(raw, city, off, shift = 0) {
     return { label: `${String(hh).padStart(2, "0")}:00`, temp: t, feel: t, rain: 30, code: 3 };
   });
   const mid = off === 0 || shift ? hours[0] : hours[4];
-  return { ok: false, loading: !raw, est: !!raw?.ok, mode: shift ? "at" : off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: null, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
+  const h1 = off === 0 ? hour0 : 0;
+  const strip = Array.from({ length: 24 }, (_, k) => {
+    const hh = (h1 + k) % 24;
+    const t = base + 3 * Math.sin(((hh - 9) / 24) * Math.PI * 2);
+    return { label: `${String(hh).padStart(2, "0")}:00`, temp: t, feel: t, rain: 30, code: 3 };
+  });
+  return { strip, ok: false, loading: !raw, est: !!raw?.ok, mode: shift ? "at" : off === 0 ? "now" : "day", temp: mid.temp, feel: mid.feel, hum: null, code: 3, max: base + 3, min: base - 4, rain: 30, uv: 6, hours };
 }
 
 /* ---------- render ---------- */
@@ -457,6 +466,12 @@ function paletteFor(elKey) {
   };
 }
 
+function tint(base, over, a) {
+  const p = (x) => [1, 3, 5].map((i) => parseInt(x.slice(i, i + 2), 16));
+  const [b, c] = [p(base), p(over)];
+  return "#" + b.map((v, i) => Math.round(v + (c[i] - v) * a).toString(16).padStart(2, "0")).join("");
+}
+
 function renderHero() {
   const { t, gz, el } = state.day;
   const E = EL[el];
@@ -464,6 +479,8 @@ function renderHero() {
   document.documentElement.style.setProperty("--bg", E.bg);
   document.documentElement.style.setProperty("--ink", E.ink);
   document.documentElement.style.setProperty("--accent", E.accent);
+  // paper picks up a light wash of the day's power colour (旺色), so the whole page follows the day's luck
+  document.documentElement.style.setProperty("--paper", tint("#f4f1ea", state.pal.g1.wear || state.pal.g1.hex, 0.14));
   document.querySelector('meta[name="theme-color"]').setAttribute("content", E.bg);
   $("dateLine").textContent = `${t.y}.${String(t.m).padStart(2, "0")}.${String(t.d).padStart(2, "0")} ${t.wk} · ${gz}日 · ${city.en}`;
   $("kicker").textContent = state.off === 0 ? "TODAY'S LOOK · 今日主色" : `${dayName(state.off).en} · ${dayName(state.off).zh}主色`;
@@ -538,8 +555,8 @@ function renderWeather() {
   );
   if (!w.ok) g.appendChild(h("p", "wnote", w.loading ? "天氣載入中，先以季節平均估算；載入完成會自動更新。" : w.est ? "這天超出天氣預報範圍（約未來 16 天內），以下為季節平均的估算值。" : "即時天氣暫時讀不到，以下為季節平均的估算值。"));
 
-  // hourly strip: temperature line + rain bars
-  const hrs = w.hours;
+  // hourly strip: temperature line + rain bars; swipe (or the side arrows) to see more hours
+  const hrs = w.strip || w.hours;
   const temps = hrs.map((x) => x.temp);
   const lo = Math.min(...temps), hi = Math.max(...temps);
   const span = Math.max(hi - lo, 4);
@@ -548,46 +565,39 @@ function renderWeather() {
     ...hrs.map((x, i) => {
       const y = 1 - (x.temp - lo) / span; // 0 top .. 1 bottom
       const d = h(
-        "button", "hour" + (i === 0 && w.mode !== "day" ? " now" : ""),
-        `<small>${i === 0 && w.mode === "now" ? "NOW" : i === 0 && w.mode === "at" ? `出門 ${x.label}` : x.label}</small>` +
+        "div", "hour" + (i === 0 && w.mode === "now" ? " now" : ""),
+        `<small>${i === 0 && w.mode === "now" ? "NOW" : x.label}</small>` +
           `<span class="dotwrap"><i class="dot" style="--y:${y.toFixed(3)}"></i></span>` +
           `<strong>${Math.round(x.temp)}°</strong>` +
           `<span class="rainbar"><i style="--p:${Math.round(x.rain)}%"></i></span>` +
           `<em>${Math.round(x.rain)}%</em>`,
       );
       d.style.setProperty("--i", i);
-      d.type = "button";
-      d.dataset.k = i;
-      d.setAttribute("aria-label", `${x.label} 出門：氣溫 ${Math.round(x.temp)}°，降雨 ${Math.round(x.rain)}%`);
+      d.setAttribute("role", "listitem");
+      d.setAttribute("aria-label", `${x.label}：氣溫 ${Math.round(x.temp)}°，降雨 ${Math.round(x.rain)}%`);
       return d;
     }),
   );
-  const [lo2, hi2] = shiftRange();
-  $("hsPrev").disabled = state.shift <= lo2;
-  $("hsNext").disabled = state.shift >= hi2;
-  $("hsNow").hidden = !state.shift;
-  $("hsLabel").textContent = w.mode === "now" ? "現在出門" : w.mode === "day" ? "08:00 出門（預設）" : `${w.hours[0].label} 出門`;
+  $("hsLabel").textContent = w.mode === "now" ? "接下來 24 小時" : "當天逐時";
+  // other days open at 08:00, the usual time to head out
+  const openAt = w.mode === "now" ? 0 : Math.max(0, hrs.findIndex((x) => x.label === "08:00"));
+  requestAnimationFrame(() => { strip.scrollLeft = openAt * (strip.firstElementChild?.offsetWidth || 64); syncHourArrows(); });
 }
+function syncHourArrows() {
+  const s = $("hourly");
+  $("hsPrev").disabled = s.scrollLeft <= 2;
+  $("hsNext").disabled = s.scrollLeft + s.clientWidth >= s.scrollWidth - 2;
+}
+$("hourly").addEventListener("scroll", () => { cancelAnimationFrame(state.hrRaf); state.hrRaf = requestAnimationFrame(syncHourArrows); }, { passive: true });
 
-// how far the window may move: today from now up to ~1.5 days ahead; other days within that date
-function shiftRange() {
-  if (state.off === 0) return [0, 36];
-  return [-8, 15];
-}
-function setShift(n) {
-  const [lo, hi] = shiftRange();
-  state.shift = Math.max(lo, Math.min(hi, n));
-  state.weather = sliceWeather(state.raw, state.city, state.off, state.shift);
-  renderCityTabs();
-  renderWeather();
-  renderLooks(true);
-  $("hourly").scrollTo({ left: 0, behavior: "smooth" });
-}
+// side arrows scroll the strip by about three hours; nothing else re-renders
 document.addEventListener("click", (e) => {
-  const hr = e.target.closest("#hourly .hour");
-  if (hr && Number(hr.dataset.k) > 0) { setShift(state.shift + Number(hr.dataset.k)); return; }
   const b = e.target.closest("[data-sh]");
-  if (b) setShift(b.dataset.sh === "0" ? 0 : state.shift + Number(b.dataset.sh));
+  if (!b) return;
+  const s = $("hourly");
+  const col = s.firstElementChild?.offsetWidth || 64;
+  const smooth = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  s.scrollBy({ left: Math.sign(Number(b.dataset.sh)) * col * 3, behavior: smooth });
 });
 
 function dayName(off) {
