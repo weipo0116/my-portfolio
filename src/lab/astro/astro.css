@@ -810,3 +810,4 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
   #sec-energy .en-side > .fold:first-child > summary { min-height: 0; padding-top: 0; }
   #sec-energy .en-main .summary { margin-top: 0; }
 }
+.birth label[hidden] { display: none; }

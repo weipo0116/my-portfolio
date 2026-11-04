@@ -1271,13 +1271,14 @@ function buildNatalForm() {
       renderPersonal();
     }
     if (e.target.id === "bCountry") fillCities();
+    if (e.target.id === "bSlot") $("bTimeWrap").hidden = e.target.value !== "exact";
     if (e.target.id === "bCity") $("bTz").value = String(CITIES[Number(e.target.value)][3]);
   });
   $("bCalc").addEventListener("click", calcBirth);
   $("bClear").addEventListener("click", () => {
     NATAL = { sign: {}, deg: {}, birth: null };
     saveNatal();
-    $("bDate").value = ""; $("bTime").value = "";
+    $("bDate").value = ""; $("bTime").value = ""; $("bSlot").value = "exact";
     syncNatalForm();
     renderPersonal();
   });
@@ -1290,26 +1291,45 @@ function syncNatalForm() {
   $("bCountry").value = (COUNTRIES.find(([, a, z]) => ci >= a && ci < z) || COUNTRIES[0])[0];
   fillCities(ci);
   $("bTz").value = String(b?.tz ?? CITIES[b?.city ?? 0][3]);
-  if (b) { $("bDate").value = b.date || ""; $("bTime").value = b.time || ""; }
+  if (b) { $("bDate").value = b.date || ""; $("bTime").value = b.time || ""; $("bSlot").value = b.slot || (b.time ? "exact" : "unknown"); }
+  $("bTimeWrap").hidden = $("bSlot").value !== "exact";
 }
+// birth time not known exactly: estimate from the middle of the window the visitor remembers
+const BIRTH_SLOTS = { day: [6, 18, "白天"], eve: [18, 24, "晚上"], night: [0, 6, "半夜"], unknown: [0, 24, "不知道時間"] };
 function calcBirth() {
-  const d = $("bDate").value, tm = $("bTime").value, ci = Number($("bCity").value), tz = Number($("bTz").value);
+  const d = $("bDate").value, ci = Number($("bCity").value), tz = Number($("bTz").value);
+  let slot = $("bSlot").value;
+  const tm = slot === "exact" ? $("bTime").value : "";
+  if (slot === "exact" && !tm) slot = "unknown";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { $("bNote").textContent = "請先填出生日期。"; return; }
   const [y, m, dd] = d.split("-").map(Number);
-  const [hh, mi] = tm ? tm.split(":").map(Number) : [12, 0];
-  const date = new Date(Date.UTC(y, m - 1, dd, hh, mi) - tz * H);
+  const at = (h, mi = 0) => new Date(Date.UTC(y, m - 1, dd, h, mi) - tz * H);
+  const win = BIRTH_SLOTS[slot];
+  const [hh, mi] = tm ? tm.split(":").map(Number) : [(win[0] + win[1]) / 2, 0];
+  const date = at(hh, mi);
   const deg = {};
   for (const k of ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]) deg[k] = lonOf(k, date);
   const c = CITIES[ci];
   if (tm) deg.Asc = ascendant(date, c[1], c[2]);
   NATAL.deg = deg;
   NATAL.sign = Object.fromEntries(Object.entries(deg).map(([k, v]) => [k, Math.floor(v / 30)]));
-  NATAL.birth = { date: d, time: tm, city: ci, tz };
+  NATAL.birth = { date: d, time: tm, slot, city: ci, tz };
   saveNatal();
   syncNatalForm();
-  $("bNote").textContent = tm
-    ? `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}、上升${SIGNS[NATAL.sign.Asc].zh}。宮位改用上升起算，相位用準確度數。`
-    : `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}（沒填時間，月亮可能差幾度、也沒有上升）。`;
+  if (tm) {
+    $("bNote").textContent = `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}、上升${SIGNS[NATAL.sign.Asc].zh}。宮位改用上升起算，相位用準確度數。`;
+  } else {
+    // the Moon moves ~0.5° an hour, so a 6–24 h window can straddle two signs; the Sun can too on a cusp day
+    const ends = [at(win[0]), new Date(at(win[1]).getTime() - 60000)];
+    const span = (k) => [...new Set(ends.map((t) => Math.floor(lonOf(k, t) / 30)))];
+    const list = (k) => span(k).map((i) => SIGNS[i].zh).join("或");
+    const moonS = span("Moon"), sunS = span("Sun");
+    const how = slot === "unknown" ? "時間不確定，先用中午 12:00 估算" : `已用${win[2]}的中間時間（${String(hh).padStart(2, "0")}:00）估算`;
+    $("bNote").textContent = `${how}：太陽${list("Sun")}、月亮${list("Moon")}。` +
+      (moonS.length > 1 ? `月亮在這段時間換了星座，目前先用${SIGNS[NATAL.sign.Moon].zh}；之後想起準確時間可以再算一次。` : "這段時間裡月亮都在同一個星座，結果可以放心參考。") +
+      (sunS.length > 1 ? "你剛好生在太陽換星座的那天，太陽星座要看出生時間。" : "") +
+      "沒有準確時間，所以算不出上升。";
+  }
   renderPersonal();
 }
 
