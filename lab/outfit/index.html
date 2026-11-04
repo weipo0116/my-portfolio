@@ -18,10 +18,10 @@
     />
     <title>Five Elements · 五行穿搭</title>
     <meta name="description" content="依當日五行與台北天氣，生成大膽配色的每日穿搭。五行屬文化娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-0Sh1QoAa.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-B56uDEzO.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/_commonjsHelpers-Cpj98o6Y.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-BGzAKRNG.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-BSiTWqRm.css">
   </head>
   <body>
     <div id="wipe" aria-hidden="true"></div>
@@ -33,7 +33,8 @@
           <span id="dateLine">—</span>
         </div>
         <p class="kicker" id="kicker">TODAY'S LOOK · 今日主色</p>
-        <div class="daybar">
+        <div class="daybar collapsed" id="daybar">
+          <button type="button" class="pickbtn daytoggle" id="dayToggle" aria-expanded="false" aria-controls="dayTabs"><span>日期</span><b id="dayToggleVal">今天</b><i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i></button>
           <div class="tabs days" id="dayTabs" role="group" aria-label="選擇日期"></div>
           <div class="datepick" id="datepick">
             <button type="button" class="pickbtn" id="dayPickBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal"><span>任選日期</span><b id="dayPickVal">—</b><i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i></button>
@@ -76,8 +77,14 @@
         </div>
         <div class="wgrid" id="wgrid"></div>
         <div class="hourly-wrap" aria-label="未來 12 小時氣溫與降雨機率">
+          <div class="hshift" role="group" aria-label="調整出門時間">
+            <button type="button" data-sh="-3" id="hsPrev">‹ 早 3 小時</button>
+            <b id="hsLabel" aria-live="polite">現在出門</b>
+            <button type="button" data-sh="3" id="hsNext">晚 3 小時 ›</button>
+            <button type="button" data-sh="0" id="hsNow" class="hsnow" hidden>回到預設</button>
+          </div>
           <div class="hourly" id="hourly"></div>
-          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率</p>
+          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率　· 點任一小時＝從那時出門，穿搭會跟著換</p>
         </div>
       </section>
 
@@ -86,6 +93,7 @@
           <h2 id="h-l">THE LOOKS <span>選擇場合</span></h2>
           <div class="tabs" id="tabs" role="group" aria-label="選擇場合"></div>
         </div>
+        <div class="prefs reveal" id="prefs"></div>
         <div class="why reveal" id="why"></div>
         <div class="look-grid" id="lookGrid"></div>
       </section>
