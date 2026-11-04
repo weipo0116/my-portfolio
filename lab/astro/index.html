@@ -18,9 +18,9 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-DiAaMmgG.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-8rMoffXX.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-t62axPfA.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-BI_o19HM.css">
   </head>
   <body>
     <span id="top"></span>
@@ -208,21 +208,21 @@
             </div>
             <div class="timebox">
               <p class="tb-label" id="tbLabel"></p>
-              <input id="tbRange" type="range" min="-30" max="30" step="1" value="0" aria-label="相對今天的天數" />
+              <input id="tbRange" type="range" min="-180" max="180" step="1" value="0" aria-label="相對今天的天數" />
               <div class="tb-btns" id="tbBtns">
                 <div class="tb-row r3">
-                  <button type="button" data-off="-1">昨天</button>
-                  <button type="button" data-off="0" class="strong">今天</button>
-                  <button type="button" data-off="1">明天</button>
+                  <button type="button" data-step="-1">‹ 前一天</button>
+                  <button type="button" data-step="0" class="strong">今天</button>
+                  <button type="button" data-step="1">後一天 ›</button>
                 </div>
                 <div class="tb-row r4">
-                  <button type="button" data-off="-30">過去 1 月</button>
-                  <button type="button" data-off="-7">過去 1 週</button>
-                  <button type="button" data-off="7">未來 1 週</button>
-                  <button type="button" data-off="30">未來 1 月</button>
+                  <button type="button" data-step="-30">« 前一月</button>
+                  <button type="button" data-step="-7">‹ 前一週</button>
+                  <button type="button" data-step="7">後一週 ›</button>
+                  <button type="button" data-step="30">後一月 »</button>
                 </div>
               </div>
-              <p class="tb-hint" id="tbHint">滑鼠移到右側的行星或相位，左邊星盤會聚焦；反過來也可以。</p>
+              <p class="tb-hint" id="tbHint">按鈕可以連續按，最多前後各看半年。滑鼠移到右側的行星或相位，左邊星盤會聚焦。</p>
             </div>
           </aside>
           <div class="dlg-right">

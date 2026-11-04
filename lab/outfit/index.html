@@ -18,10 +18,10 @@
     />
     <title>Five Elements · 五行穿搭</title>
     <meta name="description" content="依當日五行與台北天氣，生成大膽配色的每日穿搭。五行屬文化娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-B56uDEzO.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-CgcJI8gz.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/_commonjsHelpers-Cpj98o6Y.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-BSiTWqRm.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-VzTDeITt.css">
   </head>
   <body>
     <div id="wipe" aria-hidden="true"></div>
@@ -78,12 +78,14 @@
         <div class="wgrid" id="wgrid"></div>
         <div class="hourly-wrap" aria-label="未來 12 小時氣溫與降雨機率">
           <div class="hshift" role="group" aria-label="調整出門時間">
-            <button type="button" data-sh="-3" id="hsPrev">‹ 早 3 小時</button>
             <b id="hsLabel" aria-live="polite">現在出門</b>
-            <button type="button" data-sh="3" id="hsNext">晚 3 小時 ›</button>
             <button type="button" data-sh="0" id="hsNow" class="hsnow" hidden>回到預設</button>
           </div>
-          <div class="hourly" id="hourly"></div>
+          <div class="hourly-frame">
+            <button type="button" class="hs-side" data-sh="-3" id="hsPrev" aria-label="出門時間提早 3 小時"><span aria-hidden="true">‹</span><small>早 3h</small></button>
+            <div class="hourly" id="hourly"></div>
+            <button type="button" class="hs-side" data-sh="3" id="hsNext" aria-label="出門時間延後 3 小時"><span aria-hidden="true">›</span><small>晚 3h</small></button>
+          </div>
           <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率　· 點任一小時＝從那時出門，穿搭會跟著換</p>
         </div>
       </section>
@@ -105,7 +107,7 @@
       </section>
 
       <footer class="foot">
-        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市可選台北、東京、首爾、紐約。</p>
+        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市可選台北、新竹、東京、首爾、紐約。</p>
         <p>五行穿搭屬傳統文化與時尚遊戲，僅供娛樂與搭配靈感，不是科學預測。</p>
       </footer>
     </main>
