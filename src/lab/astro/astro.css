@@ -726,3 +726,8 @@ html[data-theme="light"] .natal select, html[data-theme="light"] .birth input, h
 .houses .moon-tag { display: inline-block; line-height: 1.6; }
 @media (max-width: 720px) { .block { scroll-margin-top: 72px; } }
 html, body { overflow-x: clip; }
+
+/* fortune card: the shown day's sky for the chosen sign */
+.tsky { margin: 4px 0 18px; }
+.tsky-k { margin: 0 0 6px; font-family: var(--serif-zh); font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); }
+.tsky .summary { margin: 0; padding: 4px 18px; font-size: 1rem; line-height: 1.75; max-width: none; }

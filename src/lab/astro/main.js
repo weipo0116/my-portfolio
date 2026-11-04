@@ -792,7 +792,6 @@ let prevPos = null;
 let shownDate = null;
 let lastRender = 0;
 let fortuneMode = "day";
-let fortuneCat = "love";
 const SIGN_KEY = "astra-sign";
 let fortuneSign = "all"; // "all" or a sign index 0-11
 try { const v = localStorage.getItem(SIGN_KEY); if (v && v !== "all" && Number(v) >= 0 && Number(v) < 12) fortuneSign = Number(v); } catch { /* storage unavailable */ }
@@ -991,9 +990,8 @@ function render({ dur = 1700 } = {}) {
   currentWeek = weekFortune(date);
   {
     const sm = buildSummary(pos, aspects, phaseIdx, info);
-    currentDay = { tp, headline: headline(pos, info), summary: sm.text, advice: sm.advice };
+    currentDay = { tp, info, headline: headline(pos, info), summary: sm.text, advice: sm.advice };
   }
-  renderFortune();
   renderToday();
   observeReveals();
 }
@@ -1416,82 +1414,6 @@ function renderRhythm(info, prev, pos, prevPos) {
 
 function stars(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
 
-function renderFortune() {
-  const week = fortuneMode === "week";
-  const list = (week ? currentWeek.data : currentFortune)[fortuneCat];
-  const tier = (st) => (st >= 4 ? "旺" : st === 3 ? "平穩" : "留意");
-  const groups = [
-    ["旺", "近期順風，適合主動出擊", (r) => r.stars >= 4],
-    ["平穩", "照節奏走，不需要特別調整", (r) => r.stars === 3],
-    ["留意", "放慢一點，先顧好基本盤", (r) => r.stars <= 2],
-  ];
-  $("weekEvents").replaceChildren();
-  if (week) {
-    const evs = periodEvents(currentWeek.from, currentWeek.to);
-    $("fortuneNote").textContent = `本週：${md(currentWeek.from)}（週一）– ${md(currentWeek.to)}（週日）。分數是 12 個星座之間的相對高低，取整週平均。`;
-    $("weekEvents").replaceChildren(
-      ...(evs.length ? evs : [{ t: currentWeek.from, icon: "·", text: "本週沒有換座、逆行或新滿月", kind: "" }]).map((e) => {
-        const li = document.createElement("li");
-        li.className = "ev " + e.kind;
-        li.innerHTML = `<i>${e.icon}</i><b>${md(e.t)}</b><span></span>`;
-        li.querySelector("span").textContent = e.text;
-        return li;
-      }),
-    );
-  } else {
-    $("fortuneNote").textContent = "依今天行星的位置，換算每個星座在感情、事業、財運上的順逆。星數是 12 個星座之間的相對高低，看個大方向、當作聊天話題就好。";
-  }
-  if (fortuneSign !== "all") {
-    const si = fortuneSign;
-    const src = week ? currentWeek.data : currentFortune;
-    const sg = SIGNS[si];
-    const rows = Object.keys(CATS).map((cat) => ({ cat, ...src[cat][si] }));
-    const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
-    const card = document.createElement("article");
-    card.className = "signcard";
-    card.innerHTML = `<header><span class="sg">${TXT(sg.g)}</span><div><h3>${sg.zh}</h3><p>${sg.la} · ${SIGN_DATES[si]} · ${sg.el}象</p></div><div class="sa"><small>${week ? "本週綜合" : "今日綜合"}</small><span class="fs"></span></div></header><p class="sgtone"></p><ul></ul>`;
-    card.querySelector(".sa .fs").textContent = stars(avg);
-    card.querySelector(".sgtone").textContent = `${sg.zh}的底色：${sg.tone}。`;
-    const ul = card.querySelector("ul");
-    rows.forEach((r, i) => {
-      const li = document.createElement("li");
-      li.style.setProperty("--i", i);
-      li.innerHTML = `<span class="cl"></span><span class="fs"></span><span class="ft"><span class="ft-main"></span><small class="ft-why"></small></span>`;
-      li.querySelector(".cl").textContent = CATS[r.cat];
-      li.querySelector(".fs").textContent = stars(r.stars);
-      li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
-      li.querySelector(".ft-main").textContent = r.note;
-      li.querySelector(".ft-why").textContent = [r.extra, r.why].filter(Boolean).join("　·　");
-      ul.appendChild(li);
-    });
-    $("fortune").replaceChildren(card);
-    return;
-  }
-  const box = $("fortune");
-  box.replaceChildren(
-    ...groups.map(([name, sub, fn]) => {
-      const rows = list.filter(fn).sort((a, b) => b.score - a.score);
-      const sec = document.createElement("section");
-      sec.className = "fgroup g-" + (name === "旺" ? "hi" : name === "平穩" ? "mid" : "lo");
-      sec.innerHTML = `<h3><b>${name}</b><span>${sub}</span><em>${rows.length} 個星座</em></h3>`;
-      const ul = document.createElement("ul");
-      rows.forEach((r, i) => {
-        const li = document.createElement("li");
-        li.style.setProperty("--i", i);
-        li.innerHTML = `<span class="fg">${TXT(r.sign.g)}</span><span class="fn"><b>${r.sign.zh}</b><i>${r.sign.la}</i></span><span class="fs" aria-label="${r.stars} 顆星">${stars(r.stars)}</span><span class="ft"></span>`;
-        const ft = li.querySelector(".ft");
-        ft.append(Object.assign(document.createElement("span"), { className: "ft-main", textContent: r.note }));
-        ft.append(Object.assign(document.createElement("small"), { className: "ft-why", textContent: [r.extra, r.why].filter(Boolean).join("　·　") }));
-        ul.appendChild(li);
-      });
-      if (!rows.length) ul.innerHTML = '<li class="empty">這一組目前沒有星座</li>';
-      sec.appendChild(ul);
-      return sec;
-    }),
-  );
-  void tier;
-}
-
 function renderLegend() {
   const rows = [
     ["℞", "逆行：從地球看，這顆星暫時「倒退」，通常提醒回頭檢查、重做舊事。"],
@@ -1571,19 +1493,6 @@ $("tbRange").addEventListener("input", (e) => {
   rafId = requestAnimationFrame(() => go(v, 500));
 });
 
-$("modeSeg").addEventListener("click", (e) => {
-  const b = e.target.closest("button"); if (!b) return;
-  fortuneMode = b.dataset.mode;
-  $("modeSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
-  renderFortune();
-});
-$("catSeg").addEventListener("click", (e) => {
-  const b = e.target.closest("button"); if (!b) return;
-  fortuneCat = b.dataset.cat;
-  $("catSeg").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
-  renderFortune();
-});
-
 /* hover / tap focus: the table, the aspect cards and the wheel highlight each other */
 const dlg = $("chartDialog");
 const wheelMain = $("wheelMain");
@@ -1640,38 +1549,6 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   try { localStorage.setItem(THEME_KEY, next); } catch { /* storage unavailable */ }
 });
 
-function buildSignBar() {
-  const bar = $("signBar");
-  const mk = (key, html, label) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.dataset.sign = String(key);
-    b.innerHTML = html;
-    b.setAttribute("aria-label", label);
-    bar.appendChild(b);
-  };
-  mk("all", "<span>全部</span>", "看全部星座");
-  SIGNS.forEach((sg, i) => mk(i, `<i>${TXT(sg.g)}</i><span>${sg.zh.replace("座", "")}</span>`, sg.zh));
-  syncSignBar();
-}
-function syncSignBar() {
-  $("signBar").querySelectorAll("button").forEach((b) => {
-    const on = b.dataset.sign === String(fortuneSign);
-    b.classList.toggle("on", on);
-    b.setAttribute("aria-pressed", String(on));
-  });
-  $("catSeg").hidden = fortuneSign !== "all";
-}
-buildSignBar();
-$("signBar").addEventListener("click", (e) => {
-  const b = e.target.closest("button");
-  if (!b) return;
-  fortuneSign = b.dataset.sign === "all" ? "all" : Number(b.dataset.sign);
-  try { localStorage.setItem(SIGN_KEY, String(fortuneSign)); } catch { /* storage unavailable */ }
-  syncSignBar();
-  renderFortune();
-  renderToday();
-});
 
 /* ---------- view switch: fortune (general) / chart (astrology fans) ---------- */
 function applyView(v) {
@@ -1713,8 +1590,6 @@ function buildTodayPick() {
     if (!b) return;
     fortuneSign = Number(b.dataset.sign);
     try { localStorage.setItem(SIGN_KEY, String(fortuneSign)); } catch { /* storage unavailable */ }
-    syncSignBar();
-    renderFortune();
     renderToday();
   });
 }
@@ -1728,12 +1603,93 @@ function luckyFor(tp, si) {
   return { color: LUCKY_COLORS[h % 12], num: 1 + ((h >>> 8) % 9), dir: LUCKY_DIRS[(h >>> 16) % 8] };
 }
 
+// What the shown day's sky does for one sun sign: where the Moon falls (solar houses) and the
+// Moon's strongest exact aspect that day. This is the part that actually changes day to day.
+function skyFor(si) {
+  const info = currentDay.info;
+  const rows = [];
+  const hs = info.segs.map((s) => signDist(s.sign, si));
+  if (hs.length > 1) {
+    const t = fmtT(info.segs[1].from);
+    rows.push(["月亮", `${t} 前在你的第 ${hs[0] + 1} 宮（${HOUSES[hs[0]][0]}）`, HOUSE_TIP[hs[0]]]);
+    rows.push(["", `${t} 後進第 ${hs[1] + 1} 宮（${HOUSES[hs[1]][0]}）`, HOUSE_TIP[hs[1]]]);
+  } else {
+    rows.push(["月亮", `在你的第 ${hs[0] + 1} 宮（${HOUSES[hs[0]][0]}）`, HOUSE_TIP[hs[0]]]);
+  }
+  const key = [bestHard(info), bestSoft(info)].filter(Boolean).sort((a, b) => evScore(b) - evScore(a))[0];
+  if (key) {
+    const tx = evText(key);
+    rows.push(["關鍵", `${timeAt(key)} ${tx.name}`, tx.mean]);
+  }
+  const v = info.voc[0];
+  if (v) rows.push(["空亡", `${fmtT(v.from)}–${fmtT(v.to)} 月亮空亡`, "這段時間做的決定容易沒下文，適合收尾、休息，不適合開新局或簽約。"]);
+  rows.push(["當值", `${info.wk.zh} · ${info.wk.pl}日`, info.wk.theme]);
+  return rows;
+}
+
 function todayData(si) {
   const rows = Object.keys(CATS).map((cat) => ({ cat, ...currentFortune[cat][si] }));
   const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
   const best = rows.slice().sort((a, b) => b.stars - a.stars || b.score - a.score)[0];
   return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: ONE_LINER[best.cat][tierOf(avg)].replace(/^今天/, dayNoun()), lucky: luckyFor(currentDay.tp, si) };
 }
+
+// 本週 view of the same card: whole-week averages, best/worst day, and the week's sky events
+function weekCard(si) {
+  const sg = SIGNS[si];
+  const { data, from, to } = currentWeek;
+  const rows = Object.keys(CATS).map((cat) => ({ cat, ...data[cat][si] }));
+  const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
+  const tier = tierOf(avg);
+  const card = document.createElement("article");
+  card.className = "signcard tcard";
+  card.innerHTML = `
+    <header>
+      <span class="sg">${TXT(sg.g)}</span>
+      <div><h3>${sg.zh}</h3><p>${sg.la} · ${SIGN_DATES[si]} · ${md(from)}（一）–${md(to)}（日）</p></div>
+      <div class="sa"><small>本週綜合</small><span class="fs big"></span><b class="tier t-${tier}">${TIER_ZH[tier]}</b></div>
+    </header>
+    <ul class="tcats"></ul>
+    <div class="tsky"><p class="tsky-k">本週天象</p><ul class="events"></ul></div>
+    <p class="lucky-note">本週分數取週一到週日每天的平均，星數是 12 個星座之間的相對高低。</p>`;
+  const fs = card.querySelector(".sa .fs");
+  fs.textContent = stars(avg);
+  fs.setAttribute("aria-label", `${avg} 顆星`);
+  const ul = card.querySelector(".tcats");
+  rows.forEach((r, i) => {
+    const li = document.createElement("li");
+    li.style.setProperty("--i", i);
+    li.innerHTML = `<div class="tc-head"><span class="cl"></span><span class="fs"></span></div><p class="ft-main"></p><p class="ft-why"></p>`;
+    li.querySelector(".cl").textContent = CATS[r.cat];
+    li.querySelector(".fs").textContent = stars(r.stars);
+    li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
+    li.querySelector(".ft-main").textContent = r.note.replace("今天", "這週");
+    li.querySelector(".ft-why").textContent = `${r.extra}。${r.why}。`;
+    ul.appendChild(li);
+  });
+  const evs = periodEvents(from, to);
+  card.querySelector(".events").replaceChildren(
+    ...(evs.length ? evs : [{ t: from, icon: "·", text: "本週沒有換座、逆行或新滿月", kind: "" }]).map((e) => {
+      const li = document.createElement("li");
+      li.className = "ev " + e.kind;
+      li.innerHTML = `<i>${e.icon}</i><b>${md(e.t)}</b><span></span>`;
+      li.querySelector("span").textContent = e.text;
+      return li;
+    }),
+  );
+  return card;
+}
+
+$("modeSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  fortuneMode = b.dataset.mode;
+  $("modeSeg").querySelectorAll("button").forEach((x) => {
+    x.classList.toggle("on", x === b);
+    x.setAttribute("aria-pressed", String(x === b));
+  });
+  renderToday();
+});
 
 function renderToday() {
   const pick = $("todayPick");
@@ -1749,6 +1705,7 @@ function renderToday() {
     return;
   }
   const si = fortuneSign;
+  if (fortuneMode === "week") { box.replaceChildren(weekCard(si)); return; }
   const d = todayData(si);
   const tp = currentDay.tp;
   const card = document.createElement("article");
@@ -1760,6 +1717,7 @@ function renderToday() {
       <div class="sa"><small>${dayWord()}綜合</small><span class="fs big"></span><b class="tier t-${d.tier}">${TIER_ZH[d.tier]}</b></div>
     </header>
     <p class="tquote"></p>
+    <div class="tsky"><p class="tsky-k"></p><div class="summary tsky-rows"></div></div>
     <ul class="tcats"></ul>
     <div class="lucky">
       <div><small>幸運色</small><span><i class="sw"></i><b class="lc"></b></span></div>
@@ -1779,6 +1737,17 @@ function renderToday() {
   fs.textContent = stars(d.avg);
   fs.setAttribute("aria-label", `${d.avg} 顆星`);
   card.querySelector(".tquote").textContent = d.line;
+  card.querySelector(".tsky-k").textContent = `${dayWord()}天象 × ${d.sg.zh}`;
+  card.querySelector(".tsky-rows").replaceChildren(
+    ...skyFor(si).map(([k, h, t]) => {
+      const p = document.createElement("p");
+      p.innerHTML = "<b></b><span><strong></strong><em></em></span>";
+      p.querySelector("b").textContent = k;
+      p.querySelector("strong").textContent = h;
+      p.querySelector("em").textContent = t;
+      return p;
+    }),
+  );
   const ul = card.querySelector(".tcats");
   d.rows.forEach((r, i) => {
     const [dos, donts] = DO_DONT[r.cat][tierOf(r.stars)];
@@ -1788,7 +1757,7 @@ function renderToday() {
     li.querySelector(".cl").textContent = CATS[r.cat];
     li.querySelector(".fs").textContent = stars(r.stars);
     li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
-    li.querySelector(".ft-main").textContent = r.note;
+    li.querySelector(".ft-main").textContent = r.note.replace("今天", dayNoun());
     const chip = (t) => Object.assign(document.createElement("span"), { className: "chip", textContent: t });
     li.querySelector(".do").append(...dos.map(chip));
     li.querySelector(".dont").append(...donts.map(chip));

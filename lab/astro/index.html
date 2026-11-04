@@ -53,7 +53,6 @@
         <p class="updated" id="updated"></p>
         <nav class="jump" aria-label="快速導覽">
           <a href="#sec-today" class="v-fortune">我的運勢</a>
-          <a href="#sec-fortune" class="v-fortune">十二星座</a>
           <a href="#sec-energy" class="v-chart">今日能量</a>
           <a href="#sec-moon" class="v-chart">月相</a>
           <a href="#sec-houses" class="v-chart">宮位</a>
@@ -64,6 +63,12 @@
       <section class="block reveal v-fortune" id="sec-today" aria-labelledby="h-today">
         <h2 id="h-today"><span class="num">✦</span> 我的運勢 <em>Fortuna Mea</em></h2>
         <div class="signbar pick" id="todayPick" role="group" aria-label="選擇你的星座"></div>
+        <div class="fortune-ctl">
+          <div class="seg" id="modeSeg" role="group" aria-label="時間範圍">
+            <button type="button" data-mode="day" class="on" aria-pressed="true">今日</button>
+            <button type="button" data-mode="week" aria-pressed="false">本週</button>
+          </div>
+        </div>
         <div id="todayCard"></div>
       </section>
 
@@ -145,24 +150,6 @@
         </details>
       </section>
 
-      <section class="block reveal v-fortune" id="sec-fortune" aria-labelledby="h-fortune">
-        <h2 id="h-fortune"><span class="num">II</span> 十二星座一覽 <em>Fortuna</em></h2>
-        <p class="prose sub-note" id="fortuneNote"></p>
-        <div class="signbar" id="signBar" role="group" aria-label="選擇星座"></div>
-        <div class="fortune-ctl">
-          <div class="seg" id="modeSeg" role="group" aria-label="時間範圍">
-            <button type="button" data-mode="day" class="on">今日</button>
-            <button type="button" data-mode="week">本週</button>
-          </div>
-          <div class="seg" id="catSeg" role="group" aria-label="運勢類別">
-            <button type="button" data-cat="love" class="on">感情</button>
-            <button type="button" data-cat="career">事業</button>
-            <button type="button" data-cat="money">財運</button>
-          </div>
-        </div>
-        <ul id="weekEvents" class="events"></ul>
-        <div id="fortune" class="fortune"></div>
-      </section>
 
       <footer class="foot" id="sec-notes">
         <p class="foot-title">關於這個頁面</p>
@@ -183,7 +170,6 @@
     <nav class="dock" id="dock" aria-label="頁面導覽">
       <a href="#top">↑ TOP</a>
       <a href="#sec-today" class="v-fortune">我的運勢</a>
-      <a href="#sec-fortune" class="v-fortune">十二星座</a>
       <a href="#sec-energy" class="v-chart">能量</a>
       <a href="#sec-moon" class="v-chart">月相</a>
       <a href="#sec-houses" class="v-chart">宮位</a>
