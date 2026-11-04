@@ -1235,7 +1235,7 @@ function renderHouseRead(base) {
   const fold = document.createElement("details");
   fold.className = "hr-tablefold";
   fold.open = true;
-  fold.innerHTML = "<summary>星體位置一覽<small>星座與宮位</small></summary>";
+  fold.innerHTML = "<summary><span>星體位置一覽</span><small>星座與宮位</small></summary>";
   fold.append(tbl);
   parts.push(fold);
 
@@ -1296,21 +1296,30 @@ function renderHouseRead(base) {
       : `宮主${RULER_ZH[r]}在第 ${j + 1} 宮，這件事常常要透過「${HOUSES[j][0]}：${HOUSES[j][1]}」來展開。`;
     rulers.push([`第 ${i + 1} 宮`, `${HOUSES[i][0]}（${HOUSES[i][1]}）`, t]);
   }
+  let rulerFold = null;
   if (rulers.length) {
     const d = document.createElement("details");
     d.className = "hr-rulers";
-    d.innerHTML = "<summary>進階：宮主星飛到哪裡</summary>";
+    d.open = matchMedia("(min-width: 900px)").matches; // side column on wide screens: open for side-by-side reading
+    d.innerHTML = "<summary><span>進階：宮主星飛到哪裡</span></summary>";
     d.append(el("p", "hr-tip", "每一宮所在的星座都有一顆守護星（宮主星）。宮主星落在哪一宮，就表示這一宮的事情會往哪裡發展、要從哪裡著手。這是看盤時把十二宮串成故事的方法。"));
     const ul = el("ul", "hr-rl");
     ul.append(...rulers.map(([a, b, t]) => { const li = document.createElement("li"); li.append(el("b", "", a), el("span", "", `${b}：${t}`)); return li; }));
     d.append(ul);
-    parts.push(d);
+    rulerFold = d;
   }
 
   parts.push(el("p", "hr-tip", base.by === "asc"
     ? "宮位從上升排起，一個星座就是一宮（整宮制，最古老也最好上手的分法）。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
     : "還沒有上升，宮位暫用太陽星座排，只能看大方向。填上出生時間算出上升，或在上面直接選上升星座，宮位才會準。"));
-  box.replaceChildren(...parts);
+  // two columns on wide screens: the reading on the left, house rulers on the right to read against it
+  const left = el("div", "hr-left"), right = el("div", "hr-right");
+  const tip = parts.pop();
+  left.append(...parts, tip);
+  if (rulerFold) right.append(rulerFold);
+  const cols = el("div", "hr-cols" + (rulerFold ? "" : " single"));
+  cols.append(left, right);
+  box.replaceChildren(cols);
 }
 
 function renderHouses(info) {

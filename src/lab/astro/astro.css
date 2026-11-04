@@ -860,3 +860,41 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
 .hr-tablefold { margin: 4px 0 6px; }
 .hr-tablefold > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: 10px; color: var(--gold-soft); font-weight: 600; letter-spacing: 0.06em; }
 .hr-tablefold > summary small { margin-left: auto; color: var(--muted); font-weight: 400; font-size: 0.75rem; }
+
+/* reading + rulers side by side on wide screens */
+.house-read { max-width: none; }
+.hr-cols { display: grid; gap: 8px 40px; }
+@media (min-width: 900px) {
+  .hr-cols { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
+  .hr-cols.single { grid-template-columns: minmax(0, 1fr); }
+  .hr-right { position: sticky; top: 84px; max-height: calc(100vh - 180px); overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+  .hr-right .hr-rulers { margin-top: 0; border-top: 0; }
+}
+
+/* every fold shows a visible open/close control */
+.hr-tablefold > summary, .hr-rulers > summary { list-style: none; display: flex; align-items: center; gap: 10px; }
+.hr-tablefold > summary::-webkit-details-marker, .hr-rulers > summary::-webkit-details-marker { display: none; }
+.hr-tablefold > summary::after, .hr-rulers > summary::after {
+  content: "展開 ▾"; margin-left: auto; flex: none; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+  color: var(--gold); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.hr-tablefold[open] > summary::after, .hr-rulers[open] > summary::after { content: "收合 ▴"; }
+.hr-tablefold > summary:hover::after, .hr-rulers > summary:hover::after { background: rgba(var(--gold-rgb), 0.14); border-color: var(--gold); }
+.hr-tablefold > summary small { margin-left: 0; }
+.hr-tablefold > summary:focus-visible, .hr-rulers > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+.hr-item > summary::after { content: "＋"; width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font-size: 0.75rem; padding: 0; }
+.hr-item > summary { grid-template-columns: 64px 1fr 22px; }
+@media (max-width: 560px) { .hr-item > summary { grid-template-columns: 56px 1fr 22px; } }
+/* same visible control on the page-level folds and the fortune card's "why" fold */
+.fold > summary::after, .tsky > summary::after {
+  content: "展開 ▾"; flex: none; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; color: var(--gold);
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; transform: none;
+}
+.fold[open] > summary::after, .tsky[open] > summary::after { content: "收合 ▴"; transform: none; }
+.fold > summary:hover::after, .tsky > summary:hover::after { background: rgba(var(--gold-rgb), 0.14); border-color: var(--gold); }
+.fold > summary small, .tsky > summary small { margin-left: auto; margin-right: 2px; }
+.fold > summary:not(:has(small))::after, .tsky > summary:not(:has(small))::after { margin-left: auto; }
+@media (max-width: 420px) {
+  .fold > summary small, .tsky > summary small { display: none; }
+  .fold > summary::after, .tsky > summary::after { margin-left: auto; }
+}
