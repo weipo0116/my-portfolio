@@ -1189,6 +1189,70 @@ const PLANET_INFO = {
   Pluto: { func: "深層力量與蛻變", light: "能看穿本質，越挫越強", shadow: "容易執著或想掌控", guide: "放下想控制的念頭，這裡每一次結束都是重生" },
 };
 
+// Natal chart wheel: Ascendant on the left, zodiac counter-clockwise, whole-sign houses,
+// planets at their exact degrees (sign middle when only the sign is known), major aspects in the centre.
+function natalWheel(base) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "-170 -170 340 340");
+  svg.setAttribute("class", "natal-wheel");
+  svg.setAttribute("role", "img");
+  const mk = (tag, attrs, parent = svg) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); parent.appendChild(n); return n; };
+  const exact = NATAL.deg.Sun != null;
+  const lonOfK = (k) => (exact && NATAL.deg[k] != null ? NATAL.deg[k] : NATAL.sign[k] * 30 + 15);
+  const asc = NATAL.sign.Asc != null ? lonOfK("Asc") : base.sign * 30;
+  const P = (lon, r) => { const a = Math.PI + ((lon - asc) * Math.PI) / 180; return [r * Math.cos(a), -r * Math.sin(a)]; };
+  const R0 = 160, R1 = 134, R2 = 112, R3 = 60;
+  mk("circle", { r: R0 + 8, class: "nw-bg" });
+  mk("circle", { r: R0, class: "nw-ring" }); mk("circle", { r: R1, class: "nw-ring" }); mk("circle", { r: R2, class: "nw-ring" }); mk("circle", { r: R3, class: "nw-ring faint" });
+  for (let i = 0; i < 12; i++) {
+    const [x0, y0] = P(i * 30, R2), [x1, y1] = P(i * 30, R0);
+    mk("line", { x1: x0, y1: y0, x2: x1, y2: y1, class: "nw-div" });
+    const [gx, gy] = P(i * 30 + 15, (R0 + R1) / 2);
+    const t = mk("text", { x: gx, y: gy, class: "nw-sign" + (i === base.sign ? " first" : "") }); t.textContent = TXT(SIGNS[i].g);
+    const h = signDist(i, base.sign);
+    const [hx, hy] = P(i * 30 + 15, (R1 + R2) / 2);
+    const ht = mk("text", { x: hx, y: hy, class: "nw-house" }); ht.textContent = String(h + 1);
+  }
+  // Ascendant axis
+  if (NATAL.sign.Asc != null) {
+    const [ax, ay] = P(asc, R0 + 4), [dx, dy] = P(asc + 180, R0 + 4);
+    mk("line", { x1: ax, y1: ay, x2: dx, y2: dy, class: "nw-axis" });
+    const [lx, ly] = P(asc, R0 + 2); const at = mk("text", { x: lx - 2, y: ly - 8, class: "nw-ac" }); at.textContent = "AC";
+  }
+  // planets, nudged apart when they sit within 8° of each other
+  const keys = NATAL_KEYS.filter(([k]) => k !== "Asc" && NATAL.sign[k] != null).map(([k]) => k);
+  const pts = keys.map((k) => ({ k, lon: norm(lonOfK(k)) })).sort((a, b) => a.lon - b.lon);
+  let prev = -99, lane = 0;
+  for (const p of pts) { lane = p.lon - prev < 8 ? lane + 1 : 0; p.r = R2 - 14 - (lane % 3) * 12; prev = p.lon; }
+  // aspects (exact degrees only)
+  if (exact) {
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      let d = Math.abs(pts[i].lon - pts[j].lon); if (d > 180) d = 360 - d;
+      const asp = ASPECTS.find((a) => a.ang > 0 && Math.abs(d - a.ang) <= a.orb);
+      if (!asp) continue;
+      const [x0, y0] = P(pts[i].lon, R3), [x1, y1] = P(pts[j].lon, R3);
+      mk("line", { x1: x0, y1: y0, x2: x1, y2: y1, class: "nw-asp " + (asp.ang === 60 || asp.ang === 120 ? "soft" : "hard") });
+    }
+  }
+  const BODY_G = Object.fromEntries(BODIES.map((b) => [b.key, b.g]));
+  for (const p of pts) {
+    const [tx, ty] = P(p.lon, R2), [ix, iy] = P(p.lon, R2 - 6);
+    mk("line", { x1: tx, y1: ty, x2: ix, y2: iy, class: "nw-tick" });
+    const [x, y] = P(p.lon, p.r);
+    const g = mk("text", { x, y, class: "nw-planet" }); g.textContent = TXT(BODY_G[p.k]);
+    mk("title", {}, g).textContent = `${NATAL_ZH[p.k]} ${SIGNS[NATAL.sign[p.k]].zh}${exact ? ` ${Math.floor(p.lon % 30)}°` : ""}`;
+  }
+  svg.setAttribute("aria-label", `出生星盤圖：${pts.map((p) => `${NATAL_ZH[p.k]}在${SIGNS[NATAL.sign[p.k]].zh}`).join("、")}`);
+  const fig = document.createElement("figure");
+  fig.className = "nw-fig";
+  fig.append(svg);
+  const cap = document.createElement("figcaption");
+  cap.textContent = (NATAL.sign.Asc != null ? "左側 AC 是上升，逆時針是第 1 到 12 宮。" : "還沒有上升，暫以太陽星座放在左側當第 1 宮。") + (exact ? "中間線條：綠＝和諧相位，紅＝緊張相位。" : "沒有出生資料，行星先放在星座中間示意。");
+  fig.append(cap);
+  return fig;
+}
+
 function natalEmphasis(base) {
   const keys = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"].filter((k) => NATAL.sign[k] != null);
   const hs = keys.map((k) => signDist(NATAL.sign[k], base.sign));
@@ -1236,7 +1300,9 @@ function renderHouseRead(base) {
   fold.className = "hr-tablefold";
   fold.open = true;
   fold.innerHTML = "<summary><span>星體位置一覽</span><small>星座與宮位</small></summary>";
-  fold.append(tbl);
+  const pair = el("div", "hr-pair");
+  pair.append(tbl, natalWheel(base));
+  fold.append(pair);
   parts.push(fold);
 
   // 1. overall emphasis

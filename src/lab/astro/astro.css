@@ -898,3 +898,29 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
   .fold > summary small, .tsky > summary small { display: none; }
   .fold > summary::after, .tsky > summary::after { margin-left: auto; }
 }
+
+/* natal wheel next to the placements table */
+.hr-pair { display: grid; gap: 14px; align-items: start; }
+@media (min-width: 640px) { .hr-pair { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); } }
+.nw-fig { margin: 0; }
+.natal-wheel { width: 100%; max-width: 320px; height: auto; display: block; margin: 0 auto; overflow: visible; }
+.nw-ring { fill: none; stroke: var(--line); stroke-width: 1; }
+.nw-ring.faint { stroke-dasharray: 2 3; }
+.nw-div { stroke: var(--line); stroke-width: 1; }
+.nw-sign { font-family: var(--glyph); font-size: 13px; fill: var(--gold-soft); text-anchor: middle; dominant-baseline: central; }
+.nw-sign.first { fill: var(--gold); font-weight: 700; }
+.nw-house { font-size: 10px; fill: var(--muted); text-anchor: middle; dominant-baseline: central; font-family: var(--serif-la); }
+.nw-axis { stroke: var(--gold); stroke-width: 1.4; }
+.nw-ac { font-size: 10px; fill: var(--gold); font-family: var(--serif-la); letter-spacing: 0.06em; text-anchor: end; }
+.nw-tick { stroke: var(--gold); stroke-width: 1; }
+.nw-planet { font-family: var(--glyph); font-size: 14px; fill: var(--marble); text-anchor: middle; dominant-baseline: central; }
+.nw-asp { stroke-width: 0.9; opacity: 0.75; }
+.nw-asp.soft { stroke: var(--soft-c); }
+.nw-asp.hard { stroke: var(--hard-c); }
+.nw-fig figcaption { margin-top: 6px; font-size: 0.75rem; color: var(--muted); line-height: 1.6; text-align: center; }
+.nw-bg { fill: rgba(var(--night-rgb), 0.88); stroke: var(--line); }
+@media (min-width: 640px) { .hr-pair { grid-template-columns: minmax(0, 1fr) minmax(240px, 340px); } }
+.natal-wheel { max-width: 340px; }
+.nw-sign { font-size: 15px; }
+.nw-planet { font-size: 16px; }
+.nw-house { font-size: 11px; }
