@@ -802,3 +802,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
   #sec-energy .en-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 48px; align-items: start; }
   #sec-energy .en-side { position: sticky; top: 84px; }
 }
+@media (min-width: 1240px) {
+  /* both columns share the same left/right edges and the same top line */
+  #sec-energy .en-main > *, #sec-energy .en-side > *, #sec-energy .en-side .daystrip, #sec-energy .en-side .stripscale, #sec-energy .en-side .timeline, #sec-energy .en-side .difflist, #sec-energy .en-side .bglist { max-width: none; }
+  #sec-energy .en-main .tags { grid-template-columns: 1fr 1fr; }
+  #sec-energy .en-side > .fold:first-child { border-top: 0; }
+  #sec-energy .en-side > .fold:first-child > summary { min-height: 0; padding-top: 0; }
+  #sec-energy .en-main .summary { margin-top: 0; }
+}
