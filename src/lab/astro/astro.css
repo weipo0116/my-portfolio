@@ -811,3 +811,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
   #sec-energy .en-main .summary { margin-top: 0; }
 }
 .birth label[hidden] { display: none; }
+
+/* houses: base switch + "how to read your chart" */
+.house-base { margin: 0 0 10px; }
+.house-read { margin-top: 22px; max-width: 72ch; }
+.hr-head { margin: 0 0 8px; font-family: var(--serif-zh); font-size: 1rem; letter-spacing: 0.12em; color: var(--gold-soft); font-weight: 600; }
+.hr-list { list-style: none; margin: 0; padding: 0; }
+.hr-list li { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 10px 0; border-top: 1px dashed var(--line); }
+.hr-list b { color: var(--gold); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.06em; padding-top: 2px; }
+.hr-list strong { display: block; color: var(--marble); font-size: 0.95rem; font-weight: 600; }
+.hr-list em { display: block; font-style: normal; color: var(--body); font-size: 0.92rem; line-height: 1.7; }
+.hr-tip { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.7; }

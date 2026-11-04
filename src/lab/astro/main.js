@@ -1137,13 +1137,77 @@ const HOUSES = [
   ["朋友", "社群、團隊、願望", "福德宮", "朋友、社群和對未來的願望，你屬於哪一群人。"],
   ["休息", "獨處、潛意識、收尾", "玄秘宮", "潛意識與獨處，需要休息、放下和收尾的地方。"],
 ];
+// Which sign is the 1st house: the Ascendant when known (whole-sign houses, the usual way),
+// otherwise the Sun sign (solar houses). Visitors with both can switch.
+const HOUSE_BASE_KEY = "astra-house-base";
+let houseBasePref = "asc";
+try { if (localStorage.getItem(HOUSE_BASE_KEY) === "sun") houseBasePref = "sun"; } catch { /* storage unavailable */ }
+function houseBase() {
+  const { Asc, Sun } = NATAL.sign;
+  if (Asc != null && (houseBasePref === "asc" || Sun == null)) return { sign: Asc, by: "asc" };
+  if (Sun != null) return { sign: Sun, by: "sun" };
+  return { sign: null, by: null };
+}
+// one plain sentence per planet: what it stands for, placed in that house's area of life
+const PLANET_IN_HOUSE = {
+  Sun: (a) => `你最想發光、最有自信的地方在「${a}」。`,
+  Moon: (a) => `讓你有安全感、情緒也最容易被牽動的是「${a}」。`,
+  Mercury: (a) => `你的腦袋最常轉在「${a}」，也擅長在這方面溝通。`,
+  Venus: (a) => `你喜歡、也容易得到好人緣的地方在「${a}」。`,
+  Mars: (a) => `你最有衝勁、也最容易起爭執的地方在「${a}」。`,
+  Jupiter: (a) => `機會和好運比較容易出現在「${a}」。`,
+  Saturn: (a) => `「${a}」是你比較辛苦、要慢慢練的地方，但練起來最紮實。`,
+  Uranus: (a) => `「${a}」是你人生中容易突然變化、想打破規則的地方。`,
+  Neptune: (a) => `你在「${a}」比較浪漫、理想化，也容易看不清。`,
+  Pluto: (a) => `「${a}」是你會很投入、也會經歷深刻轉變的地方。`,
+};
+function renderHouseRead(base) {
+  const box = $("houseRead");
+  if (base.sign == null) { box.replaceChildren(); return; }
+  const rows = [];
+  if (NATAL.sign.Asc != null) {
+    const a = SIGNS[NATAL.sign.Asc];
+    const ah = signDist(NATAL.sign.Asc, base.sign);
+    rows.push([`上升${a.zh.replace("座", "")}`, base.by === "asc" ? "第 1 宮的起點" : `第 ${ah + 1} 宮 · ${HOUSES[ah][0]}`, `別人第一眼看到的你偏向${a.zh}：${a.tone}。`]);
+  }
+  for (const [k, zh] of NATAL_KEYS) {
+    if (k === "Asc" || NATAL.sign[k] == null) continue;
+    const h = signDist(NATAL.sign[k], base.sign);
+    rows.push([`${zh}`, `第 ${h + 1} 宮 · ${HOUSES[h][0]}`, PLANET_IN_HOUSE[k](HOUSES[h][1])]);
+  }
+  const head = document.createElement("p");
+  head.className = "hr-head";
+  head.textContent = "你的星盤怎麼讀";
+  const list = document.createElement("ul");
+  list.className = "hr-list";
+  list.append(...rows.map(([k, h, t]) => {
+    const li = document.createElement("li");
+    li.innerHTML = "<b></b><span><strong></strong><em></em></span>";
+    li.querySelector("b").textContent = k;
+    li.querySelector("strong").textContent = h;
+    li.querySelector("em").textContent = t;
+    return li;
+  }));
+  const tip = document.createElement("p");
+  tip.className = "hr-tip";
+  tip.textContent = base.by === "asc"
+    ? "宮位以上升起算，是一般看星盤的方式。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
+    : "目前以太陽星座當第 1 宮（太陽宮位制），只能看大方向。填準確的出生時間算出上升，或在上面選上升星座，宮位會更準。";
+  box.replaceChildren(head, list, tip);
+}
+
 function renderHouses(info) {
   const segs = info.segs;
-  const base = NATAL.sign.Asc ?? NATAL.sign.Sun ?? 0;
-  const set = NATAL.sign.Asc != null || NATAL.sign.Sun != null;
+  const hb = houseBase();
+  const base = hb.sign ?? 0;
+  const set = hb.sign != null;
+  const seg = $("houseBase");
+  seg.hidden = !(NATAL.sign.Asc != null && NATAL.sign.Sun != null);
+  seg.querySelectorAll("button").forEach((b) => { const on = b.dataset.base === hb.by; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+  renderHouseRead(hb);
   const cur = segs.map((sg) => signDist(sg.sign, base));
   const placed = NATAL_KEYS.filter(([k]) => k !== "Asc" && NATAL.sign[k] != null).map(([k, zh]) => ({ k, zh, h: signDist(NATAL.sign[k], base) }));
-  $("housesNote").textContent = (set ? `以你的${NATAL.sign.Asc != null ? "上升" : "太陽"}${SIGNS[base].zh}為第 1 宮，每宮對應一個星座（整宮制）。` : "還沒選星座，先以牡羊座為第 1 宮示範；上方選好星座後會換成你的。") +
+  $("housesNote").textContent = (set ? `以你的${hb.by === "asc" ? "上升" : "太陽"}${SIGNS[base].zh}為第 1 宮，每宮對應一個星座（${hb.by === "asc" ? "整宮制" : "太陽宮位制"}）。` : "還沒選星座，先以牡羊座為第 1 宮示範；上方選好星座或填出生資料後會換成你的。") +
     (placed.length ? "小字是你的行星落在哪一宮，那個領域就是你天生比較用力的地方。" : "");
   $("houses").replaceChildren(
     ...HOUSES.map((h, i) => {
@@ -1350,13 +1414,21 @@ function moonHits(info, natalLon) {
   return out;
 }
 
+$("houseBase").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-base]");
+  if (!b) return;
+  houseBasePref = b.dataset.base;
+  try { localStorage.setItem(HOUSE_BASE_KEY, houseBasePref); } catch { /* storage unavailable */ }
+  renderPersonal();
+});
+
 function renderPersonal() {
   const box = $("personal");
   if (!lastSky) return;
   const { info, pos } = lastSky;
   renderHouses(info);
   const sg = NATAL.sign;
-  const base = sg.Asc ?? sg.Sun;
+  const base = houseBase().sign;
   if (base == null) {
     box.replaceChildren(Object.assign(document.createElement("p"), { className: "p-empty", textContent: "先選你的太陽星座（就是一般說的星座），就能看今天月亮走到你的哪一宮。" }));
     return;
@@ -1365,7 +1437,7 @@ function renderPersonal() {
   const card = (cls, html) => { const d = document.createElement("div"); d.className = `p-card ${cls}`; d.innerHTML = html; frag.push(d); return d; };
   // 1. house
   const h0 = signDist(info.segs[0].sign, base), h1 = info.segs.length > 1 ? signDist(info.segs[1].sign, base) : null;
-  const method = sg.Asc != null ? `以上升${SIGNS[sg.Asc].zh}起算（整宮制）` : `以太陽${SIGNS[sg.Sun].zh}起算（太陽宮位制）`;
+  const method = houseBase().by === "asc" ? `以上升${SIGNS[base].zh}起算（整宮制）` : `以太陽${SIGNS[base].zh}起算（太陽宮位制）`;
   const hc = card("p-house", `<p class="p-k">月亮今天在你的</p><p class="p-big"></p><p class="p-t"></p><p class="p-m"></p>`);
   hc.querySelector(".p-big").textContent = h1 == null ? `第 ${h0 + 1} 宮 · ${HOUSES[h0][0]}` : `第 ${h0 + 1} 宮 → 第 ${h1 + 1} 宮`;
   hc.querySelector(".p-t").textContent = h1 == null ? HOUSE_TIP[h0] : `${fmtT(info.segs[1].from)} 前：${HOUSE_TIP[h0]}${fmtT(info.segs[1].from)} 後：${HOUSE_TIP[h1]}`;

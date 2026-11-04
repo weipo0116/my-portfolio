@@ -158,8 +158,13 @@
         <div id="personal" class="personal"></div>
         <details class="fold">
           <summary><span>你的十二宮</span><small>每一宮代表什麼</small></summary>
+          <div class="seg house-base" id="houseBase" role="group" aria-label="第 1 宮從哪裡起算" hidden>
+            <button type="button" data-base="asc">從上升起算</button>
+            <button type="button" data-base="sun">從太陽起算</button>
+          </div>
           <p class="prose sub-note" id="housesNote"></p>
           <ul id="houses" class="houses"></ul>
+          <div class="house-read" id="houseRead"></div>
         </details>
       </section>
 
