@@ -1191,6 +1191,7 @@ const PLANET_INFO = {
 
 // Natal chart wheel: Ascendant on the left, zodiac counter-clockwise, whole-sign houses,
 // planets at their exact degrees (sign middle when only the sign is known), major aspects in the centre.
+const NATAL_SHORT = { Sun: "日", Moon: "月", Mercury: "水", Venus: "金", Mars: "火", Jupiter: "木", Saturn: "土", Uranus: "天", Neptune: "海", Pluto: "冥" };
 function natalWheel(base) {
   const NS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(NS, "svg");
@@ -1218,7 +1219,10 @@ function natalWheel(base) {
   if (NATAL.sign.Asc != null) {
     const [ax, ay] = P(asc, R0 + 4), [dx, dy] = P(asc + 180, R0 + 4);
     mk("line", { x1: ax, y1: ay, x2: dx, y2: dy, class: "nw-axis" });
-    const [lx, ly] = P(asc, R0 + 2); const at = mk("text", { x: lx - 2, y: ly - 8, class: "nw-ac" }); at.textContent = "AC";
+    const [lx, ly] = P(asc, R0 + 2);
+    const ag = mk("g", { class: "nw-pt", "data-k": "Asc", tabindex: "0" });
+    const at = mk("text", { x: lx - 2, y: ly - 8, class: "nw-ac" }, ag); at.textContent = "AC 上升";
+    mk("title", {}, ag).textContent = `上升 ${SIGNS[NATAL.sign.Asc].zh}`;
   }
   // planets, nudged apart when they sit within 8° of each other
   const keys = NATAL_KEYS.filter(([k]) => k !== "Asc" && NATAL.sign[k] != null).map(([k]) => k);
@@ -1240,8 +1244,12 @@ function natalWheel(base) {
     const [tx, ty] = P(p.lon, R2), [ix, iy] = P(p.lon, R2 - 6);
     mk("line", { x1: tx, y1: ty, x2: ix, y2: iy, class: "nw-tick" });
     const [x, y] = P(p.lon, p.r);
-    const g = mk("text", { x, y, class: "nw-planet" }); g.textContent = TXT(BODY_G[p.k]);
-    mk("title", {}, g).textContent = `${NATAL_ZH[p.k]} ${SIGNS[NATAL.sign[p.k]].zh}${exact ? ` ${Math.floor(p.lon % 30)}°` : ""}`;
+    const grp = mk("g", { class: "nw-pt", "data-k": p.k, tabindex: "0" });
+    mk("circle", { cx: x, cy: y, r: 11, class: "nw-hit" }, grp);
+    const g = mk("text", { x, y, class: "nw-planet" }, grp); g.textContent = TXT(BODY_G[p.k]);
+    const [nx, ny] = P(p.lon, p.r - 13);
+    mk("text", { x: nx, y: ny, class: "nw-name" }, grp).textContent = NATAL_SHORT[p.k];
+    mk("title", {}, grp).textContent = `${NATAL_ZH[p.k]} ${SIGNS[NATAL.sign[p.k]].zh}${exact ? ` ${Math.floor(p.lon % 30)}°` : ""}`;
   }
   svg.setAttribute("aria-label", `出生星盤圖：${pts.map((p) => `${NATAL_ZH[p.k]}在${SIGNS[NATAL.sign[p.k]].zh}`).join("、")}`);
   const fig = document.createElement("figure");
@@ -1276,34 +1284,49 @@ function natalEmphasis(base) {
 
 function renderHouseRead(base) {
   const box = $("houseRead");
+  $("natalIntro").textContent = base.sign == null
+    ? "在「你的今日」填上出生資料（或選好星座），這裡會排出你的出生星盤：每顆星在哪個星座、哪一宮，以及怎麼讀。"
+    : "星體位置表和星盤圖可以互相對照，點任何一顆星，兩邊會一起標出來。往下是每顆星的說明與建議，旁邊附上進階的宮主星參考。";
   if (base.sign == null) { box.replaceChildren(); return; }
   const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
-  const parts = [el("p", "hr-head", "你的星盤怎麼讀")];
+  const parts = [];
 
   // 0. at a glance: every body, its sign and its house
   const BODY_G = Object.fromEntries(BODIES.map((b) => [b.key, b.g]));
   const rowsT = NATAL_KEYS.filter(([k]) => NATAL.sign[k] != null).map(([k, zh]) => {
     const sg = SIGNS[NATAL.sign[k]], h = signDist(NATAL.sign[k], base.sign);
     const deg = NATAL.deg[k] != null ? ` ${Math.floor(NATAL.deg[k] % 30)}°` : "";
-    return [k === "Asc" ? "AC" : TXT(BODY_G[k]), zh, `${TXT(sg.g)} ${sg.zh}${deg}`, `第 ${h + 1} 宮 · ${HOUSES[h][0]}`];
+    return [k === "Asc" ? "AC" : TXT(BODY_G[k]), zh, `${TXT(sg.g)} ${sg.zh}${deg}`, `第 ${h + 1} 宮 · ${HOUSES[h][0]}`, k];
   });
   const tbl = document.createElement("table");
   tbl.className = "hr-table";
   tbl.innerHTML = "<thead><tr><th scope=\"col\" colspan=\"2\">星體</th><th scope=\"col\">星座</th><th scope=\"col\">宮位</th></tr></thead><tbody></tbody>";
   tbl.querySelector("tbody").append(...rowsT.map((r) => {
     const tr = document.createElement("tr");
-    r.forEach((c, i) => tr.append(el(i === 1 ? "th" : "td", i === 0 ? "g" : "", c)));
+    tr.dataset.k = r[4];
+    tr.tabIndex = 0;
+    r.slice(0, 4).forEach((c, i) => tr.append(el(i === 1 ? "th" : "td", i === 0 ? "g" : "", c)));
     tr.children[1].setAttribute("scope", "row");
     return tr;
   }));
   const fold = document.createElement("details");
   fold.className = "hr-tablefold";
   fold.open = true;
-  fold.innerHTML = "<summary><span>星體位置一覽</span><small>星座與宮位</small></summary>";
+  fold.innerHTML = "<summary><span>星體位置與星盤圖</span><small>點一顆星，表和圖會一起標出</small></summary>";
+  const wheel = natalWheel(base);
   const pair = el("div", "hr-pair");
-  pair.append(tbl, natalWheel(base));
+  pair.append(tbl, wheel);
   fold.append(pair);
-  parts.push(fold);
+  // table row ⇄ wheel point: hover, focus or tap one and both light up
+  const hot = (k) => {
+    pair.querySelectorAll("[data-k]").forEach((n) => n.classList.toggle("hot", n.dataset.k === k));
+    pair.classList.toggle("focus", !!k);
+  };
+  pair.addEventListener("pointerover", (e) => { const n = e.target.closest("[data-k]"); if (n) hot(n.dataset.k); });
+  pair.addEventListener("pointerleave", () => hot(null));
+  pair.addEventListener("focusin", (e) => { const n = e.target.closest("[data-k]"); if (n) hot(n.dataset.k); });
+  pair.addEventListener("focusout", () => hot(null));
+  pair.addEventListener("click", (e) => { const n = e.target.closest("[data-k]"); hot(n ? n.dataset.k : null); });
 
   // 1. overall emphasis
   const emph = natalEmphasis(base);
@@ -1375,17 +1398,16 @@ function renderHouseRead(base) {
     rulerFold = d;
   }
 
-  parts.push(el("p", "hr-tip", base.by === "asc"
+  const tip = el("p", "hr-tip", base.by === "asc"
     ? "宮位從上升排起，一個星座就是一宮（整宮制，最古老也最好上手的分法）。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
-    : "還沒有上升，宮位暫用太陽星座排，只能看大方向。填上出生時間算出上升，或在上面直接選上升星座，宮位才會準。"));
-  // two columns on wide screens: the reading on the left, house rulers on the right to read against it
+    : "還沒有上升，宮位暫用太陽星座排，只能看大方向。填上出生時間算出上升，或在「你的今日」直接選上升星座，宮位才會準。");
+  // top: table | wheel. below: reading and advice on the left, house rulers on the right as reference
   const left = el("div", "hr-left"), right = el("div", "hr-right");
-  const tip = parts.pop();
   left.append(...parts, tip);
   if (rulerFold) right.append(rulerFold);
   const cols = el("div", "hr-cols" + (rulerFold ? "" : " single"));
   cols.append(left, right);
-  box.replaceChildren(cols);
+  box.replaceChildren(fold, cols);
 }
 
 function renderHouses(info) {

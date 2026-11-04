@@ -924,3 +924,23 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
 .nw-sign { font-size: 15px; }
 .nw-planet { font-size: 16px; }
 .nw-house { font-size: 11px; }
+
+/* IV 你的星盤: table | wheel on top, linked highlight */
+#sec-natal .hr-tablefold { margin: 6px 0 22px; }
+#sec-natal .hr-pair { grid-template-columns: 1fr; }
+@media (min-width: 760px) { #sec-natal .hr-pair { grid-template-columns: minmax(0, 1fr) minmax(300px, 440px); align-items: center; } }
+#sec-natal .natal-wheel { max-width: 440px; }
+.hr-table tbody tr { cursor: pointer; transition: background 0.2s var(--ease), opacity 0.2s var(--ease); }
+.hr-table tbody tr:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.hr-table tbody tr.hot { background: rgba(var(--gold-rgb), 0.16); }
+.hr-pair.focus .hr-table tbody tr:not(.hot) { opacity: 0.45; }
+.nw-pt { cursor: pointer; transition: opacity 0.2s var(--ease); }
+.nw-pt:focus { outline: none; }
+.nw-hit { fill: transparent; stroke: none; }
+.nw-pt.hot .nw-hit { fill: rgba(var(--gold-rgb), 0.22); stroke: var(--gold); stroke-width: 1; }
+.nw-pt.hot .nw-planet, .nw-pt.hot .nw-name { fill: var(--gold); }
+.hr-pair.focus .nw-pt:not(.hot) { opacity: 0.3; }
+.nw-name { font-size: 8.5px; fill: var(--muted); text-anchor: middle; dominant-baseline: central; font-family: var(--serif-zh); }
+.nw-ac { font-family: var(--serif-zh); }
+#sec-natal .hr-cols { margin-top: 4px; }
+@media (max-width: 560px) { .hr-tablefold > summary small { display: none; } .hr-tablefold > summary::after { margin-left: auto; } }
