@@ -750,3 +750,25 @@ html, body { overflow-x: clip; }
   .dlg-right .planets li .pr .mv { font-size: 0.68rem; letter-spacing: 0.02em; }
   .dlg-right .planets li .pr .mv.diff { justify-content: flex-end; }
 }
+
+/* chart dialog: compact aspect rows */
+.dlg-right .aspects { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.dlg-right .aspects article { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: baseline; padding: 10px 12px; border-radius: 4px; }
+.dlg-right .aspects article:hover { transform: none; }
+.dlg-right .aspects .ag { grid-row: 1 / 4; font-size: 1rem; letter-spacing: 0.08em; }
+.dlg-right .aspects h3 { margin: 0; font-size: 0.95rem; }
+.dlg-right .aspects .la { margin: 0 0 4px; font-size: 0.72rem; }
+.dlg-right .aspects p { margin: 0; font-size: 0.85rem; line-height: 1.55; }
+.tb-btns button:disabled { opacity: 0.35; cursor: default; }
+
+/* fortune card: the sky behind the reading, folded by default */
+.tsky { margin: 0 0 16px; border: 1px solid var(--line); border-radius: 6px; padding: 0 14px; }
+.tsky > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 44px; font-family: var(--serif-zh); font-size: 0.85rem; letter-spacing: 0.1em; color: var(--gold); }
+.tsky > summary::-webkit-details-marker { display: none; }
+.tsky > summary::after { content: "＋"; font-size: 0.9rem; transition: transform 0.3s var(--ease); }
+.tsky[open] > summary::after { transform: rotate(45deg); }
+.tsky > summary small { margin-left: auto; color: var(--muted); letter-spacing: 0.04em; font-size: 0.75rem; }
+.tsky[open] { padding-bottom: 10px; }
+.dlg-right .aspects article { grid-template-columns: 3.4em 1fr; padding: 8px 12px; }
+.dlg-right .aspects .ag { white-space: nowrap; font-size: 0.9rem; letter-spacing: 0.04em; }
+@media (max-width: 560px) { .dlg-right .aspects .la { display: none; } .dlg-right .aspects h3 { margin-bottom: 2px; } }

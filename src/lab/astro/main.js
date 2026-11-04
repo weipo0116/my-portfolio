@@ -720,18 +720,36 @@ const HOUSE_CAT = {
 };
 // which categories each planet speaks to, and what an easy / hard Moon aspect to it means there
 const ASP_CAT = {
-  Sun: { cats: ["career"], soft: "月亮和太陽相位順，目標清楚、決定下得順。", hard: "月亮和太陽拉扯，想要的和該做的打架，大決定晚點再下。" },
-  Mercury: { cats: ["career", "money"], soft: "月亮和水星相位順，說話有條理，談事、比價都順手。", hard: "月亮和水星卡卡，訊息和帳單送出前多看一遍。" },
-  Venus: { cats: ["love", "money"], soft: "月亮和金星相位順，人緣好、氣氛甜，品味也在線。", hard: "月亮和金星不和，容易想要太多，表態和花錢先等等。" },
-  Mars: { cats: ["career", "love"], soft: "月亮和火星相位順，行動力強，適合推進卡住的事。", hard: "月亮和火星衝突，容易急躁頂嘴，說話慢半拍。" },
-  Jupiter: { cats: ["money", "career"], soft: "月亮和木星相位順，機會和貴人容易出現。", hard: "月亮和木星形成壓力，容易過度承諾或買太多。" },
-  Saturn: { cats: ["career", "money"], soft: "月亮和土星相位順，耐得住，適合處理長期計畫。", hard: "月亮和土星碰撞，壓力感重，先把該做的做完。" },
+  Sun: { cats: ["career"], soft: "目標清楚，決定下得順。", hard: "想要的和該做的會打架，大決定晚點再下。" },
+  Mercury: { cats: ["career", "money"], soft: "腦袋清楚、說話有條理，談事比價都順手。", hard: "容易講錯或看漏，訊息和帳單送出前多看一遍。" },
+  Venus: { cats: ["love", "money"], soft: "人緣好、氣氛甜，眼光也準。", hard: "容易想要太多，表態和花錢先等等。" },
+  Mars: { cats: ["career", "love"], soft: "行動力強，適合推進卡住的事。", hard: "容易急躁頂嘴，說話慢半拍。" },
+  Jupiter: { cats: ["money", "career"], soft: "容易遇到機會和貴人。", hard: "容易答應太多、買太多，抓小一點。" },
+  Saturn: { cats: ["career", "money"], soft: "耐得住，適合處理長期的事。", hard: "壓力感比較重，先把該做的做完。" },
 };
+// 13:33 -> 下午 1 點半; everyday wording for the fortune card
+function plainTime(t) {
+  const [hh, mm] = fmtT(t).split(":").map(Number);
+  let h = hh, half = false;
+  if (mm >= 45) h += 1; else if (mm >= 15) half = true;
+  h %= 24;
+  const part = h < 5 ? "凌晨" : h < 11 ? "早上" : h < 13 ? "中午" : h < 18 ? "下午" : "晚上";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${part} ${h12} 點${half ? "半" : ""}`;
+}
 const VOC_CAT = {
-  love: "月亮空亡，感情上的話先別急著說死。",
-  career: "月亮空亡，適合收尾和整理，新提案晚點再丟。",
-  money: "月亮空亡，簽約和大額付款先緩一緩。",
+  love: "感情上的話先別急著說死。",
+  career: "適合收尾整理，新提案晚點再丟。",
+  money: "簽約和大額付款先緩一緩。",
 };
+// void-of-course in plain words: "下午 3 點以後" / "晚上 10 點半以前" / "A 到 B 之間"
+function vocSpan(info, v) {
+  const a = v.from <= info.start, b = v.to >= info.end;
+  if (a && b) return "整天";
+  if (a) return `${plainTime(v.to)}以前`;
+  if (b) return `${plainTime(v.from)}以後`;
+  return `${plainTime(v.from)}到${plainTime(v.to)}之間`;
+}
 function dayAspectFor(info, cat) {
   const evs = info.events.filter((e) => e.kind === "asp" && ASP_CAT[e.p]?.cats.includes(cat));
   if (!evs.length) return null;
@@ -739,7 +757,7 @@ function dayAspectFor(info, cat) {
   const e = evs.sort((a, b) => (ASP_CAT[a.p].cats[0] === cat ? 0 : 1) - (ASP_CAT[b.p].cats[0] === cat ? 0 : 1) || evScore(b) - evScore(a))[0];
   const k = evKind(e);
   const hard = k === "hard" || (k === "conj" && (e.p === "Mars" || e.p === "Saturn"));
-  return { hard, text: `${timeAt(e)} ${ASP_CAT[e.p][hard ? "hard" : "soft"]}` };
+  return { hard, text: `${plainTime(e.t)}前後，${ASP_CAT[e.p][hard ? "hard" : "soft"]}` };
 }
 function moonHouseOf(info, si) {
   // the house the Moon spends most of the shown day in, for this sun sign
@@ -751,11 +769,9 @@ function dailyNote(si, cat) {
   const [text, doit, avoid] = HOUSE_CAT[cat][h];
   const asp = dayAspectFor(info, cat);
   const v = info.voc[0];
-  const extra = asp ? asp.text : v ? `${fmtT(v.from)}–${fmtT(v.to)} ${VOC_CAT[cat]}` : "";
-  const move = info.segs.length > 1 && info.segs[1].sign === info.dom
-    ? `（${fmtT(info.segs[1].from)} 前在${HOUSES[signDist(info.segs[0].sign, si)][0]}宮）`
-    : info.segs.length > 1 ? `（${fmtT(info.segs[1].from)} 後進${HOUSES[signDist(info.segs[1].sign, si)][0]}宮）` : "";
-  return { text: `${dayNoun()}月亮在你的${HOUSES[h][0]}宮${move}：${text}${extra}`, doit, avoid };
+  // a void-of-course window is said once in the headline; here only when it is the day's whole story
+  const extra = asp ? asp.text : v ? VOC_CAT[cat] : "";
+  return { text: `${text}${extra}`, doit, avoid };
 }
 
 
@@ -917,7 +933,10 @@ const dayWord = () => (offsetDays === 0 ? "今日" : offsetDays === -1 ? "昨日
 const $ = (id) => document.getElementById(id);
 const para = (t) => Object.assign(document.createElement("p"), { textContent: t });
 const sgn = (n, d = 1) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(d)}°`;
-const clampOff = (n) => Math.max(-30, Math.min(30, n));
+// how far from today you can browse. Comparisons follow every body day by day from today,
+// so the cost grows with distance; half a year keeps a tap well under a second on phones.
+const MAX_OFF = 180;
+const clampOff = (n) => Math.max(-MAX_OFF, Math.min(MAX_OFF, n));
 
 function render({ dur = 1700 } = {}) {
   const now = new Date();
@@ -1008,7 +1027,11 @@ function render({ dur = 1700 } = {}) {
   $("tbRange").value = clampOff(offsetDays);
   const rel = offsetDays === 0 ? "今天" : offsetDays > 0 ? `未來 ${offsetDays} 天` : `過去 ${-offsetDays} 天`;
   $("tbLabel").textContent = `${rel} · ${dateText}`;
-  $("tbBtns").querySelectorAll("button").forEach((b) => b.classList.toggle("on", Number(b.dataset.off) === offsetDays));
+  $("tbBtns").querySelectorAll("button").forEach((b) => {
+    const st = Number(b.dataset.step);
+    if (st === 0) b.classList.toggle("on", offsetDays === 0);
+    else b.disabled = st < 0 ? offsetDays <= -MAX_OFF : offsetDays >= MAX_OFF;
+  });
 
   const periodSec = $("periodSec");
   if (offsetDays !== 0) {
@@ -1560,7 +1583,7 @@ function stars_() {
   requestAnimationFrame(frame);
 }
 
-const go = (n, dur) => { offsetDays = n; render({ dur }); };
+const go = (n, dur) => { offsetDays = clampOff(n); render({ dur }); };
 $("prev").addEventListener("click", () => go(offsetDays - 1));
 $("next").addEventListener("click", () => go(offsetDays + 1));
 $("today").addEventListener("click", () => go(0));
@@ -1568,7 +1591,13 @@ $("dayBar").addEventListener("click", (e) => {
   const b = e.target.closest("button[data-go]"); if (!b) return;
   go(b.dataset.go === "0" ? 0 : offsetDays + Number(b.dataset.go));
 });
-$("tbBtns").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(Number(b.dataset.off), 1500); });
+// relative steps, so 後一天 / 後一週 can be pressed again and again
+$("tbBtns").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const st = Number(b.dataset.step);
+  go(st === 0 ? 0 : offsetDays + st, Math.abs(st) >= 7 ? 1200 : 700);
+});
 let rafId = 0;
 $("tbRange").addEventListener("input", (e) => {
   const v = Number(e.target.value);
@@ -1711,11 +1740,24 @@ function skyFor(si) {
 }
 
 
+// headline for the card and the share image: where the day's focus is, when it moves, and any dead zone
+function dayQuote(si, best) {
+  const info = currentDay.info;
+  const h = moonHouseOf(info, si);
+  const other = info.segs.length > 1 ? (info.segs[1].sign === info.dom ? info.segs[0] : info.segs[1]) : null;
+  const move = !other ? ""
+    : other === info.segs[0] ? `（${plainTime(info.segs[1].from)}以前還在「${AREA[signDist(other.sign, si)]}」）`
+    : `（${plainTime(other.from)}以後轉到「${AREA[signDist(other.sign, si)]}」）`;
+  const v = info.voc[0];
+  const voc = v ? `${vocSpan(info, v)}做的決定容易沒下文，重要的事避開這段。` : "";
+  return `${dayNoun()}重點在「${AREA[h]}」${move}，${CATS[best.cat]}最順，適合${HOUSE_CAT[best.cat][h][1]}。${voc}`;
+}
+
 function todayData(si) {
   const rows = Object.keys(CATS).map((cat) => ({ cat, ...currentFortune[cat][si] }));
   const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
   const best = rows.slice().sort((a, b) => b.stars - a.stars || b.score - a.score)[0];
-  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: `${dayNoun()}重點在「${AREA[moonHouseOf(currentDay.info, si)]}」，${CATS[best.cat]}最順，適合${HOUSE_CAT[best.cat][moonHouseOf(currentDay.info, si)][1]}。`, lucky: luckyFor(currentDay.tp, si) };
+  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: dayQuote(si, best), lucky: luckyFor(currentDay.tp, si) };
 }
 
 // 本週 view of the same card: whole-week averages, best/worst day, and the week's sky events
@@ -1801,7 +1843,7 @@ function renderToday() {
       <div class="sa"><small>${dayWord()}綜合</small><span class="fs big"></span><b class="tier t-${d.tier}">${TIER_ZH[d.tier]}</b></div>
     </header>
     <p class="tquote"></p>
-    <div class="tsky"><p class="tsky-k"></p><div class="summary tsky-rows"></div></div>
+    <details class="tsky"><summary><span class="tsky-k"></span><small>月亮、相位、空亡</small></summary><div class="summary tsky-rows"></div></details>
     <ul class="tcats"></ul>
     <div class="lucky">
       <div><small>幸運色</small><span><i class="sw"></i><b class="lc"></b></span></div>
@@ -1821,7 +1863,7 @@ function renderToday() {
   fs.textContent = stars(d.avg);
   fs.setAttribute("aria-label", `${d.avg} 顆星`);
   card.querySelector(".tquote").textContent = d.line;
-  card.querySelector(".tsky-k").textContent = `${dayWord()}天象 × ${d.sg.zh}`;
+  card.querySelector(".tsky-k").textContent = `看${dayNoun()}的星象依據`;
   card.querySelector(".tsky-rows").replaceChildren(
     ...skyFor(si).map(([k, h, t]) => {
       const p = document.createElement("p");
@@ -1955,7 +1997,7 @@ async function drawShareCard(si) {
   text(`${stars(d.avg)}  ${TIER_ZH[d.tier]}`, W / 2, 668, `400 44px ${SERIF}`, GOLD, "4px");
 
   ctx.font = `500 40px ${SERIF}`;
-  const lines = wrapLines(ctx, d.line, 860);
+  const lines = wrapLines(ctx, `${d.line.split("。")[0]}。`, 860); // first sentence only, so the card layout never overflows
   let y = 770;
   for (const ln of lines) { text(ln, W / 2, y, `500 40px ${SERIF}`, MARBLE, "2px"); y += 62; }
 
