@@ -960,7 +960,7 @@ function render({ dur = 1700 } = {}) {
         const changed = basePos[i].signIndex !== b.signIndex ? `<span class="chg">${basePos[i].sign.zh} → ${b.sign.zh}</span>` : "";
         diff = `<small class="mv diff"><span>較今天 ${sgn(cum[i], Math.abs(cum[i]) < 10 ? 2 : 1)}</span>${laps}${changed}</small>`;
       }
-      li.innerHTML = `<span class="pg">${TXT(b.g)}</span><span class="pn"><b>${b.zh}</b><i>${b.la}</i></span><span class="ps">${TXT(b.sign.g)} ${b.sign.zh} <small>${fmtDeg(b.deg)}</small>${b.retro ? ' <span class="rx" title="逆行">℞</span>' : ""}</span><span class="pr">${b.role}<small class="mv">24 小時移動 ${mv}</small>${diff}</span>`;
+      li.innerHTML = `<span class="pg">${TXT(b.g)}</span><span class="pn" title="${b.la}"><b>${b.zh}</b><small class="prole">${b.role}</small></span><span class="ps">${TXT(b.sign.g)} ${b.sign.zh} <small>${fmtDeg(b.deg)}</small>${b.retro ? ' <span class="rx" title="逆行">℞</span>' : ""}</span><span class="pr"><small class="mv">24 小時移動 ${mv}</small>${diff}</span>`;
       return li;
     }),
   );

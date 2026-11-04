@@ -731,3 +731,22 @@ html, body { overflow-x: clip; }
 .tsky { margin: 4px 0 18px; }
 .tsky-k { margin: 0 0 6px; font-family: var(--serif-zh); font-size: 0.82rem; letter-spacing: 0.18em; color: var(--gold); }
 .tsky .summary { margin: 0; padding: 4px 18px; font-size: 1rem; line-height: 1.75; max-width: none; }
+
+/* chart dialog planet list: role sits after the name in a lighter tone, tighter rows */
+.pn .prole { margin-left: 6px; color: var(--muted); font-size: 0.78rem; font-weight: 400; letter-spacing: 0.02em; }
+.dlg-right .planets li { grid-template-columns: 30px minmax(0, 1fr) auto; column-gap: 10px; row-gap: 0; padding: 7px 4px; align-items: baseline; }
+.dlg-right .planets li .pg { font-size: 1.3rem; }
+.dlg-right .planets li .ps { grid-column: 3; text-align: right; white-space: nowrap; }
+.dlg-right .planets li .pr { grid-column: 2 / -1; font-size: 0.8rem; }
+.dlg-right .planets li .pr .mv { margin-top: 0; }
+@media (max-width: 560px) {
+  /* phone: name + sign on the first line, role + 24h motion on the second */
+  .dlg-right .planets li .pn { display: contents; }
+  .dlg-right .planets li .pg { grid-row: 1 / span 2; }
+  .dlg-right .planets li .pn b { grid-column: 2; grid-row: 1; }
+  .dlg-right .planets li .pn .prole { grid-column: 2; grid-row: 2; margin-left: 0; font-size: 0.74rem; }
+  .dlg-right .planets li .ps { grid-column: 3; grid-row: 1; }
+  .dlg-right .planets li .pr { grid-column: 3; grid-row: 2; text-align: right; }
+  .dlg-right .planets li .pr .mv { font-size: 0.68rem; letter-spacing: 0.02em; }
+  .dlg-right .planets li .pr .mv.diff { justify-content: flex-end; }
+}
