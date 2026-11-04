@@ -1139,12 +1139,11 @@ const HOUSES = [
 ];
 // Which sign is the 1st house: the Ascendant when known (whole-sign houses, the usual way),
 // otherwise the Sun sign (solar houses). Visitors with both can switch.
-const HOUSE_BASE_KEY = "astra-house-base";
-let houseBasePref = "asc";
-try { if (localStorage.getItem(HOUSE_BASE_KEY) === "sun") houseBasePref = "sun"; } catch { /* storage unavailable */ }
+// Houses are counted from the Ascendant, as in any natal chart. Without a birth time there is no
+// Ascendant, so the Sun sign stands in (the way sun-sign horoscope columns do) and the page says so.
 function houseBase() {
   const { Asc, Sun } = NATAL.sign;
-  if (Asc != null && (houseBasePref === "asc" || Sun == null)) return { sign: Asc, by: "asc" };
+  if (Asc != null) return { sign: Asc, by: "asc" };
   if (Sun != null) return { sign: Sun, by: "sun" };
   return { sign: null, by: null };
 }
@@ -1233,7 +1232,12 @@ function renderHouseRead(base) {
     tr.children[1].setAttribute("scope", "row");
     return tr;
   }));
-  parts.push(tbl);
+  const fold = document.createElement("details");
+  fold.className = "hr-tablefold";
+  fold.open = true;
+  fold.innerHTML = "<summary>星體位置一覽<small>星座與宮位</small></summary>";
+  fold.append(tbl);
+  parts.push(fold);
 
   // 1. overall emphasis
   const emph = natalEmphasis(base);
@@ -1304,8 +1308,8 @@ function renderHouseRead(base) {
   }
 
   parts.push(el("p", "hr-tip", base.by === "asc"
-    ? "這裡用整宮制（一個星座就是一宮），是最古老、也最容易上手的分宮法。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
-    : "目前以太陽星座當第 1 宮（太陽宮位制），只能看大方向。填準確的出生時間算出上升，或在上面選上升星座，宮位才會準。"));
+    ? "宮位從上升排起，一個星座就是一宮（整宮制，最古老也最好上手的分法）。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
+    : "還沒有上升，宮位暫用太陽星座排，只能看大方向。填上出生時間算出上升，或在上面直接選上升星座，宮位才會準。"));
   box.replaceChildren(...parts);
 }
 
@@ -1314,13 +1318,12 @@ function renderHouses(info) {
   const hb = houseBase();
   const base = hb.sign ?? 0;
   const set = hb.sign != null;
-  const seg = $("houseBase");
-  seg.hidden = !(NATAL.sign.Asc != null && NATAL.sign.Sun != null);
-  seg.querySelectorAll("button").forEach((b) => { const on = b.dataset.base === hb.by; b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
   renderHouseRead(hb);
   const cur = segs.map((sg) => signDist(sg.sign, base));
   const placed = NATAL_KEYS.filter(([k]) => k !== "Asc" && NATAL.sign[k] != null).map(([k, zh]) => ({ k, zh, h: signDist(NATAL.sign[k], base) }));
-  $("housesNote").textContent = (set ? `以你的${hb.by === "asc" ? "上升" : "太陽"}${SIGNS[base].zh}為第 1 宮，每宮對應一個星座（${hb.by === "asc" ? "整宮制" : "太陽宮位制"}）。` : "還沒選星座，先以牡羊座為第 1 宮示範；上方選好星座或填出生資料後會換成你的。") +
+  $("housesNote").textContent = (!set ? "還沒有你的資料，先用牡羊座當第 1 宮示範。填上出生資料（或選上升星座）就會換成你的宮位。"
+    : hb.by === "asc" ? `你的上升是${SIGNS[base].zh}，所以第 1 宮是${SIGNS[base].zh}，往下每個星座各是一宮。`
+    : `宮位要從上升排起，上升要有出生時間才算得出來。現在先用你的太陽星座${SIGNS[base].zh}暫代第 1 宮（報紙星座運勢的排法），宮位只能參考；填上出生時間或選上升星座就會換成準確的。`) +
     (placed.length ? "小字是你的行星落在哪一宮，那個領域就是你天生比較用力的地方。" : "");
   $("houses").replaceChildren(
     ...HOUSES.map((h, i) => {
@@ -1520,7 +1523,7 @@ function calcBirth() {
   saveNatal();
   syncNatalForm();
   if (tm) {
-    $("bNote").textContent = `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}、上升${SIGNS[NATAL.sign.Asc].zh}。宮位改用上升起算，相位用準確度數。`;
+    $("bNote").textContent = `已算出：太陽${SIGNS[NATAL.sign.Sun].zh}、月亮${SIGNS[NATAL.sign.Moon].zh}、上升${SIGNS[NATAL.sign.Asc].zh}。宮位已經依上升排好，相位也改用準確度數。`;
   } else {
     // the Moon moves ~0.5° an hour, so a 6–24 h window can straddle two signs; the Sun can too on a cusp day
     const ends = [at(win[0]), new Date(at(win[1]).getTime() - 60000)];
@@ -1553,14 +1556,6 @@ function moonHits(info, natalLon) {
   return out;
 }
 
-$("houseBase").addEventListener("click", (e) => {
-  const b = e.target.closest("button[data-base]");
-  if (!b) return;
-  houseBasePref = b.dataset.base;
-  try { localStorage.setItem(HOUSE_BASE_KEY, houseBasePref); } catch { /* storage unavailable */ }
-  renderPersonal();
-});
-
 function renderPersonal() {
   const box = $("personal");
   if (!lastSky) return;
@@ -1576,7 +1571,7 @@ function renderPersonal() {
   const card = (cls, html) => { const d = document.createElement("div"); d.className = `p-card ${cls}`; d.innerHTML = html; frag.push(d); return d; };
   // 1. house
   const h0 = signDist(info.segs[0].sign, base), h1 = info.segs.length > 1 ? signDist(info.segs[1].sign, base) : null;
-  const method = houseBase().by === "asc" ? `以上升${SIGNS[base].zh}起算（整宮制）` : `以太陽${SIGNS[base].zh}起算（太陽宮位制）`;
+  const method = houseBase().by === "asc" ? `依你的上升${SIGNS[base].zh}排出的宮位` : `還沒有上升，暫用太陽星座${SIGNS[base].zh}當第 1 宮，只能參考`;
   const hc = card("p-house", `<p class="p-k">月亮今天在你的</p><p class="p-big"></p><p class="p-t"></p><p class="p-m"></p>`);
   hc.querySelector(".p-big").textContent = h1 == null ? `第 ${h0 + 1} 宮 · ${HOUSES[h0][0]}` : `第 ${h0 + 1} 宮 → 第 ${h1 + 1} 宮`;
   hc.querySelector(".p-t").textContent = h1 == null ? HOUSE_TIP[h0] : `${fmtT(info.segs[1].from)} 前：${HOUSE_TIP[h0]}${fmtT(info.segs[1].from)} 後：${HOUSE_TIP[h1]}`;
