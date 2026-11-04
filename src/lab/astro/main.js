@@ -1342,12 +1342,38 @@ function buildNatalForm() {
   $("bClear").addEventListener("click", () => {
     NATAL = { sign: {}, deg: {}, birth: null };
     saveNatal();
-    $("bDate").value = ""; $("bTime").value = ""; $("bSlot").value = "exact";
+    setBirthDate(""); $("bTime").value = ""; $("bSlot").value = "exact";
     syncNatalForm();
     renderPersonal();
   });
   syncNatalForm();
 }
+// birth date as year (typed) + month + day (pickers): the native date picker makes the year hard to reach
+const bOpt = (v, t) => Object.assign(document.createElement("option"), { value: v, textContent: t });
+function fillBirthDays() {
+  const y = Number($("bY").value) || 2000, m = Number($("bM").value) || 1;
+  const n = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const keep = $("bD").value;
+  $("bD").replaceChildren(bOpt("", "—"), ...Array.from({ length: n }, (_, i) => bOpt(String(i + 1), String(i + 1))));
+  if (keep && Number(keep) <= n) $("bD").value = keep;
+}
+$("bM").replaceChildren(bOpt("", "—"), ...Array.from({ length: 12 }, (_, i) => bOpt(String(i + 1), String(i + 1))));
+fillBirthDays();
+$("bY").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4); if (e.target.value.length === 4) fillBirthDays(); });
+$("bM").addEventListener("change", fillBirthDays);
+function birthDate() {
+  const y = Number($("bY").value), m = Number($("bM").value), d = Number($("bD").value);
+  if (!(y >= 1900 && y <= 2100 && m && d)) return "";
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+function setBirthDate(v) {
+  const [y, m, d] = v ? v.split("-").map(Number) : ["", "", ""];
+  $("bY").value = y ? String(y) : "";
+  $("bM").value = m ? String(m) : "";
+  fillBirthDays();
+  $("bD").value = d ? String(d) : "";
+}
+
 function syncNatalForm() {
   $("natal").querySelectorAll("select[data-k]").forEach((s) => { const v = NATAL.sign[s.dataset.k]; s.value = v == null ? "" : String(v); });
   const b = NATAL.birth;
@@ -1355,17 +1381,17 @@ function syncNatalForm() {
   $("bCountry").value = (COUNTRIES.find(([, a, z]) => ci >= a && ci < z) || COUNTRIES[0])[0];
   fillCities(ci);
   $("bTz").value = String(b?.tz ?? CITIES[b?.city ?? 0][3]);
-  if (b) { $("bDate").value = b.date || ""; $("bTime").value = b.time || ""; $("bSlot").value = b.slot || (b.time ? "exact" : "unknown"); }
+  if (b) { setBirthDate(b.date || ""); $("bTime").value = b.time || ""; $("bSlot").value = b.slot || (b.time ? "exact" : "unknown"); }
   $("bTimeWrap").hidden = $("bSlot").value !== "exact";
 }
 // birth time not known exactly: estimate from the middle of the window the visitor remembers
 const BIRTH_SLOTS = { day: [6, 18, "白天"], eve: [18, 24, "晚上"], night: [0, 6, "半夜"], unknown: [0, 24, "不知道時間"] };
 function calcBirth() {
-  const d = $("bDate").value, ci = Number($("bCity").value), tz = Number($("bTz").value);
+  const d = birthDate(), ci = Number($("bCity").value), tz = Number($("bTz").value);
   let slot = $("bSlot").value;
   const tm = slot === "exact" ? $("bTime").value : "";
   if (slot === "exact" && !tm) slot = "unknown";
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { $("bNote").textContent = "請先填出生日期。"; return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { $("bNote").textContent = "請先填出生年（西元，例如 1995）、月、日。"; return; }
   const [y, m, dd] = d.split("-").map(Number);
   const at = (h, mi = 0) => new Date(Date.UTC(y, m - 1, dd, h, mi) - tz * H);
   const win = BIRTH_SLOTS[slot];

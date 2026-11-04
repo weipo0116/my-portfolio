@@ -138,12 +138,19 @@
           <details class="natal-more" id="birthBox">
             <summary>用出生資料自動算（含上升與準確度數）</summary>
             <div class="birth">
-              <label>出生日期<input type="date" id="bDate" min="1900-01-01" max="2100-12-31" /></label>
+              <div class="bdate" role="group" aria-labelledby="bDateK">
+                <span id="bDateK">出生日期</span>
+                <div class="bdate-row">
+                  <label><input id="bY" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="1995" autocomplete="bday-year" aria-label="出生年（西元）" /><small>年</small></label>
+                  <label><select id="bM" aria-label="出生月" autocomplete="bday-month"></select><small>月</small></label>
+                  <label><select id="bD" aria-label="出生日" autocomplete="bday-day"></select><small>日</small></label>
+                </div>
+              </div>
               <label>出生時段<select id="bSlot">
                 <option value="exact">知道準確時間</option>
-                <option value="day">只知道是白天（06–18 點）</option>
-                <option value="eve">只知道是晚上（18 點以後）</option>
-                <option value="night">只知道是半夜（0–6 點）</option>
+                <option value="day">大概白天（6–18 點）</option>
+                <option value="eve">大概晚上（18 點後）</option>
+                <option value="night">大概半夜（0–6 點）</option>
                 <option value="unknown">完全不知道</option>
               </select></label>
               <label id="bTimeWrap">出生時間<input type="time" id="bTime" /></label>

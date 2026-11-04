@@ -822,3 +822,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
 .hr-list strong { display: block; color: var(--marble); font-size: 0.95rem; font-weight: 600; }
 .hr-list em { display: block; font-style: normal; color: var(--body); font-size: 0.92rem; line-height: 1.7; }
 .hr-tip { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.7; }
+/* birth date: typed year + month/day pickers */
+.bdate { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; letter-spacing: 0.12em; color: var(--gold); }
+.bdate-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; }
+.bdate-row label { flex-direction: row !important; align-items: center; gap: 6px !important; letter-spacing: 0; }
+.bdate-row input, .bdate-row select { flex: 1; min-width: 0; }
+.bdate-row small { color: var(--muted); font-size: 0.85rem; }
