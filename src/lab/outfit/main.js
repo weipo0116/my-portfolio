@@ -9,31 +9,34 @@ const ctrlBy = (e) => Object.keys(CTRL).find((k) => CTRL[k] === e);
 const EL = {
   wood: {
     zh: "木", en: "WOOD", fr: "Green", bg: "#00a35c", ink: "#04140b", accent: "#d6ff3d",
-    colors: [{ n: "Emerald 翡翠綠", hex: "#00a35c" }, { n: "Chartreuse 螢光黃綠", hex: "#c8f400" }, { n: "Forest 森林綠", hex: "#0d4a2f" }],
+    colors: [{ n: "Emerald 翡翠綠", hex: "#00a35c", wear: "#2f6e50" }, { n: "Chartreuse 螢光黃綠", hex: "#c8f400" }, { n: "Forest 森林綠", hex: "#0d4a2f" }],
     mood: "生長、伸展、向外開展。今天適合嘗試新東西，造型可以有線條與層次。",
   },
   fire: {
     zh: "火", en: "FIRE", fr: "Red", bg: "#e4002b", ink: "#fff3ea", accent: "#ffd400",
-    colors: [{ n: "Scarlet 正紅", hex: "#e4002b" }, { n: "Fuchsia 桃紅", hex: "#ff1f8e" }, { n: "Orange 亮橘", hex: "#ff5a00" }],
+    colors: [{ n: "Scarlet 正紅", hex: "#e4002b", wear: "#b02a30" }, { n: "Fuchsia 桃紅", hex: "#ff1f8e" }, { n: "Orange 亮橘", hex: "#ff5a00" }],
     mood: "熱度、表達、被看見。今天適合站到前面，一件高彩度單品就能撐起整個造型。",
   },
   earth: {
     zh: "土", en: "EARTH", fr: "Ochre", bg: "#e7a100", ink: "#1b1100", accent: "#7a1f00",
-    colors: [{ n: "Mustard 芥末黃", hex: "#e7a100" }, { n: "Terracotta 陶土", hex: "#c24a1a" }, { n: "Camel 駝色", hex: "#b98a55" }],
+    colors: [{ n: "Mustard 芥末黃", hex: "#e7a100", wear: "#c99a2e" }, { n: "Terracotta 陶土", hex: "#c24a1a" }, { n: "Camel 駝色", hex: "#b98a55" }],
     mood: "穩定、承載、務實。今天適合把重要的事做紮實，質感與剪裁比花樣更重要。",
   },
   metal: {
     zh: "金", en: "METAL", fr: "Silver", bg: "#ece8df", ink: "#0a0a0a", accent: "#c9a227",
-    colors: [{ n: "White 純白", hex: "#f6f3ec" }, { n: "Silver 銀", hex: "#b9c0c9" }, { n: "Gold 金", hex: "#c9a227" }],
+    colors: [{ n: "White 純白", hex: "#f6f3ec", wear: "#efece4" }, { n: "Silver 銀", hex: "#b9c0c9" }, { n: "Gold 金", hex: "#c9a227" }],
     mood: "俐落、精準、有秩序。今天適合乾淨線條與金屬細節，少即是多。",
   },
   water: {
     zh: "水", en: "WATER", fr: "Cobalt", bg: "#1020d8", ink: "#eef0ff", accent: "#7df9ff",
-    colors: [{ n: "Cobalt 鈷藍", hex: "#1020d8" }, { n: "Black 墨黑", hex: "#0a0a0a" }, { n: "Midnight 夜藍", hex: "#0b1a4f" }],
+    colors: [{ n: "Cobalt 鈷藍", hex: "#1020d8", wear: "#2b3e9b" }, { n: "Black 墨黑", hex: "#0a0a0a" }, { n: "Midnight 夜藍", hex: "#0b1a4f" }],
     mood: "流動、深度、彈性。今天適合順著情境調整，深色與亮藍的對比最有張力。",
   },
 };
-const NEUTRAL = { n: "Cream 米白", hex: "#efe9dc" };
+// The hero keeps the loud element colours; garments use these toned-down "wear" versions,
+// closer to fabric you can actually buy, so the looks read as real outfits rather than flags.
+const ACCENT_WEAR = { wood: "#b9c46a", fire: "#d9b43a", earth: "#7a3a22", metal: "#b8973f", water: "#8cc7cf" };
+const NEUTRAL = { n: "Cream 米白", hex: "#efe9dc", wear: "#e6ddcb" };
 
 /* ---------- outfit tables ---------- */
 const OCCASIONS = [
@@ -327,6 +330,7 @@ function buildLooks(occ, feel, rainy, uv, c, prefs, rolls, seedKey, keep = null,
 /* ---------- state ---------- */
 const CITIES = {
   taipei: { zh: "台北", en: "TAIPEI", lat: 25.033, lon: 121.5654, tz: "Asia/Taipei" },
+  hsinchu: { zh: "新竹", en: "HSINCHU", lat: 24.8138, lon: 120.9675, tz: "Asia/Taipei" },
   tokyo: { zh: "東京", en: "TOKYO", lat: 35.6762, lon: 139.6503, tz: "Asia/Tokyo" },
   seoul: { zh: "首爾", en: "SEOUL", lat: 37.5665, lon: 126.978, tz: "Asia/Seoul" },
   newyork: { zh: "紐約", en: "NEW YORK", lat: 40.7128, lon: -74.006, tz: "America/New_York" },
@@ -413,7 +417,7 @@ function sliceWeather(raw, city, off, shift = 0) {
   }
   // seasonal fallback so the page still works offline (rough estimates, flagged in the UI)
   const tt = shiftDay(todayIn(c.tz), off);
-  const base = ({ taipei: [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18], tokyo: [6, 7, 11, 16, 21, 24, 28, 30, 26, 20, 14, 9], seoul: [-1, 2, 8, 15, 20, 24, 27, 28, 23, 16, 8, 1], newyork: [1, 3, 7, 13, 19, 24, 27, 26, 22, 16, 10, 4] })[city][tt.m - 1];
+  const base = ({ taipei: [16, 17, 19, 23, 26, 29, 31, 31, 29, 26, 22, 18], hsinchu: [15, 16, 18, 22, 25, 28, 30, 30, 28, 25, 21, 17], tokyo: [6, 7, 11, 16, 21, 24, 28, 30, 26, 20, 14, 9], seoul: [-1, 2, 8, 15, 20, 24, 27, 28, 23, 16, 8, 1], newyork: [1, 3, 7, 13, 19, 24, 27, 26, 22, 16, 10, 4] })[city][tt.m - 1];
   const hour0 = (off === 0 ? Number(new Intl.DateTimeFormat("en-GB", { timeZone: c.tz, hour: "2-digit", hour12: false }).format(new Date())) : 8) + shift;
   const hours = Array.from({ length: 13 }, (_, k) => {
     const hh = (hour0 + k) % 24;
@@ -442,14 +446,14 @@ function splitChars(node, text) {
 //   剋我 → power, 我剋 → boost, 同我 → steady. 生我 / 我生 are not ranked (kept neutral).
 function paletteFor(elKey) {
   const tier = (k) => ({ key: k, el: EL[k], ...EL[k].colors[0] });
-  const dark = { n: "Black 墨黑", hex: "#0a0a0a" };
+  const dark = { n: "Black 墨黑", hex: "#0a0a0a", wear: "#1e1e21" };
   return {
     g1: tier(ctrlBy(elKey)),
     g2: tier(CTRL[elKey]),
     g3: tier(elKey),
     neutral: NEUTRAL,
     dark,
-    accent: { n: EL[elKey].accent, hex: EL[elKey].accent },
+    accent: { n: "點綴色", hex: EL[elKey].accent, wear: ACCENT_WEAR[elKey] },
   };
 }
 
@@ -791,57 +795,6 @@ function renderTabs() {
   );
 }
 
-/* ---------- stickers: simple garment icons so each look reads at a glance ---------- */
-const ICONS = {
-  tank: "M32 12 L38 12 Q50 34 62 12 L68 12 L74 40 L70 88 H30 L26 40Z",
-  tee: "M30 16 L10 30 L21 46 L30 40 V86 H70 V40 L79 46 L90 30 L70 16 Q50 30 30 16Z",
-  long: "M32 14 L8 34 L15 84 L28 82 L30 52 V88 H70 V52 L72 82 L85 84 L92 34 L68 14 Q50 28 32 14Z",
-  coat: "M34 10 L50 42 L66 10 L90 24 L86 92 H54 V50 L50 44 L46 50 V92 H14 L10 24Z",
-  trousers: "M30 10 H70 L75 90 H54 L50 40 L46 90 H25Z",
-  wide: "M28 10 H72 L88 90 H54 L50 36 L46 90 H12Z",
-  skirt: "M34 12 H66 L88 86 H12Z",
-  dress: "M38 8 L44 8 Q50 18 56 8 L62 8 L64 34 L86 92 H14 L36 34Z",
-  shorts: "M26 18 H74 L82 64 H55 L50 44 L45 64 H18Z",
-  flat: "M8 62 Q8 44 28 42 L48 42 Q60 58 88 58 Q94 60 94 70 V76 H8Z",
-  sneaker: "M8 58 Q8 40 30 40 L46 40 L52 52 Q70 52 90 60 Q96 64 96 72 V78 H8Z",
-  heel: "M16 24 H38 L42 56 Q62 60 86 70 V78 H66 L52 68 H40 L34 92 H24Z",
-  bag: "M24 40 H76 L84 88 H16Z",
-  scarf: "M26 18 Q50 40 74 18 L80 30 Q50 58 20 30Z M44 46 L38 90 H54 L58 50Z",
-  gem: "M28 38 L40 20 H60 L72 38 L50 84Z",
-  hat: "M10 66 H90 Q90 60 80 58 Q76 26 50 26 Q24 26 20 58 Q10 60 10 66Z",
-  shades: "M10 38 H44 V58 Q44 72 28 72 Q10 72 10 58Z M56 38 H90 V58 Q90 72 72 72 Q56 72 56 58Z",
-  umbrella: "M8 52 Q50 -2 92 52 Q81 44 71 52 Q61 44 50 52 Q39 44 29 52 Q19 44 8 52Z",
-};
-const ICON_LINES = {
-  bag: "M36 42 Q36 16 50 16 Q64 16 64 42",
-  umbrella: "M50 52 V80 Q50 92 38 88",
-  flat: "M8 70 H94",
-  sneaker: "M8 70 H96",
-};
-const ICON_RULES = [
-  [/外套|大衣/, "coat"], [/無袖|吊帶|背心(?! T)/, "tank"], [/短袖|polo|背心 T/, "tee"], [/短褲/, "shorts"], [/裙/, "skirt"],
-  [/寬褲|寬版牛仔褲/, "wide"], [/褲/, "trousers"], [/高跟|短靴/, "heel"], [/跑鞋|球鞋|德訓|訓練鞋|老爹鞋|帆布鞋/, "sneaker"], [/鞋/, "flat"],
-  [/傘/, "umbrella"], [/帽/, "hat"], [/墨鏡|眼鏡/, "shades"], [/包/, "bag"], [/絲巾|圍巾|領帶|毛巾/, "scarf"], [/耳環|胸針|髮帶|襪|項鍊|戒指|手錶|皮帶|髮夾/, "gem"],
-  [/襯衫|針織|長袖|衛衣|連帽|刷毛|發熱|高領/, "long"],
-];
-const iconFor = (piece) => {
-  const it = piece.item, p = piece.part;
-  if (p === "上身") return /無袖|背心(?!＋)|細肩/.test(it) && !/針織背心/.test(it) ? "tank" : /短袖|T 恤|polo|oversized|T$|短版/.test(it) && !/長袖/.test(it) ? "tee" : "long";
-  if (p === "連身") return "dress";
-  if (p === "外層") return "coat";
-  if (p === "下身") return /短褲|運動短褲/.test(it) ? "shorts" : /裙/.test(it) ? "skirt" : /寬/.test(it) ? "wide" : "trousers";
-  if (p === "鞋") return /高跟|涼跟|靴|瑪莉珍/.test(it) ? "heel" : /帆布|德訓|老爹|籃球|跑鞋|訓練|慢跑|球鞋/.test(it) ? "sneaker" : "flat";
-  return (ICON_RULES.find(([re]) => re.test(it)) || [0, "gem"])[1];
-};
-
-function stickerHTML(piece, hex, i) {
-  const id = iconFor(piece);
-  const d = ICONS[id];
-  const line = ICON_LINES[id] ? `<path d="${ICON_LINES[id]}" class="stk-l"/>` : "";
-  const rot = [-6, 4, -3, 6, -4, 3, -5][i % 7];
-  return `<figure class="stk" style="--r:${rot}deg"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="${d}" class="stk-o"/><path d="${d}" class="stk-f" style="fill:${hex}"/>${line}</svg><figcaption>${piece.part}</figcaption></figure>`;
-}
-
 function slotColor(slot, pal) {
   return slot === "g1" ? pal.g1 : slot === "g2" ? pal.g2 : slot === "g3" ? pal.g3 : slot === "neutral" ? pal.neutral : slot === "dark" ? pal.dark : pal.accent;
 }
@@ -883,25 +836,84 @@ function renderLooks(animate, only = null) {
   renderAnswer(looks[0]);
   renderWhy(b);
   const grid = $("lookGrid");
-  grid.replaceChildren(
-    ...looks.map((l, i) => {
-      const card = h("article", "look");
-      card.style.setProperty("--i", i);
-      if (animate && (only == null || only === i)) card.classList.add("swap");
-      else if (only != null) card.classList.add("shown");
-      const bars = l.pieces.map((p) => `<i style="background:${slotColor(p.slot, state.pal).hex}"></i>`).join("");
-      const rows = l.pieces
-        .map((p) => {
-          const c = slotColor(p.slot, state.pal);
-          return `<li><span class="dot" style="background:${c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : `中性色 · ${c.n}`}</small></li>`;
-        })
-        .join("");
-      const board = l.pieces.map((p, k) => stickerHTML(p, slotColor(p.slot, state.pal).hex, k)).join("");
-      card.innerHTML = `<div class="look-no">${l.id}</div><div class="score" title="依旺／助／穩色的佔比估算"><b>${l.score}</b>/10<small>ENERGY</small></div><div class="board">${board}</div><div class="swatches">${bars}</div><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul><button type="button" class="reroll" data-v="${i}"><span aria-hidden="true">↻</span> 換一套</button>`;
-      return card;
-    }),
-  );
+  const n = looks.length;
+  state.slide = Math.min(state.slide ?? 0, n - 1);
+  const slides = looks.map((l, i) => {
+    const card = h("article", "look");
+    card.style.setProperty("--i", i);
+    card.setAttribute("aria-roledescription", "slide");
+    card.setAttribute("aria-label", `第 ${i + 1} 套，共 ${n} 套：${l.name}`);
+    if (animate && (only == null || only === i)) card.classList.add("swap");
+    else if (only != null) card.classList.add("shown");
+    // colour story: one band per garment, width by how much of the body it covers
+    const bands = l.pieces
+      .filter((p) => AREA_W[p.part])
+      .map((p) => {
+        const c = slotColor(p.slot, state.pal);
+        const tone = c.wear || c.hex;
+        return `<div class="band" style="--w:${AREA_W[p.part]};--c:${tone};--t:${inkOn(tone)}"><span>${p.part}</span><b>${c.n.split(" ")[1] || c.n}</b></div>`;
+      })
+      .join("");
+    const rows = l.pieces
+      .map((p) => {
+        const c = slotColor(p.slot, state.pal);
+        return `<li><span class="dot" style="background:${c.wear || c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : `中性色 · ${c.n}`}</small></li>`;
+      })
+      .join("");
+    card.innerHTML = `<div class="story"><div class="score" title="依旺／助／穩色的佔比估算"><b>${l.score}</b>/10<small>ENERGY</small></div><div class="bands">${bands}</div></div><div class="look-body"><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul><button type="button" class="reroll" data-v="${i}"><span aria-hidden="true">↻</span> 換一套</button></div>`;
+    return card;
+  });
+  const track = h("div", "look-track");
+  track.id = "lookTrack";
+  track.tabIndex = 0;
+  track.setAttribute("aria-label", "穿搭，左右滑動看其他搭配");
+  track.append(...slides);
+  const nav = h("div", "look-nav", `<button type="button" class="lk-btn" data-lk="-1" aria-label="上一套">‹</button><span class="lk-count" aria-live="polite"><b>01</b> / ${String(n).padStart(2, "0")}</span><button type="button" class="lk-btn" data-lk="1" aria-label="下一套">›</button>`);
+  const dots = h("div", "lk-dots", looks.map((l, i) => `<button type="button" data-go="${i}" aria-label="第 ${i + 1} 套"></button>`).join(""));
+  grid.replaceChildren(nav, track, dots);
+  track.addEventListener("scroll", () => {
+    cancelAnimationFrame(state.lkRaf);
+    state.lkRaf = requestAnimationFrame(() => syncSlide(Math.round(track.scrollLeft / track.clientWidth)));
+  }, { passive: true });
+  track.scrollLeft = state.slide * track.clientWidth;
+  syncSlide(state.slide);
 }
+
+// garment share of the body, for the colour-story bands
+const AREA_W = { 外層: 30, 連身: 52, 上身: 24, 下身: 24, 鞋: 9, 配件: 9 };
+// readable text on a band: dark ink on light tones, paper on dark tones
+function inkOn(hex) {
+  const v = parseInt(hex.slice(1), 16);
+  const lum = (0.299 * (v >> 16) + 0.587 * ((v >> 8) & 255) + 0.114 * (v & 255)) / 255;
+  return lum > 0.6 ? "#111" : "#f7f4ec";
+}
+function syncSlide(i) {
+  const grid = $("lookGrid");
+  const n = grid.querySelectorAll(".look").length;
+  state.slide = Math.max(0, Math.min(n - 1, i));
+  grid.querySelector(".lk-count b").textContent = String(state.slide + 1).padStart(2, "0");
+  grid.querySelector('[data-lk="-1"]').disabled = state.slide === 0;
+  grid.querySelector('[data-lk="1"]').disabled = state.slide === n - 1;
+  grid.querySelectorAll(".lk-dots button").forEach((b, k) => b.setAttribute("aria-current", k === state.slide ? "true" : "false"));
+}
+function goSlide(i) {
+  const track = $("lookTrack");
+  const smooth = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  const n = track.children.length;
+  const k = Math.max(0, Math.min(n - 1, i));
+  track.scrollTo({ left: k * track.clientWidth, behavior: smooth });
+  syncSlide(k);
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("#lookGrid [data-lk], #lookGrid .lk-dots [data-go]");
+  if (!b) return;
+  goSlide(b.dataset.lk != null ? state.slide + Number(b.dataset.lk) : Number(b.dataset.go));
+});
+document.addEventListener("keydown", (e) => {
+  if (e.target.id !== "lookTrack" || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
+  e.preventDefault();
+  goSlide(state.slide + (e.key === "ArrowRight" ? 1 : -1));
+});
 
 function renderRules() {
   const el = state.day.el;

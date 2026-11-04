@@ -326,3 +326,89 @@ section[id] { scroll-margin-top: 24px; }
   .hero .jump a { min-width: 0; padding: 8px 10px; align-items: center; }
   .hero .jump a small { display: none; }
 }
+
+/* ======================================================================
+   v5 — one look at a time (colour story), side arrows on the hourly strip,
+   compact tabs on phones, weather right after the hero on phones
+   ====================================================================== */
+
+/* hourly: shift arrows flank the strip */
+.hourly-frame { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; align-items: stretch; }
+.hourly-frame .hourly { border-left: 0; border-right: 0; }
+.hs-side { font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 3px solid var(--black); background: var(--paper); color: var(--black); transition: background 0.2s var(--ease), color 0.2s var(--ease); }
+.hs-side span { font-family: var(--display); font-weight: 900; font-size: 2rem; line-height: 0.8; }
+.hs-side small { font-weight: 800; font-size: 0.7rem; letter-spacing: 0.08em; }
+.hs-side:hover:not(:disabled) { background: var(--black); color: var(--paper); }
+.hs-side:active:not(:disabled) { transform: scale(0.97); }
+.hs-side:disabled { opacity: 0.25; cursor: default; }
+.hs-side:focus-visible { outline: 3px solid var(--bg); outline-offset: 2px; }
+.hshift { justify-content: flex-start; }
+.hshift b { min-width: 0; text-align: left; font-family: var(--display); font-style: italic; font-weight: 900; font-size: 1.25rem; }
+
+/* looks: carousel */
+.look-grid { display: block; }
+.look-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 6px 0 12px; }
+.lk-count { font-family: var(--display); font-style: italic; font-weight: 900; font-size: 1.1rem; letter-spacing: 0.04em; }
+.lk-count b { font-size: 2.2rem; }
+.lk-btn { font: inherit; width: 52px; height: 52px; display: grid; place-items: center; border: 3px solid var(--black); background: var(--paper); color: var(--black); font-family: var(--display); font-weight: 900; font-size: 2rem; line-height: 1; cursor: pointer; transition: background 0.2s var(--ease), color 0.2s var(--ease), transform 0.15s var(--ease); }
+.lk-btn:hover:not(:disabled) { background: var(--black); color: var(--paper); }
+.lk-btn:active:not(:disabled) { transform: scale(0.96); }
+.lk-btn:disabled { opacity: 0.25; cursor: default; }
+.lk-btn:focus-visible, .lk-dots button:focus-visible, .look-track:focus-visible { outline: 3px solid var(--bg); outline-offset: 3px; }
+.look-track { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.look-track::-webkit-scrollbar { display: none; }
+.look-track .look { scroll-snap-align: start; scroll-snap-stop: always; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); padding: 0; }
+.look-track .look:hover { transform: none; box-shadow: none; }
+.lk-dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+.lk-dots button { width: 34px; height: 24px; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; }
+.lk-dots button::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: var(--black); opacity: 0.2; transition: opacity 0.2s var(--ease); }
+.lk-dots button[aria-current="true"]::before { opacity: 1; }
+
+/* colour story: one band per garment, width = how much of the body it covers */
+.story { position: relative; border-right: 3px solid var(--black); min-height: 420px; display: flex; flex-direction: column; }
+.story .look-no { left: auto; right: 14px; top: 8px; color: var(--paper); mix-blend-mode: difference; }
+.story .score { left: 14px; top: 14px; }
+.bands { flex: 1; display: flex; }
+.band { flex: var(--w) 1 0; background: var(--c); color: var(--t); display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; padding: 12px 8px; min-width: 0; border-right: 3px solid var(--black); transform-origin: bottom; animation: band-in 0.8s var(--ease) both; }
+.band:last-child { border-right: 0; }
+.band:nth-child(2) { animation-delay: 0.06s; } .band:nth-child(3) { animation-delay: 0.12s; } .band:nth-child(4) { animation-delay: 0.18s; } .band:nth-child(5) { animation-delay: 0.24s; }
+.band span { font-weight: 800; font-size: 0.7rem; letter-spacing: 0.14em; writing-mode: vertical-rl; }
+.band b { font-family: var(--display); font-weight: 900; font-size: 0.95rem; line-height: 1.1; writing-mode: vertical-rl; }
+@keyframes band-in { from { transform: scaleY(0); } to { transform: none; } }
+.look-body { padding: 18px 0 22px; }
+.look-body h3 { margin-top: 4px; font-size: clamp(1.5rem, 3vw, 2.2rem); }
+
+@media (max-width: 720px) {
+  /* phones: weather (rain) right after the hero */
+  #sec-weather { order: 1; }
+  #sec-looks { order: 2; }
+  #sec-colors { order: 3; }
+  .jump a[href="#sec-weather"], .dock a[href="#sec-weather"] { order: -2; }
+
+  .look-track .look { grid-template-columns: 1fr; }
+  .story { border-right: 0; border-bottom: 3px solid var(--black); min-height: 220px; }
+  .look-body { padding-top: 12px; }
+  .lk-btn { width: 44px; height: 44px; font-size: 1.7rem; }
+
+  /* compact tabs: one scrollable row, Chinese label only */
+  .looks-head { flex-wrap: wrap; }
+  #tabs, #cityTabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; gap: 6px; padding-bottom: 2px; }
+  #tabs::-webkit-scrollbar, #cityTabs::-webkit-scrollbar { display: none; }
+  #tabs .tab, #cityTabs .tab { flex: 0 0 auto; min-height: 40px; min-width: 0; padding: 0 14px; justify-content: center; align-items: center; border-width: 2px; }
+  #tabs .tab small, #cityTabs .tab small { display: none; }
+  #tabs .tab b, #cityTabs .tab b { font-size: 0.88rem; letter-spacing: 0.06em; }
+  .days .tab { min-height: 40px; padding: 4px 6px; }
+  .pchip { min-height: 36px; padding: 0 12px; font-size: 0.85rem; }
+  .prefs { gap: 8px 16px; }
+  .hourly-frame { grid-template-columns: 40px minmax(0, 1fr) 40px; }
+  .hs-side span { font-size: 1.6rem; }
+  .hs-side small { font-size: 0.6rem; letter-spacing: 0; }
+}
+@media (pointer: coarse) and (max-width: 720px) {
+  #tabs .tab, #cityTabs .tab, .days .tab { min-height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .band { animation: none; } .look-track { scroll-behavior: auto; } }
+.look-body { padding: 18px 20px 22px; }
+.look-body h3, .look-body > p, .look-body ul { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+.look-body > p { margin: 0 0 14px; font-size: 0.92rem; color: #333; }
+.look-body .reroll { margin-left: 0; }
