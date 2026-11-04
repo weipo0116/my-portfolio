@@ -517,6 +517,25 @@ const TIP = {
 };
 const AREA = ["自己的狀態與形象", "荷包與資源", "說話與學習", "家與安心感", "戀愛與玩樂", "日常作息與身體", "另一半與合作", "深層關係與共同資源", "眼界與遠方", "事業與名聲", "朋友與圈子", "獨處與休息"];
 
+// Houses only change when a planet changes sign, so on most days the ranking would not move.
+// Add a smooth aspect to the middle of each sun sign: the Moon sweeps ~13° a day and the inner
+// planets ~1°, so the score drifts day to day instead of jumping only on sign changes.
+const SIGN_ASPECTS = [[0, 8, 0.6], [60, 6, 0.5], [90, 7, -0.6], [120, 7, 0.7], [180, 8, -0.5]];
+function aspectPull(b, si) {
+  let diff = Math.abs(b.lon - (si * 30 + 15));
+  if (diff > 180) diff = 360 - diff;
+  let pull = 0;
+  for (const [ang, orb, v] of SIGN_ASPECTS) {
+    const off = Math.abs(diff - ang);
+    if (off >= orb) continue;
+    const strength = Math.cos((off / orb) * (Math.PI / 2));
+    // Saturn's easy aspects help less than its hard ones hurt
+    pull += (b.key === "Saturn" && v > 0 ? 0.3 * v : v) * strength;
+  }
+  // the Moon is the day-to-day mover in a daily reading, so it counts double
+  return b.key === "Moon" ? pull * 2 : pull;
+}
+
 // whole-sign houses counted from each sun sign
 function rawFortune(pos) {
   return SIGNS.map((_, si) => {
@@ -531,6 +550,7 @@ function rawFortune(pos) {
         if (b.retro) n *= 0.5;
         let c = w[cat] * n * HF[cat][house - 1];
         if (b.key === "Mercury" && b.retro && cat !== "love") c -= 0.15;
+        c += w[cat] * aspectPull(b, si);
         total += c;
         parts.push({ b, house, c });
       }
@@ -655,6 +675,7 @@ const LUCKY_DIRS = ["東", "東南", "南", "西南", "西", "西北", "北", "�
 const VIEW_KEY = "astra-view";
 const tierOf = (st) => (st >= 4 ? "hi" : st === 3 ? "mid" : "lo");
 const TIER_ZH = { hi: "旺", mid: "平穩", lo: "留意" };
+const dayNoun = () => (offsetDays === 0 ? "今天" : offsetDays === -1 ? "昨天" : offsetDays === 1 ? "明天" : "這天");
 const dayWord = () => (offsetDays === 0 ? "今日" : offsetDays === -1 ? "昨日" : offsetDays === 1 ? "明日" : "這天");
 
 const $ = (id) => document.getElementById(id);
@@ -1103,7 +1124,7 @@ function todayData(si) {
   const rows = Object.keys(CATS).map((cat) => ({ cat, ...currentFortune[cat][si] }));
   const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
   const best = rows.slice().sort((a, b) => b.stars - a.stars || b.score - a.score)[0];
-  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: ONE_LINER[best.cat][tierOf(avg)], lucky: luckyFor(currentDay.tp, si) };
+  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: ONE_LINER[best.cat][tierOf(avg)].replace(/^今天/, dayNoun()), lucky: luckyFor(currentDay.tp, si) };
 }
 
 function renderToday() {
@@ -1254,7 +1275,18 @@ async function drawShareCard(si) {
   };
   text("ASTRA DIES", W / 2, 140, `600 46px ${LATIN}`, SOFT, "14px");
   text(`${tp.y}.${String(tp.m).padStart(2, "0")}.${String(tp.d).padStart(2, "0")} ${tp.wk} · ${dayWord()}運勢`, W / 2, 192, `400 28px ${SERIF}`, MUTED, "4px");
-  text(TXT(d.sg.g), W / 2, 440, `120px ${GLYPH}`, SOFT);
+  {
+    // center the glyph by its ink, not its advance width: the U+FE0E selector and fallback
+    // fonts add phantom advance that pushed it right of the rings
+    ctx.font = `120px ${GLYPH}`;
+    ctx.textAlign = "left";
+    const m = ctx.measureText(TXT(d.sg.g));
+    const gx = W / 2 + (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2;
+    const gy = 400 + (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;
+    ctx.fillStyle = SOFT;
+    ctx.fillText(TXT(d.sg.g), gx, gy);
+    ctx.textAlign = "center";
+  }
   text(d.sg.zh, W / 2, 545, `600 64px ${SERIF}`, MARBLE, "10px");
   text(`${d.sg.la.toUpperCase()} · ${SIGN_DATES[si]}`, W / 2, 595, `400 26px ${LATIN}`, GOLD, "6px");
   text(`${stars(d.avg)}  ${TIER_ZH[d.tier]}`, W / 2, 668, `400 44px ${SERIF}`, GOLD, "4px");
@@ -1304,11 +1336,27 @@ async function openShare(si) {
   $("shareDl").href = url;
   $("shareDl").setAttribute("download", name);
   const nativeBtn = $("shareNative");
+  const dl = $("shareDl");
+  const hint = $("shareHint");
   nativeBtn.hidden = true;
+  dl.textContent = "下載圖片";
+  dl.onclick = null;
+  hint.textContent = "手機上也可以長按圖片，選「加入照片」或「儲存影像」。";
   cv.toBlob((blob) => {
     if (!blob || !navigator.canShare) return;
     const file = new File([blob], name, { type: "image/png" });
     if (!navigator.canShare({ files: [file] })) return;
+    // phones: an <a download> lands in Files/Downloads, not Photos. The share sheet has
+    // "儲存影像 / Save Image", which is the only web route into the photo library.
+    if (matchMedia("(pointer: coarse)").matches) {
+      dl.textContent = "儲存到相簿";
+      dl.onclick = (e) => {
+        e.preventDefault();
+        navigator.share({ files: [file] }).catch(() => {});
+      };
+      hint.textContent = "按「儲存到相簿」後，在選單裡選「儲存影像」就會存進照片；也可以直接長按圖片儲存。";
+      return;
+    }
     nativeBtn.hidden = false;
     nativeBtn.onclick = () => navigator.share({ files: [file], title: "Astra Dies 今日運勢" }).catch(() => {});
   }, "image/png");
