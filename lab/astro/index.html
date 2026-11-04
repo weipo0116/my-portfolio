@@ -54,8 +54,9 @@
         <nav class="jump" aria-label="快速導覽">
           <a href="#sec-today" class="v-fortune">我的運勢</a>
           <a href="#sec-energy" class="v-chart">今日能量</a>
+          <a href="#sec-houses" class="v-chart">你的今日</a>
+          <a href="#sec-natal" class="v-chart">你的星盤</a>
           <a href="#sec-moon" class="v-chart">月相</a>
-          <a href="#sec-houses" class="v-chart">宮位</a>
           <a href="#sec-notes">說明</a>
         </nav>
       </header>
@@ -110,7 +111,7 @@
             <p><b>3. 每天的差別主要來自月亮。</b>太陽一個月才換一次座，水星、金星、火星也要幾週；但月亮約 2.3 天就換一個星座，每隔幾小時還會和某顆行星形成一次準確的相位。所以「一天的節奏」是把當天 24 小時掃一遍（月亮每 30 分鐘、行星每 6 小時取樣），找出換座與相位的準確時間。</p>
             <p><b>4. 相位與月亮空轉。</b>合相放大、六分與三分順暢、四分與對分有張力。月亮在離開一個星座前，如果不再和太陽到土星形成主要相位，就叫「空轉」（void of course），傳統上這段時間不適合開新局。再加上週間的當值星（週日太陽、週一月亮、週二火星、週三水星、週四木星、週五金星、週六土星）。</p>
             <p><b>5. 文字是模板組合，不是 AI 即時生成。</b>同樣的天象一定得到同樣的文字；但時間與組合每天不同，所以每天的結果也不同。</p>
-            <p><b>6. 「你的今日」怎麼算。</b>只填星座時，把你的太陽（或上升）星座當第 1 宮，用整個星座比對月亮和大行星的相位；填了出生資料，會算出你出生當下各行星的準確度數與上升星座，相位用度數比對、算到準確時間。出生資料只存在這台裝置的瀏覽器裡，不會上傳。</p>
+            <p><b>6. 「你的今日」怎麼算。</b>只填星座時，把你的太陽（或上升）星座當第 1 宮，用整個星座比對月亮和大行星的相位；填了出生資料，會算出你出生當下各行星的準確度數與上升星座，相位用度數比對、算到準確時間。個人版的愛情、事業、財運，是把今天月亮和各行星碰到你出生星盤的相位加總，再跟你自己前後兩週比較排出星數。出生資料只存在這台裝置的瀏覽器裡，不會上傳。</p>
             <p><b>7. 會自動更新。</b>每天（台北時間）開頁就是當天的天象；頁面開著跨午夜，也會自動換成新的一天。</p>
           </div>
         </details>
@@ -118,17 +119,9 @@
         </div>
       </section>
 
-      <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
-        <h2 id="h-moon"><span class="num">II</span> 月相 <em>Luna</em></h2>
-        <div class="moon-row">
-          <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相" aria-describedby="moonText"></svg>
-          <div id="moonText" class="prose"></div>
-        </div>
-      </section>
-
       <section class="block reveal v-chart" id="sec-houses" aria-labelledby="h-houses">
-        <h2 id="h-houses"><span class="num">III</span> 你的今日 <em>Domus</em></h2>
-        <p class="prose sub-note">選你的星座就能看月亮今天走到你的哪一宮；知道月亮、上升或其他行星的話也填上，分析會更貼近你。資料只存在這台裝置。</p>
+        <h2 id="h-houses"><span class="num">II</span> 你的今日 <em>Domus</em></h2>
+        <p class="prose sub-note">選你的星座就能看月亮今天走到你的哪一宮；填上出生資料，最上面會依你的星盤算今天的愛情、事業、財運。資料只存在這台裝置。</p>
         <div class="natal" id="natal">
           <div class="natal-row" id="natalMain"></div>
           <details class="natal-more">
@@ -171,11 +164,18 @@
       </section>
 
       <section class="block reveal v-chart" id="sec-natal" aria-labelledby="h-natal">
-        <h2 id="h-natal"><span class="num">IV</span> 你的星盤 <em>Thema Natale</em></h2>
+        <h2 id="h-natal"><span class="num">III</span> 你的星盤 <em>Thema Natale</em></h2>
         <p class="prose sub-note" id="natalIntro">在「你的今日」填上出生資料（或選好星座），這裡會排出你的出生星盤：每顆星在哪個星座、哪一宮，以及怎麼讀。</p>
         <div class="house-read" id="houseRead"></div>
       </section>
 
+      <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
+        <h2 id="h-moon"><span class="num">IV</span> 月相 <em>Luna</em></h2>
+        <div class="moon-row">
+          <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相" aria-describedby="moonText"></svg>
+          <div id="moonText" class="prose"></div>
+        </div>
+      </section>
 
       <footer class="foot" id="sec-notes">
         <p class="foot-title">關於這個頁面</p>
@@ -193,7 +193,6 @@
       <button type="button" data-go="0" id="dbToday" class="db-today">今日</button>
       <a class="db-top" href="#top" aria-label="回到頂端">↑</a>
     </div>
-
 
     <dialog id="shareDialog" class="share-dlg" aria-labelledby="shareTitle">
       <div class="dlg-bar">

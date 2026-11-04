@@ -20,6 +20,7 @@ function applyTheme(mode) {
   applyTheme(saved === "light" ? "light" : "dark");
 })();
 import "./astro.css";
+import NATAL_READ from "./natal-read.json"; // plain-language natal reading: per point a question, a sentence per sign and per house
 
 /* ---------- static tables ---------- */
 const SIGNS = [
@@ -1147,20 +1148,7 @@ function houseBase() {
   if (Sun != null) return { sign: Sun, by: "sun" };
   return { sign: null, by: null };
 }
-// one plain sentence per planet: what it stands for, placed in that house's area of life
-const PLANET_IN_HOUSE = {
-  Sun: (a) => `你最想發光、最有自信的地方在「${a}」。`,
-  Moon: (a) => `讓你有安全感、情緒也最容易被牽動的是「${a}」。`,
-  Mercury: (a) => `你的腦袋最常轉在「${a}」，也擅長在這方面溝通。`,
-  Venus: (a) => `你喜歡、也容易得到好人緣的地方在「${a}」。`,
-  Mars: (a) => `你最有衝勁、也最容易起爭執的地方在「${a}」。`,
-  Jupiter: (a) => `機會和好運比較容易出現在「${a}」。`,
-  Saturn: (a) => `「${a}」是你比較辛苦、要慢慢練的地方，但練起來最紮實。`,
-  Uranus: (a) => `「${a}」是你人生中容易突然變化、想打破規則的地方。`,
-  Neptune: (a) => `你在「${a}」比較浪漫、理想化，也容易看不清。`,
-  Pluto: (a) => `「${a}」是你會很投入、也會經歷深刻轉變的地方。`,
-};
-// ---- teacher notes: what each house covers, what each planet does, and how to work with it ----
+// ---- what each house covers (used by the house list in section III) ----
 const HQ = { a: ["角宮", "最有力量、最容易被看見的位置，事情會直接發生在你身上"], s: ["續宮", "累積與穩定的位置，事情在這裡慢慢存起來"], c: ["果宮", "學習與調整的位置，力量偏幕後、偏轉換"] };
 const HOUSE_INFO = [
   { q: "a", domain: "身體、外貌、性格給人的第一印象，也是你面對人生的起手式", ask: "我是怎麼出場的？別人第一眼看到什麼？" },
@@ -1176,18 +1164,6 @@ const HOUSE_INFO = [
   { q: "s", domain: "朋友、社群與人脈、對未來的願望，也包括工作帶來的收益", ask: "我屬於哪一群人？想要什麼樣的未來？" },
   { q: "c", domain: "潛意識、獨處、隱藏的事、休養與修行，也是容易自我耗損的地方", ask: "我在哪裡需要退一步、放下或療癒？" },
 ];
-const PLANET_INFO = {
-  Sun: { func: "自我認同與生命力", light: "在這裡容易被看見、有主導權", shadow: "也容易太想證明自己", guide: "把這個領域當成你的舞台，主動承擔角色" },
-  Moon: { func: "情緒需求與安全感", light: "直覺準，照顧別人很自然", shadow: "情緒起伏也最常從這裡來", guide: "先照顧好這個領域的安全感，你整個人才會穩" },
-  Mercury: { func: "思考、溝通與技能", light: "腦筋快、資訊靈通", shadow: "容易想太多或說太多", guide: "把想法寫下來、整理成方法，這裡是你的專業工具箱" },
-  Venus: { func: "喜好、關係與價值", light: "人緣好、有品味，容易得到幫助", shadow: "也可能太求和諧，或花太多", guide: "用美感和合作去經營，這裡會帶來好關係，也帶來收入" },
-  Mars: { func: "行動力、慾望與競爭心", light: "衝勁強、敢爭取", shadow: "急躁，容易起衝突或受傷", guide: "給它一個明確目標當出口，別讓火力變成爭吵" },
-  Jupiter: { func: "擴張、信念與好運", light: "機會多、容易遇到貴人", shadow: "容易過度樂觀、答應太多", guide: "大方投入、多學多分享，但要量力而為" },
-  Saturn: { func: "責任、限制與時間", light: "能力是一步一步練出來的，晚成但紮實", shadow: "年輕時常覺得不夠好、壓力大", guide: "給自己時間和規則，通常過了 30 歲會越來越穩" },
-  Uranus: { func: "改變與獨立", light: "有新想法、不走老路", shadow: "不穩定、常有突然的變動", guide: "在這裡保留自由和彈性，別硬套別人的規則" },
-  Neptune: { func: "理想、靈感與模糊的界線", light: "敏感，有藝術感和慈悲心", shadow: "容易理想化或被誤導", guide: "多確認事實、守好界線，把想像力放進創作" },
-  Pluto: { func: "深層力量與蛻變", light: "能看穿本質，越挫越強", shadow: "容易執著或想掌控", guide: "放下想控制的念頭，這裡每一次結束都是重生" },
-};
 
 // Natal chart wheel: Ascendant on the left, zodiac counter-clockwise, whole-sign houses,
 // planets at their exact degrees (sign middle when only the sign is known), major aspects in the centre.
@@ -1282,11 +1258,96 @@ function natalEmphasis(base) {
   return out;
 }
 
+// Section IV reading: one card per point. Title = the plain question the point answers,
+// then a sentence for its sign and, when the Ascendant is known, one for its house plus a tip.
+const NATAL_CARD_KEYS = ["Asc", "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
+const OUTER_KEYS = ["Uranus", "Neptune", "Pluto"];
+function natalCards(base, hot) {
+  const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
+  const BODY_G = Object.fromEntries(BODIES.map((b) => [b.key, b.g]));
+  const housed = base.by === "asc";
+  const out = [];
+  const head = el("div", "nr-head");
+  head.append(el("p", "hr-sub", "逐顆讀你的星盤"));
+  const toggle = el("button", "linkbtn nr-all", "全部展開");
+  toggle.type = "button";
+  head.append(toggle);
+  out.push(head);
+  if (!housed) out.push(el("p", "nr-note", "還沒有出生時間，下面先只講星座。每顆星落在第幾宮（用在人生哪個領域）要有出生時間才算得出來。"));
+  const list = el("div", "nr-list");
+  const card = (k, open) => {
+    const d = document.createElement("details");
+    d.className = "nr-card";
+    d.dataset.k = k;
+    d.open = open;
+    d.innerHTML = '<summary><span class="nr-g" aria-hidden="true"></span><span class="nr-t"><strong></strong><small></small></span></summary><div class="nr-body"></div>';
+    list.append(d);
+    return d;
+  };
+  let opened = 0;
+  for (const k of NATAL_CARD_KEYS) {
+    const si = NATAL.sign[k];
+    if (si == null) continue;
+    const R = NATAL_READ[k], sg = SIGNS[si];
+    const d = card(k, opened++ < 3);
+    d.querySelector(".nr-g").textContent = k === "Asc" ? "AC" : TXT(BODY_G[k]);
+    d.querySelector("strong").textContent = R.q;
+    const body = d.querySelector(".nr-body");
+    body.append(el("p", "nr-sign", R.bySign[si]));
+    if (k === "Asc") {
+      // the Asc's house text follows the chart ruler (the planet that rules the rising sign)
+      const ruler = SIGN_RULER[si], rs = NATAL.sign[ruler];
+      d.querySelector("small").textContent = `上升 · ${sg.zh}`;
+      if (housed && rs != null) {
+        const rh = signDist(rs, base.sign);
+        body.append(
+          el("p", "nr-lead", `守護上升${sg.zh.replace("座", "")}的是${RULER_ZH[ruler]}，它落在第 ${rh + 1} 宮（${HOUSES[rh][0]}），說明你的人生主力放在哪裡：`),
+          el("p", "nr-house", R.byHouse[rh].where),
+          el("p", "nr-tip", R.byHouse[rh].tip),
+        );
+      }
+    } else {
+      const h = signDist(si, base.sign);
+      d.querySelector("small").textContent = housed ? `${NATAL_ZH[k]} · ${sg.zh} · 第 ${h + 1} 宮（${HOUSES[h][0]}）` : `${NATAL_ZH[k]} · ${sg.zh}`;
+      if (housed) body.append(el("p", "nr-house", R.byHouse[h].where), el("p", "nr-tip", R.byHouse[h].tip));
+    }
+  }
+  // Uranus, Neptune, Pluto: one compact card, they stay in a sign for years
+  const outer = OUTER_KEYS.filter((k) => NATAL.sign[k] != null);
+  if (outer.length) {
+    const d = card("outer", false);
+    d.querySelector(".nr-g").textContent = outer.map((k) => TXT(BODY_G[k])).join("");
+    d.querySelector("strong").textContent = "同一代人的共同背景";
+    d.querySelector("small").textContent = outer.map((k) => NATAL_ZH[k]).join("、");
+    const body = d.querySelector(".nr-body");
+    body.append(el("p", "nr-sign", housed
+      ? "這三顆星走得很慢，同一年前後出生的人都在同一個星座，所以它們說的是你們這一代的共同背景；落在哪一宮才是你個人的部分。"
+      : "這三顆星走得很慢，同一年前後出生的人都在同一個星座，說的是你們這一代的共同背景。要有出生時間排出宮位，才看得出它們落在你人生的哪個領域。"));
+    const ul = el("ul", "nr-outer");
+    for (const k of outer) {
+      const si = NATAL.sign[k], h = signDist(si, base.sign), li = document.createElement("li");
+      li.dataset.k = k;
+      li.append(el("b", "", housed ? `${NATAL_ZH[k]} · 第 ${h + 1} 宮` : `${NATAL_ZH[k]} · ${SIGNS[si].zh}`), el("span", "", housed ? NATAL_READ[k].byHouse[h] : NATAL_READ[k].q));
+      ul.append(li);
+    }
+    body.append(ul);
+  }
+  out.push(list);
+  const sync = () => { toggle.textContent = [...list.children].every((c) => c.open) ? "全部收合" : "全部展開"; };
+  toggle.addEventListener("click", () => { const open = toggle.textContent === "全部展開"; list.querySelectorAll(".nr-card").forEach((c) => { c.open = open; }); sync(); });
+  list.addEventListener("toggle", sync, true);
+  sync();
+  // a card under the pointer lights up its planet in the table and the wheel above
+  list.addEventListener("pointerover", (e) => { const c = e.target.closest(".nr-card"); const k = e.target.closest("[data-k]")?.dataset.k; if (c && k && k !== "outer") hot(k); });
+  list.addEventListener("pointerleave", () => hot(null));
+  return out;
+}
+
 function renderHouseRead(base) {
   const box = $("houseRead");
   $("natalIntro").textContent = base.sign == null
     ? "在「你的今日」填上出生資料（或選好星座），這裡會排出你的出生星盤：每顆星在哪個星座、哪一宮，以及怎麼讀。"
-    : "星體位置表和星盤圖可以互相對照，點任何一顆星，兩邊會一起標出來。往下是每顆星的說明與建議，旁邊附上進階的宮主星參考。";
+    : "星體位置表和星盤圖可以互相對照，點任何一顆星，兩邊會一起標出來。往下每張卡回答一個問題：星座說你是什麼樣子，宮位說這股力量用在人生哪裡。最後附上進階的宮主星參考。";
   if (base.sign == null) { box.replaceChildren(); return; }
   const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
   const parts = [];
@@ -1336,43 +1397,8 @@ function renderHouseRead(base) {
     parts.push(el("p", "hr-sub", "先看重點"), ul);
   }
 
-  // 2. planet by planet: one-line summary, expand for the teacher's notes
-  parts.push(el("p", "hr-sub", "每顆行星在哪一宮（點開看說明與建議）"));
-  const list = el("div", "hr-list");
-  if (NATAL.sign.Asc != null) {
-    const a = SIGNS[NATAL.sign.Asc];
-    const ah = signDist(NATAL.sign.Asc, base.sign);
-    const d = document.createElement("details");
-    d.className = "hr-item";
-    d.innerHTML = "<summary><b></b><span><strong></strong><em></em></span></summary><div class=\"hr-body\"></div>";
-    d.querySelector("b").textContent = `上升${a.zh.replace("座", "")}`;
-    d.querySelector("strong").textContent = base.by === "asc" ? "第 1 宮的起點" : `第 ${ah + 1} 宮 · ${HOUSES[ah][0]}`;
-    d.querySelector("em").textContent = `別人第一眼看到的你偏向${a.zh}：${a.tone}。`;
-    d.querySelector(".hr-body").append(
-      el("p", "", `上升是你出生那一刻東方地平線升起的星座，決定整張盤的十二宮怎麼排。它不是「你的本質」（那是太陽），而是你面對世界的方式、身體和外表給人的感覺。`),
-      el("p", "", `上升${a.zh}的守護星是${RULER_ZH[SIGN_RULER[NATAL.sign.Asc]]}，它落在哪一宮，就是你人生最常投入心力的方向（見下方「宮主星」）。`),
-    );
-    list.append(d);
-  }
-  for (const [k, zh] of NATAL_KEYS) {
-    if (k === "Asc" || NATAL.sign[k] == null) continue;
-    const h = signDist(NATAL.sign[k], base.sign);
-    const hi = HOUSE_INFO[h], pi = PLANET_INFO[k], sg = SIGNS[NATAL.sign[k]];
-    const d = document.createElement("details");
-    d.className = "hr-item";
-    d.innerHTML = "<summary><b></b><span><strong></strong><em></em></span></summary><div class=\"hr-body\"></div>";
-    d.querySelector("b").textContent = zh;
-    d.querySelector("strong").textContent = `第 ${h + 1} 宮 · ${HOUSES[h][0]} · ${sg.zh}`;
-    d.querySelector("em").textContent = PLANET_IN_HOUSE[k](HOUSES[h][1]);
-    d.querySelector(".hr-body").append(
-      el("p", "", `${zh}代表你的「${pi.func}」。它落在第 ${h + 1} 宮，這是${HQ[hi.q][0]}（${HQ[hi.q][1]}），管的是${hi.domain}。`),
-      el("p", "", `在${sg.zh}，它的表現方式偏向：${sg.tone}。`),
-      el("p", "", `優勢：${pi.light}。要留意：${pi.shadow}。`),
-      el("p", "hr-guide", `建議：${pi.guide}。可以常問自己：「${hi.ask}」`),
-    );
-    list.append(d);
-  }
-  parts.push(list);
+  // 2. one card per point: the question it answers, then its sign, its house and a tip
+  parts.push(...natalCards(base, hot));
 
   // 3. house rulers: where each house's ruling planet sits shows where that area's energy goes
   const rulers = [];
@@ -1399,7 +1425,7 @@ function renderHouseRead(base) {
   }
 
   const tip = el("p", "hr-tip", base.by === "asc"
-    ? "宮位從上升排起，一個星座就是一宮（整宮制，最古老也最好上手的分法）。外行星（天王、海王、冥王）一待就好幾年，同年出生的人都差不多，看看就好。"
+    ? "宮位從上升排起，一個星座就是一宮（整宮制，最古老也最好上手的分法）。"
     : "還沒有上升，宮位暫用太陽星座排，只能看大方向。填上出生時間算出上升，或在「你的今日」直接選上升星座，宮位才會準。");
   // top: table | wheel. below: reading and advice on the left, house rulers on the right as reference
   const left = el("div", "hr-left"), right = el("div", "hr-right");
@@ -1410,12 +1436,16 @@ function renderHouseRead(base) {
   box.replaceChildren(fold, cols);
 }
 
+// the natal reading only depends on the birth data, so day steps and the 5-minute refresh keep
+// it (and any cards the visitor opened) as is
+let houseReadKey = "";
 function renderHouses(info) {
   const segs = info.segs;
   const hb = houseBase();
   const base = hb.sign ?? 0;
   const set = hb.sign != null;
-  renderHouseRead(hb);
+  const rk = JSON.stringify([NATAL.sign, NATAL.deg, hb]);
+  if (rk !== houseReadKey) { houseReadKey = rk; renderHouseRead(hb); }
   const cur = segs.map((sg) => signDist(sg.sign, base));
   const placed = NATAL_KEYS.filter(([k]) => k !== "Asc" && NATAL.sign[k] != null).map(([k, zh]) => ({ k, zh, h: signDist(NATAL.sign[k], base) }));
   $("housesNote").textContent = (!set ? "還沒有你的資料，先用牡羊座當第 1 宮示範。填上出生資料（或選上升星座）就會換成你的宮位。"
@@ -1546,6 +1576,7 @@ function buildNatalForm() {
       if (NATAL.deg[k] != null && (v == null || Math.floor(NATAL.deg[k] / 30) !== v)) delete NATAL.deg[k]; // manual change overrides the computed degree
       saveNatal();
       renderPersonal();
+      renderToday();
     }
     if (e.target.id === "bCountry") fillCities();
     if (e.target.id === "bSlot") $("bTimeWrap").hidden = e.target.value !== "exact";
@@ -1558,6 +1589,7 @@ function buildNatalForm() {
     setBirthDate(""); $("bTime").value = ""; $("bSlot").value = "exact";
     syncNatalForm();
     renderPersonal();
+    renderToday();
   });
   syncNatalForm();
 }
@@ -1634,6 +1666,7 @@ function calcBirth() {
       "沒有準確時間，所以算不出上升。";
   }
   renderPersonal();
+  renderToday();
 }
 
 // exact moments today when the transiting Moon hits an aspect to a natal degree
@@ -1653,6 +1686,554 @@ function moonHits(info, natalLon) {
   return out;
 }
 
+/* ---------- personal daily luck: 愛情運／事業運／財運 from today's sky against the natal chart ----------
+   Score = transits (Moon to Saturn) to this person's natal points, never the sun sign. Stars rank the
+   day against the same person's ±14 days, so they move with the Moon's monthly cycle. */
+const LUCK_AREAS = ["love", "career", "money"];
+const LUCK_ZH = { love: "愛情運", career: "事業運", money: "財運" };
+// transit: [weight, nature (+ benefic / − malefic), base orb]
+const LUCK_TP = { Moon: [1, 0, 5], Sun: [0.6, 0, 3], Mercury: [0.5, 0, 3], Venus: [0.8, 0.3, 3], Mars: [0.8, -0.3, 3], Jupiter: [0.9, 0.4, 2], Saturn: [0.9, -0.4, 2] };
+const NATAL_NATURE = { Venus: 0.3, Jupiter: 0.4, Mars: -0.3, Saturn: -0.4 };
+// natal targets per area. R<n> = ruler of house n (only with a real Ascendant); Asc and MC need a birth time
+const LUCK_TGT = {
+  love: { Venus: 1, Moon: 0.8, Mars: 0.5, R7: 0.5, R5: 0.4, Asc: 0.3 },
+  career: { MC: 1, Sun: 0.8, R10: 0.7, Saturn: 0.4, Mercury: 0.4, R6: 0.3 },
+  money: { R2: 0.9, Venus: 0.7, Jupiter: 0.5, R8: 0.4, Mercury: 0.3 },
+};
+const LUCK_TILT = 0.6, LUCK_FLAT = 0.15, LUCK_CLUSTER = 3, LUCK_SAT = 1.2;
+const LUCK_ANGS = [0, 60, 90, 120, 180];
+const ANG_G = { 0: "☌", 60: "⚹", 90: "□", 120: "△", 180: "☍" };
+const SIGN_ANG = { 0: 0, 2: 60, 10: 60, 4: 120, 8: 120, 3: 90, 9: 90, 6: 180 };
+const TP_ZH = { Moon: "月亮", Sun: "太陽", Mercury: "水星", Venus: "金星", Mars: "火星", Jupiter: "木星", Saturn: "土星" };
+const PT_ZH = { Sun: "太陽", Moon: "月亮", Mercury: "水星", Venus: "金星", Mars: "火星", Jupiter: "木星", Saturn: "土星", Asc: "上升", MC: "天頂（事業宮）" };
+const RULER_ROLE_ZH = { R2: "第 2 宮主星", R5: "第 5 宮主星", R6: "第 6 宮主星", R7: "第 7 宮主星", R8: "第 8 宮主星", R10: "第 10 宮主星" };
+
+// what the transiting planet brings (any area), three ways to say it
+const LUCK_FLAV = {
+  Moon: { up: ["心情比較放鬆", "感覺特別對", "情緒站在你這邊"], down: ["情緒比較敏感", "心裡容易起波動", "比較容易想太多"] },
+  Sun: { up: ["存在感變強", "比較有自信", "容易被看見"], down: ["容易太堅持己見", "好勝心比較強", "容易各說各話"] },
+  Mercury: { up: ["腦袋清楚", "話題接得順", "消息比較靈通"], down: ["容易說錯或聽錯", "想法比較亂", "細節容易漏掉"] },
+  Venus: { up: ["氣氛比較甜", "人緣加分", "比較好說話"], down: ["想要的變多", "容易心軟又挑剔", "比較想被寵"] },
+  Mars: { up: ["行動力上來", "衝勁夠", "比較敢開口"], down: ["火氣比較大", "容易急", "耐性變短"] },
+  Jupiter: { up: ["機會變多", "心胸比較開", "容易遇到幫忙的人"], down: ["容易把話說太滿", "胃口變大", "容易高估自己"] },
+  Saturn: { up: ["心比較定", "做事踏實", "耐性夠"], down: ["壓力變重", "比較放不開", "容易覺得被卡住"] },
+};
+// what it means for the natal point that was touched, per area: text variants, do chips, avoid chips
+const LUCK_FACET = {
+  love: {
+    Venus: { up: [["喜歡的人比較容易注意到你", "好感來得自然，桃花也在線", "相處起來甜，很適合見面"], ["約對方見面", "安排一次約會"], ["把心動藏起來", "等對方先開口"]],
+      down: [["容易拿對方跟理想比", "想被疼又不好意思說", "對感情的要求變高"], ["說出你想要的", "先寵自己一下"], ["暗自比較", "用冷淡試探"]] },
+    Moon: { up: [["對方一句話就能讓你開心", "兩個人比較有默契", "適合聊聊彼此的感受"], ["約出來吃飯", "聊聊心裡話"], ["只用貼圖回覆", "把話悶著"]],
+      down: [["小事也容易覺得對方不夠在乎", "安全感比較低", "容易翻起舊帳"], ["先說出感受", "早點休息"], ["用沉默試探", "深夜傳長訊息"]] },
+    Mars: { up: [["吸引力強，適合主動一點", "想見就約，別想太久", "很適合表白或推進關係"], ["直接約對方", "主動開口"], ["想太久", "等待暗示"]],
+      down: [["小摩擦容易變成吵架", "容易說出氣話", "兩個人容易硬碰硬"], ["先冷靜十分鐘", "把話放慢說"], ["在氣頭上回話", "爭誰對誰錯"]] },
+    Asc: { up: [["你看起來特別有魅力", "氣色好，第一印象加分"], ["打扮一下再出門", "認識新朋友"], ["邋遢出門", "躲在家裡"]],
+      down: [["容易覺得被挑剔", "對自己的樣子比較沒自信"], ["穿得舒服就好", "照自己的步調"], ["跟人比外表", "勉強赴約"]] },
+  },
+  career: {
+    MC: { up: [["表現容易被上面看見", "適合爭取新的角色或任務", "工作方向比較清楚"], ["主動報告進度", "爭取亮點任務"], ["把功勞讓掉", "低調躲事"]],
+      down: [["跟主管的想法容易對不上", "工作方向容易被質疑", "上面的要求變多"], ["先問清楚期待", "把重點寫下來"], ["硬碰硬", "當場反駁"]] },
+    Sun: { up: [["你的意見比較有分量", "適合把成果拿出來", "做起事來特別有主見"], ["提出你的想法", "帶頭做一件事"], ["過度謙虛", "一直等指示"]],
+      down: [["想做的和被要求的對不上", "容易跟人爭主導權", "累積的疲勞容易冒出來"], ["先做最重要的", "留點體力"], ["爭誰說了算", "硬撐加班"]] },
+    Saturn: { up: [["長期的工作推得動", "適合排計畫、把舊案收尾", "付出容易被記住"], ["排出長期計畫", "收尾舊案"], ["只顧救火", "臨時改方向"]],
+      down: [["責任變重，進度怎麼推都慢", "容易覺得自己在做白工", "規定和限制變多"], ["把待辦砍小", "先做一件就好"], ["跟別人比進度", "什麼都說好"]] },
+    Mercury: { up: [["寫東西和開會都順", "說明有條理，提案容易過", "學新東西上手快"], ["寫提案或簡報", "把流程寫清楚"], ["只用口頭交代", "拖著不回信"]],
+      down: [["容易漏看細節或傳錯訊息", "溝通容易誤會", "文件和訊息容易出錯"], ["送出前再看一遍", "重要的打電話說"], ["同時開太多視窗", "急著回覆"]] },
+  },
+  money: {
+    Venus: { up: [["眼光準，買到的東西比較值", "適合添購真正需要的東西", "花錢花得開心又不心疼"], ["買真正需要的", "比價後再下單"], ["為折扣多買", "衝動刷卡"]],
+      down: [["想犒賞自己，預算容易破", "容易為了好看多花", "看到折扣就心動"], ["先定好上限", "先放購物車"], ["衝動刷卡", "為面子花錢"]] },
+    Jupiter: { up: [["收入或回饋有變多的機會", "適合爭取獎金或加薪", "容易遇到划算的機會"], ["開口談報酬", "爭取應得的"], ["錯過申請期限", "不好意思開口"]],
+      down: [["容易高估荷包，一次花太多", "容易被大話吸引", "花錢的胃口變大"], ["抓保守的預算", "大額等一天"], ["加碼投機", "跟風下單"]] },
+    Mercury: { up: [["比價、查資料特別有效率", "帳算得清楚", "適合整理帳單和訂閱"], ["記一筆帳", "整理訂閱"], ["聽小道消息", "憑印象付款"]],
+      down: [["容易看錯金額或漏掉條款", "帳容易算錯", "容易被話術帶走"], ["付款前核對", "條款多看一遍"], ["急著付款", "聽信小道消息"]] },
+  },
+};
+// when a planet counts because it rules a house, the house is what it speaks for
+const LUCK_RULER_FACET = {
+  R2: { up: [["自己賺的錢比較順，適合談條件", "收入方面容易有好消息"], ["整理收支", "開口談價"], ["低估自己", "隨手亂花"]],
+    down: [["自己賺的錢感覺比較緊", "收入和支出容易對不上"], ["先列必要開支", "記一筆帳"], ["借錢給人", "衝動下單"]] },
+  R8: { up: [["跟別人共用的錢比較好談，像分攤、貸款、保險", "適合處理分攤或保險這類事"], ["把分攤講清楚", "整理保險"], ["拖著不處理", "含糊帶過"]],
+    down: [["跟別人共用的錢容易起摩擦", "分攤或借貸容易卡住"], ["把帳攤開講", "先存預備金"], ["隨口答應借錢", "替人作保"]] },
+  R5: { up: [["戀愛和玩樂的運氣不錯", "適合安排約會或出去玩"], ["安排出去玩", "約會"], ["只待在家", "把自己關起來"]],
+    down: [["玩樂容易掃興，曖昧容易卡住", "約會容易出小狀況"], ["行程排鬆一點", "降低期待"], ["期待太高", "臨時放鳥"]] },
+  R7: { up: [["另一半或對象比較好溝通", "一對一的相處很順"], ["一對一深聊", "一起吃頓飯"], ["只顧自己步調", "冷處理"]],
+    down: [["跟另一半容易意見不合", "對方比較難配合"], ["先聽完再回應", "各退一步"], ["逼對方表態", "翻舊帳"]] },
+  R10: { up: [["事業方向比較清楚，適合往前推", "工作上的機會容易冒出來"], ["向上報告", "爭取機會"], ["低調躲事", "錯過時機"]],
+    down: [["事業方向容易卡住或被質疑", "工作上的壓力浮上來"], ["先確認方向", "把重點寫下來"], ["臨時換跑道", "硬碰硬"]] },
+  R6: { up: [["日常工作順，待辦清得快", "跟同事的配合比較好"], ["清待辦清單", "整理流程"], ["拖延小事", "什麼都自己扛"]],
+    down: [["日常工作容易出小狀況", "瑣事一件接一件"], ["排好優先順序", "一次做一件"], ["同時做太多", "硬撐加班"]] },
+};
+// nothing in orb: three variants per tier, the tier comes from the stars
+const LUCK_QUIET = {
+  love: {
+    hi: [(d) => `${d}沒有特別碰到你感情的星，比起前後幾天算是輕鬆，相處起來很自然。`, (d) => `${d}感情面沒有阻力，想見誰就去見。`, (d) => `比起這陣子，${d}的感情步調算順，適合輕鬆約個飯。`],
+    mid: [(d) => `${d}沒有特別碰到你感情的星，照平常的步調相處就好。`, (d) => `${d}感情面比較安靜，小小的關心就夠了。`, (d) => `${d}的星星沒有特別碰到你的感情，適合把注意力放在自己身上。`],
+    lo: [(d) => `${d}沒有明顯的星象卡你，只是比起前後幾天比較平淡，別勉強製造話題。`, (d) => `${d}感情面比較低調，先顧好自己的心情。`, (d) => `比起這陣子，${d}感情比較沒火花，早點休息也很好。`],
+  },
+  career: {
+    hi: [(d) => `${d}工作沒有特別的阻力，比起前後幾天推得比較順。`, (d) => `比起這陣子，${d}工作效率算好，可以多推一件事。`, (d) => `${d}工作面沒有卡關，適合把拖著的事做完。`],
+    mid: [(d) => `${d}沒有特別碰到你工作的星，照計畫把事做完就好。`, (d) => `${d}工作面比較平穩，適合處理例行的事。`, (d) => `${d}的星星沒有特別碰到你的事業，按部就班就好。`],
+    lo: [(d) => `${d}沒有明顯的星象卡你，只是比起前後幾天進度比較慢，別給自己太多壓力。`, (d) => `比起這陣子，${d}工作比較提不起勁，先做簡單的。`, (d) => `${d}工作面比較悶，把待辦砍小一點。`],
+  },
+  money: {
+    hi: [(d) => `${d}財運沒有阻力，比起前後幾天手頭比較寬。`, (d) => `比起這陣子，${d}花錢比較有分寸，適合買需要的東西。`, (d) => `${d}荷包面平順，可以處理拖著的帳。`],
+    mid: [(d) => `${d}沒有特別碰到你財運的星，照預算花就好。`, (d) => `${d}收支比較平穩，適合記帳。`, (d) => `${d}的星星沒有特別碰到你的荷包，維持原本的步調。`],
+    lo: [(d) => `${d}沒有明顯的星象卡你，只是比起前後幾天手頭比較緊，大額先緩一緩。`, (d) => `比起這陣子，${d}比較容易亂花，先放購物車。`, (d) => `${d}荷包面偏保守，照預算走就好。`],
+  },
+};
+const LUCK_QUIET_CHIP = {
+  love: { hi: ["輕鬆約個飯", "想太多"], mid: ["日常小關心", "翻舊帳"], lo: ["顧好自己", "硬找話題"] },
+  career: { hi: ["多推一件事", "拖延回覆"], mid: ["照計畫做", "臨時改方向"], lo: ["把待辦砍小", "硬撐加班"] },
+  money: { hi: ["處理拖著的帳", "跟風下單"], mid: ["記一筆帳", "衝動購物"], lo: ["先放購物車", "大額消費"] },
+};
+const LUCK_VERB = { conj: ["疊在", "貼著"], conjDown: ["壓在", "貼著"], soft: ["順著", "照到", "呼應"], sq: ["卡到", "頂著"], opp: ["正對著", "對沖"] };
+const LUCK_SPAN = { fast: ["這幾天", "這週"], slow: ["這陣子", "這幾週"] };
+const LUCK_RETRO = {
+  love: { Venus: ["金星正在倒退，舊人舊事比較容易冒出來。", "金星在倒退，適合修補關係，不急著開始新的。"] },
+  money: { Venus: ["金星在倒退，大件的先放購物車。", "金星在倒退，想換新的東西可以再等等。"], Mercury: ["水星在倒退，付款前多核對一次。", "水星在倒退，帳單和訂閱多看一眼。"] },
+  career: { Mercury: ["水星在倒退，交辦和訊息多確認一次。", "水星在倒退，舊案子容易回頭找你。"] },
+};
+const LUCK_SLOW_HOUSE = { Jupiter: "這方面的機會本來就多一點", Saturn: "這方面本來就要多花點耐心" };
+
+function fnv(str) {
+  let h = 2166136261;
+  for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  return h;
+}
+function natalLevel() {
+  const s = NATAL.sign, d = NATAL.deg;
+  if (d.Asc != null && d.Sun != null) return "exact";
+  if (d.Sun != null) return "window";
+  if (["Moon", "Venus", "Mars", "Asc"].some((k) => s[k] != null)) return "signs";
+  if (s.Sun != null) return "sun";
+  return null;
+}
+const natalSig = () => fnv(JSON.stringify([NATAL.sign, NATAL.deg, NATAL.birth]));
+function mcOf(date, lon) {
+  const r = Math.PI / 180, th = norm(A.SiderealTime(date) * 15 + lon) * r, eps = 23.4393 * r;
+  return norm(Math.atan2(Math.sin(th), Math.cos(th) * Math.cos(eps)) / r);
+}
+function birthMoment(b) {
+  if (!b?.date) return null;
+  const [y, m, d] = b.date.split("-").map(Number);
+  const [hh, mi] = b.time ? b.time.split(":").map(Number) : [0, 0];
+  return (h = hh, mm = mi) => new Date(Date.UTC(y, m - 1, d, h, mm) - (b.tz ?? 8) * H);
+}
+
+// natal side, built once per birth-data signature: points with per-area weights, merged by body,
+// then grouped into clusters (bodies within 3° count as one target)
+let natalPtsMemo = null;
+function natalPoints() {
+  const sig = natalSig();
+  if (natalPtsMemo?.sig === sig) return natalPtsMemo;
+  const level = natalLevel(), base = houseBase(), notes = [];
+  const b = NATAL.birth, at = birthMoment(b);
+  const pos = {};
+  for (const k of ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Asc"]) {
+    if (NATAL.sign[k] == null) continue;
+    pos[k] = NATAL.deg[k] != null && level !== "signs" ? { lon: NATAL.deg[k], sign: NATAL.sign[k], unc: 0 } : { lon: null, sign: NATAL.sign[k], unc: 0 };
+  }
+  if (level === "exact" && at && b.time) pos.MC = { lon: mcOf(at(), CITIES[b.city ?? 0][2]), unc: 0 };
+  if (pos.MC) pos.MC.sign = Math.floor(pos.MC.lon / 30);
+  // no exact time: the natal Moon moves ~0.55° per hour of the remembered window
+  if (level === "window" && pos.Moon && pos.Moon.lon != null) {
+    const win = BIRTH_SLOTS[b?.slot] || BIRTH_SLOTS.unknown;
+    const unc = ((win[1] - win[0]) / 2) * 0.55;
+    if (unc <= 3.5) pos.Moon.unc = unc;
+    else {
+      const signs = at ? new Set([at(win[0], 0), at(win[1] - 1, 59)].map((t) => Math.floor(lonOf("Moon", t) / 30))) : new Set([0]);
+      if (signs.size > 1) { delete pos.Moon; notes.push("你出生那段時間月亮換了星座，先不算月亮。"); }
+      else { pos.Moon.lon = null; notes.push("出生時段太長，月亮只用星座比對。"); }
+    }
+  }
+  const pts = new Map();
+  for (const area of LUCK_AREAS) {
+    for (const [key, w] of Object.entries(LUCK_TGT[area])) {
+      const ruler = key[0] === "R";
+      if ((ruler || key === "Asc" || key === "MC") && level !== "exact") continue;
+      const body = ruler ? SIGN_RULER[(base.sign + Number(key.slice(1)) - 1) % 12] : key;
+      if (!pos[body]) continue;
+      if (!pts.has(body)) pts.set(body, { k: body, ...pos[body], roles: {}, w: {} });
+      (pts.get(body).roles[area] ||= []).push([key, w]);
+    }
+  }
+  const list = [...pts.values()];
+  for (const p of list) for (const [area, rs] of Object.entries(p.roles)) {
+    rs.sort((x, y) => y[1] - x[1]);
+    p.w[area] = Math.min(1.2, rs[0][1] + 0.15 * (rs.length - 1));
+    p.role = p.role || {};
+    p.role[area] = rs[0][0]; // the main reason this body counts for the area
+  }
+  const clusters = {};
+  for (const area of LUCK_AREAS) {
+    const ids = list.map((p, i) => i).filter((i) => list[i].w[area]);
+    const deg = ids.filter((i) => list[i].lon != null).sort((x, y) => list[x].lon - list[y].lon);
+    const cl = [];
+    for (const i of deg) {
+      const last = cl[cl.length - 1];
+      if (last && Math.abs(wrap180(list[i].lon - list[last[last.length - 1]].lon)) <= LUCK_CLUSTER) last.push(i);
+      else cl.push([i]);
+    }
+    if (cl.length > 1) { const f = cl[0], l = cl[cl.length - 1]; if (Math.abs(wrap180(list[f[0]].lon - list[l[l.length - 1]].lon)) <= LUCK_CLUSTER) cl[0] = [...cl.pop(), ...f]; }
+    const bySign = new Map();
+    for (const i of ids.filter((j) => list[j].lon == null)) { if (!bySign.has(list[i].sign)) bySign.set(list[i].sign, []); bySign.get(list[i].sign).push(i); }
+    clusters[area] = [...cl, ...bySign.values()];
+  }
+  natalPtsMemo = { sig, level, base, pts: list, clusters, notes };
+  return natalPtsMemo;
+}
+
+// Jupiter and Saturn barely move: sample every 4 days at Taipei noon and interpolate
+const slowLonCache = new Map();
+function slowLon(k, dayIdx) {
+  const get = (i) => { const key = `${k}${i}`; if (!slowLonCache.has(key)) slowLonCache.set(key, lonOf(k, new Date(i * DAY + 4 * H))); return slowLonCache.get(key); };
+  const a = Math.floor(dayIdx / 4) * 4, l0 = get(a);
+  return norm(l0 + wrap180(get(a + 4) - l0) * ((dayIdx - a) / 4));
+}
+const luckDayIdx = (info) => Math.round((info.start + 8 * H) / DAY);
+function aspectValue(ang, tp, natalK) {
+  const tn = LUCK_TP[tp][1];
+  let v;
+  if (ang === 0) { const s = tn + (NATAL_NATURE[natalK] || 0); v = Math.abs(s) < 0.05 ? 0.4 : Math.max(-1, Math.min(1, s * 2.5)); }
+  else v = { 60: 0.7, 120: 0.9, 90: -0.9, 180: -0.7 }[ang];
+  if (tn > 0 && v < 0) v *= 0.45; // a benefic's hard aspect is "wanting too much", not a disaster
+  if (tn < 0 && v > 0) v *= 0.55; // a malefic's easy aspect is steady, not lucky
+  return v;
+}
+// one transit against one natal point: {c, ang, peak (Moon sample index), applying, stat}
+function luckHit(tp, p, area, moonL, tr) {
+  const [wt, , orb0] = LUCK_TP[tp], wn = p.w[area];
+  const isMoon = tp === "Moon";
+  if (p.lon != null) {
+    const ls = isMoon ? moonL : [tr[tp].lon];
+    let acc = 0, best = null;
+    ls.forEach((L, i) => {
+      const d = Math.abs(wrap180(L - p.lon));
+      for (const ang of LUCK_ANGS) {
+        const orb = (ang === 60 ? orb0 * 0.6 : orb0) + p.unc, off = Math.abs(d - ang);
+        if (off >= orb) continue;
+        const s = Math.cos((off / orb) * (Math.PI / 2));
+        acc += aspectValue(ang, tp, p.k) * s;
+        if (!best || s > best.s) best = { s, ang, i };
+      }
+    });
+    if (!best) return null;
+    let c = (wn * wt * acc) / ls.length;
+    let applying = null, stat = false;
+    if (!isMoon) {
+      const t = tr[tp];
+      const offNow = Math.abs(Math.abs(wrap180(t.lon - p.lon)) - best.ang), offNext = Math.abs(Math.abs(wrap180(t.next - p.lon)) - best.ang);
+      stat = Math.abs(t.mot) < 0.05;
+      applying = offNext < offNow;
+      c *= stat ? 1.2 : applying ? 1.15 : 0.85;
+      if ((tp === "Mercury" || tp === "Venus") && t.mot < 0 && c > 0) c *= 0.7;
+      if (tp === "Mars" && t.mot < 0) c *= 0.8;
+    }
+    return { c, ang: best.ang, peak: best.i, applying, stat };
+  }
+  // sign level: whole-sign aspects only
+  if (isMoon) {
+    let acc = 0, best = null;
+    moonL.forEach((L, i) => {
+      const ang = SIGN_ANG[signDist(Math.floor(L / 30), p.sign)];
+      if (ang == null) return;
+      const v = aspectValue(ang, tp, p.k) * 0.6;
+      acc += v;
+      if (!best || Math.abs(v) > Math.abs(best.v)) best = { v, ang, i };
+    });
+    return best ? { c: (wn * wt * acc) / moonL.length, ang: best.ang, peak: best.i, sign: true } : null;
+  }
+  if (!["Venus", "Mars", "Jupiter", "Saturn"].includes(tp) || !["Sun", "Moon", "Venus"].includes(p.k)) return null;
+  const ang = SIGN_ANG[signDist(Math.floor(tr[tp].lon / 30), p.sign)];
+  return ang == null ? null : { c: wn * wt * aspectValue(ang, tp, p.k) * 0.35, ang, sign: true };
+}
+// raw score of one day for the three areas, with the parts that make it up
+const luckRawCache = new Map();
+function luckRaw(dayIdx, np) {
+  const key = `${np.sig}|${dayIdx}`;
+  if (luckRawCache.has(key)) return luckRawCache.get(key);
+  const start = dayIdx * DAY - 8 * H;
+  const moonL = Array.from({ length: 9 }, (_, i) => lonOf("Moon", new Date(start + i * 3 * H)));
+  const tr = {};
+  for (const k of ["Sun", "Mercury", "Venus", "Mars"]) {
+    const lon = lonOf(k, new Date(start + 12 * H)), next = lonOf(k, new Date(start + 36 * H));
+    tr[k] = { lon, next, mot: wrap180(next - lon) };
+  }
+  for (const k of ["Jupiter", "Saturn"]) { const lon = slowLon(k, dayIdx), next = slowLon(k, dayIdx + 1); tr[k] = { lon, next, mot: wrap180(next - lon) }; }
+  const out = { tr, moonL };
+  for (const area of LUCK_AREAS) {
+    const parts = [];
+    let total = 0;
+    for (const cl of np.clusters[area]) {
+      const cp = [];
+      for (const tp of Object.keys(LUCK_TP)) {
+        let best = null;
+        for (const pi of cl) { const r = luckHit(tp, np.pts[pi], area, moonL, tr); if (r && (!best || Math.abs(r.c) > Math.abs(best.c))) best = { ...r, pi }; }
+        if (best) cp.push({ ...best, tp, cl, retro: tp !== "Moon" && tr[tp].mot < 0 });
+      }
+      // a natal point can only be pushed so far in one day, however many planets touch it
+      const sum = cp.reduce((n, x) => n + x.c, 0), f = sum ? (LUCK_SAT * Math.tanh(sum / LUCK_SAT)) / sum : 1;
+      for (const x of cp) { x.c *= f; parts.push(x); }
+      total += sum * f;
+    }
+    // background: planets walking through houses that matter for this area (only with a known Ascendant)
+    if (np.base.by === "asc") {
+      const hf = (lon) => HF[area][signDist(Math.floor(lon / 30), np.base.sign)];
+      total += 0.35 * moonL.reduce((n, L) => n + hf(L), 0) / moonL.length;
+      for (const k of ["Venus", "Jupiter"]) total += 0.25 * hf(tr[k].lon);
+      for (const k of ["Mars", "Saturn"]) total -= 0.15 * Math.abs(hf(tr[k].lon));
+      for (const k of ["Sun", "Mercury"]) total += 0.1 * hf(tr[k].lon);
+    }
+    out[area] = { total, parts };
+  }
+  if (luckRawCache.size > 160) luckRawCache.delete(luckRawCache.keys().next().value);
+  luckRawCache.set(key, out);
+  return out;
+}
+// stars: rank the day within the person's own ±14 days; 5★ needs a positive day, 1★ a negative one
+function luckStars(dayIdx, np) {
+  const raws = Array.from({ length: 29 }, (_, i) => luckRaw(dayIdx - 14 + i, np));
+  const res = {};
+  for (const area of LUCK_AREAS) {
+    const vals = raws.map((r) => r[area].total), v = vals[14];
+    const below = vals.filter((x) => x < v).length, eq = vals.filter((x) => x === v).length;
+    const pct = (below + (eq - 1) / 2) / 28;
+    let st = 1 + [0.12, 0.34, 0.66, 0.88].filter((q) => pct >= q).length;
+    const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+    if (m > LUCK_TILT && v > 0 && (st === 2 || st === 3)) st++;
+    if (m < -LUCK_TILT && v < 0 && (st === 3 || st === 4)) st--;
+    if (Math.max(...vals) - Math.min(...vals) < LUCK_FLAT) st = 3;
+    if (st === 5 && v <= 0) st = 4;
+    if (st === 1 && v >= 0) st = 2;
+    res[area] = { st, v };
+  }
+  return res;
+}
+
+// text: lead with the part that agrees with the stars; one sentence, a second only for an opposite pull
+function luckModel(info) {
+  const np = natalPoints();
+  const live = offsetDays === 0;
+  const key = `${np.sig}|${info.key}|${live ? new Date().getHours() : ""}`;
+  if (luckModelCache.has(key)) return luckModelCache.get(key);
+  const t0 = performance.now();
+  const dayIdx = luckDayIdx(info);
+  const raw = luckRaw(dayIdx, np), stars = luckStars(dayIdx, np);
+  const seed = `${info.key}|${np.sig}`;
+  const pick = (arr, salt, used) => {
+    const h = fnv(seed + salt);
+    for (let i = 0; i < arr.length; i++) { const x = arr[(h + i) % arr.length]; if (!used || !used.has(x)) { used?.add(x); return x; } }
+    return arr[h % arr.length];
+  };
+  const d = dayNoun(), now = Date.now();
+  const usedKeys = new Map(), usedPhr = new Set(), usedChip = new Set(), usedSpan = new Set();
+  let reused = false, vocSaid = false, retroSaid = false;
+  const ptName = (p, cl) => cl.length > 1 ? cl.map((i) => PT_ZH[np.pts[i].k]).join("和") : PT_ZH[p.k];
+  const moonHitCache = new Map();
+  // when a Moon part happens: the exact moment if it falls on the day, else the part of day it peaks
+  const timeOf = (x) => {
+    const p = np.pts[x.pi];
+    if (x.sign) {
+      const segs = info.segs.filter((s) => SIGN_ANG[signDist(s.sign, p.sign)] === x.ang);
+      if (segs.length === info.segs.length) return { word: `${d}一整天`, t: null };
+      const s = segs[0];
+      if (!s) return { word: d, t: null };
+      return s.from <= info.start ? { word: `${plainTime(s.to)}以前`, t: s.from } : { word: `${plainTime(s.from)}以後`, t: s.from };
+    }
+    if (!moonHitCache.has(x.pi)) moonHitCache.set(x.pi, moonHits(info, p.lon));
+    const hit = moonHitCache.get(x.pi).find((h) => (h.ang > 180 ? 360 - h.ang : h.ang) === x.ang);
+    if (hit) return { word: `${plainTime(hit.t)}前後`, t: hit.t };
+    const hr = (x.peak ?? 4) * 3;
+    return { word: hr < 5 ? "一早" : hr < 11 ? "上午" : hr < 13 ? "中午" : hr < 18 ? "下午" : "晚上", t: info.start + hr * H };
+  };
+  const verbOf = (x, salt) => {
+    const k = x.ang === 0 ? (x.c < 0 && LUCK_TP[x.tp][1] < 0 ? "conjDown" : "conj") : x.ang === 90 ? "sq" : x.ang === 180 ? "opp" : "soft";
+    return pick(LUCK_VERB[k], salt);
+  };
+  const facetOf = (area, x, pol, salt) => {
+    const p = np.pts[x.pi], role = p.role[area];
+    const f = (LUCK_RULER_FACET[role] || LUCK_FACET[area][p.k])?.[pol];
+    if (!f) return null;
+    return { t: pick(f[0], salt + "t", usedPhr), doit: pick(f[1], salt + "d", usedChip), avoid: pick(f[2], salt + "a", usedChip) };
+  };
+  const who = (x, area, salt) => {
+    const p = np.pts[x.pi];
+    // the same planet on both sides: say which one moves today
+    const tp = x.tp !== p.k ? TP_ZH[x.tp] : x.tp === "Moon" ? `${d}的月亮` : `天上的${TP_ZH[x.tp]}`;
+    return `${tp}${verbOf(x, area + salt)}你的本命${ptName(p, x.cl)}`;
+  };
+  const whenOf = (x, area) => {
+    if (x.tp === "Moon") {
+      const tm = timeOf(x);
+      if (live && tm.t != null && tm.t < now - 2 * H && !tm.word.endsWith("以後")) tm.word = `稍早（${tm.word}）`;
+      return tm;
+    }
+    return { word: pick(["Jupiter", "Saturn"].includes(x.tp) ? LUCK_SPAN.slow : LUCK_SPAN.fast, area + "span", usedSpan), t: null, span: true };
+  };
+  const areas = {};
+  const pattern = fnv(seed + "pat") % 2;
+  LUCK_AREAS.forEach((area, ai) => {
+    const { st, v } = stars[area];
+    const tier = tierOf(st);
+    const pol = st >= 4 ? "up" : st <= 2 ? "down" : null;
+    const parts = raw[area].parts.filter((x) => Math.abs(x.c) >= 0.08);
+    const sorted = parts.filter((x) => (pol === "up" ? x.c > 0 : pol === "down" ? x.c < 0 : true)).sort((a, b) => (pol === "down" ? a.c - b.c : pol === "up" ? b.c - a.c : Math.abs(b.c) - Math.abs(a.c)));
+    const kOf = (x) => x.cl.map((i) => `${x.tp}|${np.pts[i].k}`);
+    const isUsed = (x) => kOf(x).some((k) => usedKeys.has(k));
+    const usedBy = (x) => usedKeys.get(kOf(x).find((k) => usedKeys.has(k)));
+    const markUsed = (x) => kOf(x).forEach((k) => usedKeys.set(k, area));
+    let main = sorted[0], opener = "";
+    // the Moon has a time of day, so it leads when it is nearly as strong
+    if (main && main.tp !== "Moon") { const m = sorted.find((x) => x.tp === "Moon" && Math.abs(x.c) >= 0.5 * Math.abs(main.c)); if (m) main = m; }
+    if (main && isUsed(main)) {
+      const next = sorted.find((x) => !isUsed(x));
+      if (!reused && (!next || Math.abs(main.c) >= 2 * Math.abs(next.c))) { reused = true; opener = `跟${LUCK_ZH[usedBy(main)]}是同一顆星：`; }
+      else main = next;
+    }
+    // viewing today: a Moon lead that has already passed gives way to a comparable one still ahead
+    if (main && live && main.tp === "Moon") {
+      const tm = timeOf(main);
+      if (tm.t != null && tm.t < now - 2 * H) {
+        const ahead = sorted.find((x) => x !== main && !isUsed(x) && Math.abs(x.c) >= 0.7 * Math.abs(main.c) && (x.tp !== "Moon" || (timeOf(x).t ?? 0) > now));
+        if (ahead) { main = ahead; opener = ""; }
+      }
+    }
+    const mpol = main ? (main.c > 0 ? "up" : "down") : null;
+    const fc = main && facetOf(area, main, mpol, area);
+    let text, doit, avoid, lead = null;
+    if (main && fc) {
+      markUsed(main);
+      const tm = whenOf(main, area);
+      let when = tm.word, tail = "";
+      if (main.tp === "Moon" && mpol === "up" && !vocSaid && tm.t != null) {
+        const vv = info.voc.find((x) => Math.abs(tm.t - x.full[0]) < H || (tm.t >= x.from && tm.t <= x.to));
+        if (vv) { when = `${plainTime(vv.full[0])}以前`; tail = "，把要談的事趁這之前談完"; vocSaid = true; }
+      }
+      const flav = pick(LUCK_FLAV[main.tp][mpol], area + "f", usedPhr);
+      const w = who(main, area, "v");
+      const sep = tm.span ? "" : "，";
+      if (opener) text = `${opener}${w}，${fc.t}${tail}。`;
+      else if ((pattern + ai) % 2 === 0) text = `${when}${sep}${w}：${flav}，${fc.t}${tail}。`;
+      else text = `${flav}，${fc.t}${tail}：${when}${sep}${w}。`;
+      // second sentence only for a real pull the other way
+      const opp = parts.filter((x) => (x.c > 0) !== (main.c > 0) && Math.abs(x.c) >= 0.5 * Math.abs(main.c) && !isUsed(x)).sort((a, b) => Math.abs(b.c) - Math.abs(a.c))[0];
+      const fo = opp && facetOf(area, opp, opp.c > 0 ? "up" : "down", area + "2");
+      const second = fo && `${pick(mpol === "up" ? ["只是", "不過"] : ["還好", "不過"], area + "c")}${whenOf(opp, area + "2").word}${who(opp, area, "v2")}，${fo.t}。`;
+      if (second && [...text].length + [...second].length <= 82) {
+        text += second;
+        markUsed(opp);
+      } else if (!retroSaid) {
+        const rt = LUCK_RETRO[area];
+        const r = Object.keys(rt).find((k) => raw.tr[k].mot < 0 && (area !== "love" || main.tp === k || np.pts[main.pi].k === k));
+        if (r) { text += pick(rt[r], area + "r"); retroSaid = true; }
+      }
+      doit = fc.doit; avoid = fc.avoid;
+      lead = main;
+    } else {
+      text = pick(LUCK_QUIET[area][tier], area + "q")(d);
+      // with a known Ascendant, a slow planet sitting in a house that matters adds context
+      if (np.base.by === "asc") {
+        for (const k of ["Jupiter", "Saturn"]) {
+          const h = signDist(Math.floor(raw.tr[k].lon / 30), np.base.sign);
+          if (Math.abs(HF[area][h]) >= 0.7 && (k === "Jupiter") === (tier !== "lo")) { text += `這陣子${TP_ZH[k]}在你的第 ${h + 1} 宮（${AREA[h]}），${LUCK_SLOW_HOUSE[k]}。`; break; }
+        }
+      }
+      [doit, avoid] = LUCK_QUIET_CHIP[area][tier];
+    }
+    // the why fold: the strongest parts, in astrologer shorthand
+    const why = parts.slice().sort((a, b) => Math.abs(b.c) - Math.abs(a.c)).slice(0, 4).map((x) => {
+      const p = np.pts[x.pi], role = p.role[area];
+      let time = "這幾天";
+      if (x.tp === "Moon") { const tm = timeOf(x); time = x.sign ? (tm.word.includes("整天") ? "全天" : tm.t != null && tm.word.endsWith("以前") ? `~${fmtT(info.segs[0].to)}` : `${fmtT(tm.t)}~`) : tm.word.includes("前後") ? fmtT(tm.t) : tm.word; }
+      else if (["Jupiter", "Saturn"].includes(x.tp)) time = "這陣子";
+      const pn = x.cl.length > 1 ? x.cl.map((i) => (np.pts[i].k === "MC" ? "天頂" : PT_ZH[np.pts[i].k])).join("、") : p.k === "MC" ? "天頂" : PT_ZH[p.k];
+      const extra = [RULER_ROLE_ZH[role], x.retro ? "逆行" : "", x.stat ? "停滯" : x.applying === true ? "漸近" : x.applying === false ? "漸離" : ""].filter(Boolean).join("，");
+      return { time, kind: x.c > 0 ? "soft" : "hard", title: `${TP_ZH[x.tp]} ${ANG_G[x.ang]} 你的本命${pn}${extra ? `（${extra}）` : ""}`, tag: x.c > 0 ? "加分" : "扣分" };
+    });
+    areas[area] = { st, v, text, doit, avoid, why, lead };
+  });
+  const model = { level: np.level, notes: np.notes, areas, ms: performance.now() - t0 };
+  if (luckModelCache.size > 40) luckModelCache.delete(luckModelCache.keys().next().value);
+  luckModelCache.set(key, model);
+  if (DEBUG) console.log(`[luck] ${info.key} ${model.ms.toFixed(1)} ms`, LUCK_AREAS.map((a) => `${a} ${areas[a].st} ${areas[a].v.toFixed(2)}`).join(" | "));
+  return model;
+}
+const luckModelCache = new Map();
+const DEBUG = new URLSearchParams(location.search).has("debug");
+// ?debug: timing in the console and a handle for the calibration script
+if (DEBUG) window.__luck = { natalPoints, luckRaw, luckStars, luckModel, lonOf, ascendant, dayInfo, setNatal: (n) => { NATAL = n; natalPtsMemo = null; luckModelCache.clear(); } };
+const LUCK_LEVEL = { window: "時段估算", signs: "只用星座" };
+function openBirth() {
+  setView("chart");
+  const box = $("birthBox");
+  box.open = true;
+  box.scrollIntoView({ block: "center" });
+  $("bY").focus({ preventScroll: true });
+}
+function luckCard(info) {
+  const lvl = natalLevel();
+  const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
+  const card = el("article", "p-card p-luck");
+  const head = el("div", "pl-head");
+  head.append(el("p", "p-k", `依你的星盤 · 你專屬的版本`));
+  if (LUCK_LEVEL[lvl]) head.append(el("span", "pl-lvl", LUCK_LEVEL[lvl]));
+  card.append(head);
+  if (lvl === "sun") {
+    card.classList.add("p-luck-empty");
+    card.append(el("p", "pl-title", `${dayWord()}的愛情、事業、財運`), el("p", "p-t", "現在只有太陽星座，算出來會跟「我的運勢」一樣。填出生日期（時間不知道也可以），就能算出你的金星、月亮在哪裡，看星星怎麼碰到你。"));
+    const b = el("button", "pillbtn", "填出生日期");
+    b.type = "button";
+    b.addEventListener("click", openBirth);
+    card.append(b);
+    return card;
+  }
+  const m = luckModel(info);
+  const tp = taipeiParts(new Date(info.start + 12 * H));
+  card.append(el("p", "pl-title", `${dayWord()}的愛情、事業、財運 · ${tp.m}/${tp.d} ${info.wk.zh}`));
+  const ul = el("ul", "tcats");
+  LUCK_AREAS.forEach((area, i) => {
+    const a = m.areas[area];
+    const li = document.createElement("li");
+    li.style.setProperty("--i", i);
+    li.innerHTML = '<div class="tc-head"><span class="cl"></span><span class="fs"></span></div><p class="ft-main"></p><div class="dd"><div class="do"><b>適合</b><span class="chip"></span></div><div class="dont"><b>避免</b><span class="chip"></span></div></div>';
+    li.querySelector(".cl").textContent = LUCK_ZH[area];
+    li.querySelector(".fs").textContent = stars(a.st);
+    li.querySelector(".fs").setAttribute("aria-label", `${a.st} 顆星`);
+    li.querySelector(".ft-main").textContent = a.text;
+    li.querySelector(".do .chip").textContent = a.doit;
+    li.querySelector(".dont .chip").textContent = a.avoid;
+    ul.append(li);
+  });
+  card.append(ul);
+  const why = el("details", "why tsky pl-why");
+  why.innerHTML = '<summary><span class="tsky-k">為什麼這樣說？</span><small>星象依據 · 跟你自己比</small></summary>';
+  const cols = el("div", "pl-why-cols");
+  for (const area of LUCK_AREAS) {
+    const a = m.areas[area];
+    const col = el("div", "pl-why-col");
+    col.append(el("p", "pl-why-k", `${LUCK_ZH[area]} ${stars(a.st)}`));
+    const list = el("ul", "p-list");
+    list.append(...(a.why.length ? a.why.map((r) => {
+      const li = document.createElement("li");
+      li.className = r.kind;
+      li.innerHTML = "<time></time><div><b></b><span></span></div>";
+      li.querySelector("time").textContent = r.time;
+      li.querySelector("b").textContent = r.title;
+      li.querySelector("span").textContent = r.tag;
+      return li;
+    }) : [el("li", "none", "沒有行星和你的本命點形成相位，星數只看月亮和行星走過哪幾宮。")]));
+    col.append(list);
+    cols.append(col);
+  }
+  why.append(cols);
+  const lvlNote = { exact: "用你的出生時間算出準確度數、上升和天頂。", window: `出生時間用${BIRTH_SLOTS[NATAL.birth?.slot]?.[2] || "那段時間"}的中間估算，沒有上升和天頂；事業看太陽、水星和土星。`, signs: "只有星座，用整個星座比對，抓不到準確的時間。" }[m.level] || "";
+  const manualAsc = m.level !== "exact" && NATAL.sign.Asc != null ? "上升是自己選的，宮位照它排，但不拿來算分。" : "";
+  why.append(el("p", "p-m", `${lvlNote}${m.notes.join("")}${manualAsc}`), el("p", "p-m", "星數是拿你自己前後兩週來比：5 顆是這個月最順的幾天之一，不是跟別人比。「我的運勢」是同星座共用的版本，兩邊星數不同是正常的。"));
+  card.append(why);
+  return card;
+}
+
 function renderPersonal() {
   const box = $("personal");
   if (!lastSky) return;
@@ -1661,10 +2242,15 @@ function renderPersonal() {
   const sg = NATAL.sign;
   const base = houseBase().sign;
   if (base == null) {
-    box.replaceChildren(Object.assign(document.createElement("p"), { className: "p-empty", textContent: "先選你的太陽星座（就是一般說的星座），就能看今天月亮走到你的哪一宮。" }));
+    const b = Object.assign(document.createElement("button"), { type: "button", className: "pillbtn", textContent: "填出生資料" });
+    b.addEventListener("click", openBirth);
+    const p = Object.assign(document.createElement("div"), { className: "p-empty" });
+    p.append(Object.assign(document.createElement("p"), { textContent: "先選你的太陽星座（就是一般說的星座），就能看今天月亮走到你的哪一宮；填上出生資料，還會依你的星盤算今天的愛情、事業、財運。" }), b);
+    box.replaceChildren(p);
     return;
   }
-  const frag = [];
+  const frag = [luckCard(info)];
+  const level = natalLevel();
   const card = (cls, html) => { const d = document.createElement("div"); d.className = `p-card ${cls}`; d.innerHTML = html; frag.push(d); return d; };
   // 1. house
   const h0 = signDist(info.segs[0].sign, base), h1 = info.segs.length > 1 ? signDist(info.segs[1].sign, base) : null;
@@ -1742,7 +2328,9 @@ function renderPersonal() {
       }),
     );
   }
-  if (sg.Moon == null && sg.Asc == null) {
+  // one hint at most: the luck card already prompts at the sun-only level
+  if (level === "signs") frag.push(Object.assign(document.createElement("p"), { className: "p-hint", textContent: "填出生日期會更準：現在只能用星座比對，抓不到準確時間。" }));
+  else if (level !== "sun" && sg.Moon == null && sg.Asc == null) {
     const p = Object.assign(document.createElement("p"), { className: "p-hint", textContent: "知道自己的月亮或上升星座嗎？填上去，分析會更貼近你；不知道的話，可以用下方「出生資料」自動算。" });
     frag.push(p);
   }
@@ -2060,8 +2648,7 @@ renderToday();
 
 
 function luckyFor(tp, si) {
-  let h = 2166136261;
-  for (const ch of `${tp.y}-${tp.m}-${tp.d}-${si}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  const h = fnv(`${tp.y}-${tp.m}-${tp.d}-${si}`);
   return { color: LUCKY_COLORS[h % 12], num: 1 + ((h >>> 8) % 9), dir: LUCKY_DIRS[(h >>> 16) % 8] };
 }
 
@@ -2207,6 +2794,7 @@ function renderToday() {
     <p class="lucky-note">幸運元素是依日期與星座固定產生的小彩蛋，純屬娛樂。</p>
     <div class="tadvice"><b>行動建議</b><p></p></div>
     <p class="trust">行星位置：天文曆即時計算（台北時間）· <button type="button" class="linkbtn to-data">看數據</button></p>
+    <p class="trust to-personal-line" hidden>這張是依太陽星座的通用版 · <button type="button" class="linkbtn to-personal">看依你星盤算的個人版 →</button></p>
     <details class="why tsky">
       <summary><span class="tsky-k">為什麼這樣說？看星象依據</span><small>月亮、相位、空轉</small></summary>
       <div class="summary tsky-rows"></div>
@@ -2260,6 +2848,13 @@ function renderToday() {
     $("sec-energy").scrollIntoView({ behavior: "smooth", block: "start" });
   });
   card.querySelector(".to-data").addEventListener("click", () => $("openChart").click());
+  if (["exact", "window", "signs"].includes(natalLevel())) {
+    card.querySelector(".to-personal-line").hidden = false;
+    card.querySelector(".to-personal").addEventListener("click", () => {
+      setView("chart");
+      $("personal").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
   card.querySelector(".share-btn").addEventListener("click", () => openShare(si));
   box.replaceChildren(card);
 }
