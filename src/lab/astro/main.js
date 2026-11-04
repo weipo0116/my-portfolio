@@ -670,6 +670,94 @@ const TIP = {
   money: { hi: "財運有亮點，留意好機會與可靠的收入。", mid: "收支持平，維持原本的預算就好。", lo: "支出容易失控，大額決定先緩一天。" },
 };
 const AREA = ["自己的狀態與形象", "荷包與資源", "說話與學習", "家與安心感", "戀愛與玩樂", "日常作息與身體", "另一半與合作", "深層關係與共同資源", "眼界與遠方", "事業與名聲", "朋友與圈子", "獨處與休息"];
+// Daily text for the fortune card. The Moon's solar house sets the theme for ~2.5 days,
+// and the Moon's exact aspects that day add a line for the categories that planet rules,
+// so the wording follows the shown day's sky instead of only the sign and star tier.
+// [text, do, avoid] per house (1-12) per category
+const HOUSE_CAT = {
+  love: [
+    ["你的狀態寫在臉上，打扮一下、主動一點更有吸引力。", "整理外型", "等對方先開口"],
+    ["在意安全感與實際付出，一頓好飯比甜言蜜語更打動人。", "一起吃頓好的", "用錢衡量感情"],
+    ["話題和訊息都變多，傳一則訊息就能拉近距離。", "主動傳訊息", "已讀不回"],
+    ["想待在熟悉的人身邊，在家吃飯、窩著聊天最療癒。", "陪家人或另一半", "排太多外出行程"],
+    ["心動指數高，適合約會、表白、做浪漫的事。", "約會或表白", "壓抑心動"],
+    ["實際的照顧比浪漫更重要，幫對方做一件小事就很加分。", "幫對方一個小忙", "挑剔小毛病"],
+    ["注意力在對方身上，一對一好好聊最有效。", "一對一深聊", "只顧自己的步調"],
+    ["感受變深，適合談信任與承諾，也容易敏感吃醋。", "說出真心話", "試探對方"],
+    ["想要新鮮感，一起去沒去過的地方，或聊聊未來。", "安排小旅行", "一成不變"],
+    ["心思偏向工作，記得留一點時間給在乎的人。", "預留約會時間", "把工作情緒帶回家"],
+    ["朋友圈是好緣分的來源，聚會或團體活動容易遇到對的人。", "參加聚會", "把自己關起來"],
+    ["需要一點獨處，感情先放慢，給彼此一些空間。", "留空間給彼此", "逼對方表態"],
+  ],
+  career: [
+    ["注意力回到自己身上，適合定下目標、主動開一個頭。", "自己先開頭", "等人分配"],
+    ["適合處理報價、預算、資源分配這類實際的事。", "談報價與預算", "做白工"],
+    ["訊息量大，適合回信、開會、寫文件、學新東西。", "清信箱、寫文件", "一心多用"],
+    ["心思容易飄回家，適合處理文書、整理工作環境。", "整理桌面與檔案", "硬撐加班"],
+    ["創意和表現欲旺，適合提點子、做簡報、展示作品。", "提點子", "只做例行公事"],
+    ["適合處理細節、修流程，把待辦一項項做完。", "清待辦清單", "拖延小事"],
+    ["適合談合作、找人搭檔、處理客戶關係。", "談合作", "單打獨鬥"],
+    ["適合鑽研一件難題，處理別人不想碰的深水區。", "專注攻一件難事", "到處分心"],
+    ["適合進修、規劃長期方向，接觸不同領域的人。", "上課進修", "只看眼前"],
+    ["表現容易被看見，適合處理大事、和主管溝通。", "向上報告", "低調躲事"],
+    ["團隊合作順，適合找同事一起腦力激盪。", "團隊討論", "什麼都自己扛"],
+    ["適合收尾、整理、做幕後工作，不急著開新案。", "收尾舊案", "開新坑"],
+  ],
+  money: [
+    ["比較想花在自己身上，買之前問一句：是需要還是心情？", "投資自己", "情緒性購物"],
+    ["對錢特別敏感，適合記帳、檢查收支。", "記帳對帳", "衝動下單"],
+    ["資訊多，比價查資料很有效率，但別被話術帶走。", "比價查資料", "聽信小道消息"],
+    ["花錢偏向家用，添購實用的東西比較值。", "添購家用", "為家人過度花費"],
+    ["玩樂開銷容易變多，娛樂預算先抓好。", "設娛樂預算", "為面子請客"],
+    ["適合整理訂閱、帳單、保險這類例行財務。", "整理訂閱帳單", "忽略小額支出"],
+    ["合夥與共同支出要講清楚，簽約前多看一眼。", "講清楚分攤", "隨口答應借錢"],
+    ["適合處理貸款、稅務、共同財產等深一層的財務。", "處理稅務貸款", "高風險投機"],
+    ["花在學習與旅行上的錢比較值得。", "投資學習", "衝動訂行程"],
+    ["收入跟表現連動，適合談加薪、爭取獎金。", "爭取應得的", "不好意思開口"],
+    ["人脈帶來資訊與機會，但團購湊單要克制。", "交換資訊", "跟風團購"],
+    ["容易恍神漏掉細節，大額支出延後再說。", "延後大額支出", "沒看清楚就付款"],
+  ],
+};
+// which categories each planet speaks to, and what an easy / hard Moon aspect to it means there
+const ASP_CAT = {
+  Sun: { cats: ["career"], soft: "月亮和太陽相位順，目標清楚、決定下得順。", hard: "月亮和太陽拉扯，想要的和該做的打架，大決定晚點再下。" },
+  Mercury: { cats: ["career", "money"], soft: "月亮和水星相位順，說話有條理，談事、比價都順手。", hard: "月亮和水星卡卡，訊息和帳單送出前多看一遍。" },
+  Venus: { cats: ["love", "money"], soft: "月亮和金星相位順，人緣好、氣氛甜，品味也在線。", hard: "月亮和金星不和，容易想要太多，表態和花錢先等等。" },
+  Mars: { cats: ["career", "love"], soft: "月亮和火星相位順，行動力強，適合推進卡住的事。", hard: "月亮和火星衝突，容易急躁頂嘴，說話慢半拍。" },
+  Jupiter: { cats: ["money", "career"], soft: "月亮和木星相位順，機會和貴人容易出現。", hard: "月亮和木星形成壓力，容易過度承諾或買太多。" },
+  Saturn: { cats: ["career", "money"], soft: "月亮和土星相位順，耐得住，適合處理長期計畫。", hard: "月亮和土星碰撞，壓力感重，先把該做的做完。" },
+};
+const VOC_CAT = {
+  love: "月亮空亡，感情上的話先別急著說死。",
+  career: "月亮空亡，適合收尾和整理，新提案晚點再丟。",
+  money: "月亮空亡，簽約和大額付款先緩一緩。",
+};
+function dayAspectFor(info, cat) {
+  const evs = info.events.filter((e) => e.kind === "asp" && ASP_CAT[e.p]?.cats.includes(cat));
+  if (!evs.length) return null;
+  // the planet's main category first, then the stronger aspect
+  const e = evs.sort((a, b) => (ASP_CAT[a.p].cats[0] === cat ? 0 : 1) - (ASP_CAT[b.p].cats[0] === cat ? 0 : 1) || evScore(b) - evScore(a))[0];
+  const k = evKind(e);
+  const hard = k === "hard" || (k === "conj" && (e.p === "Mars" || e.p === "Saturn"));
+  return { hard, text: `${timeAt(e)} ${ASP_CAT[e.p][hard ? "hard" : "soft"]}` };
+}
+function moonHouseOf(info, si) {
+  // the house the Moon spends most of the shown day in, for this sun sign
+  return signDist(info.dom, si);
+}
+function dailyNote(si, cat) {
+  const info = currentDay.info;
+  const h = moonHouseOf(info, si);
+  const [text, doit, avoid] = HOUSE_CAT[cat][h];
+  const asp = dayAspectFor(info, cat);
+  const v = info.voc[0];
+  const extra = asp ? asp.text : v ? `${fmtT(v.from)}–${fmtT(v.to)} ${VOC_CAT[cat]}` : "";
+  const move = info.segs.length > 1 && info.segs[1].sign === info.dom
+    ? `（${fmtT(info.segs[1].from)} 前在${HOUSES[signDist(info.segs[0].sign, si)][0]}宮）`
+    : info.segs.length > 1 ? `（${fmtT(info.segs[1].from)} 後進${HOUSES[signDist(info.segs[1].sign, si)][0]}宮）` : "";
+  return { text: `${dayNoun()}月亮在你的${HOUSES[h][0]}宮${move}：${text}${extra}`, doit, avoid };
+}
+
 
 // Houses only change when a planet changes sign, so on most days the ranking would not move.
 // Add a smooth aspect to the middle of each sun sign: the Moon sweeps ~13° a day and the inner
@@ -801,11 +889,6 @@ let currentWeek = null;
 let currentDay = null; // { tp, headline, summary, advice } for the shown date
 
 /* ---------- "my fortune" view (general audience) ---------- */
-const ONE_LINER = {
-  love: { hi: "今天人緣和桃花都在線，想見的人就主動約。", mid: "感情是今天最順的一塊，一句真心的關心就夠。", lo: "整體節奏偏慢，把溫柔留給身邊的人，其他先別急。" },
-  career: { hi: "今天適合主動爭取機會，不要等別人發現你的價值。", mid: "工作是今天的穩定支點，把一件事做完就是勝利。", lo: "今天不求快，先把手上最重要的一件事顧好。" },
-  money: { hi: "今天對錢的判斷特別準，好機會出現時可以認真看。", mid: "財務是今天最穩的一塊，照預算走就安心。", lo: "今天守住荷包就是贏，大額決定留到之後再說。" },
-};
 const DO_DONT = {
   love: {
     hi: [["主動約對方", "大方說出喜歡"], ["想太多而錯過", "故意冷處理"]],
@@ -1627,11 +1710,12 @@ function skyFor(si) {
   return rows;
 }
 
+
 function todayData(si) {
   const rows = Object.keys(CATS).map((cat) => ({ cat, ...currentFortune[cat][si] }));
   const avg = Math.round(rows.reduce((n, r) => n + r.stars, 0) / rows.length);
   const best = rows.slice().sort((a, b) => b.stars - a.stars || b.score - a.score)[0];
-  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: ONE_LINER[best.cat][tierOf(avg)].replace(/^今天/, dayNoun()), lucky: luckyFor(currentDay.tp, si) };
+  return { sg: SIGNS[si], rows, avg, tier: tierOf(avg), line: `${dayNoun()}重點在「${AREA[moonHouseOf(currentDay.info, si)]}」，${CATS[best.cat]}最順，適合${HOUSE_CAT[best.cat][moonHouseOf(currentDay.info, si)][1]}。`, lucky: luckyFor(currentDay.tp, si) };
 }
 
 // 本週 view of the same card: whole-week averages, best/worst day, and the week's sky events
@@ -1750,14 +1834,16 @@ function renderToday() {
   );
   const ul = card.querySelector(".tcats");
   d.rows.forEach((r, i) => {
-    const [dos, donts] = DO_DONT[r.cat][tierOf(r.stars)];
+    const [tdos, tdonts] = DO_DONT[r.cat][tierOf(r.stars)];
+    const dn = dailyNote(si, r.cat);
+    const dos = [dn.doit, tdos[0]], donts = [dn.avoid, tdonts[0]];
     const li = document.createElement("li");
     li.style.setProperty("--i", i);
     li.innerHTML = `<div class="tc-head"><span class="cl"></span><span class="fs"></span></div><p class="ft-main"></p><div class="dd"><div class="do"><b>適合</b></div><div class="dont"><b>避免</b></div></div>`;
     li.querySelector(".cl").textContent = CATS[r.cat];
     li.querySelector(".fs").textContent = stars(r.stars);
     li.querySelector(".fs").setAttribute("aria-label", `${r.stars} 顆星`);
-    li.querySelector(".ft-main").textContent = r.note.replace("今天", dayNoun());
+    li.querySelector(".ft-main").textContent = dn.text;
     const chip = (t) => Object.assign(document.createElement("span"), { className: "chip", textContent: t });
     li.querySelector(".do").append(...dos.map(chip));
     li.querySelector(".dont").append(...donts.map(chip));
