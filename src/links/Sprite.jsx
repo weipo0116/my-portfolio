@@ -1,4 +1,8 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { createContext, forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import "./magic.css";
+
+// Lets anything on the page ask the sprite to fly somewhere.
+export const SpriteContext = createContext(null);
 
 const TRAIL = 3;
 const FLY_MS = 520;
@@ -8,7 +12,7 @@ const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 // A small original light-sprite: a glowing core with two translucent wings
 // and a short spark trail. It drifts around the page on its own; flyTo()
 // sends it to a point (the word being cast) and resolves when it arrives.
-const Sprite = forwardRef(function Sprite(_props, ref) {
+const Sprite = forwardRef(function Sprite({ fixed = false }, ref) {
   const rootRef = useRef(null);
   const bodyRef = useRef(null);
   const trailRefs = useRef([]);
@@ -133,7 +137,11 @@ const Sprite = forwardRef(function Sprite(_props, ref) {
   }));
 
   return (
-    <div ref={rootRef} className="links-sprite-layer" aria-hidden="true">
+    <div
+      ref={rootRef}
+      className={`links-sprite-layer${fixed ? " is-fixed" : ""}`}
+      aria-hidden="true"
+    >
       {Array.from({ length: TRAIL }, (_, index) => (
         <span
           key={index}

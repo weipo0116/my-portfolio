@@ -4,7 +4,7 @@ import { usePrefs } from "../prefs.js";
 import PrefsToggles from "../PrefsToggles.jsx";
 import avatar from "../assets/images/profile/avatar_480.jpg";
 import resumePdf from "../resume/resume.pdf";
-import MagicField, { castRipple } from "./MagicField.jsx";
+import MagicField, { Ambient, castRipple } from "./MagicField.jsx";
 import Sprite from "./Sprite.jsx";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
@@ -192,8 +192,7 @@ export default function LinksPage() {
   return (
     <main className="links-page">
       <MagicField />
-      <div className="links-ambient is-a" aria-hidden="true" />
-      <div className="links-ambient is-b" aria-hidden="true" />
+      <Ambient />
       <Sprite ref={spriteRef} />
       <div className="links-prefs">
         <PrefsToggles

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import "./magic.css";
 
 const GAP = 22;
 const REACH = 150; // px around the cursor / wanderer that the field reacts to
@@ -16,7 +17,7 @@ export const castRipple = (clientX, clientY) => {
 // Background dot grid. Faint near the top; a soft light wanders across it on
 // its own, the cursor pulls dots into a glowing field, and taps or casts send
 // a ripple through it.
-export default function MagicField() {
+export default function MagicField({ fixed = false }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -208,5 +209,21 @@ export default function MagicField() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="links-field" aria-hidden="true" />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className={`links-field${fixed ? " is-fixed" : ""}`}
+      aria-hidden="true"
+    />
+  );
+}
+
+// Two slow, soft lights drifting behind everything.
+export function Ambient({ fixed = false }) {
+  return (
+    <div className={`links-ambient-layer${fixed ? " is-fixed" : ""}`} aria-hidden="true">
+      <div className="links-ambient is-a" />
+      <div className="links-ambient is-b" />
+    </div>
+  );
 }

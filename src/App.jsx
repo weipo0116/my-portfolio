@@ -1,5 +1,6 @@
 // src/App.jsx
 import React, {
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -14,6 +15,8 @@ import { useRefreshOnChange, useScrollMotion } from "./useScrollMotion.js";
 import "./App.css";
 import "./system.css";
 import resumePdf from "./resume/resume.pdf";
+import MagicField, { Ambient } from "./links/MagicField.jsx";
+import Sprite, { SpriteContext } from "./links/Sprite.jsx";
 
 const MOTION_EASE = [0.22, 1, 0.36, 1];
 
@@ -155,13 +158,20 @@ const CAST_OPEN_DELAY_MS = 420;
 // Modifier clicks and reduced motion skip the burst and behave like a plain link.
 function LabCastLink({ href, label, reduceMotion }) {
   const linkRef = useRef(null);
+  const spriteRef = useContext(SpriteContext);
   const [castCount, setCastCount] = useState(0);
 
-  const handleClick = (event) => {
+  const handleClick = async (event) => {
     if (reduceMotion || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
     event.preventDefault();
+    // The Lab sprite flies over to the button before the spell goes off.
+    const box = linkRef.current?.getBoundingClientRect();
+    if (box && spriteRef?.current) {
+      await spriteRef.current.flyTo(box.left + 20, box.top - 8);
+      window.setTimeout(() => spriteRef.current?.release(), CAST_OPEN_DELAY_MS + 600);
+    }
     setCastCount((count) => count + 1);
     linkRef.current?.animate(
       [
@@ -379,6 +389,7 @@ function App({ page = "profile" }) {
   const t = ui[lang];
   const isWork = page === "work";
   const pageRef = useRef(null);
+  const spriteRef = useRef(null);
   useScrollMotion(pageRef, [page]);
   useRefreshOnChange(lang);
 
@@ -703,10 +714,18 @@ function App({ page = "profile" }) {
   }, [siteData.title]);
 
   return (
+    <SpriteContext.Provider value={isWork ? spriteRef : null}>
     <div
       ref={pageRef}
       className={`page ${isWork ? "page-work" : "page-profile"}`}
     >
+      {isWork ? (
+        <>
+          <MagicField fixed />
+          <Ambient fixed />
+          <Sprite fixed ref={spriteRef} />
+        </>
+      ) : null}
       <div className="scroll-progress" aria-hidden="true" />
       <nav className="nav" aria-label={t.navAria}>
         <motion.div
@@ -1645,6 +1664,7 @@ function App({ page = "profile" }) {
         ) : null}
       </AnimatePresence>
     </div>
+    </SpriteContext.Provider>
   );
 }
 

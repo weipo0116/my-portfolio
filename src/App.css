@@ -2903,3 +2903,22 @@ html[lang^="zh"] .hero-highlights li {
     transform: none;
   }
 }
+
+/* ── Lab page: the same magic layer as the links page ── */
+.page-work {
+  position: relative;
+  isolation: isolate;
+}
+
+.page-work .links-field {
+  z-index: -1;
+}
+
+.page-work .links-sprite-layer {
+  z-index: 15; /* above content, under the nav */
+}
+
+/* The live dot field replaces the static dots behind the hero. */
+.page-work .work-hero::before {
+  display: none;
+}
