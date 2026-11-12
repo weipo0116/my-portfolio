@@ -1,8 +1,11 @@
+import { Fragment, useRef } from "react";
 import { getSiteData, ui } from "../i18n.js";
 import { usePrefs } from "../prefs.js";
 import PrefsToggles from "../PrefsToggles.jsx";
 import avatar from "../assets/images/profile/avatar_480.jpg";
 import resumePdf from "../resume/resume.pdf";
+import DotField from "./DotField.jsx";
+import { useScramble } from "./useScramble.js";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
 
@@ -41,11 +44,66 @@ const IconMail = () => (
   </svg>
 );
 
+// Name rises in letter by letter from behind a mask.
+const NameReveal = ({ name }) => {
+  let index = 0;
+  return name.split(" ").map((word, wordIndex) => (
+    <Fragment key={word + wordIndex}>
+      {wordIndex > 0 && " "}
+      <span className="links-word">
+        {[...word].map((char) => {
+          const charIndex = index++;
+          return (
+            <span key={charIndex} className="links-char" style={{ "--c": charIndex }}>
+              {char}
+            </span>
+          );
+        })}
+      </span>
+    </Fragment>
+  ));
+};
+
+// A ghost copy reserves the final width so decoding never shifts the layout.
+const Scramble = ({ text, delay, className }) => {
+  const output = useScramble(text, { delay });
+  return (
+    <p className={className}>
+      <span className="links-sr">{text}</span>
+      <span className="links-scramble" aria-hidden="true">
+        <span className="links-scramble-ghost">{text}</span>
+        <span className="links-scramble-live">{output}</span>
+      </span>
+    </p>
+  );
+};
+
+// Pills lean slightly toward the cursor.
+const magnetic = {
+  onPointerMove: (event) => {
+    if (event.pointerType !== "mouse") return;
+    const box = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - box.left - box.width / 2;
+    const y = event.clientY - box.top - box.height / 2;
+    event.currentTarget.style.setProperty("--tx", `${x * 0.18}px`);
+    event.currentTarget.style.setProperty("--ty", `${y * 0.3}px`);
+  },
+  onPointerLeave: (event) => {
+    event.currentTarget.style.removeProperty("--tx");
+    event.currentTarget.style.removeProperty("--ty");
+  },
+};
+
+const setRingSpeed = (ring, rate) => {
+  ring?.getAnimations?.().forEach((animation) => animation.updatePlaybackRate(rate));
+};
+
 export default function LinksPage() {
   const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const siteData = getSiteData(lang);
   const t = ui[lang];
   const L = t.links;
+  const ringRef = useRef(null);
   const links = [
     {
       key: "portfolio",
@@ -70,6 +128,7 @@ export default function LinksPage() {
 
   return (
     <main className="links-page">
+      <DotField originSelector=".links-avatar" />
       <div className="links-prefs">
         <PrefsToggles
           lang={lang}
@@ -80,8 +139,12 @@ export default function LinksPage() {
       </div>
       <div className="links-shell">
         <header className="links-header">
-          <div className="links-avatar-wrap">
-            <svg className="links-ring" viewBox="0 0 200 200" aria-hidden="true">
+          <div
+            className="links-avatar-wrap"
+            onPointerEnter={() => setRingSpeed(ringRef.current, 6)}
+            onPointerLeave={() => setRingSpeed(ringRef.current, 1)}
+          >
+            <svg ref={ringRef} className="links-ring" viewBox="0 0 200 200" aria-hidden="true">
               <defs>
                 <path
                   id="links-ring-path"
@@ -98,15 +161,26 @@ export default function LinksPage() {
               <img src={avatar} alt="Webber Lai" width="112" height="112" />
             </div>
           </div>
-          <h1 className="links-name">{siteData.name}</h1>
-          <p className="links-role">
-            {lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
-          </p>
-          <p className="links-org">
-            {lang === "zh"
-              ? "第一銀行 · 數位通路處"
-              : "First Bank · Digital Banking Division"}
-          </p>
+          <h1 className="links-name">
+            <span className="links-sr">{siteData.name}</span>
+            <span aria-hidden="true">
+              <NameReveal name={siteData.name} />
+            </span>
+          </h1>
+          <Scramble
+            className="links-role"
+            delay={450}
+            text={lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
+          />
+          <Scramble
+            className="links-org"
+            delay={650}
+            text={
+              lang === "zh"
+                ? "第一銀行 · 數位通路處"
+                : "First Bank · Digital Banking Division"
+            }
+          />
           <p className="links-bio">{L.bio}</p>
         </header>
 
@@ -117,17 +191,6 @@ export default function LinksPage() {
                 key={link.key}
                 className="links-row"
                 style={{ "--i": index }}
-                onPointerMove={(event) => {
-                  const box = event.currentTarget.getBoundingClientRect();
-                  event.currentTarget.style.setProperty(
-                    "--mx",
-                    `${event.clientX - box.left}px`,
-                  );
-                  event.currentTarget.style.setProperty(
-                    "--my",
-                    `${event.clientY - box.top}px`,
-                  );
-                }}
                 href={link.href}
                 {...(link.download ? { download: link.download } : {})}
               >
@@ -155,6 +218,7 @@ export default function LinksPage() {
           <div className="links-social" aria-label={L.contact}>
             <a
               className="links-pill"
+              {...magnetic}
               href={siteData.contacts.github}
               target="_blank"
               rel="noreferrer"
@@ -164,6 +228,7 @@ export default function LinksPage() {
             </a>
             <a
               className="links-pill"
+              {...magnetic}
               href={siteData.contacts.linkedin}
               target="_blank"
               rel="noreferrer"
@@ -171,7 +236,7 @@ export default function LinksPage() {
               <IconLinkedIn />
               LinkedIn
             </a>
-            <a className="links-pill" href={siteData.contacts.email}>
+            <a className="links-pill" href={siteData.contacts.email} {...magnetic}>
               <IconMail />
               Email
             </a>

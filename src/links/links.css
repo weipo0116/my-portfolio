@@ -1,4 +1,4 @@
-/* Links page — editorial split layout.
+/* Links page — editorial split layout with a "data × design" motion layer.
    Mobile: stacked. Desktop: identity on the left, index-style list on the right. */
 .links-page {
   position: relative;
@@ -13,24 +13,26 @@
   background: var(--bg);
 }
 
-/* Quiet dot grid that fades out from the top */
-.links-page::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--text) 14%, transparent) 1px,
-    transparent 1.2px
-  );
-  background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, #000 0%, transparent 78%);
-  mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, #000 0%, transparent 78%);
-}
-
 :root[data-theme="dark"] body {
   background-color: var(--bg);
+}
+
+.links-dots {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.links-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .links-prefs {
@@ -53,7 +55,6 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  animation: links-fade 0.8s var(--ease-out) backwards;
 }
 
 .links-avatar-wrap {
@@ -69,7 +70,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  animation: links-spin 40s linear infinite;
+  animation:
+    links-spin 40s linear infinite,
+    links-fade 1.2s var(--ease-out) 0.3s backwards;
 }
 
 .links-ring text {
@@ -78,12 +81,23 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   fill: var(--muted);
+  transition: fill var(--dur-fast) ease;
+}
+
+.links-avatar-wrap:hover .links-ring text {
+  fill: var(--primary);
 }
 
 .links-avatar {
   width: 100px;
   height: 100px;
   border-radius: 50%;
+  animation: links-pop 0.9s var(--ease-out) backwards;
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.links-avatar-wrap:hover .links-avatar {
+  transform: scale(1.04);
 }
 
 .links-avatar img {
@@ -102,6 +116,21 @@
   letter-spacing: -0.04em;
 }
 
+/* Each word is a mask; letters rise into it */
+.links-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding: 0.06em 0.04em 0.12em;
+  margin: -0.06em -0.04em -0.12em;
+}
+
+.links-char {
+  display: inline-block;
+  animation: links-char 0.9s var(--ease-out) backwards;
+  animation-delay: calc(0.15s + var(--c, 0) * 0.035s);
+}
+
 .links-role {
   margin: 0;
   font-weight: 700;
@@ -115,6 +144,24 @@
   font-size: 0.95rem;
 }
 
+/* Ghost reserves the final width; the live line decodes on top of it */
+.links-scramble {
+  display: inline-grid;
+}
+
+.links-scramble > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.links-scramble-ghost {
+  visibility: hidden;
+}
+
+.links-scramble-live {
+  overflow: hidden;
+}
+
 .links-bio {
   margin: 16px 0 0;
   max-width: 32ch;
@@ -122,6 +169,7 @@
   font-size: 0.95rem;
   line-height: 1.6;
   text-wrap: pretty;
+  animation: links-rise 0.9s var(--ease-out) 0.7s backwards;
 }
 
 /* ── Link index ── */
@@ -131,9 +179,32 @@
 }
 
 .links-list {
+  position: relative;
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid var(--border);
+}
+
+/* Hairlines draw themselves in, left to right */
+.links-row::after,
+.links-list::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+  transform-origin: left center;
+  animation: links-line 1.1s var(--ease-out) backwards;
+}
+
+.links-row::after {
+  top: 0;
+  animation-delay: calc(0.2s + var(--i, 0) * 0.1s);
+}
+
+.links-list::after {
+  bottom: 0;
+  animation-delay: 0.5s;
 }
 
 .links-row {
@@ -143,33 +214,32 @@
   align-items: center;
   column-gap: 14px;
   padding: 20px 0;
-  border-top: 1px solid var(--border);
   color: var(--text);
   text-decoration: none;
-  animation: links-rise 0.8s var(--ease-out) backwards;
-  animation-delay: calc(0.15s + var(--i, 0) * 0.08s);
 }
 
-/* Cursor spotlight, bled slightly past the hairlines */
+.links-row > span {
+  animation: links-rise 0.8s var(--ease-out) backwards;
+  animation-delay: calc(0.3s + var(--i, 0) * 0.1s);
+}
+
+/* Hover: a soft fill wipes in from the left and exits to the right */
 .links-row::before {
   content: "";
   position: absolute;
-  inset: -1px -14px;
+  inset: 0 -14px;
   z-index: -1;
-  border-radius: 18px;
-  background: radial-gradient(
-    240px circle at var(--mx, -300px) var(--my, -300px),
-    color-mix(in srgb, var(--primary) 12%, transparent),
-    transparent 72%
-  );
-  opacity: 0;
-  transition: opacity var(--dur-fast) ease;
-  pointer-events: none;
+  border-radius: 16px;
+  background: var(--chip-bg);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.55s var(--ease-out);
 }
 
 .links-row:hover::before,
 .links-row:focus-visible::before {
-  opacity: 1;
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
 .links-row:focus-visible,
@@ -187,10 +257,12 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
+  transition: color var(--dur-fast) ease;
 }
 
 .links-row-text {
   min-width: 0;
+  transition: transform var(--dur) var(--ease-out);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -202,7 +274,6 @@
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.03em;
-  transition: transform var(--dur) var(--ease-out);
 }
 
 .links-row-subtitle {
@@ -216,10 +287,9 @@
   place-items: center;
   width: 24px;
   height: 24px;
+  overflow: hidden;
   color: var(--muted);
-  transition:
-    transform var(--dur) var(--ease-out),
-    color var(--dur-fast) ease;
+  transition: color var(--dur-fast) ease;
 }
 
 .links-row-arrow svg,
@@ -233,16 +303,21 @@
   stroke-linejoin: round;
 }
 
-.links-row:hover .links-row-title {
-  transform: translateX(4px);
-}
-
+.links-row:hover .links-row-index,
 .links-row:hover .links-row-arrow {
   color: var(--primary);
-  transform: translate(2px, -2px);
 }
 
-/* "Now" status lives with the Lab row instead of floating on its own */
+.links-row:hover .links-row-text {
+  transform: translateX(6px);
+}
+
+/* Arrow flies out top-right and comes back in from bottom-left */
+.links-row:hover .links-row-arrow svg {
+  animation: links-arrow 0.6s var(--ease-out);
+}
+
+/* "Now" status lives with the Lab row */
 .links-now {
   margin-top: 10px;
   display: inline-flex;
@@ -292,7 +367,6 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  animation: links-rise 0.8s var(--ease-out) 0.45s backwards;
 }
 
 .links-pill {
@@ -308,10 +382,17 @@
   font-size: 0.88rem;
   font-weight: 600;
   text-decoration: none;
+  transform: translate(var(--tx, 0), var(--ty, 0));
+  animation: links-rise 0.8s var(--ease-out) backwards;
   transition:
+    transform 0.35s var(--ease-out),
     background-color var(--dur-fast) ease,
     color var(--dur-fast) ease;
 }
+
+.links-pill:nth-child(1) { animation-delay: 0.6s; }
+.links-pill:nth-child(2) { animation-delay: 0.66s; }
+.links-pill:nth-child(3) { animation-delay: 0.72s; }
 
 .links-pill svg {
   width: 16px;
@@ -334,6 +415,7 @@
   color: var(--muted);
   font-size: 0.85rem;
   font-weight: 500;
+  animation: links-fade 1s ease 0.9s backwards;
 }
 
 /* ── Desktop: identity left, index right ── */
@@ -396,47 +478,64 @@
 }
 
 @keyframes links-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes links-ping {
-  to {
-    transform: scale(2.6);
-    opacity: 0;
-  }
+  to { transform: scale(2.6); opacity: 0; }
 }
 
 @keyframes links-rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
+  from { opacity: 0; transform: translateY(14px); }
 }
 
 @keyframes links-fade {
-  from {
-    opacity: 0;
-  }
+  from { opacity: 0; }
+}
+
+@keyframes links-pop {
+  from { opacity: 0; transform: scale(0.86); }
+}
+
+@keyframes links-char {
+  from { transform: translateY(110%); }
+}
+
+@keyframes links-line {
+  from { transform: scaleX(0); }
+}
+
+@keyframes links-arrow {
+  0% { transform: translate(0, 0); }
+  45% { transform: translate(130%, -130%); }
+  46% { transform: translate(-130%, 130%); }
+  100% { transform: translate(0, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .links-ring,
+  .links-avatar,
+  .links-char,
+  .links-bio,
+  .links-row::after,
+  .links-list::after,
+  .links-row > span,
+  .links-row:hover .links-row-arrow svg,
   .links-now-dot::after,
-  .links-header,
-  .links-row,
-  .links-social {
+  .links-pill,
+  .links-footer {
     animation: none;
   }
 
-  .links-row-title,
-  .links-row-arrow {
+  .links-row::before,
+  .links-row-text,
+  .links-avatar,
+  .links-pill {
     transition: none;
   }
 
-  .links-row:hover .links-row-title,
-  .links-row:hover .links-row-arrow {
+  .links-row:hover .links-row-text,
+  .links-avatar-wrap:hover .links-avatar {
     transform: none;
   }
 }
