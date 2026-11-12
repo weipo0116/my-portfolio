@@ -1001,3 +1001,45 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
 .pl-why .p-list span { display: inline; margin-left: 6px; white-space: nowrap; }
 @media (min-width: 900px) { .pl-why-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 22px; } }
 #personal { scroll-margin-top: 80px; }
+
+/* ---- first-visit paths: general horoscope vs. personal reading ---- */
+.paths {
+  width: min(100%, 640px);
+  margin: 22px auto 0;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 12px;
+  animation: rise 1.4s var(--ease) 0.45s both;
+}
+.path {
+  font: inherit; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 16px 18px; min-height: 48px;
+  border: 1px solid var(--line); border-radius: 14px;
+  background: rgba(var(--panel-rgb), 0.55);
+  color: var(--body);
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.path:hover { border-color: var(--gold); transform: translateY(-2px); }
+.path:active { transform: scale(0.98); }
+.path:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.path-k { font-size: 0.72rem; letter-spacing: 0.2em; color: var(--muted); }
+.path-t { font-family: var(--serif-zh); font-size: 1.1rem; font-weight: 600; letter-spacing: 0.06em; color: var(--gold-soft); }
+.path-d { font-size: 0.85rem; line-height: 1.6; color: var(--muted); }
+.path.is-main {
+  border-color: rgba(var(--gold-rgb), 0.7);
+  background: linear-gradient(160deg, rgba(var(--gold-rgb), 0.2), rgba(var(--panel-rgb), 0.6) 70%);
+  box-shadow: 0 10px 34px rgba(var(--gold-rgb), 0.16);
+}
+.path.is-main .path-k { color: var(--gold); }
+.path.is-main .path-t { color: var(--title-top); }
+html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
+.path.is-main:hover { box-shadow: 0 14px 40px rgba(var(--gold-rgb), 0.28); }
+@media (max-width: 720px) {
+  .paths { grid-template-columns: 1fr; gap: 10px; margin-top: 18px; }
+  .path { padding: 14px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paths { animation: none; }
+  .path, .path:hover { transition: none; transform: none; }
+}

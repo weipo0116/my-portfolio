@@ -1620,6 +1620,7 @@ function setBirthDate(v) {
 }
 
 function syncNatalForm() {
+  syncPaths();
   $("natal").querySelectorAll("select[data-k]").forEach((s) => { const v = NATAL.sign[s.dataset.k]; s.value = v == null ? "" : String(v); });
   const b = NATAL.birth;
   const ci = b?.city ?? 0;
@@ -2164,6 +2165,25 @@ const DEBUG = new URLSearchParams(location.search).has("debug");
 // ?debug: timing in the console and a handle for the calibration script
 if (DEBUG) window.__luck = { natalPoints, luckRaw, luckStars, luckModel, lonOf, ascendant, dayInfo, setNatal: (n) => { NATAL = n; natalPtsMemo = null; luckModelCache.clear(); } };
 const LUCK_LEVEL = { window: "時段估算", signs: "只用星座" };
+function hasNatal() {
+  return ["exact", "window", "signs"].includes(natalLevel());
+}
+function showPersonal() {
+  setView("chart");
+  $("personal").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+// Hero: two clear paths, so first-time visitors see that a personal reading exists.
+function syncPaths() {
+  const desc = $("pathPersonalDesc");
+  if (!desc) return;
+  desc.textContent = hasNatal()
+    ? "已依你的星盤算好，直接看今天的愛情、事業、財運"
+    : "輸入生日，依你出生那天的星盤，算今天的愛情、事業、財運";
+}
+$("pathPersonal").addEventListener("click", () => (hasNatal() ? showPersonal() : openBirth()));
+$("pathSign").addEventListener("click", () => {
+  $("sec-today").scrollIntoView({ behavior: "smooth", block: "start" });
+});
 function openBirth() {
   setView("chart");
   const box = $("birthBox");
@@ -2769,7 +2789,7 @@ function renderToday() {
   });
   const box = $("todayCard");
   if (fortuneSign === "all") {
-    box.replaceChildren(Object.assign(document.createElement("p"), { className: "tpick-hint", textContent: "↑ 先選你的星座，就能看到專屬的今日運勢。" }));
+    box.replaceChildren(Object.assign(document.createElement("p"), { className: "tpick-hint", textContent: "↑ 先選你的星座，看今天的大方向。" }));
     return;
   }
   const si = fortuneSign;
@@ -2848,12 +2868,15 @@ function renderToday() {
     $("sec-energy").scrollIntoView({ behavior: "smooth", block: "start" });
   });
   card.querySelector(".to-data").addEventListener("click", () => $("openChart").click());
-  if (["exact", "window", "signs"].includes(natalLevel())) {
-    card.querySelector(".to-personal-line").hidden = false;
-    card.querySelector(".to-personal").addEventListener("click", () => {
-      setView("chart");
-      $("personal").scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+  const personalLine = card.querySelector(".to-personal-line");
+  const personalBtn = card.querySelector(".to-personal");
+  personalLine.hidden = false;
+  if (hasNatal()) {
+    personalBtn.addEventListener("click", showPersonal);
+  } else {
+    // no birth data yet: point to the more accurate, personal version
+    personalBtn.textContent = "輸入生日，看依你星盤算的專屬版 →";
+    personalBtn.addEventListener("click", openBirth);
   }
   card.querySelector(".share-btn").addEventListener("click", () => openShare(si));
   box.replaceChildren(card);
