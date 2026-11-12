@@ -50,6 +50,20 @@ const IconMail = () => (
   </svg>
 );
 
+// Original wand mark: a stick with a four-point star at its tip.
+const Wand = () => (
+  <svg className="links-wand" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+    <path className="links-wand-stick" d="M5 23 L16.5 11.5" />
+    <path className="links-wand-band" d="M13.2 14.8 L15.2 12.8" />
+    <path
+      className="links-wand-star"
+      d="M20 3.5 Q20.6 7.4 24.5 8 Q20.6 8.6 20 12.5 Q19.4 8.6 15.5 8 Q19.4 7.4 20 3.5 Z"
+    />
+    <circle className="links-wand-glint" cx="25" cy="14" r="1" />
+    <circle className="links-wand-glint is-late" cx="13.5" cy="3.5" r="0.9" />
+  </svg>
+);
+
 const prefersReducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -155,11 +169,14 @@ export default function LinksPage() {
     castingRef.current = true;
 
     const word = event.currentTarget.querySelector(".links-word-title");
+    const wand = event.currentTarget.querySelector(".links-wand");
     const box = word.getBoundingClientRect();
     // Keyboard activation has no pointerdown, so start the ripple here.
     if (event.detail === 0) castRipple(box.left + box.width / 2, box.top + box.height / 2);
 
-    await spriteRef.current?.flyTo(box.right + 16, box.top + box.height * 0.28);
+    // The sprite lands on the tip of this word's wand.
+    const tip = wand ? wand.getBoundingClientRect() : box;
+    await spriteRef.current?.flyTo(tip.right - 4, tip.top - 6);
     setCasting(link.key);
 
     later(() => {
@@ -244,7 +261,10 @@ export default function LinksPage() {
                   <path d="M5 0Q5 5 10 5Q5 5 5 10Q5 5 0 5Q5 5 5 0Z" />
                 </svg>
               ))}
-              <span className="links-word-title">{link.title}</span>
+              <span className="links-word-title">
+                {link.title}
+                <Wand />
+              </span>
               <span className="links-word-sub">
                 {link.key === "lab" ? (
                   <LabTicker label={L.casting} projects={labProjects} />

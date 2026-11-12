@@ -211,6 +211,7 @@
 }
 
 .links-word-title {
+  position: relative;
   font-size: 3rem;
   font-weight: 700;
   line-height: 1.02;
@@ -240,6 +241,78 @@
     color: var(--acc);
     transform: scale(1.02);
   }
+}
+
+/* Wand: hangs off the top-right of each word so the word stays centered.
+   Its star twinkles in turn on each word to say "tap me". */
+.links-wand {
+  position: absolute;
+  left: 100%;
+  top: -0.02em;
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: 0.16em;
+  overflow: visible;
+  color: var(--muted);
+  transform-origin: 20% 80%;
+  transition:
+    color 0.35s ease,
+    transform 0.45s var(--ease-out);
+}
+
+.links-wand-stick,
+.links-wand-band {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+}
+
+.links-wand-stick {
+  stroke-width: 2.2;
+}
+
+.links-wand-band {
+  stroke: var(--acc);
+  stroke-width: 3;
+}
+
+.links-wand-star {
+  fill: var(--acc);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: links-twinkle 3.6s ease-in-out infinite;
+  animation-delay: var(--twinkle, 0s);
+}
+
+.links-wand-glint {
+  fill: var(--acc);
+  opacity: 0;
+  animation: links-glint 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--twinkle, 0s) + 0.15s);
+}
+
+.links-wand-glint.is-late {
+  animation-delay: calc(var(--twinkle, 0s) + 0.3s);
+}
+
+.links-word.is-lab {
+  --twinkle: 1.2s;
+}
+
+.links-word.is-resume {
+  --twinkle: 2.4s;
+}
+
+@media (hover: hover) {
+  .links-word:hover .links-wand {
+    color: var(--acc);
+    transform: rotate(-14deg);
+  }
+}
+
+.links-word.is-cast .links-wand {
+  color: var(--acc);
+  animation: links-flick 0.6s var(--ease-out);
 }
 
 /* Casting: the light gathers behind the word, flares, two rings release
@@ -571,6 +644,23 @@
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1); }
 }
 
+@keyframes links-twinkle {
+  0%, 70%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+  80% { transform: scale(1.35) rotate(45deg); opacity: 1; }
+}
+
+@keyframes links-glint {
+  0%, 72%, 100% { opacity: 0; }
+  82% { opacity: 1; }
+}
+
+@keyframes links-flick {
+  0% { transform: rotate(0deg); }
+  35% { transform: rotate(-28deg); }
+  70% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
 @keyframes links-flap {
   from { transform: rotate(14deg) scaleY(0.7); }
   to { transform: rotate(-8deg) scaleY(1); }
@@ -584,6 +674,9 @@
 @media (prefers-reduced-motion: reduce) {
   .links-ring,
   .links-ambient,
+  .links-wand-star,
+  .links-wand-glint,
+  .links-word.is-cast .links-wand,
   .links-ticker-dot::after,
   .links-sprite-wing,
   .links-sprite-halo {
