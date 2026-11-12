@@ -4,10 +4,11 @@ import { usePrefs } from "../prefs.js";
 import PrefsToggles from "../PrefsToggles.jsx";
 import avatar from "../assets/images/profile/avatar_480.jpg";
 import resumePdf from "../resume/resume.pdf";
-import DotField from "./DotField.jsx";
+import ArcaneField from "./ArcaneField.jsx";
 import { useScramble } from "./useScramble.js";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
+const NUMERALS = ["I", "II", "III", "IV", "V"];
 
 const Arrow = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -128,7 +129,7 @@ export default function LinksPage() {
 
   return (
     <main className="links-page">
-      <DotField originSelector=".links-avatar" />
+      <ArcaneField originSelector=".links-avatar" />
       <div className="links-prefs">
         <PrefsToggles
           lang={lang}
@@ -151,9 +152,13 @@ export default function LinksPage() {
                   d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"
                 />
               </defs>
+              <g className="links-ring-inner">
+                <circle cx="100" cy="100" r="71" />
+                <circle cx="100" cy="100" r="75" className="links-ring-dash" />
+              </g>
               <text>
                 <textPath href="#links-ring-path" textLength="538">
-                  WEBBER LAI · AI MA · DATA × DESIGN · TAIPEI ·
+                  WEBBER LAI ✦ AI MA ✦ DATA × DESIGN ✦ TAIPEI ✦
                 </textPath>
               </text>
             </svg>
@@ -195,7 +200,7 @@ export default function LinksPage() {
                 {...(link.download ? { download: link.download } : {})}
               >
                 <span className="links-row-index" aria-hidden="true">
-                  {String(index + 1).padStart(2, "0")}
+                  {NUMERALS[index]}
                 </span>
                 <span className="links-row-text">
                   <span className="links-row-title">{link.title}</span>

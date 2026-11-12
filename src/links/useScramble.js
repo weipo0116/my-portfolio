@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 
-const LATIN = "ABCDEFGHKMNPRSTUVXYZ0123456789#%&*+=/<>";
+// Greek letters + a few marks read as an incantation and render on every platform.
+const LATIN = "ΔΘΛΞΠΣΦΨΩαβγδζθλμξπσφψω∴✦";
 const CJK = "資料設計模型向量演算視覺介面";
 const KEEP = "·（）()";
 
 const isCJK = (char) => /[⺀-鿿＀-￯]/.test(char);
 const pick = (pool) => pool[Math.floor(Math.random() * pool.length)];
 
-// Decodes `text` left to right from random glyphs. CJK characters scramble
+// Decodes `text` left to right from random glyphs, like a spell being read. CJK characters scramble
 // with CJK glyphs so the line keeps roughly the same width while it decodes.
 export function useScramble(text, { delay = 0, duration = 900 } = {}) {
   const [output, setOutput] = useState(text);
