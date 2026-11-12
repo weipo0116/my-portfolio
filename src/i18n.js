@@ -73,6 +73,7 @@ export const ui = {
       mainLinks: "Main links",
       now: "Now",
       nowText: "Casting new Lab experiments",
+      casting: "Now casting",
     },
   },
   zh: {
@@ -141,6 +142,7 @@ export const ui = {
       mainLinks: "主要連結",
       now: "最近在做",
       nowText: "Lab 新實驗施展中",
+      casting: "正在施展",
     },
   },
 };

@@ -1,20 +1,25 @@
-import { Fragment, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getSiteData, ui } from "../i18n.js";
 import { usePrefs } from "../prefs.js";
 import PrefsToggles from "../PrefsToggles.jsx";
 import avatar from "../assets/images/profile/avatar_480.jpg";
 import resumePdf from "../resume/resume.pdf";
-import ArcaneField from "./ArcaneField.jsx";
-import { useScramble } from "./useScramble.js";
+import MagicField, { castRipple } from "./MagicField.jsx";
+import Sprite from "./Sprite.jsx";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
-const NUMERALS = ["I", "II", "III", "IV", "V"];
-
-const Arrow = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M7 17L17 7M8 7h9v9" />
-  </svg>
-);
+const CAST_MS = 900; // how long the spell plays before we navigate
+const TICK_MS = 2600; // Lab "now casting" rotation
+const SPARKS = [
+  [-120, -34],
+  [-60, -52],
+  [20, -56],
+  [110, -40],
+  [130, 18],
+  [60, 50],
+  [-30, 54],
+  [-118, 30],
+];
 
 const IconGithub = () => (
   <svg
@@ -45,79 +50,72 @@ const IconMail = () => (
   </svg>
 );
 
-// Name rises in letter by letter from behind a mask.
-const NameReveal = ({ name }) => {
-  let index = 0;
-  return name.split(" ").map((word, wordIndex) => (
-    <Fragment key={word + wordIndex}>
-      {wordIndex > 0 && " "}
-      <span className="links-word">
-        {[...word].map((char) => {
-          const charIndex = index++;
-          return (
-            <span key={charIndex} className="links-char" style={{ "--c": charIndex }}>
-              {char}
-            </span>
-          );
-        })}
-      </span>
-    </Fragment>
-  ));
+const prefersReducedMotion = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const isModifiedClick = (event) =>
+  event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0;
+
+const startDownload = (href, filename) => {
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 };
 
-// A ghost copy reserves the final width so decoding never shifts the layout.
-const Scramble = ({ text, delay, className }) => {
-  const output = useScramble(text, { delay });
+// Rotates through the Lab pages that are live, one line at a time.
+function LabTicker({ label, projects }) {
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    if (projects.length < 2) return undefined;
+    const id = window.setInterval(
+      () => setActive((index) => (index + 1) % projects.length),
+      TICK_MS,
+    );
+    return () => window.clearInterval(id);
+  }, [projects.length]);
+
   return (
-    <p className={className}>
-      <span className="links-sr">{text}</span>
-      <span className="links-scramble" aria-hidden="true">
-        <span className="links-scramble-ghost">{text}</span>
-        <span className="links-scramble-live">{output}</span>
-      </span>
-    </p>
+    <span className="links-ticker">
+      {projects.map((name, index) => (
+        <span
+          key={name}
+          className={`links-ticker-line${index === active ? " is-active" : ""}`}
+          aria-hidden={index !== active}
+        >
+          <span className="links-ticker-dot" aria-hidden="true" />
+          {label}
+          <span className="links-ticker-name">{name}</span>
+        </span>
+      ))}
+    </span>
   );
-};
-
-// Pills lean slightly toward the cursor.
-const magnetic = {
-  onPointerMove: (event) => {
-    if (event.pointerType !== "mouse") return;
-    const box = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - box.left - box.width / 2;
-    const y = event.clientY - box.top - box.height / 2;
-    event.currentTarget.style.setProperty("--tx", `${x * 0.18}px`);
-    event.currentTarget.style.setProperty("--ty", `${y * 0.3}px`);
-  },
-  onPointerLeave: (event) => {
-    event.currentTarget.style.removeProperty("--tx");
-    event.currentTarget.style.removeProperty("--ty");
-  },
-};
-
-const setRingSpeed = (ring, rate) => {
-  ring?.getAnimations?.().forEach((animation) => animation.updatePlaybackRate(rate));
-};
+}
 
 export default function LinksPage() {
   const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const siteData = getSiteData(lang);
   const t = ui[lang];
   const L = t.links;
-  const ringRef = useRef(null);
+  const spriteRef = useRef(null);
+  const castingRef = useRef(false);
+  const timersRef = useRef([]);
+  const [casting, setCasting] = useState(null);
+
+  const labProjects = useMemo(
+    () =>
+      siteData.lab.items
+        .filter((item) => item.link) // only Lab pages that are live
+        .map((item) => item.name.split(" — ")[0]),
+    [siteData],
+  );
+
   const links = [
-    {
-      key: "portfolio",
-      title: L.portfolio,
-      subtitle: L.portfolioSub,
-      href: BASE,
-    },
-    {
-      key: "lab",
-      title: L.work,
-      subtitle: L.workSub,
-      href: `${BASE}work/`,
-    },
+    { key: "portfolio", title: L.portfolio, subtitle: L.portfolioSub, href: BASE },
+    { key: "lab", title: L.work, href: `${BASE}work/` },
     {
       key: "resume",
       title: L.resume,
@@ -127,9 +125,59 @@ export default function LinksPage() {
     },
   ];
 
+  const later = (fn, ms) => {
+    timersRef.current.push(window.setTimeout(fn, ms));
+  };
+
+  const reset = useCallback(() => {
+    castingRef.current = false;
+    setCasting(null);
+    spriteRef.current?.release();
+  }, []);
+
+  // Back/forward cache: never come back to a half-cast page.
+  useEffect(() => {
+    const onPageShow = (event) => {
+      if (event.persisted) reset();
+    };
+    window.addEventListener("pageshow", onPageShow);
+    const timers = timersRef.current;
+    return () => {
+      window.removeEventListener("pageshow", onPageShow);
+      timers.forEach((id) => window.clearTimeout(id));
+    };
+  }, [reset]);
+
+  const cast = async (event, link) => {
+    if (isModifiedClick(event) || prefersReducedMotion()) return;
+    event.preventDefault();
+    if (castingRef.current) return;
+    castingRef.current = true;
+
+    const word = event.currentTarget.querySelector(".links-word-title");
+    const box = word.getBoundingClientRect();
+    // Keyboard activation has no pointerdown, so start the ripple here.
+    if (event.detail === 0) castRipple(box.left + box.width / 2, box.top + box.height / 2);
+
+    await spriteRef.current?.flyTo(box.right + 16, box.top + box.height * 0.28);
+    setCasting(link.key);
+
+    later(() => {
+      if (link.download) {
+        startDownload(link.href, link.download);
+        later(reset, 500);
+      } else {
+        window.location.assign(link.href);
+      }
+    }, CAST_MS);
+  };
+
   return (
     <main className="links-page">
-      <ArcaneField originSelector=".links-avatar" />
+      <MagicField />
+      <div className="links-ambient is-a" aria-hidden="true" />
+      <div className="links-ambient is-b" aria-hidden="true" />
+      <Sprite ref={spriteRef} />
       <div className="links-prefs">
         <PrefsToggles
           lang={lang}
@@ -140,25 +188,17 @@ export default function LinksPage() {
       </div>
       <div className="links-shell">
         <header className="links-header">
-          <div
-            className="links-avatar-wrap"
-            onPointerEnter={() => setRingSpeed(ringRef.current, 6)}
-            onPointerLeave={() => setRingSpeed(ringRef.current, 1)}
-          >
-            <svg ref={ringRef} className="links-ring" viewBox="0 0 200 200" aria-hidden="true">
+          <div className="links-avatar-wrap">
+            <svg className="links-ring" viewBox="0 0 200 200" aria-hidden="true">
               <defs>
                 <path
                   id="links-ring-path"
                   d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"
                 />
               </defs>
-              <g className="links-ring-inner">
-                <circle cx="100" cy="100" r="71" />
-                <circle cx="100" cy="100" r="75" className="links-ring-dash" />
-              </g>
               <text>
                 <textPath href="#links-ring-path" textLength="538">
-                  WEBBER LAI ✦ AI MA ✦ DATA × DESIGN ✦ TAIPEI ✦
+                  WEBBER LAI · AI MA · DATA × DESIGN · TAIPEI ·
                 </textPath>
               </text>
             </svg>
@@ -166,89 +206,70 @@ export default function LinksPage() {
               <img src={avatar} alt="Webber Lai" width="112" height="112" />
             </div>
           </div>
-          <h1 className="links-name">
-            <span className="links-sr">{siteData.name}</span>
-            <span aria-hidden="true">
-              <NameReveal name={siteData.name} />
-            </span>
-          </h1>
-          <Scramble
-            className="links-role"
-            delay={450}
-            text={lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
-          />
-          <Scramble
-            className="links-org"
-            delay={650}
-            text={
-              lang === "zh"
+          <h1 className="links-name">{siteData.name}</h1>
+          <p className="links-role">
+            {lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
+            <span className="links-org">
+              {lang === "zh"
                 ? "第一銀行 · 數位通路處"
-                : "First Bank · Digital Banking Division"
-            }
-          />
+                : "First Bank · Digital Banking Division"}
+            </span>
+          </p>
           <p className="links-bio">{L.bio}</p>
         </header>
 
-        <div className="links-body">
-          <nav className="links-list" aria-label={L.mainLinks}>
-            {links.map((link, index) => (
-              <a
-                key={link.key}
-                className="links-row"
-                style={{ "--i": index }}
-                href={link.href}
-                {...(link.download ? { download: link.download } : {})}
-              >
-                <span className="links-row-index" aria-hidden="true">
-                  {NUMERALS[index]}
-                </span>
-                <span className="links-row-text">
-                  <span className="links-row-title">{link.title}</span>
-                  <span className="links-row-subtitle">{link.subtitle}</span>
-                  {link.key === "lab" && (
-                    <span className="links-now">
-                      <span className="links-now-dot" aria-hidden="true" />
-                      <span className="links-now-label">{L.now}</span>
-                      <span className="links-now-text">{L.nowText}</span>
-                    </span>
-                  )}
-                </span>
-                <span className="links-row-arrow">
-                  <Arrow />
-                </span>
-              </a>
-            ))}
-          </nav>
+        <nav
+          className={`links-words${casting ? " is-casting" : ""}`}
+          aria-label={L.mainLinks}
+        >
+          {links.map((link) => (
+            <a
+              key={link.key}
+              className={`links-word is-${link.key}${casting === link.key ? " is-cast" : ""}`}
+              href={link.href}
+              onClick={(event) => cast(event, link)}
+              {...(link.download ? { download: link.download } : {})}
+            >
+              <span className="links-word-core" aria-hidden="true" />
+              <span className="links-word-ring" aria-hidden="true" />
+              <span className="links-word-ring is-late" aria-hidden="true" />
+              {SPARKS.map(([dx, dy]) => (
+                <svg
+                  key={`${dx},${dy}`}
+                  className="links-word-spark"
+                  viewBox="0 0 10 10"
+                  aria-hidden="true"
+                  style={{ "--dx": `${dx}px`, "--dy": `${dy}px` }}
+                >
+                  <path d="M5 0Q5 5 10 5Q5 5 5 10Q5 5 0 5Q5 5 5 0Z" />
+                </svg>
+              ))}
+              <span className="links-word-title">{link.title}</span>
+              <span className="links-word-sub">
+                {link.key === "lab" ? (
+                  <LabTicker label={L.casting} projects={labProjects} />
+                ) : (
+                  link.subtitle
+                )}
+              </span>
+            </a>
+          ))}
+        </nav>
 
+        <footer className="links-footer">
           <div className="links-social" aria-label={L.contact}>
-            <a
-              className="links-pill"
-              {...magnetic}
-              href={siteData.contacts.github}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="links-circle" href={siteData.contacts.github} target="_blank" rel="noreferrer" aria-label="GitHub">
               <IconGithub />
-              GitHub
             </a>
-            <a
-              className="links-pill"
-              {...magnetic}
-              href={siteData.contacts.linkedin}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="links-circle" href={siteData.contacts.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
               <IconLinkedIn />
-              LinkedIn
             </a>
-            <a className="links-pill" href={siteData.contacts.email} {...magnetic}>
+            <a className="links-circle" href={siteData.contacts.email} aria-label="Email">
               <IconMail />
-              Email
             </a>
           </div>
-
-          <p className="links-footer">{siteData.location}</p>
-        </div>
+          <p className="links-location">{siteData.location}</p>
+        </footer>
       </div>
     </main>
   );
