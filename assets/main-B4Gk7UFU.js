@@ -1,1 +1,0 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{a as t,c as e,j as r,r as o}from"./Sprite-DlXEt7K6.js";import{A as p}from"./App-0IMEIKgZ.js";import"./_commonjsHelpers-Cpj98o6Y.js";t();e(document.getElementById("root")).render(r.jsx(o.StrictMode,{children:r.jsx(p,{page:"profile"})}));

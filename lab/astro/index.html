@@ -18,9 +18,9 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-n7M5AlPH.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-DcVJuTIl.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-DOZ6sAue.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-tq8nouTQ.css">
   </head>
   <body>
     <span id="top"></span>
@@ -50,6 +50,18 @@
           <button id="next" type="button" aria-label="後一天">明日 ›</button>
         </div>
         <p class="tz-note">日期與時間以台北時間為準</p>
+        <div class="paths v-fortune" role="group" aria-label="選擇你想看的運勢">
+          <button type="button" class="path is-main" id="pathPersonal">
+            <span class="path-k">推薦 · 更準</span>
+            <span class="path-t">看我的專屬運勢 <span aria-hidden="true">✦</span></span>
+            <span class="path-d" id="pathPersonalDesc">輸入生日，依你出生那天的星盤，算今天的愛情、事業、財運</span>
+          </button>
+          <button type="button" class="path" id="pathSign">
+            <span class="path-k">快速看</span>
+            <span class="path-t">只看星座運勢</span>
+            <span class="path-d">選你的太陽星座，看今天的大方向</span>
+          </button>
+        </div>
         <p class="mode-note v-chart">星盤模式 · <button type="button" class="linkbtn" id="toFortune">切換到運勢</button></p>
         <button id="openChart" class="cta v-chart" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
         <p class="hint v-chart" id="motionHint"></p>
@@ -263,6 +275,6 @@
           </div>
         </div>
       </div>
-    </dialog>
+    </dialog>
   </body>
 </html>
