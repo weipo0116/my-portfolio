@@ -8,30 +8,9 @@ const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
 
 const Arrow = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path d="M5 12h14M13 6l6 6-6 6" />
+    <path d="M7 17L17 7M8 7h9v9" />
   </svg>
 );
-
-const icons = {
-  portfolio: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <rect x="3" y="4" width="18" height="14" rx="2.5" />
-      <path d="M3 9h18M8 21h8" />
-    </svg>
-  ),
-  lab: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M9 3h6M10 3v6l-5.5 9.2A1.8 1.8 0 006 21h12a1.8 1.8 0 001.5-2.8L14 9V3" />
-      <path d="M7.5 15h9" />
-    </svg>
-  ),
-  resume: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" />
-      <path d="M14 3v5h5M9 13h6M9 17h4" />
-    </svg>
-  ),
-};
 
 const IconGithub = () => (
   <svg
@@ -122,80 +101,84 @@ export default function LinksPage() {
           <h1 className="links-name">{siteData.name}</h1>
           <p className="links-role">
             {lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
-            <span className="links-org">
-              {lang === "zh"
-                ? "第一銀行 · 數位通路處"
-                : "First Bank · Digital Banking Division"}
-            </span>
+          </p>
+          <p className="links-org">
+            {lang === "zh"
+              ? "第一銀行 · 數位通路處"
+              : "First Bank · Digital Banking Division"}
           </p>
           <p className="links-bio">{L.bio}</p>
-          <a className="links-now" href={`${BASE}work/#lab`}>
-            <span className="links-now-dot" aria-hidden="true" />
-            <span className="links-now-label">{L.now}</span>
-            <span className="links-now-text">{L.nowText}</span>
-          </a>
         </header>
 
-        <nav className="links-list" aria-label={L.mainLinks}>
-          {links.map((link, index) => (
+        <div className="links-body">
+          <nav className="links-list" aria-label={L.mainLinks}>
+            {links.map((link, index) => (
+              <a
+                key={link.key}
+                className="links-row"
+                style={{ "--i": index }}
+                onPointerMove={(event) => {
+                  const box = event.currentTarget.getBoundingClientRect();
+                  event.currentTarget.style.setProperty(
+                    "--mx",
+                    `${event.clientX - box.left}px`,
+                  );
+                  event.currentTarget.style.setProperty(
+                    "--my",
+                    `${event.clientY - box.top}px`,
+                  );
+                }}
+                href={link.href}
+                {...(link.download ? { download: link.download } : {})}
+              >
+                <span className="links-row-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="links-row-text">
+                  <span className="links-row-title">{link.title}</span>
+                  <span className="links-row-subtitle">{link.subtitle}</span>
+                  {link.key === "lab" && (
+                    <span className="links-now">
+                      <span className="links-now-dot" aria-hidden="true" />
+                      <span className="links-now-label">{L.now}</span>
+                      <span className="links-now-text">{L.nowText}</span>
+                    </span>
+                  )}
+                </span>
+                <span className="links-row-arrow">
+                  <Arrow />
+                </span>
+              </a>
+            ))}
+          </nav>
+
+          <div className="links-social" aria-label={L.contact}>
             <a
-              key={link.key}
-              className="links-card"
-              style={{ "--i": index }}
-              onPointerMove={(event) => {
-                const box = event.currentTarget.getBoundingClientRect();
-                event.currentTarget.style.setProperty(
-                  "--mx",
-                  `${event.clientX - box.left}px`,
-                );
-                event.currentTarget.style.setProperty(
-                  "--my",
-                  `${event.clientY - box.top}px`,
-                );
-              }}
-              href={link.href}
-              {...(link.download ? { download: link.download } : {})}
+              className="links-pill"
+              href={siteData.contacts.github}
+              target="_blank"
+              rel="noreferrer"
             >
-              <span className={`links-card-icon is-${link.key}`}>
-                {icons[link.key]}
-              </span>
-              <span className="links-card-text">
-                <span className="links-card-title">{link.title}</span>
-                <span className="links-card-subtitle">{link.subtitle}</span>
-              </span>
-              <span className="links-card-arrow">
-                <Arrow />
-              </span>
+              <IconGithub />
+              GitHub
             </a>
-          ))}
-        </nav>
+            <a
+              className="links-pill"
+              href={siteData.contacts.linkedin}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <IconLinkedIn />
+              LinkedIn
+            </a>
+            <a className="links-pill" href={siteData.contacts.email}>
+              <IconMail />
+              Email
+            </a>
+          </div>
 
-        <div className="links-social" aria-label={L.contact}>
-          <a
-            className="links-pill"
-            href={siteData.contacts.github}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <IconGithub />
-            GitHub
-          </a>
-          <a
-            className="links-pill"
-            href={siteData.contacts.linkedin}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <IconLinkedIn />
-            LinkedIn
-          </a>
-          <a className="links-pill" href={siteData.contacts.email}>
-            <IconMail />
-            Email
-          </a>
+          <p className="links-footer">{siteData.location}</p>
         </div>
-
-        <p className="links-footer">{siteData.location}</p>
       </div>
     </main>
   );
