@@ -15,14 +15,12 @@ const svgProps = {
 
 // Astra Dies: small chart wheel with house lines and a planet dot.
 function AstroIcon() {
-  // A natal-chart wheel: zodiac ring split into 12 houses, two planets inside
+  // Horoscope: a crescent moon with a small star beside it
   return (
     <svg {...svgProps}>
-      <circle cx="24" cy="24" r="18" />
-      <circle cx="24" cy="24" r="11" />
-      <path strokeWidth={1.4} d="M35.0 24.0L42.0 24.0 M33.5 29.5L39.6 33.0 M29.5 33.5L33.0 39.6 M24.0 35.0L24.0 42.0 M18.5 33.5L15.0 39.6 M14.5 29.5L8.4 33.0 M13.0 24.0L6.0 24.0 M14.5 18.5L8.4 15.0 M18.5 14.5L15.0 8.4 M24.0 13.0L24.0 6.0 M29.5 14.5L33.0 8.4 M33.5 18.5L39.6 15.0" />
-      <circle cx="20" cy="20.5" r="2" fill="currentColor" stroke="none" />
-      <circle cx="28.5" cy="27" r="1.5" fill="currentColor" stroke="none" />
+      <path d="M27 8.5A15.5 15.5 0 1 0 39.5 31 12.5 12.5 0 1 1 27 8.5Z" />
+      <path strokeWidth={1.8} d="M36 9.5q.6 3.4 4 4-3.4.6-4 4-.6-3.4-4-4 3.4-.6 4-4Z" />
+      <circle cx="41" cy="22" r="1.4" fill="currentColor" stroke="none" />
     </svg>
   )
 }

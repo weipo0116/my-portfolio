@@ -62,7 +62,7 @@ export const ui = {
     techStack: "Website tech stack",
     rights: "All rights reserved.",
     links: {
-      bio: "M.S. CS @ NCCU. I turn data and ideas into tools people actually use.",
+      bio: "Data by day, spells by night.",
       portfolio: "Portfolio",
       portfolioSub: "Background, experience & work",
       work: "Lab",
@@ -131,7 +131,7 @@ export const ui = {
     techStack: "網站使用技術",
     rights: "版權所有。",
     links: {
-      bio: "政大資訊科學碩士。我把資料與想法，做成真正有人在用的工具。",
+      bio: "白天跟數據打交道，晚上偷偷練魔法。",
       portfolio: "個人介紹",
       portfolioSub: "背景、經歷與作品",
       work: "Lab",

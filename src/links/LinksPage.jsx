@@ -85,13 +85,14 @@ export default function LinksPage() {
       siteData.lab.items
         .filter((item) => item.status === "Lit") // only what's live
         .map((item) => ({
-          name: item.name.split(" — ")[0],
+          // English: the project's name; Chinese: its plain description
+          name: (lang === "zh" && item.name.split(" — ")[1]) || item.name.split(" — ")[0],
           // no page of its own yet: open its card on the Lab page
           href: item.link || `${BASE}work/#lab`,
           // icon key: the project's art, else the last part of its page path
           icon: item.art || item.link?.split("/").filter(Boolean).pop(),
         })),
-    [siteData],
+    [siteData, lang],
   );
 
   const links = [
