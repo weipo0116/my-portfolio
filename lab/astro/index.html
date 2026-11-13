@@ -18,9 +18,9 @@
     />
     <title>Astra Dies · 每日星盤</title>
     <meta name="description" content="每日行星位置與能量解讀，以古羅馬天文儀為意象。占星屬娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-CHhBZZ-I.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labAstro-RGCmsSKX.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-CY-n1srV.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labAstro-ICwChK9z.css">
   </head>
   <body>
     <span id="top"></span>
@@ -71,8 +71,8 @@
           <a href="#sec-energy" class="v-chart">今日能量</a>
           <a href="#sec-houses" class="v-chart">你的今日</a>
           <a href="#sec-natal" class="v-chart">你的星盤</a>
+          <a href="#sec-syn" class="v-chart">合盤</a>
           <a href="#sec-moon" class="v-chart">月相</a>
-          <a href="#sec-notes">說明</a>
         </nav>
       </header>
 
@@ -186,8 +186,14 @@
         <div class="house-read" id="houseRead"></div>
       </section>
 
+
+      <section class="block reveal v-chart" id="sec-syn" aria-labelledby="h-syn">
+        <h2 id="h-syn"><span class="num">IV</span> 合盤 <em>Synastria</em></h2>
+        <div id="synBox"></div>
+      </section>
+
       <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
-        <h2 id="h-moon"><span class="num">IV</span> 月相 <em>Luna</em></h2>
+        <h2 id="h-moon"><span class="num">V</span> 月相 <em>Luna</em></h2>
         <div class="moon-row">
           <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相" aria-describedby="moonText"></svg>
           <div id="moonText" class="prose"></div>
