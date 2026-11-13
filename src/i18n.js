@@ -95,7 +95,7 @@ export const ui = {
     viewWork: "看作品",
     downloadResume: "下載履歷",
     downloadMyResume: "下載我的履歷",
-    educationPhotoAlt: "2026 年政大畢業典禮，領取碩士學位證書",
+    educationPhotoAlt: "2026 年政大畢業典禮，領碩士證書",
     sections: {
       about: "關於我",
       education: "學歷",
@@ -111,8 +111,8 @@ export const ui = {
       intro: "為自己的工作流程打造的小型 AI 工具——有每天在用的系統，也有早期的實驗。",
       backToProfile: "回到個人介紹",
     },
-    lab: { problem: "難題", approach: "解咒", tryIt: "施展" },
-    labStatus: { Lit: "已點亮", Brewing: "施展中", Wandering: "解析魔法" },
+    lab: { problem: "問題", approach: "解法", tryIt: "施展" },
+    labStatus: { Lit: "已點亮", Brewing: "施展中", Wandering: "解析魔法中" },
     checkOnGithub: "在 GitHub 查看",
     unreleased: "尚未公開",
     viewPoster: "查看完整海報",
@@ -131,10 +131,10 @@ export const ui = {
     techStack: "網站使用技術",
     rights: "版權所有。",
     links: {
-      bio: "白天跟數據打交道，晚上偷偷練魔法。",
+      bio: "白天保守做開發，晚上偷偷練魔法",
       portfolio: "個人介紹",
-      portfolioSub: "背景、經歷與作品",
-      work: "Lab",
+      portfolioSub: "背景與經歷",
+      work: "LAB",
       workSub: "正在打造的 AI 工具",
       resume: "履歷",
       resumeSub: "一頁 PDF（英文）",
@@ -158,14 +158,14 @@ const zhData = {
   ],
   about: {
     intro:
-      "嗨，我是 Webber。2026 年 1 月取得政治大學資訊科學碩士，並於 2026 年 8 月加入第一銀行數位通路處，擔任 AI MA（儲備幹部）。",
+      "嗨，我叫威博 (Webber)。政大資訊科學碩士畢業，現任於第一銀行數位通路處，擔任 AI MA（儲備幹部），立志在用我00後的角度加速冗長的流程 :)",
   },
   education: [
     {
       degree: "碩士｜資訊科學系",
       school: "國立政治大學",
       period: "2023.09 – 2026.01",
-      note: "論文：大型空拍場景之 3D Gaussian Splatting 互動式語意分割。\n指導教授：紀明德。",
+      note: "論文：針對大尺度空拍高斯潑濺之互動式語意分割。\n指導教授：紀明德。",
     },
     {
       degree: "學士｜巨量資料管理（資料科學）",
@@ -181,7 +181,7 @@ const zhData = {
   ],
   experience: [
     {
-      role: "AI MA（儲備幹部）｜數位通路處",
+      role: "AI MA（儲備幹部）｜數位銀行處",
       company: "第一商業銀行",
       period: "2026.08 – 至今",
       summary: [
@@ -198,7 +198,7 @@ const zhData = {
       summary: [
         "承辦教育部「華語文能力精進計畫」三場華語教師增能講座：講者邀請、場地與實體＋線上混合規劃、宣傳，到活動當天主持統籌。",
         "發起「華語學伴計畫」，與國合處合作媒合政大學生與境外生，陪伴境外生練習生活華語。",
-        "統籌三位老師分別講授的華語教學課程。",
+        "統籌老師分別教學的華語教學課程。",
       ],
     },
     {
@@ -236,7 +236,8 @@ const zhData = {
       ],
     },
     {
-      title: "政大宿舍輔導員（RA）",
+      title: "政大自強宿舍",
+      subtitle: "宿舍輔導員（RA）",
       caption: [
         "負責宿舍夜間值班，處理鑰匙櫃台、訪客登記與包裹收發。",
         "定期巡檢熱水器、用電與公共空間設備。",
@@ -275,16 +276,16 @@ const zhData = {
       },
       {
         name: "Astra Dies — 每日星盤",
-        problem: "每日星座運勢太籠統，我想看得出依據的行星位置，再用白話解讀。",
+        problem: "每日星座運勢太籠統，我想看得出依據個人的行星位置，再用白話解讀。",
         approach: "在瀏覽器內計算真實的行星黃經、相位與月相，以古羅馬天文儀風格呈現，並附簡短解讀。",
       },
       {
         name: "Five Elements — 五行穿搭",
         problem: "每天穿什麼要同時考慮天氣、場合與顏色，卻沒有固定邏輯。",
-        approach: "由農曆算出當日五行，讀取台北天氣，依場合生成三套大膽的時裝秀風格穿搭。",
+        approach: "由農曆算出當日五行，讀取台北天氣，依場合生成三套大膽的風格穿搭。",
       },
       {
-        name: "Super Intelligence — AI 專案工作台",
+        name: "Desk Intelligence — 專案桌面",
         problem: "想法冒出來的速度比執行快，而在不同 AI 工具間切換又會遺失脈絡。",
         approach:
           "用 Notion 想法收件匣讓 AI 轉成任務、執行，再用三行摘要回報。每個任務依需求分派給雲端 AI、本機瀏覽器或本機程式代理。",
