@@ -20,7 +20,8 @@ function applyTheme(mode) {
   applyTheme(saved === "light" ? "light" : "dark");
 })();
 import "./astro.css";
-import NATAL_READ from "./natal-read.json"; // plain-language natal reading: per point a question, a sentence per sign and per house
+import NATAL_READ from "./natal-read.json";
+import FORTUNE_COPY from "./fortune-copy.json"; // per category: daily and weekly lines by house × star tier, Moon-aspect and retrograde lines // plain-language natal reading: per point a question, a sentence per sign and per house
 
 /* ---------- static tables ---------- */
 const SIGNS = [
@@ -769,20 +770,38 @@ function dayAspectFor(info, cat, used = new Set()) {
   const v = info.voc.find((x) => Math.abs(e.t - x.full[0]) < H || (e.t >= x.from && e.t <= x.to));
   const when = v ? `${plainTime(v.full[0])}以前` : `${plainTime(e.t)}前後`;
   const tail = v && !hard ? "，把要談的事趁這之前談完" : "";
-  return { hard, text: `${when}，${ASP_CAT[e.p][hard ? "hard" : "soft"].replace(/。$/, "")}${tail}。` };
+  const pol = hard ? "hard" : "soft";
+  const line = copyLine(FORTUNE_COPY[cat]?.aspect?.[e.p]?.[pol], `${info.key}|${cat}|${e.p}`) || ASP_CAT[e.p][pol];
+  return { hard, text: `${when}，${line.replace(/。$/, "")}${tail}。` };
 }
 function moonHouseOf(info, si) {
   // the house the Moon spends most of the shown day in, for this sun sign
   return signDist(info.dom, si);
 }
-function dailyNote(si, cat, used) {
+// One of a few written lines, fixed for a given seed so a page reload says the same thing.
+function copyLine(arr, seed) {
+  return arr?.length ? arr[fnv(seed) % arr.length] : null;
+}
+// which slow-moving retrogrades speak to each category (the line is said once per card)
+const RETRO_CAT = { love: ["Venus", "Mars", "Mercury"], career: ["Mercury", "Mars"], money: ["Mercury", "Venus"] };
+function dailyNote(si, cat, used, stars) {
   const info = currentDay.info;
   const h = moonHouseOf(info, si);
-  const [text, doit, avoid] = HOUSE_CAT[cat][h];
+  const [old, doit, avoid] = HOUSE_CAT[cat][h];
+  // the Moon's house sets the theme, the star count sets the tone; the date picks the wording
+  // the Moon stays in a house 2–3 days, so the two lines take turns day by day instead of by chance
+  const lines = FORTUNE_COPY[cat]?.daily?.[h]?.[tierOf(stars)];
+  const text = lines?.length ? lines[(Math.round(info.start / DAY) + fnv(`${si}|${cat}`)) % lines.length] : old;
   const asp = dayAspectFor(info, cat, used);
+  let extra = asp ? asp.text : "";
+  if (!extra && !used.has("retro")) {
+    const r = RETRO_CAT[cat].find((k) => currentDay.pos.find((b) => b.key === k)?.retro);
+    const line = r && copyLine(FORTUNE_COPY[cat]?.retro?.[r], `${info.key}|${si}|${cat}|retro`);
+    if (line) { extra = line; used.add("retro"); }
+  }
   const v = info.voc[0];
   // a void-of-course window is said once in the headline; here only when it is the day's whole story
-  const extra = asp ? asp.text : v ? VOC_CAT[cat] : "";
+  if (!extra && v) extra = VOC_CAT[cat];
   return { text: `${text}${extra}`, doit, avoid };
 }
 
@@ -853,14 +872,16 @@ const WHY_TAIL = {
   money: { hi: "替財運加分", mid: "對收支的影響平穩，照預算走", lo: "要多留心支出與金錢上的決定" },
 };
 
-function fortuneNote(si, cat, stars, parts, week = false) {
+function fortuneNote(si, cat, stars, parts, week = false, seed = "") {
   const { b, house, c } = driverOf(parts, stars);
   const tier = tierOf(stars);
   let tail = WHY_TAIL[cat][tier];
   if (tier === "hi" && c < 0) tail = `對${CATS[cat]}的阻力相對小`; // all pulls were negative; this sign is least affected
   if (tier === "lo" && c >= 0) tail = `對${CATS[cat]}的助力偏弱，要多留心`;
+  // a week reads from where its driving planet sits and how the week scores, not a fixed sign line
+  const weekLine = week && copyLine(FORTUNE_COPY[cat]?.week?.[house - 1]?.[tier], `${seed}|${si}|${cat}`);
   return {
-    text: `${SIGN_LINE[cat][si]}${TIP[cat][tier]}`,
+    text: weekLine || `${SIGN_LINE[cat][si]}${TIP[cat][tier]}`,
     why: `${week ? "本週中段" : ""}${b.zh}${b.retro ? "（逆行）" : ""}走到你的「${AREA[house - 1]}」，${tail}`,
   };
 }
@@ -903,7 +924,7 @@ function weekFortune(date) {
       const best = per.indexOf(Math.max(...per)), worst = per.indexOf(Math.min(...per));
       // sum each planet's push over the seven days; keep the mid-week house for the wording
       const parts = mid[i][cat].parts.map((p) => ({ ...p, c: raws.reduce((n, r) => n + r[i][cat].parts.find((q) => q.b.key === p.b.key).c, 0) / 7 }));
-      const n = fortuneNote(i, cat, stars[i], parts, true);
+      const n = fortuneNote(i, cat, stars[i], parts, true, md(days[0]));
       return { sign: sg, stars: stars[i], score: avg[i], note: n.text, why: n.why, extra: `本週最順：${WK[best]}；較需留意：${WK[worst]}` };
     });
   }
@@ -1116,7 +1137,7 @@ function render({ dur = 1700 } = {}) {
   currentWeek = weekFortune(date);
   {
     const sm = buildSummary(pos, aspects, phaseIdx, info);
-    currentDay = { tp, info, headline: headline(pos, info), summary: sm.text, advice: sm.advice };
+    currentDay = { tp, info, pos, headline: headline(pos, info), summary: sm.text, advice: sm.advice };
   }
   renderToday();
   observeReveals();
@@ -2852,7 +2873,7 @@ function renderToday() {
   const used = new Set();
   d.rows.forEach((r, i) => {
     const [tdos, tdonts] = DO_DONT[r.cat][tierOf(r.stars)];
-    const dn = dailyNote(si, r.cat, used);
+    const dn = dailyNote(si, r.cat, used, r.stars);
     const dos = [dn.doit, tdos[0]], donts = [dn.avoid, tdonts[0]];
     const li = document.createElement("li");
     li.style.setProperty("--i", i);
