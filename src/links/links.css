@@ -108,8 +108,7 @@
 
 .links-bio {
   margin: 14px 0 0;
-  max-width: 36ch;
-  text-wrap: balance;
+  max-width: 34ch;
   color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.55;
@@ -196,7 +195,6 @@
 }
 
 .links-word-title:focus-visible,
-.links-chip:focus-visible,
 .links-inline:focus-visible,
 .links-circle:focus-visible {
   outline: 2px solid var(--primary);
@@ -371,38 +369,134 @@
   stroke-linejoin: round;
 }
 
-/* Lab: every live Lab page, one tap away */
-.links-chips {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
+/* Lab: the live projects as small planets on an orbit, one tap away */
+.links-orbit {
+  position: relative;
+  width: min(100%, 320px);
+  margin: 10px auto 0;
 }
 
-.links-chip {
-  display: inline-flex;
+.links-orbit-path {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  width: 100%;
+  height: 60px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.links-orbit-path path {
+  fill: none;
+  stroke: var(--acc);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.links-orbs {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+/* the middle planets sit higher on the arc */
+.links-orbs li {
+  display: flex;
+  justify-content: center;
+  padding-top: 26px;
+}
+
+.links-orbs li:first-child,
+.links-orbs li:last-child {
+  padding-top: 12px;
+}
+
+.links-orbs li:only-child,
+.links-orbs li:nth-child(2):not(:last-child) {
+  padding-top: 0;
+}
+
+.links-orb {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--chip-bg);
+  gap: 6px;
+  max-width: 96px;
   color: var(--text);
-  font-size: 0.8rem;
-  font-weight: 600;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: links-bob 5s ease-in-out infinite;
+  animation-delay: calc(var(--o, 0) * -1.6s);
+}
+
+.links-orb-face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--chip-bg);
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 3px color-mix(in srgb, var(--acc) 45%, transparent),
+    0 8px 20px color-mix(in srgb, var(--acc) 22%, transparent);
   transition:
-    background-color var(--dur-fast) ease,
-    color var(--dur-fast) ease;
+    transform 0.4s var(--ease-out),
+    box-shadow 0.4s ease;
+}
+
+.links-orb-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.links-orb-glyph {
+  color: var(--acc);
+  font-size: 1.3rem;
+}
+
+.links-orb-name {
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
 }
 
 @media (hover: hover) {
-  .links-chip:hover {
-    background: color-mix(in srgb, var(--acc) 16%, transparent);
+  .links-orb:hover .links-orb-face {
+    transform: scale(1.1);
+    box-shadow:
+      0 0 0 2px var(--bg),
+      0 0 0 3px var(--acc),
+      0 10px 26px color-mix(in srgb, var(--acc) 40%, transparent);
+  }
+
+  .links-orb:hover .links-orb-name {
     color: var(--acc);
   }
+}
+
+.links-orb:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+@keyframes links-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 /* ── Footer: small contact circles ── */
@@ -461,7 +555,7 @@
 /* Short phones (e.g. iPhone SE): tighten the words so it stays one screen */
 @media (max-width: 720px) and (max-height: 720px) {
   .links-page {
-    padding-top: 36px;
+    padding-top: 12px;
     padding-bottom: 16px;
   }
 
@@ -481,9 +575,8 @@
     margin-top: 3px;
   }
 
-  .links-chips {
-    margin-top: 6px;
-    gap: 6px;
+  .links-orbit {
+    margin-top: 4px;
   }
 
   .links-footer {
@@ -500,11 +593,12 @@
 @media (min-width: 721px) and (min-height: 760px) {
   .links-page {
     align-items: center;
-    padding-top: 40px;
+    padding-top: 24px;
+    padding-bottom: 20px;
   }
 
   .links-word-title {
-    font-size: 3.4rem;
+    font-size: 3.2rem;
   }
 }
 
@@ -554,7 +648,8 @@
   .links-ring,
   .links-wand-star,
   .links-wand-glint,
-  .links-word.is-cast .links-wand {
+  .links-word.is-cast .links-wand,
+  .links-orb {
     animation: none;
   }
 

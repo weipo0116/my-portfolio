@@ -82,8 +82,14 @@ export default function LinksPage() {
   const labProjects = useMemo(
     () =>
       siteData.lab.items
-        .filter((item) => item.link) // only Lab pages that are live
-        .map((item) => ({ name: item.name.split(" — ")[0], href: item.link })),
+        .filter((item) => item.status === "Lit") // only what's live
+        .map((item) => ({
+          name: item.name.split(" — ")[0],
+          // no page of its own yet: open its card on the Lab page
+          href: item.link || `${BASE}work/#lab`,
+          thumb: item.thumb,
+          glyph: item.glyph || "✦",
+        })),
     [siteData],
   );
 
@@ -233,19 +239,33 @@ export default function LinksPage() {
                   </a>
                 </p>
               ) : (
-                <ul className="links-chips" aria-label={L.work}>
-                  {labProjects.map((project) => (
-                    <li key={project.href}>
-                      <a
-                        className="links-chip"
-                        href={project.href}
-                        onClick={(event) => cast(event, "lab", project.href)}
-                      >
-                        {project.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="links-orbit">
+                  <svg className="links-orbit-path" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M4 50 Q150 -14 296 50" />
+                  </svg>
+                  <ul className="links-orbs" aria-label={L.work}>
+                    {labProjects.map((project, index) => (
+                      <li key={project.name} style={{ "--o": index }}>
+                        <a
+                          className="links-orb"
+                          href={project.href}
+                          onClick={(event) => cast(event, "lab", project.href)}
+                        >
+                          <span className="links-orb-face">
+                            {project.thumb ? (
+                              <img src={project.thumb} alt="" loading="lazy" />
+                            ) : (
+                              <span className="links-orb-glyph" aria-hidden="true">
+                                {project.glyph}
+                              </span>
+                            )}
+                          </span>
+                          <span className="links-orb-name">{project.name}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           ))}
