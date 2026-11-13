@@ -21,6 +21,7 @@ function applyTheme(mode) {
 })();
 import "./astro.css";
 import NATAL_READ from "./natal-read.json";
+import { compare, SYN_ZH, synastryReady } from "./synastry.js";
 import FORTUNE_COPY from "./fortune-copy.json"; // per category: daily and weekly lines by house × star tier, Moon-aspect and retrograde lines // plain-language natal reading: per point a question, a sentence per sign and per house
 
 /* ---------- static tables ---------- */
@@ -2294,6 +2295,124 @@ function luckCard(info) {
   return card;
 }
 
+/* ---------- 合盤: you × someone else. The other person's data lives in memory only (never stored or sent) ---------- */
+let SYN = { host: null, partner: null };
+const SYN_KEYS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
+const synHalf = (slot) => { const w = BIRTH_SLOTS[slot] || BIRTH_SLOTS.unknown; return slot === "exact" ? 0 : (w[1] - w[0]) / 2; };
+function synBodies(deg, slot) {
+  const half = synHalf(slot), out = {};
+  for (const k of SYN_KEYS) if (deg[k] != null) out[k] = { lon: deg[k], unc: k === "Moon" ? half * 0.55 : 0 };
+  if (out.Moon && out.Moon.unc > 3.5) delete out.Moon; // too blurry to say anything about
+  return out;
+}
+function synCalc(host) {
+  const q = (id) => host.querySelector(id);
+  const y = Number(q("[data-s=y]").value), m = Number(q("[data-s=m]").value), d = Number(q("[data-s=d]").value);
+  const note = q(".syn-note");
+  if (!(y >= 1900 && y <= 2100 && m && d)) { note.textContent = "請先填對方的出生年（西元）、月、日。"; return; }
+  let slot = q("[data-s=slot]").value;
+  const tm = slot === "exact" ? q("[data-s=time]").value : "";
+  if (slot === "exact" && !tm) slot = "unknown";
+  const tz = Number(q("[data-s=tz]").value);
+  const win = BIRTH_SLOTS[slot];
+  const [hh, mi] = tm ? tm.split(":").map(Number) : [(win[0] + win[1]) / 2, 0];
+  const date = new Date(Date.UTC(y, m - 1, d, hh, mi) - tz * H);
+  const deg = {};
+  for (const k of SYN_KEYS) deg[k] = lonOf(k, date);
+  const sunCusp = !tm && new Set([win[0], win[1] - 1 / 60].map((h) => Math.floor(lonOf("Sun", new Date(Date.UTC(y, m - 1, d, h) - tz * H)) / 30))).size > 1;
+  SYN.partner = { name: q("[data-s=name]").value.trim().slice(0, 12), deg, slot, sunCusp };
+  renderSynResult(host);
+}
+function renderSynResult(host) {
+  const out = host.querySelector(".syn-out");
+  const P = SYN.partner;
+  if (!P) { out.replaceChildren(); return; }
+  const mine = NATAL.deg;
+  const youB = synBodies(mine, NATAL.birth?.slot || "unknown"), themB = synBodies(P.deg, P.slot);
+  const r = compare(youB, themB, `${NATAL.birth?.date || ""}|${Math.round(P.deg.Sun * 10)}|${Math.round(P.deg.Moon * 10)}`);
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const sg = (lon) => SIGNS[Math.floor(lon / 30)];
+  const nodes = [];
+  const them = P.name || "對方";
+  nodes.push(el("p", "syn-title", `你 × ${them}`));
+  nodes.push(el("p", "syn-signs", `${TXT(sg(mine.Sun).g)} 你的太陽${sg(mine.Sun).zh}　${TXT(sg(P.deg.Sun).g)} ${them}的太陽${sg(P.deg.Sun).zh}`));
+  nodes.push(el("p", "syn-over", r.overview));
+  if (r.sun) { const b = el("div", "syn-base"); b.append(el("b", null, "底色"), el("span", null, r.sun)); nodes.push(b); }
+  if (r.moon && youB.Moon && themB.Moon) { const b = el("div", "syn-base"); b.append(el("b", null, "情緒節奏"), el("span", null, r.moon)); nodes.push(b); }
+  const METER = { strong: "很明顯", some: "有一些", quiet: "不明顯" };
+  const grid = el("div", "syn-faces");
+  for (const f of r.faces) {
+    const box = el("div", `syn-face ${f.tier} ${f.tone}`);
+    const hd = el("div", "syn-fh");
+    hd.append(el("b", null, f.zh), el("small", null, METER[f.tier]));
+    box.append(hd, el("p", "syn-head", f.head));
+    const ul = el("ul", "syn-rows");
+    for (const row of f.rows.slice(0, 3)) {
+      const li = el("li", row.kind === "conj" ? (row.tense ? "hard" : "conj") : row.tense ? "hard" : "soft");
+      li.append(el("b", null, `${row.approx ? "約・" : ""}你的${SYN_ZH[row.a]} ${row.glyph} ${them}的${SYN_ZH[row.b]}`), el("span", null, row.text));
+      ul.append(li);
+    }
+    if (ul.children.length) box.append(ul);
+    grid.append(box);
+  }
+  nodes.push(grid);
+  const notes = [...r.notes];
+  if (!youB.Moon || !themB.Moon) notes.push("有一邊的出生時間太模糊，月亮的位置不確定，所以略過月亮相關的部分。");
+  if (P.sunCusp) notes.push("對方剛好生在太陽換星座的那天，太陽星座要看出生時間。");
+  notes.push("星象只描述相處風格，不是合不合的判決；真正的關係看兩個人怎麼相處。");
+  notes.push("對方的資料只留在這個頁面，不會儲存或上傳，重新整理就消失。");
+  nodes.push(el("p", "p-m syn-foot", notes.join(" ")));
+  out.replaceChildren(...nodes);
+}
+function synHost() {
+  if (SYN.host) return SYN.host;
+  const host = document.createElement("section");
+  host.className = "p-card syn-card";
+  host.innerHTML = `<p class="p-k">合盤</p><p class="syn-lead">輸入另一個人的出生日期，看你們相處的風格。</p>
+<div class="syn-need" hidden><p></p><button type="button" class="pillbtn" data-s="need">填出生日期</button></div>
+<div class="syn-form">
+<label class="syn-name">稱呼（選填）<input data-s="name" type="text" maxlength="12" placeholder="對方" autocomplete="off" /></label>
+<div class="bdate-row"><label><input data-s="y" type="text" inputmode="numeric" maxlength="4" placeholder="1995" aria-label="對方出生年（西元）" autocomplete="off" /><small>年</small></label><label><select data-s="m" aria-label="對方出生月"></select><small>月</small></label><label><select data-s="d" aria-label="對方出生日"></select><small>日</small></label></div>
+<label>出生時段<select data-s="slot"><option value="exact">知道準確時間</option><option value="day">大概白天（6–18 點）</option><option value="eve">大概晚上（18 點後）</option><option value="night">大概半夜（0–6 點）</option><option value="unknown" selected>完全不知道</option></select></label>
+<label data-s="timewrap" hidden>出生時間<input data-s="time" type="time" /></label>
+<details class="syn-tz"><summary>出生在台灣以外</summary><label>時區<select data-s="tz"></select></label></details>
+<div class="birth-act"><button type="button" class="pillbtn" data-s="go">計算</button><button type="button" class="linkbtn" data-s="clear">清除</button></div>
+<p class="syn-note birth-note"></p></div>
+<div class="syn-out" aria-live="polite"></div>`;
+  const q = (k) => host.querySelector(`[data-s=${k}]`);
+  q("m").replaceChildren(bOpt("", "—"), ...Array.from({ length: 12 }, (_, i) => bOpt(String(i + 1), String(i + 1))));
+  q("tz").innerHTML = TZS.map((z) => `<option value="${z}"${z === 8 ? " selected" : ""}>UTC${z >= 0 ? "+" : "−"}${Math.abs(z)}</option>`).join("");
+  const days = () => {
+    const y = Number(q("y").value) || 2000, m = Number(q("m").value) || 1, n = new Date(Date.UTC(y, m, 0)).getUTCDate(), keep = q("d").value;
+    q("d").replaceChildren(bOpt("", "—"), ...Array.from({ length: n }, (_, i) => bOpt(String(i + 1), String(i + 1))));
+    if (keep && Number(keep) <= n) q("d").value = keep;
+  };
+  days();
+  q("y").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4); if (e.target.value.length === 4) days(); });
+  q("m").addEventListener("change", days);
+  q("slot").addEventListener("change", () => { q("timewrap").hidden = q("slot").value !== "exact"; });
+  q("go").addEventListener("click", () => synCalc(host));
+  q("clear").addEventListener("click", () => {
+    SYN.partner = null;
+    ["name", "y", "time"].forEach((k) => { q(k).value = ""; });
+    q("m").value = ""; days(); q("d").value = ""; q("slot").value = "unknown"; q("timewrap").hidden = true;
+    host.querySelector(".syn-note").textContent = "";
+    renderSynResult(host);
+  });
+  q("need").addEventListener("click", openBirth);
+  SYN.host = host;
+  return host;
+}
+function syncSynHost() {
+  const host = synHost();
+  const ready = NATAL.deg.Sun != null;
+  host.querySelector(".syn-need").hidden = ready;
+  host.querySelector(".syn-need p").textContent = "合盤要用到你的出生日期。先填你自己的，再回來輸入對方的。";
+  host.querySelector(".syn-form").hidden = !ready;
+  host.querySelector(".syn-out").hidden = !ready;
+  if (ready && SYN.partner) renderSynResult(host); // your chart may have changed
+  return host;
+}
 function renderPersonal() {
   const box = $("personal");
   if (!lastSky) return;
@@ -2310,6 +2429,7 @@ function renderPersonal() {
     return;
   }
   const frag = [luckCard(info)];
+  if (synastryReady()) frag.push(syncSynHost());
   const level = natalLevel();
   const card = (cls, html) => { const d = document.createElement("div"); d.className = `p-card ${cls}`; d.innerHTML = html; frag.push(d); return d; };
   // 1. house
