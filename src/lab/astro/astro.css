@@ -1109,3 +1109,12 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .syn-form .bdate-row label { min-width: 0; }
 .syn-form .bdate-row input, .syn-form .bdate-row select { width: 100%; padding: 9px 6px; }
 .syn-tz summary { min-height: 44px; display: flex; align-items: center; }
+.syn-face.easy:not(.quiet) { border-left: 3px solid var(--soft-c); }
+.syn-face.tense:not(.quiet) { border-left: 3px solid var(--hard-c); }
+.syn-face.mixed:not(.quiet) { border-left: 3px solid var(--conj-c); }
+.syn-face.easy:not(.quiet) .syn-fh small { color: var(--soft-c); }
+.syn-face.tense:not(.quiet) .syn-fh small { color: var(--hard-c); }
+.syn-face.mixed:not(.quiet) .syn-fh small { color: var(--conj-c); }
+.syn-fh small { font-weight: 600; }
+.syn-rows li.hard b::before, .syn-rows li.soft b::before, .syn-rows li.conj b::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: currentColor; }
+#sec-syn .syn-card { margin-top: 4px; }

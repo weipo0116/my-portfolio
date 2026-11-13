@@ -2340,11 +2340,12 @@ function renderSynResult(host) {
   if (r.sun) { const b = el("div", "syn-base"); b.append(el("b", null, "底色"), el("span", null, r.sun)); nodes.push(b); }
   if (r.moon && youB.Moon && themB.Moon) { const b = el("div", "syn-base"); b.append(el("b", null, "情緒節奏"), el("span", null, r.moon)); nodes.push(b); }
   const METER = { strong: "很明顯", some: "有一些", quiet: "不明顯" };
+  const TONE_W = { easy: "偏順", tense: "偏緊", mixed: "有順有緊" };
   const grid = el("div", "syn-faces");
   for (const f of r.faces) {
     const box = el("div", `syn-face ${f.tier} ${f.tone}`);
     const hd = el("div", "syn-fh");
-    hd.append(el("b", null, f.zh), el("small", null, METER[f.tier]));
+    hd.append(el("b", null, f.zh), el("small", null, f.tier === "quiet" ? METER.quiet : `${METER[f.tier]}・${TONE_W[f.tone]}`));
     box.append(hd, el("p", "syn-head", f.head));
     const ul = el("ul", "syn-rows");
     for (const row of f.rows.slice(0, f.tier === "quiet" ? 1 : 3)) {
@@ -2415,6 +2416,7 @@ function syncSynHost() {
 }
 function renderPersonal() {
   const box = $("personal");
+  if (synastryReady()) { const h = syncSynHost(); if (h.parentNode !== $("synBox")) $("synBox").append(h); }
   if (!lastSky) return;
   const { info, pos } = lastSky;
   renderHouses(info);
@@ -2429,7 +2431,6 @@ function renderPersonal() {
     return;
   }
   const frag = [luckCard(info)];
-  if (synastryReady()) frag.push(syncSynHost());
   const level = natalLevel();
   const card = (cls, html) => { const d = document.createElement("div"); d.className = `p-card ${cls}`; d.innerHTML = html; frag.push(d); return d; };
   // 1. house
