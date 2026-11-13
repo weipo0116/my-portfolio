@@ -193,7 +193,7 @@ export default function LinksPage() {
     <main className="links-page">
       <MagicField />
       <Ambient />
-      <Sprite ref={spriteRef} />
+      <Sprite ref={spriteRef} perchSelector=".links-avatar-wrap" />
       <div className="links-prefs">
         <PrefsToggles
           lang={lang}

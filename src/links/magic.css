@@ -82,10 +82,53 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 34px;
-  height: 30px;
-  margin: -15px 0 0 -17px;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 7px 5px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
   will-change: transform;
+}
+
+.links-sprite:focus-visible {
+  outline: 2px solid var(--primary, #2456d6);
+  outline-offset: 0;
+}
+
+/* Asleep: wings fold, light dims, a small "z" floats up. */
+.links-sprite.is-asleep .links-sprite-wing {
+  animation: none;
+  transform: rotate(20deg) scaleY(0.6);
+}
+
+.links-sprite.is-asleep .links-sprite-halo {
+  animation: none;
+  opacity: 0.12;
+}
+
+.links-sprite.is-asleep .links-sprite-core {
+  opacity: 0.55;
+}
+
+.links-sprite-z {
+  font: 700 8px/1 sans-serif;
+  fill: var(--sprite-trail);
+  opacity: 0;
+}
+
+.links-sprite.is-asleep .links-sprite-z {
+  animation: links-snooze 2.8s ease-in-out infinite;
+}
+
+@keyframes links-snooze {
+  0% { opacity: 0; transform: translate(0, 4px); }
+  40% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(3px, -4px); }
 }
 
 .links-sprite svg {
@@ -161,7 +204,8 @@
 @media (prefers-reduced-motion: reduce) {
   .links-ambient,
   .links-sprite-wing,
-  .links-sprite-halo {
+  .links-sprite-halo,
+  .links-sprite.is-asleep .links-sprite-z {
     animation: none;
   }
 
