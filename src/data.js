@@ -237,7 +237,7 @@ export const siteData = {
         link: `${import.meta.env.BASE_URL}lab/outfit/`,
       },
       {
-        name: "Super Intelligence — AI Project Workspace",
+        name: "Desk Intelligence — AI Project Workspace",
         status: "Lit",
         problem:
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",

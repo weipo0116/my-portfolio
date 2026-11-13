@@ -186,7 +186,7 @@ export default function LinksPage() {
               {/* On narrow screens the two parts stack instead of wrapping mid-name */}
               <span>{lang === "zh" ? "第一銀行" : "First Commercial Bank"}</span>
               <span className="links-org-sep" aria-hidden="true"> · </span>
-              <span>{lang === "zh" ? "數位通路處" : "Digital Banking Division"}</span>
+              <span>{lang === "zh" ? "數位銀行處 數位通路部" : "Digital Banking Division"}</span>
             </span>
           </p>
           <p className="links-bio">

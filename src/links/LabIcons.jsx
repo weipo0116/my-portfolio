@@ -37,7 +37,7 @@ function OutfitIcon() {
   )
 }
 
-// Super Intelligence: four-point sparkle with secondary sparkles.
+// Desk Intelligence: four-point sparkle with secondary sparkles.
 function SparkIcon() {
   return (
     <svg {...svgProps}>
