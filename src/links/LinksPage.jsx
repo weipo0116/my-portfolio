@@ -83,14 +83,13 @@ export default function LinksPage() {
   const labProjects = useMemo(
     () =>
       siteData.lab.items
-        .filter((item) => item.status === "Lit") // only what's live
+        .filter((item) => item.status === "Lit" && item.link) // live, with a page of its own
         .map((item) => ({
           // English: the project's name; Chinese: its plain description
           name: (lang === "zh" && item.name.split(" — ")[1]) || item.name.split(" — ")[0],
-          // no page of its own yet: open its card on the Lab page
-          href: item.link || `${BASE}work/#lab`,
+          href: item.link,
           // icon key: the project's art, else the last part of its page path
-          icon: item.art || item.link?.split("/").filter(Boolean).pop(),
+          icon: item.art || item.link.split("/").filter(Boolean).pop(),
         })),
     [siteData, lang],
   );
@@ -135,6 +134,18 @@ export default function LinksPage() {
     const box = target.getBoundingClientRect();
     // Keyboard activation has no pointerdown, so start the ripple here.
     if (event.detail === 0) castRipple(box.left + box.width / 2, box.top + box.height / 2);
+
+    // A tapped planet gets the glow on itself, not on the word's centre.
+    const word = target.closest(".links-word");
+    if (word) {
+      word.style.removeProperty("--cx");
+      word.style.removeProperty("--cy");
+    }
+    if (word && target.classList.contains("links-orb")) {
+      const wordBox = word.getBoundingClientRect();
+      word.style.setProperty("--cx", `${box.left + box.width / 2 - wordBox.left}px`);
+      word.style.setProperty("--cy", `${box.top + box.height / 2 - wordBox.top}px`);
+    }
 
     const wand = target.querySelector(".links-wand");
     const tip = wand ? wand.getBoundingClientRect() : box;

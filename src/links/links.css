@@ -311,8 +311,8 @@
 .links-word-ring,
 .links-word-spark {
   position: absolute;
-  left: 50%;
-  top: 50%;
+  left: var(--cx, 50%);
+  top: var(--cy, 50%);
   opacity: 0;
   pointer-events: none;
 }
