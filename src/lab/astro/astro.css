@@ -1096,3 +1096,12 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .syn-rows li.soft b { color: var(--soft-c); } .syn-rows li.hard b { color: var(--hard-c); } .syn-rows li.conj b { color: var(--conj-c); }
 .syn-foot { line-height: 1.7; }
 .syn-need[hidden], .syn-form[hidden], .syn-out[hidden] { display: none; }
+
+.syn-card > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-height: 32px; }
+.syn-card > summary::-webkit-details-marker { display: none; }
+.syn-card > summary .p-k { margin: 0; }
+.syn-card > summary small { color: var(--muted); font-size: 0.78rem; }
+.syn-card > summary::after { content: "＋"; color: var(--gold); margin-left: auto; }
+.syn-card[open] > summary::after { content: "－"; }
+.syn-card[open] > summary small { display: none; }
+.syn-card[open] { gap: 12px; }

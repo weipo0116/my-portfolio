@@ -2366,9 +2366,9 @@ function renderSynResult(host) {
 }
 function synHost() {
   if (SYN.host) return SYN.host;
-  const host = document.createElement("section");
+  const host = document.createElement("details");
   host.className = "p-card syn-card";
-  host.innerHTML = `<p class="p-k">合盤</p><p class="syn-lead">輸入另一個人的出生日期，看你們相處的風格。</p>
+  host.innerHTML = `<summary><span class="p-k">合盤</span><small>輸入另一個人的出生日期，看相處風格</small></summary><p class="syn-lead">填對方的出生日期，看你們相處的風格。</p>
 <div class="syn-need" hidden><p></p><button type="button" class="pillbtn" data-s="need">填出生日期</button></div>
 <div class="syn-form">
 <label class="syn-name">稱呼（選填）<input data-s="name" type="text" maxlength="12" placeholder="對方" autocomplete="off" /></label>
