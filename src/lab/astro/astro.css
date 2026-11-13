@@ -1007,7 +1007,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
   width: min(100%, 640px);
   margin: 22px auto 0;
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   animation: rise 1.4s var(--ease) 0.45s both;
 }
@@ -1043,3 +1043,18 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
   .paths { animation: none; }
   .path, .path:hover { transition: none; transform: none; }
 }
+
+/* ---- way back from the personal reading to the sign horoscope ---- */
+.backbar {
+  font: inherit; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; margin: 0 0 18px; padding: 0 16px 0 10px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(var(--panel-rgb), 0.55);
+  color: var(--gold-soft); font-size: 0.85rem; letter-spacing: 0.06em;
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.backbar svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.backbar:hover { border-color: var(--gold); background: rgba(var(--gold-rgb), 0.14); }
+.backbar:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.p-luck .backbar { margin: 18px 0 0; }

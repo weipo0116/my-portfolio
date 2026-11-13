@@ -2181,6 +2181,13 @@ function syncPaths() {
     : "輸入生日，依你出生那天的星盤，算今天的愛情、事業、財運";
 }
 $("pathPersonal").addEventListener("click", () => (hasNatal() ? showPersonal() : openBirth()));
+function backToFortune() {
+  setView("fortune");
+  $("sec-today").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-back-fortune]")) backToFortune();
+});
 $("pathSign").addEventListener("click", () => {
   $("sec-today").scrollIntoView({ behavior: "smooth", block: "start" });
 });
@@ -2251,6 +2258,11 @@ function luckCard(info) {
   const manualAsc = m.level !== "exact" && NATAL.sign.Asc != null ? "上升是自己選的，宮位照它排，但不拿來算分。" : "";
   why.append(el("p", "p-m", `${lvlNote}${m.notes.join("")}${manualAsc}`), el("p", "p-m", "星數是拿你自己前後兩週來比：5 顆是這個月最順的幾天之一，不是跟別人比。「我的運勢」是同星座共用的版本，兩邊星數不同是正常的。"));
   card.append(why);
+  const back = el("button", "backbar", "回到星座運勢（今日／本週）");
+  back.type = "button";
+  back.dataset.backFortune = "";
+  back.insertAdjacentHTML("afterbegin", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>');
+  card.append(back);
   return card;
 }
 
