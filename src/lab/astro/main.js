@@ -2328,7 +2328,7 @@ function renderSynResult(host) {
   const P = SYN.partner;
   if (!P) { out.replaceChildren(); return; }
   const mine = NATAL.deg;
-  const youB = synBodies(mine, NATAL.birth?.slot || "unknown"), themB = synBodies(P.deg, P.slot);
+  const youB = synBodies(mine, NATAL.birth?.slot || (NATAL.birth?.time ? "exact" : "unknown")), themB = synBodies(P.deg, P.slot);
   const r = compare(youB, themB, `${NATAL.birth?.date || ""}|${Math.round(P.deg.Sun * 10)}|${Math.round(P.deg.Moon * 10)}`);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const sg = (lon) => SIGNS[Math.floor(lon / 30)];
@@ -2347,7 +2347,7 @@ function renderSynResult(host) {
     hd.append(el("b", null, f.zh), el("small", null, METER[f.tier]));
     box.append(hd, el("p", "syn-head", f.head));
     const ul = el("ul", "syn-rows");
-    for (const row of f.rows.slice(0, 3)) {
+    for (const row of f.rows.slice(0, f.tier === "quiet" ? 1 : 3)) {
       const li = el("li", row.kind === "conj" ? (row.tense ? "hard" : "conj") : row.tense ? "hard" : "soft");
       li.append(el("b", null, `${row.approx ? "約・" : ""}你的${SYN_ZH[row.a]} ${row.glyph} ${them}的${SYN_ZH[row.b]}`), el("span", null, row.text));
       ul.append(li);
@@ -2395,7 +2395,7 @@ function synHost() {
   q("clear").addEventListener("click", () => {
     SYN.partner = null;
     ["name", "y", "time"].forEach((k) => { q(k).value = ""; });
-    q("m").value = ""; days(); q("d").value = ""; q("slot").value = "unknown"; q("timewrap").hidden = true;
+    q("m").value = ""; days(); q("d").value = ""; q("slot").value = "unknown"; q("timewrap").hidden = true; q("tz").value = "8";
     host.querySelector(".syn-note").textContent = "";
     renderSynResult(host);
   });

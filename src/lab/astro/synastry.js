@@ -98,9 +98,9 @@ export function compare(you, them, seed) {
   const tense = faces.filter((f) => f.tense >= 0.5 && f.tier !== "quiet").sort((x, y) => y.tense - x.tense)[0];
   let overview;
   if (gentle && tense && gentle.k === tense.k) overview = `「${gentle.zh}」這一面順和緊都有，起伏會比較明顯。`;
-  else if (gentle && tense) overview = `「${gentle.zh}」是你們最順的地方，「${tense.zh}」則是比較需要慢慢磨合的地方。`;
+  else if (gentle && tense) overview = `「${gentle.zh}」是你們最順的地方，「${tense.zh}」則是${tense.k === "friction" ? "比較吃力、需要多點耐心" : "比較需要慢慢磨合"}的地方。`;
   else if (gentle) overview = `「${gentle.zh}」是你們最順的地方，其他面向沒有特別卡的點。`;
-  else if (tense) overview = `「${tense.zh}」是比較需要磨合的地方，其他面向沒有特別強的連結。`;
+  else if (tense) overview = `「${tense.zh}」是${tense.k === "friction" ? "比較吃力、需要多點耐心" : "比較需要磨合"}的地方，其他面向沒有特別強的連結。`;
   else overview = "你們之間沒有特別突出的連結，不算強烈，也沒有特別卡，關係怎麼走比較看你們怎麼相處。";
 
   return { faces, sun: elText("Sun", "elem"), moon: elText("Moon", "moonElem"), overview, notes };

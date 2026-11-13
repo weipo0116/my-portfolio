@@ -1097,7 +1097,7 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .syn-foot { line-height: 1.7; }
 .syn-need[hidden], .syn-form[hidden], .syn-out[hidden] { display: none; }
 
-.syn-card > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-height: 32px; }
+.syn-card > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 44px; }
 .syn-card > summary::-webkit-details-marker { display: none; }
 .syn-card > summary .p-k { margin: 0; }
 .syn-card > summary small { color: var(--muted); font-size: 0.78rem; }
@@ -1105,3 +1105,7 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .syn-card[open] > summary::after { content: "－"; }
 .syn-card[open] > summary small { display: none; }
 .syn-card[open] { gap: 12px; }
+.syn-form .bdate-row { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
+.syn-form .bdate-row label { min-width: 0; }
+.syn-form .bdate-row input, .syn-form .bdate-row select { width: 100%; padding: 9px 6px; }
+.syn-tz summary { min-height: 44px; display: flex; align-items: center; }
