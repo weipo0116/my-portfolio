@@ -1118,3 +1118,10 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .syn-fh small { font-weight: 600; }
 .syn-rows li.hard b::before, .syn-rows li.soft b::before, .syn-rows li.conj b::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: currentColor; }
 #sec-syn .syn-card { margin-top: 4px; }
+.syn-legend { padding-top: 4px; }
+.syn-lg-k { margin: 0 0 6px; font-size: 0.78rem; letter-spacing: 0.14em; color: var(--gold); }
+.syn-lg { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 4px 16px; }
+.syn-lg li { display: flex; gap: 8px; align-items: baseline; font-size: 0.82rem; }
+.syn-lg b { font-weight: 600; white-space: nowrap; }
+.syn-lg span { color: var(--body); }
+.syn-lg li.soft b { color: var(--soft-c); } .syn-lg li.hard b { color: var(--hard-c); } .syn-lg li.conj b { color: var(--conj-c); }

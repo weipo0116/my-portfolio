@@ -2357,6 +2357,16 @@ function renderSynResult(host) {
     grid.append(box);
   }
   nodes.push(grid);
+  const legend = el("div", "syn-legend");
+  legend.append(el("p", "syn-lg-k", "符號說明（兩顆星之間隔的角度）"));
+  const lg = el("ul", "syn-lg");
+  for (const [g, name, w, cls] of [["☌", "合相 0°", "重疊，力量放大", "conj"], ["⚹", "六分 60°", "輕鬆，有機會", "soft"], ["△", "三分 120°", "最順、自然合拍", "soft"], ["□", "四分 90°", "有摩擦，需要調整", "hard"], ["☍", "對分 180°", "像照鏡子，互相吸引或拉扯", "hard"]]) {
+    const li = el("li", cls);
+    li.append(el("b", null, `${g} ${name}`), el("span", null, w));
+    lg.append(li);
+  }
+  legend.append(lg, el("p", "p-m", "綠色＝順，紅色＝需要磨合，金色＝合相（要看是哪兩顆星）。"));
+  nodes.push(legend);
   const notes = [...r.notes];
   if (!youB.Moon || !themB.Moon) notes.push("有一邊的出生時間太模糊，月亮的位置不確定，所以略過月亮相關的部分。");
   if (P.sunCusp) notes.push("對方剛好生在太陽換星座的那天，太陽星座要看出生時間。");
