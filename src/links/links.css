@@ -8,7 +8,7 @@
   min-height: 100dvh;
   display: flex;
   justify-content: center;
-  padding: 56px 16px 40px;
+  padding: 56px 16px 28px;
   color: var(--text);
   background: var(--bg);
 }
@@ -102,9 +102,14 @@
   font-weight: 500;
 }
 
+.links-bio-line {
+  display: block;
+}
+
 .links-bio {
   margin: 14px 0 0;
-  max-width: 34ch;
+  max-width: 36ch;
+  text-wrap: balance;
   color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.55;
@@ -112,7 +117,7 @@
 
 /* ── The three words ── */
 .links-words {
-  margin-top: 24px;
+  margin-top: 18px;
   display: flex;
   flex-direction: column;
 }
@@ -169,6 +174,10 @@
 
 .links-word-title {
   position: relative;
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
   font-size: 3rem;
   font-weight: 700;
   line-height: 1.02;
@@ -186,7 +195,9 @@
   line-height: 1.35;
 }
 
-.links-word:focus-visible,
+.links-word-title:focus-visible,
+.links-chip:focus-visible,
+.links-inline:focus-visible,
 .links-circle:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 4px;
@@ -194,7 +205,7 @@
 }
 
 @media (hover: hover) {
-  .links-word:hover .links-word-title {
+  .links-word-title:hover {
     color: var(--acc);
     transform: scale(1.02);
   }
@@ -261,7 +272,7 @@
 }
 
 @media (hover: hover) {
-  .links-word:hover .links-wand {
+  .links-word-title:hover .links-wand {
     color: var(--acc);
     transform: rotate(-14deg);
   }
@@ -334,58 +345,64 @@
   animation: links-burst 1s cubic-bezier(0.15, 0.7, 0.2, 1) 0.1s;
 }
 
-/* Lab: rotating "Now casting …" line */
-.links-ticker {
-  position: relative;
-  display: block;
-  height: 1.35em;
+/* Portfolio: the resume sits inline under it */
+.links-word-sub {
+  margin-bottom: 0;
 }
 
-.links-ticker-line {
-  position: absolute;
-  inset: 0;
-  display: flex;
+.links-inline {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 7px;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
-
-/* The outgoing line leaves first; the new one comes in after it. */
-.links-ticker-line.is-active {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 0.45s ease 0.3s,
-    transform 0.45s var(--ease-out) 0.3s;
-}
-
-.links-ticker-dot {
-  position: relative;
-  flex: 0 0 6px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #30d158;
-}
-
-.links-ticker-dot::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: #30d158;
-  animation: links-ping 2s ease-out infinite;
-}
-
-.links-ticker-name {
+  gap: 3px;
   color: var(--text);
   font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--text) 30%, transparent);
+  text-underline-offset: 3px;
+}
+
+.links-inline svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Lab: every live Lab page, one tap away */
+.links-chips {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.links-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+@media (hover: hover) {
+  .links-chip:hover {
+    background: color-mix(in srgb, var(--acc) 16%, transparent);
+    color: var(--acc);
+  }
 }
 
 /* ── Footer: small contact circles ── */
@@ -449,7 +466,7 @@
   }
 
   .links-words {
-    margin-top: 12px;
+    margin-top: 6px;
   }
 
   .links-word {
@@ -462,6 +479,11 @@
 
   .links-word-sub {
     margin-top: 3px;
+  }
+
+  .links-chips {
+    margin-top: 6px;
+    gap: 6px;
   }
 
   .links-footer {
@@ -532,13 +554,11 @@
   .links-ring,
   .links-wand-star,
   .links-wand-glint,
-  .links-word.is-cast .links-wand,
-  .links-ticker-dot::after {
+  .links-word.is-cast .links-wand {
     animation: none;
   }
 
-  .links-word-title,
-  .links-ticker-line {
+  .links-word-title {
     transition: none;
   }
 }

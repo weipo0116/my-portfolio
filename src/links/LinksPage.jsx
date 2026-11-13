@@ -9,7 +9,6 @@ import Sprite from "./Sprite.jsx";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
 const CAST_MS = 900; // how long the spell plays before we navigate
-const TICK_MS = 2600; // Lab "now casting" rotation
 const SPARKS = [
   [-120, -34],
   [-60, -52],
@@ -70,45 +69,6 @@ const prefersReducedMotion = () =>
 const isModifiedClick = (event) =>
   event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button > 0;
 
-const startDownload = (href, filename) => {
-  const link = document.createElement("a");
-  link.href = href;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-};
-
-// Rotates through the Lab pages that are live, one line at a time.
-function LabTicker({ label, projects }) {
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    if (projects.length < 2) return undefined;
-    const id = window.setInterval(
-      () => setActive((index) => (index + 1) % projects.length),
-      TICK_MS,
-    );
-    return () => window.clearInterval(id);
-  }, [projects.length]);
-
-  return (
-    <span className="links-ticker">
-      {projects.map((name, index) => (
-        <span
-          key={name}
-          className={`links-ticker-line${index === active ? " is-active" : ""}`}
-          aria-hidden={index !== active}
-        >
-          <span className="links-ticker-dot" aria-hidden="true" />
-          {label}
-          <span className="links-ticker-name">{name}</span>
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export default function LinksPage() {
   const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const siteData = getSiteData(lang);
@@ -123,20 +83,13 @@ export default function LinksPage() {
     () =>
       siteData.lab.items
         .filter((item) => item.link) // only Lab pages that are live
-        .map((item) => item.name.split(" — ")[0]),
+        .map((item) => ({ name: item.name.split(" — ")[0], href: item.link })),
     [siteData],
   );
 
   const links = [
     { key: "portfolio", title: L.portfolio, subtitle: L.portfolioSub, href: BASE },
     { key: "lab", title: L.work, href: `${BASE}work/` },
-    {
-      key: "resume",
-      title: L.resume,
-      subtitle: L.resumeSub,
-      href: resumePdf,
-      download: "Webber_Lai_Resume.pdf",
-    },
   ];
 
   const later = (fn, ms) => {
@@ -162,31 +115,27 @@ export default function LinksPage() {
     };
   }, [reset]);
 
-  const cast = async (event, link) => {
+  // key: which word lights up. The sprite lands on the word's wand, or on
+  // the Lab project chip that was tapped; then we go to href.
+  const cast = async (event, key, href) => {
     if (isModifiedClick(event) || prefersReducedMotion()) return;
     event.preventDefault();
     if (castingRef.current) return;
     castingRef.current = true;
 
-    const word = event.currentTarget.querySelector(".links-word-title");
-    const wand = event.currentTarget.querySelector(".links-wand");
-    const box = word.getBoundingClientRect();
+    const target = event.currentTarget;
+    const box = target.getBoundingClientRect();
     // Keyboard activation has no pointerdown, so start the ripple here.
     if (event.detail === 0) castRipple(box.left + box.width / 2, box.top + box.height / 2);
 
-    // The sprite lands on the tip of this word's wand.
+    const wand = target.querySelector(".links-wand");
     const tip = wand ? wand.getBoundingClientRect() : box;
-    await spriteRef.current?.flyTo(tip.right - 4, tip.top - 6);
-    setCasting(link.key);
-
-    later(() => {
-      if (link.download) {
-        startDownload(link.href, link.download);
-        later(reset, 500);
-      } else {
-        window.location.assign(link.href);
-      }
-    }, CAST_MS);
+    await spriteRef.current?.flyTo(
+      wand ? tip.right - 4 : tip.left + tip.width / 2,
+      tip.top - 6,
+    );
+    setCasting(key);
+    later(() => window.location.assign(href), CAST_MS);
   };
 
   return (
@@ -231,7 +180,14 @@ export default function LinksPage() {
                 : "First Bank · Digital Banking Division"}
             </span>
           </p>
-          <p className="links-bio">{L.bio}</p>
+          <p className="links-bio">
+            {/* Degree on its own line, then the one-line pitch */}
+            {L.bio.split(/(?<=[A-Za-z]{2}\.)\s+|(?<=。)/).filter(Boolean).map((line) => (
+              <span key={line} className="links-bio-line">
+                {line}
+              </span>
+            ))}
+          </p>
         </header>
 
         <nav
@@ -239,12 +195,9 @@ export default function LinksPage() {
           aria-label={L.mainLinks}
         >
           {links.map((link) => (
-            <a
+            <div
               key={link.key}
               className={`links-word is-${link.key}${casting === link.key ? " is-cast" : ""}`}
-              href={link.href}
-              onClick={(event) => cast(event, link)}
-              {...(link.download ? { download: link.download } : {})}
             >
               <span className="links-word-core" aria-hidden="true" />
               <span className="links-word-ring" aria-hidden="true" />
@@ -260,18 +213,41 @@ export default function LinksPage() {
                   <path d="M5 0Q5 5 10 5Q5 5 5 10Q5 5 0 5Q5 5 5 0Z" />
                 </svg>
               ))}
-              <span className="links-word-title">
+              <a
+                className="links-word-title"
+                href={link.href}
+                onClick={(event) => cast(event, link.key, link.href)}
+              >
                 {link.title}
                 <Wand />
-              </span>
-              <span className="links-word-sub">
-                {link.key === "lab" ? (
-                  <LabTicker label={L.casting} projects={labProjects} />
-                ) : (
-                  link.subtitle
-                )}
-              </span>
-            </a>
+              </a>
+              {link.key === "portfolio" ? (
+                <p className="links-word-sub">
+                  {link.subtitle}
+                  <span aria-hidden="true"> · </span>
+                  <a className="links-inline" href={resumePdf} download="Webber_Lai_Resume.pdf">
+                    {L.resume} PDF
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 4v11M7 11l5 5 5-5M5 20h14" />
+                    </svg>
+                  </a>
+                </p>
+              ) : (
+                <ul className="links-chips" aria-label={L.work}>
+                  {labProjects.map((project) => (
+                    <li key={project.href}>
+                      <a
+                        className="links-chip"
+                        href={project.href}
+                        onClick={(event) => cast(event, "lab", project.href)}
+                      >
+                        {project.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ))}
         </nav>
 
