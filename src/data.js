@@ -36,7 +36,7 @@ export const siteData = {
   aboutImage: selfImage2,
   educationImage: graduationPhoto,
   heroHighlights: [
-    "AI Management Associate, Digital Banking Division @ First Bank.",
+    "AI Management Associate, Digital Banking Division @ First Commercial Bank.",
     "M.S. CS @ NCCU — Computer Graphics & Data Visualization.",
     "Built interactive visual/data experiences (React, D3.js, Power BI) end‑to‑end.",
   ],
@@ -48,7 +48,7 @@ export const siteData = {
   },
   about: {
     intro:
-      "Hi, I'm Webber Lai. I completed my M.S. in Computer Science at NCCU (Jan 2026), and joined First Bank as an AI Management Associate in the Digital Banking Division in Aug 2026.",
+      "Hi, I'm Webber Lai. I completed my M.S. in Computer Science at NCCU (Jan 2026), and joined First Commercial Bank as an AI Management Associate in the Digital Banking Division in Aug 2026.",
   },
   skills: [
     "Python",

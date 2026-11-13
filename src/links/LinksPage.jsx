@@ -6,6 +6,7 @@ import avatar from "../assets/images/profile/avatar_480.jpg";
 import resumePdf from "../resume/resume.pdf";
 import MagicField, { Ambient, castRipple } from "./MagicField.jsx";
 import Sprite from "./Sprite.jsx";
+import { LAB_ICONS } from "./LabIcons.jsx";
 
 const BASE = import.meta.env.BASE_URL; // "/my-portfolio/"
 const CAST_MS = 900; // how long the spell plays before we navigate
@@ -87,8 +88,8 @@ export default function LinksPage() {
           name: item.name.split(" — ")[0],
           // no page of its own yet: open its card on the Lab page
           href: item.link || `${BASE}work/#lab`,
-          thumb: item.thumb,
-          glyph: item.glyph || "✦",
+          // icon key: the project's art, else the last part of its page path
+          icon: item.art || item.link?.split("/").filter(Boolean).pop(),
         })),
     [siteData],
   );
@@ -181,9 +182,10 @@ export default function LinksPage() {
           <p className="links-role">
             {lang === "zh" ? "AI MA（儲備幹部）" : "AI Management Associate"}
             <span className="links-org">
-              {lang === "zh"
-                ? "第一銀行 · 數位通路處"
-                : "First Bank · Digital Banking Division"}
+              {/* On narrow screens the two parts stack instead of wrapping mid-name */}
+              <span>{lang === "zh" ? "第一銀行" : "First Commercial Bank"}</span>
+              <span className="links-org-sep" aria-hidden="true"> · </span>
+              <span>{lang === "zh" ? "數位通路處" : "Digital Banking Division"}</span>
             </span>
           </p>
           <p className="links-bio">
@@ -252,13 +254,10 @@ export default function LinksPage() {
                           onClick={(event) => cast(event, "lab", project.href)}
                         >
                           <span className="links-orb-face">
-                            {project.thumb ? (
-                              <img src={project.thumb} alt="" loading="lazy" />
-                            ) : (
-                              <span className="links-orb-glyph" aria-hidden="true">
-                                {project.glyph}
-                              </span>
-                            )}
+                            {(() => {
+                              const Icon = LAB_ICONS[project.icon] || LAB_ICONS.spark;
+                              return <Icon />;
+                            })()}
                           </span>
                           <span className="links-orb-name">{project.name}</span>
                         </a>
