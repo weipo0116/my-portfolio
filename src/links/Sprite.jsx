@@ -13,12 +13,10 @@ export const SpriteContext = createContext(null);
 
 const TRAIL = 3;
 const FLY_MS = 520;
-const HOP_MS = 3400; // one short flight around its perch
-const HOP_GAP = [20000, 30000]; // rests this long between flights
+const JOIN_MS = 1400; // easing back onto the slow wandering path
 const SLEEP_KEY = "webber.sprite";
 
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-const randomGap = () => HOP_GAP[0] + Math.random() * (HOP_GAP[1] - HOP_GAP[0]);
 const readAsleep = () => {
   try {
     return localStorage.getItem(SLEEP_KEY) === "sleep";
@@ -27,10 +25,11 @@ const readAsleep = () => {
   }
 };
 
-// A small original light-sprite. It rests on a perch (beside the avatar, or
-// in the bottom-right corner on scrolling pages), takes a short flight every
-// 20–30 s, and flies to whatever is being cast. Tapping it sends it to sleep
-// on its perch; tapping again wakes it. The choice is remembered.
+// A small original light-sprite. It drifts slowly and faintly around the
+// page, brightens and flies to whatever is being cast, then drifts on.
+// Tapping it sends it to sleep on a perch (beside the avatar, or the
+// bottom-right corner on scrolling pages); tapping again wakes it. The
+// choice is remembered.
 const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref) {
   const rootRef = useRef(null);
   const bodyRef = useRef(null);
@@ -47,11 +46,26 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const pos = { x: 0, y: 0 };
     const trail = Array.from({ length: TRAIL }, () => ({ x: 0, y: 0 }));
-    let mode = "perched"; // perched | hopping | flying | casting | returning
+    // idle | joining | perched | flying | casting | returning
+    let mode = asleepRef.current ? "perched" : "idle";
     let flight = null;
-    let hop = null;
-    let nextHop = performance.now() + 6000; // a first flight soon after arriving
     let frame = 0;
+    const started = performance.now();
+
+    // Slow wandering loop (~70–80 s per lap) over the upper two-thirds.
+    const idlePoint = (now) => {
+      const box = root.getBoundingClientRect();
+      const h = fixed ? box.height : Math.min(box.height, 900);
+      const t = (now - started) / 1000;
+      return {
+        x: box.width * (0.5 + 0.38 * Math.sin(t * 0.085)),
+        y: h * (0.36 + 0.22 * Math.sin(t * 0.13 + 0.6)) + 4 * Math.sin(t * 0.9),
+      };
+    };
+
+    const setActive = (on) => {
+      body.classList.toggle("is-active", on);
+    };
 
     // Where it rests, in the layer's coordinates.
     const perch = () => {
@@ -75,27 +89,22 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
     const tick = (now) => {
       const home = perch();
 
-      if (mode === "perched") {
+      if (mode === "idle") {
+        Object.assign(pos, idlePoint(now));
+      } else if (mode === "perched") {
         pos.x = home.x;
-        pos.y = home.y + (asleepRef.current ? 0 : 2 * Math.sin(now / 420));
-        if (!asleepRef.current && now >= nextHop) {
-          hop = { start: now, dir: Math.random() < 0.5 ? -1 : 1 };
-          mode = "hopping";
-        }
-      } else if (mode === "hopping") {
-        const t = Math.min(1, (now - hop.start) / HOP_MS);
-        const env = Math.sin(Math.PI * t); // leaves and lands on the perch
-        const a = 2 * Math.PI * t;
-        pos.x = home.x + hop.dir * env * (-70 + 34 * Math.cos(a * 1.5));
-        pos.y = home.y + env * (-46 * Math.sin(a) + 18 * Math.sin(a * 2));
-        if (t === 1) {
-          mode = "perched";
-          nextHop = now + randomGap();
-        }
+        pos.y = home.y;
+      } else if (mode === "joining") {
+        const t = Math.min(1, (now - flight.start) / JOIN_MS);
+        const k = easeInOut(t);
+        const to = idlePoint(now);
+        pos.x = flight.from.x + (to.x - flight.from.x) * k;
+        pos.y = flight.from.y + (to.y - flight.from.y) * k;
+        if (t === 1) mode = "idle";
       } else if (mode === "flying" || mode === "returning") {
         const t = Math.min(1, (now - flight.start) / FLY_MS);
         const k = easeInOut(t);
-        const to = mode === "returning" ? home : flight.to;
+        const to = mode === "returning" ? (asleepRef.current ? home : idlePoint(now)) : flight.to;
         pos.x = flight.from.x + (to.x - flight.from.x) * k;
         pos.y = flight.from.y + (to.y - flight.from.y) * k - Math.sin(Math.PI * t) * 26;
         if (t === 1) {
@@ -103,8 +112,8 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
             mode = "casting";
             flight.resolve();
           } else {
-            mode = "perched";
-            nextHop = now + randomGap();
+            mode = asleepRef.current ? "perched" : "idle";
+            setActive(false);
           }
         }
       } else if (mode === "casting") {
@@ -137,6 +146,7 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
             resolve,
           };
           mode = "flying";
+          setActive(true);
         }),
       release: () => {
         if (mode !== "casting" && mode !== "flying") return;
@@ -144,20 +154,27 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
         mode = "returning";
       },
       sleep: () => {
-        if (mode === "hopping") {
+        if (mode === "idle" || mode === "joining") {
           flight = { from: { ...pos }, start: performance.now() };
           mode = "returning";
+        }
+      },
+      wake: () => {
+        if (mode === "perched") {
+          flight = { from: { ...pos }, start: performance.now() };
+          mode = "joining";
         }
       },
     };
 
     const settle = () => {
-      Object.assign(pos, perch());
+      Object.assign(pos, mode === "perched" ? perch() : idlePoint(performance.now()));
       trail.forEach((point) => Object.assign(point, pos));
       place();
     };
 
     if (reduceMotion) {
+      mode = "perched";
       settle();
       const onResize = () => settle();
       window.addEventListener("resize", onResize);
@@ -167,11 +184,11 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
     settle();
     frame = requestAnimationFrame(tick);
 
-    // Coming back via the browser's back button: back on the perch.
+    // Coming back via the browser's back button: drift on (or keep sleeping).
     const onPageShow = (event) => {
       if (!event.persisted) return;
-      mode = "perched";
-      nextHop = performance.now() + randomGap();
+      mode = asleepRef.current ? "perched" : "idle";
+      setActive(false);
     };
     window.addEventListener("pageshow", onPageShow);
 
@@ -179,7 +196,7 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
       cancelAnimationFrame(frame);
       window.removeEventListener("pageshow", onPageShow);
     };
-  }, [perchSelector]);
+  }, [fixed, perchSelector]);
 
   useImperativeHandle(ref, () => ({
     flyTo: (x, y) => api.current.flyTo(x, y),
@@ -191,6 +208,7 @@ const Sprite = forwardRef(function Sprite({ fixed = false, perchSelector }, ref)
     asleepRef.current = next;
     setAsleep(next);
     if (next) api.current.sleep?.();
+    else api.current.wake?.();
     try {
       localStorage.setItem(SLEEP_KEY, next ? "sleep" : "awake");
     } catch {

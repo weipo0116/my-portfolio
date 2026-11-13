@@ -92,7 +92,19 @@
   cursor: pointer;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+  opacity: 0.55; /* faint while drifting */
+  transition: opacity 0.4s ease;
   will-change: transform;
+}
+
+.links-sprite.is-active,
+.links-sprite:hover,
+.links-sprite:focus-visible {
+  opacity: 1;
+}
+
+.links-sprite.is-asleep {
+  opacity: 0.8;
 }
 
 .links-sprite:focus-visible {
@@ -143,7 +155,7 @@
   stroke: rgba(255, 255, 255, 0.9);
   stroke-width: 0.6;
   transform-box: fill-box;
-  animation: links-flap 0.22s ease-in-out infinite alternate;
+  animation: links-flap 0.32s ease-in-out infinite alternate;
 }
 
 .links-sprite-wing.is-left {
@@ -177,9 +189,9 @@
   will-change: transform;
 }
 
-.links-sprite-trail.is-1 { opacity: 0.55; }
-.links-sprite-trail.is-2 { opacity: 0.35; width: 3px; height: 3px; }
-.links-sprite-trail.is-3 { opacity: 0.2; width: 2px; height: 2px; }
+.links-sprite-trail.is-1 { opacity: 0.35; }
+.links-sprite-trail.is-2 { opacity: 0.22; width: 3px; height: 3px; }
+.links-sprite-trail.is-3 { opacity: 0.12; width: 2px; height: 2px; }
 
 @keyframes links-amb-a {
   0%, 100% { transform: translate(0, 0); }
