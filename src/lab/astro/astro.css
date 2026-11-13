@@ -558,9 +558,8 @@ html[data-view="chart"] .view-seg { border-color: var(--gold); }
   .hero .cta { margin-top: 14px; }
   .hint { margin-top: 10px; }
   .updated { margin-top: 4px; }
-  .jump { flex-wrap: nowrap; justify-content: safe center; overflow-x: auto; overflow-y: hidden; gap: 8px; margin: 14px 0 0; padding: 4px 0; max-width: 100%; scroll-snap-type: x proximity; scroll-padding-inline: 20px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .jump::-webkit-scrollbar { display: none; }
-  .jump a { flex: none; scroll-snap-align: start; white-space: nowrap; }
+  .jump { flex-wrap: wrap; justify-content: center; gap: 8px; margin: 14px 0 0; padding: 4px 0; max-width: 100%; }
+  .jump a { white-space: nowrap; padding: 8px 14px; }
   #sec-today { margin-top: 12px; padding-top: 28px; }
   #sec-today h2 { margin-bottom: 16px; }
 }
@@ -1125,3 +1124,12 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .syn-lg b { font-weight: 600; white-space: nowrap; }
 .syn-lg span { color: var(--body); }
 .syn-lg li.soft b { color: var(--soft-c); } .syn-lg li.hard b { color: var(--hard-c); } .syn-lg li.conj b { color: var(--conj-c); }
+
+.hr-readfold { margin: 6px 0 22px; }
+.hr-readfold > summary { cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 44px; list-style: none; border-top: 1px solid var(--line); padding-top: 6px; }
+.hr-readfold > summary::-webkit-details-marker { display: none; }
+.hr-readfold > summary span { color: var(--marble); font-size: 1rem; letter-spacing: 0.06em; }
+.hr-readfold > summary small { color: var(--muted); font-size: 0.78rem; margin-left: auto; }
+.hr-readfold > summary::after { content: "－"; color: var(--gold); margin-left: 10px; }
+.hr-readfold:not([open]) > summary::after { content: "＋"; }
+.hr-readfold > .hr-cols { margin-top: 10px; }

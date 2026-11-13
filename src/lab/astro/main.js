@@ -1455,7 +1455,12 @@ function renderHouseRead(base) {
   if (rulerFold) right.append(rulerFold);
   const cols = el("div", "hr-cols" + (rulerFold ? "" : " single"));
   cols.append(left, right);
-  box.replaceChildren(fold, cols);
+  const readFold = document.createElement("details");
+  readFold.className = "hr-readfold";
+  readFold.open = true;
+  readFold.innerHTML = "<summary><span>逐顆解讀</span><small>每顆星的意思與宮主星</small></summary>";
+  readFold.append(cols);
+  box.replaceChildren(fold, readFold);
 }
 
 // the natal reading only depends on the birth data, so day steps and the 5-minute refresh keep
