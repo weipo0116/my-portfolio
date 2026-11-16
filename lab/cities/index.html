@@ -406,7 +406,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
       <div class="gctl">
         <button type="button" id="zin" aria-label="放大"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         <button type="button" id="zout" aria-label="縮小"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
-        <button type="button" id="spin" aria-label="暫停自動旋轉" title="暫停自動旋轉"><svg class="sp-play" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg><svg class="sp-pause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.8" height="10" rx=".8" fill="currentColor"/><rect x="9.2" y="3" width="2.8" height="10" rx=".8" fill="currentColor"/></svg></button>
+        <button type="button" id="spin" aria-label="暫停自動旋轉"><svg class="sp-play" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg><svg class="sp-pause" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="2.8" height="10" rx=".8" fill="currentColor"/><rect x="9.2" y="3" width="2.8" height="10" rx=".8" fill="currentColor"/></svg></button>
       </div>
     </div>
   </div>
@@ -668,9 +668,9 @@ $('#zin').onclick=()=>{zoom=Math.min(4,zoom*1.35);applyProj();dirty=true;lastInt
 $('#zout').onclick=()=>{zoom=Math.max(.8,zoom/1.35);applyProj();dirty=true;lastInteract=performance.now();};
 const spinBtn=$('#spin');
 // 播放／暫停圖示：運作中顯示「暫停」，未運作或已暫停顯示「播放」。兩個圖示疊在同一格，切換不會位移。
-const spinUI=()=>{const lb=autoSpin?'暫停自動旋轉':'開始自動旋轉';spinBtn.setAttribute('aria-label',lb);spinBtn.title=lb;spinBtn.dataset.on=autoSpin?'1':'0';};
+const spinUI=()=>{const lb=autoSpin?'暫停自動旋轉':'開始自動旋轉';spinBtn.setAttribute('aria-label',lb);spinBtn.dataset.on=autoSpin?'1':'0';};
 spinUI();syncLive();
-spinBtn.onclick=()=>{autoSpin=!autoSpin;spinUI();lastInteract=0;syncLive();toast(autoSpin?'地球儀自動旋轉':'已停止旋轉');};
+spinBtn.onclick=()=>{autoSpin=!autoSpin;spinUI();lastInteract=0;syncLive();};
 
 /* ---------- dossier ---------- */
 const dz=$('#dz');
