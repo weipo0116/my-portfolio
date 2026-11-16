@@ -28,6 +28,7 @@
 .ms{list-style:none;margin:0;padding:0;display:grid;gap:14px}
 .ms-card{display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .ms-card.top{border-color:var(--accent)}
+.ms-card.noimg{grid-template-columns:minmax(0,1fr)}
 .ms-img{margin:0;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:linear-gradient(160deg,var(--accent-soft),var(--surface-2,var(--line)));position:relative}
 .ms-img img{width:100%;height:100%;object-fit:cover;display:block}
 .ms-img figcaption{position:absolute;inset:auto 0 0 0;padding:3px 6px;font-size:9px;line-height:1.3;background:color-mix(in srgb,var(--bg) 82%,transparent);color:var(--ink-3)}
@@ -693,10 +694,10 @@ function tripRow(c){const bits=(c.travelStyles||[]).map(t=>`<span class="tag">${
 const MAPI='<svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 14s5-4.2 5-8a5 5 0 1 0-10 0c0 3.8 5 8 5 8z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="6" r="1.8" fill="currentColor"/></svg>';
 const EXT='target="_blank" rel="noopener noreferrer sponsored"';
 function spotImg(m,c){const im=m.image;
-  if(im&&im.src)return `<figure class="ms-img"><img src="${esc(im.src)}" alt="${esc(im.alt||m.name+'，'+c.zh)}" loading="lazy" decoding="async" onerror="this.closest('figure').classList.add('noimg');this.remove()"><figcaption>${esc(im.source||'')}${im.author?' · '+esc(im.author):''}${im.url?` · <a href="${esc(im.url)}" target="_blank" rel="noopener noreferrer">來源</a>`:''}</figcaption></figure>`;
-  return `<figure class="ms-img noimg" aria-hidden="true"><span>${esc(m.category)}</span></figure>`;}
+  if(im&&im.src)return `<figure class="ms-img"><img src="${esc(im.src)}" alt="${esc(im.alt||m.name+'，'+c.zh)}" loading="lazy" decoding="async" onerror="const l=this.closest('li');l.classList.add('noimg');this.closest('figure').remove()"><figcaption>${esc(im.source||'')}${im.author?' · '+esc(im.author):''}${im.url?` · <a href="${esc(im.url)}" target="_blank" rel="noopener noreferrer">來源</a>`:''}</figcaption></figure>`;
+  return '';}
 function mustSeeHTML(c){if(!c.mustSee)return'';
-  return `<h4 class="sub-h">到了這裡一定要看 <span class="mono">Must see</span></h4><ul class="ms">${c.mustSee.map(m=>`<li class="ms-card${m.topPick?' top':''}">${spotImg(m,c)}<div class="ms-body"><div class="ms-tags"><span class="tag">${esc(m.category)}</span>${m.topPick?'<span class="tag now">只看一個就選這裡</span>':''}</div><b>${esc(m.name)}</b><p>${esc(m.description)}</p><p class="why">${esc(m.reason)}</p><p class="mono ms-meta">停留 ${esc(m.duration)} · ${esc(m.bestTime)}</p><a class="ms-map" href="${esc(m.mapUrl)}" ${EXT}>${MAPI}在 Google Maps 查看</a></div></li>`).join('')}</ul>`;}
+  return `<h4 class="sub-h">到了這裡一定要看 <span class="mono">Must see</span></h4><ul class="ms">${c.mustSee.map(m=>`<li class="ms-card${m.topPick?' top':''}${m.image&&m.image.src?'':' noimg'}">${spotImg(m,c)}<div class="ms-body"><div class="ms-tags"><span class="tag">${esc(m.category)}</span>${m.topPick?'<span class="tag now">只看一個就選這裡</span>':''}</div><b>${esc(m.name)}</b><p>${esc(m.description)}</p><p class="why">${esc(m.reason)}</p><p class="mono ms-meta">停留 ${esc(m.duration)} · ${esc(m.bestTime)}</p><a class="ms-map" href="${esc(m.mapUrl)}" ${EXT}>${MAPI}在 Google Maps 查看</a></div></li>`).join('')}</ul>`;}
 const klook=q=>'https://www.klook.com/zh-TW/search/result/?query='+encodeURIComponent(q);
 const kkday=q=>'https://www.kkday.com/zh-tw/product/productlist?keyword='+encodeURIComponent(q);
 function tripHTML(t){return `<article class="trip-card"><h5>${esc(t.name)}</h5><p class="who">適合：${esc(t.who)}</p>
