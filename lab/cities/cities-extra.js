@@ -1,0 +1,161 @@
+/* ===== 城市延伸內容（必看亮點、熱門行程、小眾行程）=====
+   只有示範城市有；沒有的城市畫面會自動略過這兩區。
+   S(名稱, Google Maps 搜尋字, 簡介, 值得看的原因, 建議停留, 推薦時段, 類型, 是否「只看一個就選這裡」)
+   T(行程名, 適合對象, 天數／時數, [[停靠點, 停留],…], 交通, 強度(輕鬆|普通|較高), 預約(不需要|建議預約|請先查官網), 適合月份, 票券搜尋關鍵字)
+   圖片：S 的 image 目前都是 null，畫面會用備用樣式。補圖時填入
+   image:{src, alt, source, author, url}，src 必須是實際查得到的 Wikimedia Commons 或 Unsplash 圖片，作者與授權連結不可省略。
+   不寫價格、營業時間、庫存；票價以 Klook／KKday 頁面為準。 */
+const S=(name,q,description,reason,duration,bestTime,category,topPick)=>({name,mapUrl:'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q),description,reason,duration,bestTime,category,topPick:!!topPick,image:null});
+const T=(name,who,length,stops,transport,intensity,booking,months,kw)=>({name,who,length,stops,transport,intensity,booking,months,kw});
+const CITY_EXTRA={
+tokyo:{
+ mustSee:[
+  S('淺草寺與雷門','Senso-ji Asakusa Tokyo','東京最古老的寺院，雷門大燈籠與仲見世通是最經典的畫面。','一次看到老東京的樣子，也最適合當作第一天的起點。','1–1.5 小時','清晨或傍晚，避開正午人潮','地標',true),
+  S('明治神宮','Meiji Jingu Tokyo','都心裡的人造森林，參道安靜，走進去就像離開了東京。','離澀谷、原宿很近，可以和逛街排在同一天。','1–1.5 小時','上午','自然景觀'),
+  S('澀谷十字路口','Shibuya Crossing Tokyo','全球最繁忙的路口之一，綠燈時大量行人同時穿越。','最能直接感受東京的人潮節奏，周邊也有不少高處可以俯瞰。','30–60 分鐘','傍晚到夜晚','街區'),
+  S('築地場外市場','Tsukiji Outer Market Tokyo','場內市場已搬遷，場外仍有海鮮、玉子燒與小吃攤，適合邊走邊吃。','不用訂位就能吃到新鮮海產，早餐或午餐都合適。','1–1.5 小時','上午前往，下午部分店家會先休息','市場')],
+ popularTrips:[
+  T('東京經典一日：淺草到澀谷','第一次來東京','1 天',[['淺草寺與雷門','1.5 小時'],['隅田川步行至晴空塔周邊','1 小時'],['原宿與明治神宮','1.5 小時'],['澀谷十字路口','1 小時']],'地鐵＋步行','普通','不需要','全年；春秋最舒服','Tokyo day tour'),
+  T('富士山一日遊','想看富士山、不想自己轉車','1 天',[['河口湖周邊','2 小時'],['湖畔或纜車觀景','1.5 小時'],['忍野八海','1 小時']],'巴士或電車，單程約 2–2.5 小時','較高','建議預約','10–2 月較容易看到山，夏季雲多','Mt Fuji day trip Tokyo')],
+ hiddenTrips:[
+  T('谷根千老街散步','去過東京、想看老街生活','半天',[['谷中銀座商店街','1 小時'],['根津神社','1 小時'],['千駄木周邊咖啡店','1 小時']],'JR 或地鐵＋步行','輕鬆','不需要','全年；春秋適合步行','Yanaka Tokyo walking tour'),
+  T('下北澤與世田谷線','喜歡古著、唱片與小店','半天',[['下北澤小巷','2 小時'],['世田谷線小電車','30 分鐘'],['松陰神社前商店街','1 小時']],'電車＋步行','輕鬆','不需要','全年','Shimokitazawa Tokyo')]},
+kyoto:{
+ mustSee:[
+  S('伏見稻荷大社','Fushimi Inari Taisha Kyoto','山路上排滿朱紅鳥居，千本鳥居是京都最具代表性的畫面。','不一定要爬到山頂，走前半段就能看到最密集的鳥居。','1.5–3 小時，視走到哪一段','清晨或傍晚人較少','地標',true),
+  S('清水寺','Kiyomizu-dera Kyoto','懸空的木造舞台能俯瞰京都市區，周邊是保存完整的老街。','東山一帶的核心景點，可以接著走二年坂與三年坂。','1.5–2 小時','開門後的早晨','建築'),
+  S('嵐山竹林小徑','Arashiyama Bamboo Grove Kyoto','高聳的竹林夾出一條步道，旁邊是天龍寺與渡月橋。','走一圈就能看到京都另一種風景，適合半天安排。','2–3 小時，含周邊','清晨','自然景觀'),
+  S('祇園與花見小路','Gion Hanamikoji Kyoto','保留町家街景的花街，傍晚有機會遇到前往料亭的藝伎與舞伎。','最容易感受老京都的氣氛；請保持距離，不要追拍。','1 小時','傍晚','街區')],
+ popularTrips:[
+  T('東山經典一日','第一次來京都','1 天',[['清水寺','1.5 小時'],['二年坂、三年坂','1 小時'],['八坂神社','30 分鐘'],['祇園花見小路','1 小時']],'步行為主，有上坡','普通','不需要','全年；3–4 月與 11 月人潮最多','Kyoto day tour'),
+  T('伏見稻荷＋嵐山','想一天看兩個地標','1 天',[['伏見稻荷大社','2 小時'],['搭電車到嵐山','約 40 分鐘'],['竹林小徑','1 小時'],['渡月橋周邊','1 小時']],'JR 電車＋步行','普通','不需要','全年；清晨出發人最少','Fushimi Inari Arashiyama')],
+ hiddenTrips:[
+  T('大原三千院散步','去過京都、想避開人潮','半天',[['三千院','1 小時'],['寂光院','45 分鐘'],['大原老街','1 小時']],'巴士約 1 小時','輕鬆','不需要','11 月楓葉最美','Ohara Kyoto'),
+  T('貴船與鞍馬健行','喜歡山林與走路','半天到 1 天',[['鞍馬寺','1.5 小時'],['山徑步行到貴船','約 1.5 小時'],['貴船神社','1 小時']],'叡山電車＋步行','較高','不需要','5–9 月涼爽；夏季有河床料理','Kurama Kibune')]},
+seoul:{
+ mustSee:[
+  S('景福宮','Gyeongbokgung Palace Seoul','朝鮮王朝的正宮，光化門與守門將交接儀式是經典畫面。','最能代表首爾的古蹟，也和北村、仁寺洞走路可達。','1.5–2 小時','上午；休館日請出發前查官網','建築',true),
+  S('北村韓屋村','Bukchon Hanok Village Seoul','保留傳統韓屋的住宅區，巷弄裡仍有人居住。','離景福宮很近；請放低音量，這裡是居民的生活區。','1 小時','上午','街區'),
+  S('南山首爾塔','N Seoul Tower Seoul','首爾的地標，山頂能看到整座城市，夜景最受歡迎。','白天與夜晚的樣子差很多，適合排在行程最後一站。','1.5–2 小時','日落前後','夜景'),
+  S('廣藏市場','Gwangjang Market Seoul','歷史悠久的傳統市場，綠豆煎餅與生牛肉是常見的人氣小吃。','一次吃到很多道地小吃，價格與選擇都很直覺。','1–1.5 小時','午後到晚上','市場')],
+ popularTrips:[
+  T('首爾古宮與老街一日','第一次來首爾','1 天',[['景福宮','1.5–2 小時'],['北村韓屋村','1 小時'],['仁寺洞','1 小時'],['廣藏市場','1 小時']],'地鐵＋步行','普通','不需要','全年；春秋最舒服','Seoul day tour'),
+  T('明洞與南山夜景','想逛街又想看夜景','半天到 1 天',[['明洞逛街與用餐','1.5 小時'],['南山纜車','30 分鐘'],['首爾塔與夜景','1.5 小時']],'地鐵＋纜車','普通','不需要','全年；冬季夜景空氣較清楚','Namsan Seoul Tower')],
+ hiddenTrips:[
+  T('聖水洞咖啡與選物店','去過首爾、喜歡逛小店','半天',[['聖水洞咖啡與小店','2 小時'],['首爾林','1 小時']],'地鐵＋步行','輕鬆','不需要','全年；春秋適合戶外','Seongsu Seoul'),
+  T('益善洞與乙支路巷弄','喜歡老街改造與夜晚小酒館','半天到晚上',[['益善洞韓屋巷','1.5 小時'],['乙支路老工業區小店','2 小時']],'地鐵＋步行','輕鬆','不需要','全年','Ikseon-dong Euljiro Seoul')]},
+paris:{
+ mustSee:[
+  S('艾菲爾鐵塔','Eiffel Tower Paris','巴黎最具代表性的地標，入夜後整點會有閃爍燈光。','幾乎每個人都會看，從戰神廣場或對岸的夏悠宮都能拍到完整的鐵塔。','1–2 小時，登頂另計','日落前後','地標',true),
+  S('羅浮宮','Louvre Museum Paris','世界最大的藝術博物館之一，蒙娜麗莎與勝利女神像是人氣作品。','館藏多到看不完，先挑兩三個重點最不累。','3 小時以上','開館後或避開週末午後','博物館'),
+  S('聖母院與西堤島','Notre-Dame de Paris Ile de la Cite','哥德式大教堂在 2024 年底重新開放，周邊是巴黎的發源地。','走路就能串起塞納河畔與老城區。','1 小時','上午','建築'),
+  S('蒙馬特與聖心堂','Sacre-Coeur Montmartre Paris','山丘上的白色教堂可以俯瞰巴黎，周邊有畫家廣場與小巷。','少數能看到巴黎全景的地方；人多的地方請留意隨身物品。','1.5–2 小時','上午或日落','街區')],
+ popularTrips:[
+  T('巴黎經典一日','第一次來巴黎','1 天',[['羅浮宮','3 小時'],['杜樂麗花園與協和廣場','1 小時'],['塞納河遊船','1 小時'],['艾菲爾鐵塔夜景','1 小時']],'地鐵＋步行','較高','建議預約','4–10 月；晚上天黑得晚','Paris day tour'),
+  T('凡爾賽宮一日','喜歡歷史與宮殿','1 天',[['凡爾賽宮內部','2–3 小時'],['花園','1.5 小時']],'RER C 線約 40 分鐘','普通','建議預約','4–10 月；休館日與噴泉表演請查官網','Versailles Paris')],
+ hiddenTrips:[
+  T('聖馬丁運河散步','去過巴黎、想看在地生活','半天',[['運河沿岸步行','1.5 小時'],['附近咖啡與選物店','1.5 小時']],'地鐵＋步行','輕鬆','不需要','4–10 月','Canal Saint-Martin Paris'),
+  T('蒙馬特後山：墓園與葡萄園','想避開聖心堂的人潮','半天',[['蒙馬特墓園','1 小時'],['蒙馬特葡萄園','30 分鐘'],['小巷與咖啡館','1 小時']],'地鐵＋步行','輕鬆','不需要','全年','Montmartre Paris walking tour')]},
+london:{
+ mustSee:[
+  S('西敏寺與大笨鐘','Westminster Abbey Big Ben London','國會大廈、大笨鐘與西敏寺集中在一起，是最經典的倫敦街景。','走路十分鐘就能看到多個地標，最適合第一天的起點。','1–1.5 小時，看外觀','清晨或日落','地標',true),
+  S('大英博物館','British Museum London','收藏跨越全球文明，羅塞塔石碑是人氣展品。','館藏非常多，先看兩三個展區比較不會累。','2–3 小時','平日上午','博物館'),
+  S('倫敦塔與塔橋','Tower of London Tower Bridge','千年歷史的皇家要塞，館內展出皇冠珠寶，旁邊就是塔橋。','歷史與天際線一次看，適合接著沿河散步。','2–3 小時','開門後','建築'),
+  S('博羅市場','Borough Market London','歷史悠久的食品市場，攤位以熟食與在地食材為主。','想吃一頓不踩雷的午餐，可以來這裡逛一圈。','1 小時','平日中午前後；週末人多','市場')],
+ popularTrips:[
+  T('倫敦市中心經典一日','第一次來倫敦','1 天',[['西敏寺與大笨鐘','1 小時'],['聖詹姆斯公園到白金漢宮外','1 小時'],['特拉法加廣場與國家美術館','1.5 小時'],['大英博物館','2 小時']],'步行＋地鐵','普通','不需要','4–9 月；冬季天黑較早','London day tour'),
+  T('倫敦塔到泰晤士河南岸','喜歡歷史與河岸散步','1 天',[['倫敦塔','2.5 小時'],['塔橋','30 分鐘'],['沿河步行到博羅市場','1 小時'],['南岸河畔','1 小時']],'步行為主','普通','請先查官網','4–10 月','Tower of London')],
+ hiddenTrips:[
+  T('格林威治半日','去過倫敦、想看不一樣的角落','半天',[['皇家天文台','1.5 小時'],['格林威治市場','1 小時'],['泰晤士河步道','45 分鐘']],'輕軌或船＋步行','輕鬆','不需要','4–10 月','Greenwich London'),
+  T('漢普斯特德荒野','喜歡公園與看城市天際線','半天',[['小鎮街道','1 小時'],['荒野步道','1.5 小時'],['Parliament Hill 觀景','30 分鐘']],'地鐵或 Overground＋步行','輕鬆','不需要','4–10 月；雨天路面泥濘','Hampstead London')]},
+newyork:{
+ mustSee:[
+  S('自由女神像與渡輪','Statue of Liberty Ferry New York','搭渡輪到自由島，近距離看紐約最知名的象徵。','從海上回望曼哈頓天際線，是很不一樣的角度。','3–4 小時，含渡輪','早班渡輪人較少','地標',true),
+  S('中央公園','Central Park New York','曼哈頓正中央的大型公園，草地、湖面與步道是紐約人的後花園。','累了可以坐下來看人，是安排行程之間的好緩衝。','2 小時','上午或午後','自然景觀'),
+  S('布魯克林大橋','Brooklyn Bridge New York','步行過橋就能看到曼哈頓天際線，日落時最好拍。','免費的城市景觀，從布魯克林走回曼哈頓最順。','1–1.5 小時','日落前後','夜景'),
+  S('大都會藝術博物館','Metropolitan Museum of Art New York','收藏範圍極廣，從古埃及神殿到歐洲繪畫都在同一棟。','看一兩個展區就很充實，不需要一次看完。','3 小時以上','平日上午','博物館')],
+ popularTrips:[
+  T('曼哈頓經典一日','第一次來紐約','1 天',[['中央公園','2 小時'],['大都會藝術博物館','2.5 小時'],['第五大道步行','1 小時'],['時代廣場夜晚','1 小時']],'地鐵＋步行','較高','請先查官網','4–6 月與 9–10 月最舒服','New York day tour'),
+  T('自由女神與下城','想看地標與歷史','1 天',[['自由島渡輪','3–4 小時'],['9/11 紀念園區','1 小時'],['布魯克林大橋步行','1 小時']],'渡輪＋步行','普通','建議預約','4–10 月','Statue of Liberty New York')],
+ hiddenTrips:[
+  T('法拉盛美食散步','想吃道地亞洲小吃','半天',[['法拉盛美食街','2 小時'],['Unisphere 與公園','1 小時']],'地鐵 7 號線','輕鬆','不需要','全年','Flushing Queens New York'),
+  T('綠木公墓與日落公園','去過紐約、想看另一面','半天',[['綠木公墓','1.5 小時'],['日落公園觀景','1 小時'],['第八大道華人區','1.5 小時']],'地鐵＋步行','輕鬆','不需要','4–10 月','Brooklyn Sunset Park')]},
+bangkok:{
+ mustSee:[
+  S('大皇宮與玉佛寺','Grand Palace Bangkok','泰國王室的象徵，金碧輝煌的建築與玉佛寺集中在同一區。','服裝規定很嚴格，要遮住肩膀與膝蓋；先看這裡，其他寺廟都在附近。','2–3 小時','開門後的早上','地標',true),
+  S('臥佛寺','Wat Pho Bangkok','有 46 公尺長的臥佛，也是泰式按摩的發源地。','就在大皇宮旁邊，走路幾分鐘就到，適合接著看。','1–1.5 小時','上午','建築'),
+  S('鄭王廟','Wat Arun Bangkok','河邊的高塔用瓷片裝飾，夕陽時是最好看的角度。','從對岸搭渡輪過去，可以順便感受昭披耶河。','1 小時','傍晚','夜景'),
+  S('恰圖恰週末市集','Chatuchak Weekend Market Bangkok','占地廣大的週末市集，從服飾到植物與小吃都有。','想買紀念品和吃東西很方便；地方很大，先決定想逛的區塊。','2–3 小時','週末上午，天氣較涼','市場')],
+ popularTrips:[
+  T('老城與寺廟一日','第一次來曼谷','1 天',[['大皇宮與玉佛寺','2.5 小時'],['臥佛寺','1 小時'],['搭渡輪到鄭王廟','1 小時'],['河岸晚餐','1.5 小時']],'渡輪＋步行','普通','不需要','11–2 月涼季最舒服','Bangkok day tour'),
+  T('水上市場與鐵道市場','想看傳統市集','1 天',[['美功鐵道市場','1 小時'],['丹嫩莎朵水上市場','1.5 小時']],'車程單程約 1.5–2 小時','普通','建議預約','11–2 月','Damnoen Saduak Maeklong')],
+ hiddenTrips:[
+  T('吞武里運河與老社區','去過曼谷、想看河岸生活','半天',[['長尾船游運河','1.5 小時'],['老社區小巷','1 小時'],['河邊咖啡','1 小時']],'船＋步行','輕鬆','請先查官網','11–2 月','Bangkok canal Thonburi'),
+  T('中國城夜間小吃','喜歡街頭美食','晚上 3 小時',[['耀華力路街邊小吃','2 小時'],['華人廟宇','45 分鐘']],'地鐵＋步行','輕鬆','不需要','11–2 月','Bangkok Yaowarat food')]},
+singapore:{
+ mustSee:[
+  S('濱海灣花園','Gardens by the Bay Singapore','超級樹林與大型溫室，傍晚的燈光秀很受歡迎。','白天熱，傍晚過去最舒服，也能順路走到濱海灣沿岸。','2–3 小時','傍晚到夜晚','夜景',true),
+  S('小販中心','Maxwell Food Centre Singapore','新加坡的小販文化已列入聯合國教科文組織名錄，一餐就能吃到各族群料理。','不需要訂位，是最道地的新加坡日常。','1 小時','避開正午與晚餐尖峰','在地文化'),
+  S('濱海灣與魚尾獅公園','Merlion Park Singapore','天際線的經典角度，魚尾獅像是新加坡最知名的象徵。','拍照、散步都很快，適合和濱海灣花園排在同一天。','1–1.5 小時','傍晚','地標'),
+  S('小印度','Little India Singapore','色彩鮮豔的商店與印度教廟宇集中，旁邊走路就到甘榜格南。','幾步路就能同時看到不同族群的生活。','1.5–2 小時','上午到午後','街區')],
+ popularTrips:[
+  T('新加坡經典一日','第一次來新加坡','1 天',[['魚尾獅公園與濱海灣','1 小時'],['濱海灣花園','2 小時'],['小販中心晚餐','1 小時']],'捷運＋步行','普通','請先查官網','全年；2–4 月較乾爽','Singapore day tour'),
+  T('牛車水與小印度文化一日','想看多元文化','1 天',[['牛車水','1.5 小時'],['佛牙寺','1 小時'],['小印度','1.5 小時'],['甘榜格南','1 小時']],'捷運＋步行','輕鬆','不需要','全年；2–4 月較乾爽','Singapore Chinatown Little India')],
+ hiddenTrips:[
+  T('烏敏島騎單車','去過新加坡、想看鄉村景色','半天',[['搭船過海','約 15 分鐘'],['騎單車環島','2–3 小時']],'捷運＋渡船','輕鬆','不需要','2–4 月較乾爽','Pulau Ubin'),
+  T('加東娘惹老街與東海岸','喜歡老街與在地小吃','半天',[['加東老街','1.5 小時'],['娘惹糕點與叻沙','1 小時'],['東海岸公園','1 小時']],'捷運或巴士＋步行','輕鬆','不需要','全年','Katong Singapore')]},
+taipei:{
+ mustSee:[
+  S('台北 101','Taipei 101','曾是世界最高的大樓，觀景台可以看到整個台北盆地。','市區的地標，白天與夜晚的風景不同。','1.5–2 小時','日落前後','地標'),
+  S('國立故宮博物院','National Palace Museum Taipei','收藏大量中華文物，翠玉白菜與肉形石是人氣展品。','展品會輪換，建議出發前先查官網看目前展出的內容。','2.5–3 小時','平日上午','博物館',true),
+  S('龍山寺與艋舺','Longshan Temple Taipei','台北歷史最悠久的廟宇之一，周邊是艋舺老街區。','看得到在地信仰與生活，附近也有不少小吃。','1–1.5 小時','上午或傍晚','在地文化'),
+  S('士林夜市','Shilin Night Market Taipei','台北知名的夜市之一，小吃與遊戲攤位很多，逛起來很熱鬧。','想一次吃到多種台灣小吃，這裡選擇最多。','1.5–2 小時','晚上','市場')],
+ popularTrips:[
+  T('台北城區經典一日','第一次來台北','1 天',[['龍山寺','1 小時'],['中正紀念堂','1 小時'],['台北 101','1.5 小時'],['永康街或信義商圈晚餐','1.5 小時']],'捷運＋步行','普通','不需要','全年；10–12 月與 3–4 月較舒服','Taipei day tour'),
+  T('九份與十分','想看山城與放天燈','1 天',[['九份老街','2 小時'],['十分瀑布與放天燈','2 小時']],'火車＋巴士或包車','普通','不需要','全年；山區多雨，帶雨具','Jiufen Shifen Taipei')],
+ hiddenTrips:[
+  T('迪化街與大稻埕碼頭','喜歡老街與日落','半天',[['迪化街','1.5 小時'],['大稻埕碼頭日落','1 小時']],'捷運＋步行','輕鬆','不需要','全年','Dihua Street Taipei'),
+  T('貓空纜車與茶園','想慢慢喝茶、看山景','半天',[['貓空纜車','30 分鐘'],['茶園步道','2 小時'],['山上茶館','1.5 小時']],'捷運＋纜車','輕鬆','請先查官網','全年；出發前確認纜車是否營運','Maokong Gondola Taipei')]}
+};
+
+/* ===== 圖片（Pexels，Pexels License 可免費使用；仍標示攝影師與原始頁面）=====
+   [城市, 第幾個亮點, Pexels 照片 id, 攝影師帳號（取自 Pexels 下載檔名）, 原始頁面 slug, alt]
+   null 表示還沒有找到確定是該景點的照片，畫面會用備用樣式。 */
+const PEXELS=[
+['tokyo',0,21792352,'tonywuphotography','lantern-at-kaminarimon-gate-of-sensoji-temple','淺草寺雷門的大燈籠'],
+['tokyo',1,33250722,'vinnyanugraha','majestic-torii-gate-at-meiji-shrine-entrance','明治神宮入口的鳥居'],
+['tokyo',2,5905666,'imani-williams-3907966','shibuya-crossing-in-tokyo-japan','澀谷十字路口的人潮'],
+['tokyo',3,18848578,'axp-photography-500641970','people-working-at-tsukiji-market-in-tokyo-japan','築地市場裡工作的人'],
+['kyoto',0,36940469,'nachoestevo','serene-path-through-fushimi-inari-taisha-torii-gates','伏見稻荷大社的千本鳥居步道'],
+['kyoto',1,36717832,'irina-senti-2160320022','scenic-view-of-kiyomizu-dera-temple-in-kyoto','清水寺的木造建築'],
+['kyoto',2,18008217,'huuhuynh','arashimaya-bamboo-forest-in-kyoto','嵐山竹林小徑'],
+['kyoto',3,30987842,'yelenaodintsova','historical-street-scene-in-sunlit-gion-district','祇園的老街街景'],
+['seoul',0,19271538,'huy-phan-316220','gyeongbokgung-palace-in-south-korea','景福宮'],
+['seoul',1,39037957,'11totty','traditional-hanok-houses-in-bukchon-hanok-village','北村韓屋村的傳統韓屋'],
+['seoul',2,22689022,'maximilian-sky-682287986','n-seoul-tower-seoul-south-korea','南山首爾塔'],
+['seoul',3,37319818,'artem-korolev-2159253660','street-food-vendor-cooking-korean-mung-bean-pancakes','市場攤販在煎綠豆煎餅'],
+['paris',0,5976924,'eusouomatteus','photo-of-the-eiffel-tower-under-a-blue-sky','藍天下的艾菲爾鐵塔'],
+['paris',1,25053918,'detait','the-louvre-museum-in-paris-france','羅浮宮與玻璃金字塔'],
+['paris',2,24186954,'gina-bichsel-366533903','the-western-facade-of-the-notre-dame-de-paris','巴黎聖母院的西側立面'],
+['paris',3,9279185,'busra-gulen-97165023','sacre-coeur-basilica-in-paris','蒙馬特的聖心堂'],
+['london',0,29253512,'bertellifotografia','big-ben-and-westminster-palace-under-blue-sky','大笨鐘與西敏宮'],
+['london',1,38389551,'lajos-kristof-kantor-2158796893','the-british-museum-facade-in-london-uk','大英博物館的正面'],
+['london',2,19262645,'antoine-maurin-264851287','tower-bridge-in-london','倫敦塔橋'],
+['london',3,308376,'dom-j-7304','people-on-borough-market','博羅市場裡的人潮'],
+['newyork',0,20820859,'natalia-falon-1008732892','statue-of-liberty-in-new-york','自由女神像'],
+['newyork',1,5847354,'charles-parker','central-park-with-skyscrapers-in-new-york-city','中央公園與周圍的摩天大樓'],
+['newyork',2,9404571,'brian-lazo-92810756','brooklyn-bridge-in-new-york','布魯克林大橋'],
+['newyork',3,17097400,'franklin-naula-583629111','symmetrical-view-of-the-interior-of-the-metropolitan-museum-of-art-in-new-york','大都會藝術博物館的內部'],
+['bangkok',0,11105014,'maksim-romashkin','grand-palace-in-bangkok','曼谷大皇宮'],
+['bangkok',1,20889684,'kayaartsss','wat-pho-temple-in-bangkok-in-thailand','臥佛寺'],
+['bangkok',2,30970845,'rj-segotier-725639','majestic-wat-arun-temple-in-bangkok-thailand','鄭王廟的高塔'],
+['bangkok',3,35324198,'worldedits','bustling-aisle-of-chatuchak-weekend-market-in-bangkok','恰圖恰週末市集的走道'],
+['singapore',0,30572489,'wang-qihang-673548932','serene-garden-view-at-supertree-grove-singapore','濱海灣花園的超級樹'],
+['singapore',1,38075366,'alecdoua','bustling-night-at-maxwell-food-centre','夜晚的麥士威小販中心'],
+['singapore',2,29699025,'chan-s-1283910193','iconic-merlion-in-singapore-with-modern-skyscrapers','魚尾獅與天際線'],
+['singapore',3,34278797,'shlok-rana-2150773572','colorful-street-decorations-in-little-india-singapore','小印度的街頭裝飾'],
+['taipei',0,34332954,'wei86-travel-31932701','night-view-of-taipei-101-in-taiwan-cityscape','台北 101 的夜景'],
+['taipei',2,16648648,'mi-miyano-547915221','longshan-temple-in-taipei','台北龍山寺'],
+];
+for(const [city,i,id,user,slug,alt] of PEXELS){const m=CITY_EXTRA[city]&&CITY_EXTRA[city].mustSee[i];if(!m)continue;
+  m.image={src:`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=480`,alt,source:'Pexels',author:user.replace(/(-\d+)+$/,'').replace(/-/g,' '),url:`https://www.pexels.com/photo/${slug}-${id}/`};}
