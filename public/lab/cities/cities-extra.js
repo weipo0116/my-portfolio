@@ -117,3 +117,45 @@ taipei:{
   T('迪化街與大稻埕碼頭','喜歡老街與日落','半天',[['迪化街','1.5 小時'],['大稻埕碼頭日落','1 小時']],'捷運＋步行','輕鬆','不需要','全年','Dihua Street Taipei'),
   T('貓空纜車與茶園','想慢慢喝茶、看山景','半天',[['貓空纜車','30 分鐘'],['茶園步道','2 小時'],['山上茶館','1.5 小時']],'捷運＋纜車','輕鬆','請先查官網','全年；出發前確認纜車是否營運','Maokong Gondola Taipei')]}
 };
+
+/* ===== 圖片（Pexels，Pexels License 可免費使用；仍標示攝影師與原始頁面）=====
+   [城市, 第幾個亮點, Pexels 照片 id, 攝影師帳號（取自 Pexels 下載檔名）, 原始頁面 slug, alt]
+   null 表示還沒有找到確定是該景點的照片，畫面會用備用樣式。 */
+const PEXELS=[
+['tokyo',0,21792352,'tonywuphotography','lantern-at-kaminarimon-gate-of-sensoji-temple','淺草寺雷門的大燈籠'],
+['tokyo',1,33250722,'vinnyanugraha','majestic-torii-gate-at-meiji-shrine-entrance','明治神宮入口的鳥居'],
+['tokyo',2,5905666,'imani-williams-3907966','shibuya-crossing-in-tokyo-japan','澀谷十字路口的人潮'],
+['tokyo',3,18848578,'axp-photography-500641970','people-working-at-tsukiji-market-in-tokyo-japan','築地市場裡工作的人'],
+['kyoto',0,36940469,'nachoestevo','serene-path-through-fushimi-inari-taisha-torii-gates','伏見稻荷大社的千本鳥居步道'],
+['kyoto',1,36717832,'irina-senti-2160320022','scenic-view-of-kiyomizu-dera-temple-in-kyoto','清水寺的木造建築'],
+['kyoto',2,18008217,'huuhuynh','arashimaya-bamboo-forest-in-kyoto','嵐山竹林小徑'],
+['kyoto',3,30987842,'yelenaodintsova','historical-street-scene-in-sunlit-gion-district','祇園的老街街景'],
+['seoul',0,19271538,'huy-phan-316220','gyeongbokgung-palace-in-south-korea','景福宮'],
+['seoul',1,39037957,'11totty','traditional-hanok-houses-in-bukchon-hanok-village','北村韓屋村的傳統韓屋'],
+['seoul',2,22689022,'maximilian-sky-682287986','n-seoul-tower-seoul-south-korea','南山首爾塔'],
+['seoul',3,37319818,'artem-korolev-2159253660','street-food-vendor-cooking-korean-mung-bean-pancakes','市場攤販在煎綠豆煎餅'],
+['paris',0,5976924,'eusouomatteus','photo-of-the-eiffel-tower-under-a-blue-sky','藍天下的艾菲爾鐵塔'],
+['paris',1,25053918,'detait','the-louvre-museum-in-paris-france','羅浮宮與玻璃金字塔'],
+['paris',2,24186954,'gina-bichsel-366533903','the-western-facade-of-the-notre-dame-de-paris','巴黎聖母院的西側立面'],
+['paris',3,9279185,'busra-gulen-97165023','sacre-coeur-basilica-in-paris','蒙馬特的聖心堂'],
+['london',0,29253512,'bertellifotografia','big-ben-and-westminster-palace-under-blue-sky','大笨鐘與西敏宮'],
+['london',1,38389551,'lajos-kristof-kantor-2158796893','the-british-museum-facade-in-london-uk','大英博物館的正面'],
+['london',2,19262645,'antoine-maurin-264851287','tower-bridge-in-london','倫敦塔橋'],
+['london',3,308376,'dom-j-7304','people-on-borough-market','博羅市場裡的人潮'],
+['newyork',0,20820859,'natalia-falon-1008732892','statue-of-liberty-in-new-york','自由女神像'],
+['newyork',1,5847354,'charles-parker','central-park-with-skyscrapers-in-new-york-city','中央公園與周圍的摩天大樓'],
+['newyork',2,9404571,'brian-lazo-92810756','brooklyn-bridge-in-new-york','布魯克林大橋'],
+['newyork',3,17097400,'franklin-naula-583629111','symmetrical-view-of-the-interior-of-the-metropolitan-museum-of-art-in-new-york','大都會藝術博物館的內部'],
+['bangkok',0,11105014,'maksim-romashkin','grand-palace-in-bangkok','曼谷大皇宮'],
+['bangkok',1,20889684,'kayaartsss','wat-pho-temple-in-bangkok-in-thailand','臥佛寺'],
+['bangkok',2,30970845,'rj-segotier-725639','majestic-wat-arun-temple-in-bangkok-thailand','鄭王廟的高塔'],
+['bangkok',3,35324198,'worldedits','bustling-aisle-of-chatuchak-weekend-market-in-bangkok','恰圖恰週末市集的走道'],
+['singapore',0,30572489,'wang-qihang-673548932','serene-garden-view-at-supertree-grove-singapore','濱海灣花園的超級樹'],
+['singapore',1,38075366,'alecdoua','bustling-night-at-maxwell-food-centre','夜晚的麥士威小販中心'],
+['singapore',2,29699025,'chan-s-1283910193','iconic-merlion-in-singapore-with-modern-skyscrapers','魚尾獅與天際線'],
+['singapore',3,34278797,'shlok-rana-2150773572','colorful-street-decorations-in-little-india-singapore','小印度的街頭裝飾'],
+['taipei',0,34332954,'wei86-travel-31932701','night-view-of-taipei-101-in-taiwan-cityscape','台北 101 的夜景'],
+['taipei',2,16648648,'mi-miyano-547915221','longshan-temple-in-taipei','台北龍山寺'],
+];
+for(const [city,i,id,user,slug,alt] of PEXELS){const m=CITY_EXTRA[city]&&CITY_EXTRA[city].mustSee[i];if(!m)continue;
+  m.image={src:`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=480`,alt,source:'Pexels',author:user.replace(/(-\d+)+$/,'').replace(/-/g,' '),url:`https://www.pexels.com/photo/${slug}-${id}/`};}
