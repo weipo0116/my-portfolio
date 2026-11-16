@@ -64,6 +64,9 @@
 .trip-card .tm2{font-size:13px;color:var(--ink-2)}
 .trip-card .tk{font-size:12.5px;color:var(--ink-3);margin:8px 0 0}
 .trip-card .tk a{color:var(--ink-2);display:inline-flex;min-height:32px;align-items:center}
+.tix{margin-top:30px;padding-top:16px;border-top:1px solid var(--line)}
+.tix p{margin:6px 0 0;font-size:14px;color:var(--ink-2)}
+.tix a{color:var(--ink);display:inline-flex;min-height:36px;align-items:center}
 .note-sm{margin:12px 0 0;font-size:12px;line-height:1.6;color:var(--ink-3)}
 @media (max-width:420px){.ms-card{grid-template-columns:88px minmax(0,1fr);gap:10px}}
 </style>
@@ -742,6 +745,7 @@ ${tripsHTML(c)}
 <section class="pillar reveal" id="p-hist"><header><h3>歷史一句話</h3><span class="mono">History</span></header><p class="hist">${esc(c.hist)}</p></section>
 <section class="pillar reveal" id="p-season"><header><h3>季節與節慶</h3><span class="mono">When</span></header>
  <div class="season"><div><span class="mono">適合去</span><p>${esc(c.season)}</p></div><div><span class="mono">節慶</span><p>${esc(c.fest)}</p></div></div>
+ <div class="tix"><span class="mono">票券與活動</span><p>想找${esc(c.zh)}的門票、一日遊或交通票：<a href="${klook(c.zh)}" ${EXT}>Klook</a> · <a href="${kkday(c.zh)}" ${EXT}>KKday</a></p><p class="note-sm">只是站外搜尋連結，不代表推薦或比價；價格、空位及取消規則以平台頁面為準。</p></div>
  <div style="margin-top:34px"><span class="mono">附近的說明書</span><div class="near">${near.map(k=>`<button class="chip" type="button" data-go="${k.id}">${esc(k.zh)}<span class="mono">${esc(k.cz)}</span></button>`).join('')}</div></div></section>`;}
 
 function introHTML(){const hot=['tokyo','bangkok','seoul'].filter(id=>byId[id]);
