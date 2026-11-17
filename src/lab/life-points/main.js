@@ -6,6 +6,10 @@ import { compute, dividend, dreamDividend, dreamWindow, clampAge, clamp, DEFAULT
 import { drawRoad, pxPerYear, walkerX, groundY } from "./road.js";
 import { drawCard, cardFonts } from "./card.js";
 import { createMusic } from "./music.js";
+import { createMotes } from "./motes.js";
+
+const motes = createMotes(document.getElementById("motes"));
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) motes.start();
 
 const music = createMusic();
 const musicPref = () => { try { return localStorage.getItem("lp-music") !== "off"; } catch { return true; } };
@@ -813,7 +817,7 @@ function bind() {
     render();
     moveCave();
   });
-  reduceQuery.addEventListener("change", render);
+  reduceQuery.addEventListener("change", () => { render(); if (reduced()) motes.still(); else motes.start(); });
 }
 
 /* ---------- the cave: the whole page walks out of it ---------- */
@@ -852,6 +856,8 @@ function moveCave() {
   });
   $("#caveSky").style.opacity = clamp(g * g * 0.8, 0, 0.8);
   music.light(g);
+  motes.light(g);
+  $("#caveRays").style.opacity = 0.55 + g * 0.35;
   $("#caveLight").style.opacity = 1 - g * 0.5;
 }
 

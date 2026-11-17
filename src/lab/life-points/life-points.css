@@ -143,7 +143,12 @@ h2 {
 .warm { margin-top: 10px; font-size: clamp(1.05rem, 4.2vw, 1.25rem); color: var(--warm); }
 .note { margin-top: 14px; font-size: 13.5px; line-height: 1.6; color: var(--ink3); text-wrap: pretty; }
 
-.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 1.8s cubic-bezier(0.25, 0.1, 0.25, 1), transform 1.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.in > * { animation: breathe-in 2.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.reveal.in > :nth-child(2) { animation-delay: 0.25s; }
+.reveal.in > :nth-child(3) { animation-delay: 0.5s; }
+.reveal.in > :nth-child(n + 4) { animation-delay: 0.75s; }
+@keyframes breathe-in { from { opacity: 0; } }
 .reveal.in { opacity: 1; transform: none; }
 
 .scene.start { padding-top: 88px; padding-bottom: 40px; }
@@ -231,6 +236,23 @@ input[aria-invalid="true"] { border-color: #e89a7a; }
 .cave { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .cave-sky { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, #0c1734 0%, #232748 52%, #4d3a44 82%, #6b4a3c 100%); }
 .cave-light { position: absolute; inset: 0; background: radial-gradient(ellipse 34% 30% at 50% 50%, rgba(255, 226, 184, 0.26), rgba(150, 170, 255, 0.1) 45%, transparent 75%); }
+.cave-rays {
+  position: absolute;
+  left: 50%;
+  top: -20%;
+  width: 160vmax;
+  height: 160vmax;
+  margin-left: -80vmax;
+  background: repeating-conic-gradient(from 0deg at 50% 0%, rgba(255, 228, 182, 0.07) 0deg 2.2deg, transparent 2.2deg 7deg);
+  -webkit-mask-image: radial-gradient(ellipse 40% 55% at 50% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 40% 55% at 50% 0%, #000 0%, transparent 72%);
+  opacity: 0.55;
+  transform-origin: 50% 0%;
+  animation: rays 60s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes rays { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+.motes { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cave-rock { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 50%; will-change: transform, opacity; }
 .cave-hint { margin-top: -6px; font-size: 13px; color: var(--ink3); text-align: center; }
 
@@ -443,7 +465,8 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
   .wk-step { position: static; opacity: 1; }
   .wk-legend li { opacity: 1; }
   .scroll-hint { display: none; }
-  .scroll-hint svg, body::after { animation: none; }
+  .scroll-hint svg, body::after, .cave-rays, .reveal.in > * { animation: none; }
+  .motes { display: none; }
   .used i { transition: none; }
   .road { height: auto; }
   .road-sticky { position: static; height: auto; overflow: visible; padding-bottom: 88px; display: grid; gap: 28px; }
