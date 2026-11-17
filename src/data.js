@@ -283,7 +283,7 @@ export const siteData = {
       },
       {
         name: "Life Points — Action Points Left",
-        status: "Brewing",
+        status: "Lit",
         problem:
           "We know life is finite, but a number like 80 years is too abstract to change what we do this weekend.",
         approach:
