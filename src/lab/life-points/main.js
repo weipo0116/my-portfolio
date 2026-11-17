@@ -6,6 +6,7 @@ import { compute, dividend, dreamDividend, dreamWindow, clampAge, clamp, DEFAULT
 import { drawRoad, pxPerYear, walkerX, groundY } from "./road.js";
 import { drawCard, cardFonts } from "./card.js";
 import { createMusic } from "./music.js";
+import { drawStars } from "./star.js";
 import { createMotes } from "./motes.js";
 
 const motes = createMotes(document.getElementById("motes"));
@@ -60,6 +61,9 @@ const fresh = () => ({
   which: "mother",
   motherAge: "",
   fatherAge: "",
+  kidsMode: "plan",
+  kidAge: "",
+  parentAt: "",
   dreams: [], // curated id strings or { custom: "text" }
   move: "",
 });
@@ -392,6 +396,42 @@ function renderTail() {
   $("#visitsTag").hidden = Boolean(state.touched.visits);
   $("#meetups2Out").textContent = S.perYearTimes(state.meetups);
   $("#meetups2Tag").hidden = Boolean(state.touched.meetups);
+  renderKids();
+}
+
+/* ---------- scene 3b: children ---------- */
+function kidsModel(d) {
+  if (state.kidsMode === "no") return null;
+  const have = state.kidsMode === "have";
+  const birthAge = have ? d.a - state.kidAge : state.parentAt;
+  const childNow = d.a - birthAge; // negative while still planned
+  const together = Math.max(0, Math.round(d.L - Math.max(d.a, birthAge)));
+  const summers = Math.max(0, Math.round(Math.min(18, d.L - birthAge) - Math.max(0, childNow)));
+  return { have, birthAge, childNow, together, summers, L: Math.round(d.L) };
+}
+
+function renderKids() {
+  const k = kidsModel(data);
+  $("#kidAgeField").hidden = state.kidsMode !== "have";
+  $("#parentAtField").hidden = state.kidsMode !== "plan";
+  $("#kidsOut").hidden = !k;
+  $("#kidsNo").hidden = Boolean(k);
+  if (!k) return;
+  phr($("#kidsLine"), S.kidsLine(k.together));
+  const grown = k.childNow >= 18;
+  phr($("#kidsSummers"), grown ? S.kidsGrown : S.kidsSummers(k.summers));
+  const cv = $("#boxKids");
+  cv.hidden = grown || !k.summers;
+  if (!cv.hidden) {
+    cv.setAttribute("aria-label", S.kidsAlt(k.summers));
+    drawBoxes(cv, k.summers);
+  }
+  $("#milestones").innerHTML = S.milestones.map(([m, label]) => {
+    const at = k.birthAge + m;
+    const cls = k.childNow >= m ? "past" : at > data.L ? "beyond" : "";
+    return `<li class="${cls}"><b>${cls === "past" ? `<i>${esc(S.msPast)}</i>` : ""}${esc(label)}</b><span>${esc(S.msRow(Math.round(at)))}</span></li>`;
+  }).join("");
+  $("#fKids").textContent = S.fKids(k.L, Math.round(k.birthAge));
 }
 
 /* ---------- scene 4: dreams ---------- */
@@ -498,9 +538,30 @@ function renderRoad() {
   road.w = sticky.clientWidth;
   road.h = sticky.clientHeight;
   road.ctx = reduced() ? null : setCanvas($("#roadCanvas"), road.w, road.h);
+  const sc = $("#starCanvas");
+  sc.style.width = "";
+  sc.style.height = "";
+  road.sw = sc.clientWidth || 150;
+  road.sh = sc.clientHeight || 168;
+  road.sctx = reduced() ? null : setCanvas(sc, road.sw, road.sh);
+  sc.style.width = "";
+  sc.style.height = "";
   $("#roadCanvas").style.width = "";
   $("#roadCanvas").style.height = "";
   moveRoad(true);
+}
+
+// The stars in the corner: you, and the people whose lives run alongside yours.
+let starFont = "";
+function drawStarField(age) {
+  if (!road.sctx) return;
+  const d = data;
+  const stars = [{ f: age / d.L, main: true }];
+  d.parents.forEach((p) => stars.push({ f: (p.age + age - d.a) / (p.age + p.Rp), label: S[p.who] }));
+  const k = kidsModel(d);
+  if (k) stars.push({ f: (age - k.birthAge) / d.L, label: S.starChild });
+  starFont ||= getComputedStyle(document.body).fontFamily;
+  drawStars(road.sctx, road.sw, road.sh, stars, { stageNames: S.starStages, energyLabel: S.starEnergy, t: age * 2, font: starFont });
 }
 
 // Scroll progress → walker age: walk the lived years, pause at "now", then walk ahead.
@@ -519,16 +580,20 @@ function moveRoad(force) {
   const d = data;
   /* walk at one steady pace: scroll share per year is the same before and after "now" */
   const HOLD = 0.22;
-  const walk = 1 - HOLD - 0.04;
+  const END = 0.86; // after this the walker turns into light
+  const walk = END - 0.02 - HOLD;
   const A = 0.02 + clamp(walk * (d.a / d.L), 0.12, walk - 0.12);
   const B = A + HOLD;
-  const age = p < 0.02 ? 0 : p < A ? d.a * ((p - 0.02) / (A - 0.02)) : p < B ? d.a : d.a + (d.L - d.a) * clamp((p - B) / (1 - 0.02 - B), 0, 1);
+  const age = p < 0.02 ? 0 : p < A ? d.a * ((p - 0.02) / (A - 0.02)) : p < B ? d.a : d.a + (d.L - d.a) * clamp((p - B) / (END - B), 0, 1);
+  const fade = clamp((p - END) / (0.985 - END), 0, 1);
   const hold = clamp((p - A) / (B - A), 0, 1);
   const lit = p < A ? 0 : smooth(clamp(hold * 4, 0, 1));
   const lamp = p < A ? 0 : smooth(clamp(hold * 6, 0, 1));
-  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lamp, lanterns: road.lanterns.map((l) => l.age), memories: road.memories.map((m) => m.age), gates: STAGES.map((st) => st.from).filter((v) => v < d.L) });
+  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lamp, fade, lanterns: road.lanterns.map((l) => l.age), memories: road.memories.map((m) => m.age), gates: STAGES.map((st) => st.from).filter((v) => v < d.L) });
 
+  drawStarField(age + fade * 6);
   const panel = clamp((p - A) / 0.03, 0, 1) * clamp((B + 0.02 - p) / 0.04, 0, 1);
+  $("#starCanvas").style.opacity = 1 - panel;
   $("#s5Title").style.opacity = clamp(1 - p / 0.06, 0, 1);
   const hud = $("#roadHud");
   hud.style.opacity = clamp((p - 0.05) / 0.04, 0, 1) * (1 - panel);
@@ -671,6 +736,14 @@ function start(e) {
   if (state.fatherAge === "") state.fatherAge = clampAge(state.age + 30, 18, 110);
   $("#motherAge").value = state.motherAge;
   $("#fatherAge").value = state.fatherAge;
+  if (state.parentAt === "") state.parentAt = clampAge(Math.max(state.age + 2, 30), 16, 70);
+  if (state.kidAge === "") state.kidAge = Math.max(0, Math.min(5, state.age - 18));
+  if (state.age >= 45 && state.kidsMode === "plan") {
+    state.kidsMode = "have";
+    $("#kidsSeg input[value=have]").checked = true;
+  }
+  $("#parentAt").value = state.parentAt;
+  $("#kidAge").value = state.kidAge;
   state.started = true;
   $("#journey").hidden = false;
   render();
@@ -730,6 +803,16 @@ function bind() {
   });
   $("#parentsSeg").addEventListener("change", (e) => { state.parentsMode = e.target.value; render(); });
   $("#whichSeg").addEventListener("change", (e) => { state.which = e.target.value; render(); });
+  $("#kidsSeg").addEventListener("change", (e) => { state.kidsMode = e.target.value; render(); });
+  [["kidAge", 0, () => Math.max(0, state.age - 14)], ["parentAt", 16, () => 70]].forEach(([id, lo, hi]) => {
+    const el = $(`#${id}`);
+    el.addEventListener("input", () => {
+      if (el.value === "" || !Number.isFinite(Number(el.value))) return;
+      state[id] = Math.round(clamp(Number(el.value), lo, hi()));
+      render();
+    });
+    el.addEventListener("blur", () => { el.value = state[id]; });
+  });
   ["mother", "father"].forEach((w) => {
     const el = $(`#${w}Age`);
     el.addEventListener("input", () => {
@@ -792,6 +875,7 @@ function bind() {
     $("#shareNote").hidden = true;
     $("#parentsSeg input[value=both]").checked = true;
     $("#whichSeg input[value=mother]").checked = true;
+    $("#kidsSeg input[value=plan]").checked = true;
     $$(".cl").forEach((el) => el.classList.remove("on"));
     $$("#journey .reveal").forEach((el) => el.classList.remove("in"));
     $$(".boxes").forEach((cv) => delete cv.dataset.n);

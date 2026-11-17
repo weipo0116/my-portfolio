@@ -57,6 +57,37 @@ function glow(ctx, x, y, r, alpha, rgb = "246,185,91") {
 }
 
 // s: { age, a, L, lit (0..1), lanterns: [age] }
+let layer = null;
+const smoothstep = (v) => v * v * (3 - 2 * v);
+// grains of light the walker becomes; fixed so the scatter is the same on every frame
+const GRAINS = Array.from({ length: 120 }, (_, i) => {
+  const r = (n) => { const x = Math.sin(i * 127.1 + n * 311.7) * 43758.5453; return x - Math.floor(x); };
+  return { ox: -12 + r(1) * 40, oy: r(2) * 58, tx: 0.04 + r(3) * 0.92, ty: 0.04 + r(4) * 0.42, size: 0.6 + r(5) * 1.4, delay: r(6) * 0.4, bend: (r(7) - 0.5) * 120, keep: 0.25 + r(8) * 0.6, warm: r(9) };
+});
+
+function scatter(ctx, w, h, wx, gy, k, fade) {
+  GRAINS.forEach((g) => {
+    const u = clamp01((fade - g.delay) / (1 - g.delay));
+    if (u <= 0) return;
+    const e = smoothstep(u);
+    const sx = wx + g.ox * k;
+    const sy = gy - g.oy * k;
+    const ex = g.tx * w;
+    const ey = g.ty * h;
+    const cx = (sx + ex) / 2 + g.bend * k;
+    const cy = sy - (sy - ey) * 1.1;
+    const x = (1 - e) * (1 - e) * sx + 2 * (1 - e) * e * cx + e * e * ex;
+    const y = (1 - e) * (1 - e) * sy + 2 * (1 - e) * e * cy + e * e * ey;
+    const a = Math.min(1, u * 5) * (1 - e * (1 - g.keep));
+    const c = g.warm > 0.5 ? `255,${Math.round(214 + 30 * e)},${Math.round(150 + 90 * e)}` : "230,236,255";
+    if (g.size > 1.5) glow(ctx, x, y, g.size * 6 * k, a * 0.35);
+    ctx.fillStyle = `rgba(${c},${a})`;
+    ctx.beginPath();
+    ctx.arc(x, y, g.size * k, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
 export function drawRoad(ctx, w, h, s) {
   const gy = groundY(h, w);
   const ppy = pxPerYear(w);
@@ -327,6 +358,20 @@ export function drawRoad(ctx, w, h, s) {
     ctx.globalAlpha = 1;
   });
 
+  // at the very end the walker is drawn on a side layer so it can fade as it turns to light
+  const fade = s.fade || 0;
+  const base = ctx;
+  if (fade > 0) {
+    if (!layer || layer.width !== base.canvas.width || layer.height !== base.canvas.height) {
+      layer = document.createElement("canvas");
+      layer.width = base.canvas.width;
+      layer.height = base.canvas.height;
+    }
+    ctx = layer.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, layer.width, layer.height);
+    ctx.setTransform(base.getTransform());
+  }
   // the walker: grows from a child, picks up the lantern at "now", stoops a little late in life
   const grow = s.age < 18 ? 0.46 + 0.54 * clamp01(s.age / 18) ** 0.8 : 1;
   const g = k * grow;
@@ -415,6 +460,16 @@ export function drawRoad(ctx, w, h, s) {
     ctx.moveTo(wx - 6 * g, hipY - 14 * g);
     ctx.lineTo(wx - 13 * g - Math.sin(phase) * 5 * g, gy);
     ctx.stroke();
+  }
+
+  if (fade > 0) {
+    ctx = base;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1 - smoothstep(clamp01(fade * 1.6));
+    ctx.drawImage(layer, 0, 0);
+    ctx.restore();
+    scatter(ctx, w, h, wx, gy, k, fade);
   }
 
   // grass in the foreground moves fastest

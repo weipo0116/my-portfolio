@@ -340,6 +340,19 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
 .ages { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
 .gentle { font: 500 clamp(1.25rem, 5vw, 1.7rem)/1.6 var(--serif); text-wrap: balance; }
 .tail-rows { display: grid; gap: 28px; }
+.kids { display: grid; gap: 20px; margin-top: 72px; padding-top: 48px; border-top: 1px solid var(--line); }
+.kids-title { font: 600 clamp(1.5rem, 6vw, 2.2rem)/1.3 var(--serif); }
+.kids-out { display: grid; gap: 4px; }
+.kids-out[hidden], .kids .gentle[hidden] { display: none; }
+.kids-sub { margin-top: 10px; color: var(--ink2); font-size: 15px; line-height: 1.6; }
+.milestones { list-style: none; margin: 18px 0 10px; padding: 0; display: grid; gap: 0; }
+.milestones li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 2px; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--ink); }
+.milestones li b { font-weight: 500; }
+.milestones li span { color: var(--ink2); font-variant-numeric: tabular-nums; }
+.milestones li.past { color: var(--ink3); }
+.milestones li.past span { color: var(--ink3); }
+.milestones li.beyond { opacity: 0.38; }
+.milestones li i { font-style: normal; color: var(--warm); margin-right: 8px; }
 .tail-line { font: 500 clamp(1.2rem, 5vw, 1.75rem)/1.45 var(--serif); min-height: 2.9em; display: flex; align-items: flex-end; text-wrap: balance; }
 @media (min-width: 700px) { .tail-line { min-height: 1.45em; } }
 .boxes { display: block; width: 100%; height: 104px; margin-top: 14px; filter: drop-shadow(0 0 4px rgba(246, 185, 91, 0.35)); }
@@ -377,6 +390,8 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
 .road { position: relative; height: 560vh; }
 .road-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 #roadCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.star-cv { position: absolute; top: 76px; right: 10px; width: 150px; height: 168px; pointer-events: none; z-index: 1; }
+@media (min-width: 700px) { .star-cv { top: 96px; right: 28px; width: 210px; height: 220px; } }
 .road-head { position: relative; padding: 104px var(--pad) 0; max-width: 1128px; margin: 0 auto; }
 .road-hud { position: absolute; left: var(--pad); top: 136px; display: grid; gap: 2px; opacity: 0; }
 .road-hud b { font: 700 clamp(1.9rem, 7vw, 3.5rem)/1.2 var(--serif); }
@@ -439,6 +454,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
 .foot p { max-width: 640px; margin: 0 auto; text-wrap: pretty; }
 
 @media (prefers-reduced-motion: reduce) {
+  .star-cv { display: none; }
   html { scroll-behavior: auto; }
   .reveal, .cl { transform: none; transition: opacity 0.6s linear; }
   #gridGlow.on, .sheet[open] { animation: none; }

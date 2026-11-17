@@ -183,6 +183,34 @@
             <p class="formula" id="fFriends"></p>
           </div>
         </div>
+        <div class="kids reveal" id="kidsBlock">
+          <h3 class="kids-title" data-i18n="kidsTitle"></h3>
+          <fieldset class="field">
+            <legend data-i18n="kidsQ"></legend>
+            <div class="seg" id="kidsSeg">
+              <label><input type="radio" name="kids" value="have" /><span data-i18n="kHave"></span></label>
+              <label><input type="radio" name="kids" value="plan" checked /><span data-i18n="kPlan"></span></label>
+              <label><input type="radio" name="kids" value="no" /><span data-i18n="kNo"></span></label>
+            </div>
+          </fieldset>
+          <div class="field" id="kidAgeField" hidden>
+            <label for="kidAge" data-i18n="kidAgeLabel"></label>
+            <input id="kidAge" type="number" inputmode="numeric" min="0" max="80" step="1" autocomplete="off" />
+          </div>
+          <div class="field" id="parentAtField">
+            <label for="parentAt" data-i18n="parentAtLabel"></label>
+            <input id="parentAt" type="number" inputmode="numeric" min="16" max="70" step="1" autocomplete="off" />
+          </div>
+          <div class="kids-out" id="kidsOut">
+            <p class="tail-line" id="kidsLine"></p>
+            <p class="kids-sub" id="kidsSummers"></p>
+            <canvas class="boxes" id="boxKids" role="img"></canvas>
+            <ol class="milestones" id="milestones"></ol>
+            <p class="formula" id="fKids"></p>
+            <p class="formula" data-i18n="kidsNote"></p>
+          </div>
+          <p class="gentle" id="kidsNo" data-i18n="kidsNoLine" hidden></p>
+        </div>
       </div>
     </section>
 
@@ -210,6 +238,7 @@
     <section class="road" id="s5" aria-labelledby="s5Title">
       <div class="road-sticky">
         <canvas id="roadCanvas" aria-hidden="true"></canvas>
+        <canvas class="star-cv" id="starCanvas" aria-hidden="true"></canvas>
         <div class="road-head">
           <p class="eyebrow" data-i18n="s5Eyebrow"></p>
           <h2 id="s5Title" data-i18n="s5Title"></h2>
