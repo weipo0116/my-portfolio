@@ -2,7 +2,8 @@
 import tables from "./data/life-tables.json";
 import { DREAMS } from "./data/dreams.js";
 import { STRINGS, fmt } from "./strings.js";
-import { compute, dividend, dreamWindow, clampAge, clamp, DEFAULTS } from "./calc.js";
+import { compute, dividend, dreamDividend, dreamWindow, clampAge, clamp, DEFAULTS } from "./calc.js";
+import { drawRoad, pxPerYear, walkerX, groundY } from "./road.js";
 import { drawCard, cardFonts } from "./card.js";
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -318,9 +319,6 @@ function buildChips() {
   ).join("");
 }
 
-const pips = (v, max, label) =>
-  `<div class="pips" role="img" aria-label="${label} ${v}/${max}">${Array.from({ length: max }, (_, i) => `<i class="${i < v ? "on" : ""}"></i>`).join("")}</div>`;
-
 function renderDreams() {
   const full = state.dreams.length >= 3;
   $$(".chip").forEach((el) => {
@@ -329,29 +327,15 @@ function renderDreams() {
     el.setAttribute("aria-disabled", full && !on);
   });
   $("#maxNote").hidden = !full;
-  const div = dividend(data.a, data.L);
-  const cards = state.dreams.map((entry, i) => {
-    const d = typeof entry === "string" ? DREAMS.find((x) => x.id === entry) : null;
-    const name = d ? dreamName(d) : esc(entry.custom);
-    const head = `<div class="dream-head">${icon(d ? d.icon : STAR)}<h3>${name}</h3><button class="dream-x" type="button" data-i="${i}" aria-label="${S.remove}: ${name}">×</button></div>`;
-    const divLine = `<p class="dream-div"><span>${S.dividendLabel}</span>${S.dividend(div)}</p>`;
-    if (!d) return `<article class="dream">${head}<p class="dream-window"><span class="tag">${S.customTag}</span></p>${divLine}</article>`;
-    const win = dreamWindow(d.latestAge, data.a);
-    const level = S[{ plenty: "lvPlenty", soon: "lvSoon", now: "lvNow", care: "lvCare" }[win.level]];
-    return `<article class="dream">${head}
-      <div class="dream-meta">
-        <div>${S.latest}<b class="num">${S.latestAge(d.latestAge)}</b></div>
-        <div>${S.demand}${pips(d.demand, 5, S.demand)}</div>
-        <div>${S.cost}${pips(d.cost, 4, S.cost)}</div>
-      </div>
-      <p class="dream-window"><span class="tag">${level}</span>${win.left > 0 ? `<span class="num">${S.windowLeft(win.left)}</span>` : ""}</p>
-      ${divLine}</article>`;
-  });
-  $("#dreamCards").innerHTML = cards.join("") || `<p class="note">${S.s4Empty}</p>`;
+  $("#customChips").innerHTML = state.dreams
+    .map((entry, i) => (typeof entry === "string" ? "" : `<button class="chip" type="button" data-i="${i}" aria-pressed="true" aria-label="${S.remove}: ${esc(entry.custom)}">${icon(STAR)}<span>${esc(entry.custom)}</span><span aria-hidden="true">×</span></button>`))
+    .join("");
 }
 
-/* ---------- scene 5: walk ---------- */
-const walk = { width: 0, ticking: false };
+/* ---------- scene 5: the road ahead ---------- */
+const road = { ticking: false, lanterns: [], w: 0, h: 0, ctx: null };
+const LEVELS = { plenty: "lvPlenty", soon: "lvSoon", now: "lvNow", care: "lvCare" };
+const smooth = (t) => t * t * (3 - 2 * t);
 
 function stagesFor(d) {
   return STAGES.filter((s) => s.from < d.L).map((s) => {
@@ -361,39 +345,95 @@ function stagesFor(d) {
   });
 }
 
-function renderWalk() {
+function renderRoad() {
   const d = data;
-  const vw = window.innerWidth;
-  walk.width = Math.max(vw * 3.4, 2400);
-  const x = (age) => (age / d.L) * walk.width;
-  const stages = stagesFor(d);
-  const ticks = [];
-  for (let t = 10; t < d.L - 2; t += 10) ticks.push(`<span class="walk-tick num" style="left:${x(t)}px">${t}</span>`);
-  $("#walkTrack").style.width = `${walk.width}px`;
-  $("#walkTrack").innerHTML = `
-    <div class="walk-line lived" style="left:0;width:${x(d.a)}px"></div>
-    <div class="walk-line ahead" style="left:${x(d.a)}px;width:${walk.width - x(d.a)}px"></div>
-    ${ticks.join("")}
-    ${stages.map((s) => `<div class="walk-stage ${s.status}" style="left:${x(s.from)}px"><b>${s.name}</b><span class="num">${S.stRange(s.from, s.to)}</span></div>`).join("")}
-    <div class="walk-dot" style="left:${x(d.a)}px"></div>
-    <div class="walk-here num" style="left:${x(d.a)}px">${S.here(d.a)}</div>
-    <div class="walk-end num" style="left:${walk.width}px">${S.endMark(d.L)}</div>`;
+  road.lanterns = state.dreams.map((entry) => {
+    const dream = typeof entry === "string" ? DREAMS.find((x) => x.id === entry) : null;
+    const name = dream ? dreamName(dream) : entry.custom;
+    const div = dream ? dreamDividend(dream.latestAge, d.a, d.L) : dividend(d.a, d.L);
+    const age = clamp(dream ? dream.latestAge : d.a + 1, d.a + 1, Math.max(d.a + 1, d.L - 1));
+    const level = dream ? S[LEVELS[dreamWindow(dream.latestAge, d.a).level]] : S.customTag;
+    return { dream, name, div, age, level };
+  });
+  phr($("#roadHere"), S.here(d.a));
+  $("#roadRows").innerHTML = road.lanterns.length
+    ? road.lanterns
+        .map(({ dream, name, div, level }) => {
+          const later = div.laterAge === null
+            ? `<p class="beam-label">${S.lvCare}</p>`
+            : `<div class="beam later" style="--w:${div.now ? Math.max(0.02, div.later / div.now) : 0}"><i></i></div><p class="beam-label num">${S.beamLater(div.laterAge, div.later)}</p>`;
+          return `<article class="beam-row">
+            <div class="beam-head">${icon(dream ? dream.icon : STAR)}<h3>${esc(name)}</h3><span class="tag">${level}</span></div>
+            <div class="beam now" style="--w:1"><i></i></div><p class="beam-label num warm-text">${S.beamNow(div.now)}</p>
+            ${later}</article>`;
+        })
+        .join("")
+    : `<p class="gentle" id="roadEmpty"></p>`;
+  if (!road.lanterns.length) phr($("#roadEmpty"), S.roadEmpty);
+  $("#roadNote").hidden = !road.lanterns.some((l) => l.dream);
+  $("#roadTags").innerHTML = road.lanterns
+    .map(({ dream, name }) => `<p class="road-tag"><b>${esc(name)}</b>${dream ? `<span class="num">${S.lanternTag(dream.latestAge)}</span>` : ""}</p>`)
+    .join("");
   const label = { past: S.stWalked, now: S.stNow, ahead: S.stAhead };
-  $("#walkStatic").innerHTML = stages
+  $("#walkStatic").innerHTML = stagesFor(d)
     .map((s) => `<li class="${s.status}"><div><b>${s.name}</b> <span class="num">${S.stRange(s.from, s.to)}</span></div><em>${label[s.status]}</em></li>`)
     .join("");
-  moveWalk();
+  const sticky = $(".road-sticky");
+  road.w = sticky.clientWidth;
+  road.h = sticky.clientHeight;
+  road.ctx = reduced() ? null : setCanvas($("#roadCanvas"), road.w, road.h);
+  $("#roadCanvas").style.width = "";
+  $("#roadCanvas").style.height = "";
+  moveRoad(true);
 }
 
-function moveWalk() {
-  walk.ticking = false;
-  if (!data || reduced()) return;
+// Scroll progress → walker age: walk the lived years, pause at "now", then walk ahead.
+function moveRoad(force) {
+  road.ticking = false;
+  if (!data) return;
+  const rows = $$(".beam-row");
+  if (reduced() || !road.ctx) {
+    rows.forEach((el) => { el.style.setProperty("--h", 1); el.style.opacity = 1; });
+    return;
+  }
   const rect = $("#s5").getBoundingClientRect();
   const span = rect.height - window.innerHeight;
-  if (span <= 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
-  const p = clamp(-rect.top / span, 0, 1);
-  $("#walkTrack").style.transform = `translate3d(${window.innerWidth / 2 - p * walk.width}px,0,0)`;
-  $("#walkAge").textContent = `${Math.round(p * data.L)}${lang === "zh" ? " 歲" : ""}`;
+  if (!force && (rect.bottom < -50 || rect.top > window.innerHeight + 50)) return;
+  const p = clamp(-rect.top / Math.max(1, span), 0, 1);
+  const d = data;
+  const A = 0.2;
+  const B = 0.46;
+  const age = p < A ? d.a * smooth(p / A) : p < B ? d.a : d.a + (d.L - d.a) * ((p - B) / (1 - B));
+  const hold = clamp((p - A) / (B - A), 0, 1);
+  const lit = p < A ? 0 : smooth(clamp(hold * 4, 0, 1));
+  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lanterns: road.lanterns.map((l) => l.age) });
+
+  const panel = clamp((p - A) / 0.03, 0, 1) * clamp((B + 0.02 - p) / 0.04, 0, 1);
+  $("#s5Title").style.opacity = clamp(1 - p / 0.06, 0, 1);
+  const hud = $("#roadHud");
+  hud.style.opacity = clamp((p - 0.05) / 0.04, 0, 1) * (1 - panel);
+  const stage = STAGES.find((s) => age < s.to) ?? STAGES[STAGES.length - 1];
+  $("#roadStage").textContent = S[stage.key];
+  $("#roadAge").textContent = S.roadAge(Math.round(age));
+  const now = $("#roadNow");
+  now.style.opacity = panel;
+  now.style.visibility = panel > 0.01 ? "visible" : "hidden";
+  rows.forEach((el, i) => {
+    const h = smooth(clamp(hold * 2.6 - 0.35 - i * 0.35, 0, 1));
+    el.style.setProperty("--h", h);
+    el.style.opacity = h;
+  });
+  const empty = $("#roadEmpty");
+  if (empty) empty.style.opacity = smooth(clamp(hold * 2.6 - 0.35, 0, 1));
+  const ppy = pxPerYear(road.w);
+  const wx = walkerX(road.w);
+  const gy = groundY(road.h, road.w);
+  $$(".road-tag").forEach((el, i) => {
+    const x = wx + (road.lanterns[i].age - age) * ppy;
+    const edge = Math.min(x, road.w - x);
+    el.style.transform = `translate3d(${x}px,${gy - 82 * clamp(road.h / 844, 0.85, 1.2)}px,0) translate(-50%,-100%)`;
+    el.style.opacity = clamp(edge / 90, 0, 1) * (1 - panel) * (p > B ? 1 : 0);
+  });
 }
 
 /* ---------- scene 6: card ---------- */
@@ -454,7 +494,7 @@ function render() {
   renderStats();
   renderTail();
   renderDreams();
-  renderWalk();
+  renderRoad();
   phr($("#climax1"), S.climax1(d));
   ["trips", "books", "meetups"].forEach((k) => {
     $(`#${k}`).value = state[k];
@@ -557,18 +597,18 @@ function bind() {
     else if (state.dreams.length < 3) state.dreams = [...state.dreams, id];
     render();
   });
+  $("#customChips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    state.dreams = state.dreams.filter((_, i) => i !== Number(chip.dataset.i));
+    render();
+  });
   $("#customForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const text = $("#customDream").value.trim();
     if (!text || state.dreams.length >= 3) return;
     state.dreams = [...state.dreams, { custom: text }];
     $("#customDream").value = "";
-    render();
-  });
-  $("#dreamCards").addEventListener("click", (e) => {
-    const x = e.target.closest(".dream-x");
-    if (!x) return;
-    state.dreams = state.dreams.filter((_, i) => i !== Number(x.dataset.i));
     render();
   });
 
@@ -611,9 +651,9 @@ function bind() {
   });
 
   window.addEventListener("scroll", () => {
-    if (walk.ticking) return;
-    walk.ticking = true;
-    requestAnimationFrame(moveWalk);
+    if (road.ticking) return;
+    road.ticking = true;
+    requestAnimationFrame(() => moveRoad(false));
   }, { passive: true });
   let lastW = window.innerWidth;
   window.addEventListener("resize", () => {

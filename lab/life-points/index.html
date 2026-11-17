@@ -173,23 +173,27 @@
           <input id="customDream" type="text" maxlength="40" autocomplete="off" data-i18n-ph="customPlaceholder" />
           <button class="btn ghost" type="submit" data-i18n="add"></button>
         </form>
+        <div class="chip-list" id="customChips"></div>
         <p class="note" id="maxNote" role="status" hidden data-i18n="maxed"></p>
-        <div class="dream-cards" id="dreamCards" aria-live="polite"></div>
-        <p class="note" data-i18n="editorial"></p>
+        <p class="note" data-i18n="s4Hint"></p>
       </div>
     </section>
 
     <!-- Scene 5 — The walk -->
-    <section class="walk" id="s5" aria-labelledby="s5Title">
-      <div class="walk-sticky">
-        <div class="walk-head">
+    <section class="road" id="s5" aria-labelledby="s5Title">
+      <div class="road-sticky">
+        <canvas id="roadCanvas" aria-hidden="true"></canvas>
+        <div class="road-head">
           <p class="eyebrow" data-i18n="s5Eyebrow"></p>
           <h2 id="s5Title" data-i18n="s5Title"></h2>
+          <p class="road-hud" id="roadHud" aria-hidden="true"><b id="roadStage"></b><span class="num" id="roadAge"></span></p>
         </div>
-        <div class="walk-view" aria-hidden="true">
-          <div class="walk-track" id="walkTrack"></div>
-          <div class="walk-cursor"><span class="num" id="walkAge"></span></div>
+        <div class="road-now" id="roadNow">
+          <p class="road-here num" id="roadHere"></p>
+          <div class="beam-rows" id="roadRows"></div>
+          <p class="note" id="roadNote" data-i18n="editorial"></p>
         </div>
+        <div class="road-tags" id="roadTags" aria-hidden="true"></div>
         <ol class="walk-static" id="walkStatic"></ol>
       </div>
     </section>

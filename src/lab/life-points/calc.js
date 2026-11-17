@@ -89,3 +89,12 @@ export function dreamWindow(latestAge, a) {
   if (left > 0) return { left, level: "now" };
   return { left: 0, level: "care" };
 }
+
+// Per-dream dividend: "this year" vs "at its recommended latest age".
+// Falls back to the generic comparison when that age is past or beyond the expected lifespan.
+export function dreamDividend(latestAge, a, L) {
+  const base = dividend(a, L);
+  if (latestAge <= a) return { now: base.now, laterAge: null, later: null };
+  if (latestAge >= L - 2) return base;
+  return { now: base.now, laterAge: latestAge, later: Math.max(0, Math.round(L - latestAge)) };
+}
