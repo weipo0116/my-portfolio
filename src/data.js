@@ -22,6 +22,7 @@ import labOutfitThumb from "./assets/images/lab/outfit.webp";
 import labWeekendThumb from "./assets/images/lab/weekend.webp";
 import labCitiesThumb from "./assets/images/lab/cities.webp";
 import labRoomThumb from "./assets/images/lab/room.webp";
+import labLifePointsThumb from "./assets/images/lab/life-points.webp";
 import lineLogoLocal from "./assets/logos/line.webp";
 import aatLogoLocal from "./assets/logos/aat.webp";
 
@@ -281,13 +282,14 @@ export const siteData = {
         link: `${import.meta.env.BASE_URL}lab/room/`,
       },
       {
-        name: "Life Points",
-        status: "Brewing",
-        problem: "Placeholder — the real problem statement comes with the build.",
-        approach: "Placeholder — an interactive remaining-life experience, coming soon.",
-        art: "spark",
-        glyph: "✦",
-        stack: ["Placeholder"],
+        name: "Life Points — Action Points Left",
+        status: "Lit",
+        problem:
+          "We know life is finite, but a number like 80 years is too abstract to change what we do this weekend.",
+        approach:
+          "A five-minute scroll that turns UN life tables into weeks, remaining visits with your parents and a window for each dream, then ends with a shareable Life Card. Everything runs in the browser.",
+        thumb: labLifePointsThumb,
+        stack: ["Canvas", "UN WPP 2024", "Scroll storytelling"],
         link: `${import.meta.env.BASE_URL}lab/life-points/`,
       },
     ],

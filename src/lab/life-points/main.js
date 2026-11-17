@@ -1,0 +1,668 @@
+// Life Points — one continuous scroll. No dependencies, no network calls with user input.
+import tables from "./data/life-tables.json";
+import { DREAMS } from "./data/dreams.js";
+import { STRINGS, fmt } from "./strings.js";
+import { compute, dividend, dreamWindow, clampAge, clamp, DEFAULTS } from "./calc.js";
+import { drawCard, cardFonts } from "./card.js";
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduceQuery = matchMedia("(prefers-reduced-motion: reduce)");
+const reduced = () => reduceQuery.matches;
+
+const VISIT_STEPS = [1, 2, 3, 4, 6, 8, 10, 12, 18, 24, 36, 52, 104, 208, 365];
+const STAGES = [
+  { key: "stChild", from: 0, to: 13 },
+  { key: "stTeens", from: 13, to: 20 },
+  { key: "st20", from: 20, to: 30 },
+  { key: "st30", from: 30, to: 40 },
+  { key: "stMid", from: 40, to: 65 },
+  { key: "stLater", from: 65, to: Infinity },
+];
+const CATS = [
+  ["travel", "catTravel"],
+  ["physical", "catPhysical"],
+  ["creative", "catCreative"],
+  ["personal", "catPersonal"],
+];
+const THE = new Set(["US", "GB", "NL", "PH", "AE"]);
+const STAT_KEYS = ["eves", "birthdays", "mornings", "trips", "books", "meetups"];
+
+const fresh = () => ({
+  started: false,
+  age: "",
+  country: "WORLD",
+  countryKnown: true,
+  sex: "b",
+  ...DEFAULTS,
+  touched: {},
+  parentsMode: "both",
+  which: "mother",
+  motherAge: "",
+  fatherAge: "",
+  dreams: [], // curated id strings or { custom: "text" }
+  move: "",
+});
+
+let lang = (navigator.language || "zh").toLowerCase().startsWith("zh") ? "zh" : "en";
+let state = fresh();
+let S = STRINGS[lang];
+let data = null;
+const seen = { grid: false, stats: false, card: false, climax: false };
+
+/* ---------- helpers ---------- */
+const countryName = (c) => (lang === "zh" ? c.zh : c.en);
+const byCode = (code) => tables.countries.find((c) => c.code === code);
+const norm = (v) => v.trim().toLowerCase();
+// "|" in a string marks phrase boundaries: each phrase stays on one line where it fits.
+function phr(el, text) {
+  if (!text.includes("|")) { el.textContent = text; return; }
+  el.textContent = "";
+  text.split("|").forEach((part) => {
+    const span = document.createElement("span");
+    span.className = "ph";
+    span.textContent = part;
+    el.append(span);
+  });
+}
+
+function resolveCountry(text) {
+  const q = norm(text);
+  if (!q) return { code: "WORLD", known: true };
+  const hit = tables.countries.find((c) => norm(c.zh) === q || norm(c.en) === q || c.code.toLowerCase() === q);
+  return hit ? { code: hit.code, known: true } : { code: "WORLD", known: false };
+}
+
+function inputForCalc() {
+  const parents = [];
+  if (state.parentsMode !== "none") {
+    const who = state.parentsMode === "both" ? ["mother", "father"] : [state.which];
+    who.forEach((w) => parents.push({ who: w, age: state[`${w}Age`] }));
+  }
+  return { ...state, parents };
+}
+
+function setCanvas(cv, w, h) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  cv.style.width = `${w}px`;
+  cv.style.height = `${h}px`;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) {
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+  }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return ctx;
+}
+
+/* ---------- i18n ---------- */
+function applyStrings() {
+  S = STRINGS[lang];
+  document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+  document.title = S.docTitle;
+  $$("[data-i18n]").forEach((el) => phr(el, S[el.dataset.i18n]));
+  $$("[data-i18n-ph]").forEach((el) => { el.placeholder = S[el.dataset.i18nPh]; });
+  $$("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", S[el.dataset.i18nAria]));
+  $("#countryList").innerHTML = tables.countries
+    .filter((c) => c.code !== "WORLD")
+    .map((c) => `<option value="${countryName(c)}"></option>`)
+    .join("");
+  if (state.countryKnown && state.country !== "WORLD") $("#country").value = countryName(byCode(state.country));
+  $("#footSource").textContent = S.footSource(tables.meta);
+  buildStats();
+  buildChips();
+}
+
+/* ---------- scene 1: week grid ---------- */
+const grid = { cell: 0, rows: 0, raf: 0 };
+
+function layoutGrid() {
+  const wrap = $("#gridWrap");
+  const avail = Math.min(wrap.parentElement.clientWidth, 520);
+  grid.rows = Math.ceil(data.weeksTotal / 52);
+  const maxH = clamp(window.innerHeight * (window.innerWidth < 900 ? 0.45 : 0.62), 280, 640);
+  grid.cell = Math.max(2, Math.min(avail / 52, maxH / grid.rows));
+  const w = Math.floor(grid.cell * 52);
+  const h = Math.ceil(grid.cell * grid.rows);
+  return [setCanvas($("#gridBase"), w, h), setCanvas($("#gridGlow"), w, h), w, h];
+}
+
+function paintCells(ctx, from, to, color) {
+  const { cell } = grid;
+  const size = Math.max(1, cell * 0.72);
+  const off = (cell - size) / 2;
+  ctx.fillStyle = color;
+  for (let i = from; i < to; i += 1) {
+    ctx.fillRect((i % 52) * cell + off, Math.floor(i / 52) * cell + off, size, size);
+  }
+}
+
+function drawGrid(animate) {
+  cancelAnimationFrame(grid.raf);
+  const [base, glow, w, h] = layoutGrid();
+  const { weeksLived: lived, weeksTotal: total } = data;
+  const glowEl = $("#gridGlow");
+  glow.clearRect(0, 0, w, h);
+  paintCells(glow, lived, total, "#f6b95b");
+  const frame = (shown) => {
+    base.clearRect(0, 0, w, h);
+    paintCells(base, 0, shown, "#4d526d");
+    paintCells(base, shown, total, "rgba(255,255,255,0.07)");
+  };
+  if (!animate || reduced()) {
+    frame(lived);
+    glowEl.classList.add("on");
+    return;
+  }
+  glowEl.classList.remove("on");
+  const t0 = performance.now();
+  const dur = 1500;
+  const step = (now) => {
+    const t = clamp((now - t0) / dur, 0, 1);
+    frame(Math.round(lived * (1 - (1 - t) ** 3)));
+    if (t < 1) grid.raf = requestAnimationFrame(step);
+    else glowEl.classList.add("on");
+  };
+  grid.raf = requestAnimationFrame(step);
+}
+
+/* ---------- scene 2: stats ---------- */
+function buildStats() {
+  $("#stats").innerHTML = STAT_KEYS.map(
+    (k) => `<article class="stat" data-k="${k}">
+      <h3 class="stat-label"></h3>
+      <p class="stat-val"><span class="about"></span><span class="stat-num num"></span><span class="unit"></span></p>
+      <span class="tag" hidden></span>
+      <button class="how" type="button" aria-expanded="false" aria-controls="f-${k}"><span aria-hidden="true">?</span></button>
+      <p class="formula" id="f-${k}" hidden></p>
+    </article>`,
+  ).join("");
+  $("#apBar").innerHTML = "<i></i>".repeat(20);
+}
+
+function statModel() {
+  const d = data;
+  return {
+    eves: [S.cardEves, d.eves, S.unitTimes, S.fEves(d)],
+    birthdays: [S.cardBirthdays, d.birthdays, S.unitTimes, S.fBirthdays(d)],
+    mornings: [S.cardMornings, d.days, S.unitCount, S.fMornings(d)],
+    trips: [S.cardTrips, d.trips, S.unitTimes, S.fTrips(d, state.trips), "trips"],
+    books: [S.cardBooks, d.books, S.unitBooks, S.fBooks(d, state.books), "books"],
+    meetups: [S.cardMeetups, d.meetups, S.unitTimes, S.fMeetups(d, state.meetups), "meetups"],
+  };
+}
+
+const counters = new Map();
+function renderStats() {
+  const model = statModel();
+  $$(".stat").forEach((el) => {
+    const [label, value, unit, formula, tuneKey] = model[el.dataset.k];
+    $(".stat-label", el).textContent = label;
+    $(".about", el).textContent = S.about;
+    $(".unit", el).textContent = unit;
+    $(".formula", el).textContent = formula;
+    $(".how", el).setAttribute("aria-label", `${label}: ${S.how}`);
+    const tag = $(".tag", el);
+    tag.textContent = S.defaultTag;
+    tag.hidden = !tuneKey || Boolean(state.touched[tuneKey]);
+    cancelAnimationFrame(counters.get(el));
+    $(".stat-num", el).textContent = fmt(value);
+    el.dataset.value = value;
+  });
+  const left = 100 - data.progress;
+  $("#apPct").textContent = `${left}%`;
+  $("#apSr").textContent = `${S.apLabel} ${left}%`;
+  $$("#apBar i").forEach((seg, i) => seg.classList.toggle("on", i < Math.round(left / 5)));
+}
+
+function countUp() {
+  if (reduced()) return;
+  $$(".stat").forEach((el, i) => {
+    const target = Number(el.dataset.value);
+    const out = $(".stat-num", el);
+    const t0 = performance.now() + i * 90;
+    const step = (now) => {
+      const t = clamp((now - t0) / 1100, 0, 1);
+      out.textContent = fmt(target * (1 - (1 - t) ** 4));
+      if (t < 1) counters.set(el, requestAnimationFrame(step));
+    };
+    out.textContent = "0";
+    counters.set(el, requestAnimationFrame(step));
+  });
+}
+
+/* ---------- scene 3: tail end ---------- */
+function drawBoxes(cv, count) {
+  const prev = cv.dataset.n === undefined ? 0 : Number(cv.dataset.n);
+  cv.dataset.n = count;
+  cancelAnimationFrame(cv.raf);
+  const w = cv.clientWidth || cv.parentElement.clientWidth;
+  const h = cv.clientHeight || 132;
+  const ctx = setCanvas(cv, w, h);
+  cv.style.width = "";
+  let c = 16;
+  while (c > 1.5 && Math.floor(w / c) * Math.floor(h / c) < count) c -= 0.25;
+  const cols = Math.max(1, Math.floor(w / c));
+  const size = Math.max(1, c * 0.74);
+  const kept = reduced() ? count : Math.min(prev, count);
+  const t0 = performance.now();
+  const paint = (now) => {
+    const t = clamp((now - t0) / 320, 0, 1);
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#f6b95b";
+    for (let i = 0; i < count; i += 1) {
+      const fresh_ = i >= kept;
+      ctx.globalAlpha = fresh_ ? t : 1;
+      const s = fresh_ ? size * (0.5 + 0.5 * t) : size;
+      const x = (i % cols) * c + (c - s) / 2;
+      const y = Math.floor(i / cols) * c + (c - s) / 2;
+      if (c >= 7 && ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, s, s, s * 0.22);
+        ctx.fill();
+      } else ctx.fillRect(x, y, s, s);
+    }
+    ctx.globalAlpha = 1;
+    if (t < 1 && kept < count) cv.raf = requestAnimationFrame(paint);
+  };
+  paint(kept < count ? t0 : t0 + 320);
+}
+
+function renderTail() {
+  const mode = state.parentsMode;
+  const none = mode === "none";
+  phr($("#s3Title"), none ? S.s3TitleNone : S.s3Title);
+  $("#whichField").hidden = mode !== "one";
+  $("#agesRow").hidden = none;
+  $("#noneBlock").hidden = !none;
+  $("#visitsSlider").hidden = none;
+  $("#friendsSlider").hidden = !none;
+  $("#rowFriends").hidden = !none;
+  const active = new Map(data.parents.map((p) => [p.who, p]));
+  [["mother", "Mother"], ["father", "Father"]].forEach(([who, id]) => {
+    const p = active.get(who);
+    $(`#row${id}`).hidden = !p;
+    $(`#${who}Field`).hidden = !p;
+    if (!p) return;
+    const name = S[who];
+    phr($(`#line${id}`), S.visitsLine(name, p.visits));
+    $(`#f${id}`).textContent = S.fVisits(state.visits, p);
+    const cv = $(`#box${id}`);
+    cv.setAttribute("aria-label", S.visitsAlt(name, p.visits));
+    drawBoxes(cv, p.visits);
+  });
+  if (none) {
+    phr($("#lineFriends"), S.friendsLine(data.meetups));
+    $("#fFriends").textContent = S.fMeetups(data, state.meetups);
+    const cv = $("#boxFriends");
+    cv.setAttribute("aria-label", S.friendsAlt(data.meetups));
+    drawBoxes(cv, data.meetups);
+  }
+  $("#visitsOut").textContent = S.perYearTimes(state.visits);
+  $("#visitsTag").hidden = Boolean(state.touched.visits);
+  $("#meetups2Out").textContent = S.perYearTimes(state.meetups);
+  $("#meetups2Tag").hidden = Boolean(state.touched.meetups);
+}
+
+/* ---------- scene 4: dreams ---------- */
+const icon = (inner) => `<svg viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>`;
+const STAR = '<path d="M12 3l2.4 5.6 6.1.6-4.6 4 1.4 6-5.3-3.2-5.3 3.2 1.4-6-4.6-4 6.1-.6z"/>';
+const esc = (v) => v.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+const dreamName = (d) => (lang === "zh" ? d.zh : d.en);
+
+function buildChips() {
+  $("#chips").innerHTML = CATS.map(
+    ([cat, key]) => `<div class="chip-group"><h3>${S[key]}</h3><div class="chip-list">${DREAMS.filter((d) => d.cat === cat)
+      .map((d) => `<button class="chip" type="button" data-id="${d.id}" aria-pressed="false">${icon(d.icon)}<span>${dreamName(d)}</span></button>`)
+      .join("")}</div></div>`,
+  ).join("");
+}
+
+const pips = (v, max, label) =>
+  `<div class="pips" role="img" aria-label="${label} ${v}/${max}">${Array.from({ length: max }, (_, i) => `<i class="${i < v ? "on" : ""}"></i>`).join("")}</div>`;
+
+function renderDreams() {
+  const full = state.dreams.length >= 3;
+  $$(".chip").forEach((el) => {
+    const on = state.dreams.includes(el.dataset.id);
+    el.setAttribute("aria-pressed", on);
+    el.setAttribute("aria-disabled", full && !on);
+  });
+  $("#maxNote").hidden = !full;
+  const div = dividend(data.a, data.L);
+  const cards = state.dreams.map((entry, i) => {
+    const d = typeof entry === "string" ? DREAMS.find((x) => x.id === entry) : null;
+    const name = d ? dreamName(d) : esc(entry.custom);
+    const head = `<div class="dream-head">${icon(d ? d.icon : STAR)}<h3>${name}</h3><button class="dream-x" type="button" data-i="${i}" aria-label="${S.remove}: ${name}">×</button></div>`;
+    const divLine = `<p class="dream-div"><span>${S.dividendLabel}</span>${S.dividend(div)}</p>`;
+    if (!d) return `<article class="dream">${head}<p class="dream-window"><span class="tag">${S.customTag}</span></p>${divLine}</article>`;
+    const win = dreamWindow(d.latestAge, data.a);
+    const level = S[{ plenty: "lvPlenty", soon: "lvSoon", now: "lvNow", care: "lvCare" }[win.level]];
+    return `<article class="dream">${head}
+      <div class="dream-meta">
+        <div>${S.latest}<b class="num">${S.latestAge(d.latestAge)}</b></div>
+        <div>${S.demand}${pips(d.demand, 5, S.demand)}</div>
+        <div>${S.cost}${pips(d.cost, 4, S.cost)}</div>
+      </div>
+      <p class="dream-window"><span class="tag">${level}</span>${win.left > 0 ? `<span class="num">${S.windowLeft(win.left)}</span>` : ""}</p>
+      ${divLine}</article>`;
+  });
+  $("#dreamCards").innerHTML = cards.join("") || `<p class="note">${S.s4Empty}</p>`;
+}
+
+/* ---------- scene 5: walk ---------- */
+const walk = { width: 0, ticking: false };
+
+function stagesFor(d) {
+  return STAGES.filter((s) => s.from < d.L).map((s) => {
+    const to = Math.min(s.to, Math.round(d.L));
+    const status = d.a >= s.to ? "past" : d.a >= s.from ? "now" : "ahead";
+    return { ...s, to, status, name: S[s.key] };
+  });
+}
+
+function renderWalk() {
+  const d = data;
+  const vw = window.innerWidth;
+  walk.width = Math.max(vw * 3.4, 2400);
+  const x = (age) => (age / d.L) * walk.width;
+  const stages = stagesFor(d);
+  const ticks = [];
+  for (let t = 10; t < d.L - 2; t += 10) ticks.push(`<span class="walk-tick num" style="left:${x(t)}px">${t}</span>`);
+  $("#walkTrack").style.width = `${walk.width}px`;
+  $("#walkTrack").innerHTML = `
+    <div class="walk-line lived" style="left:0;width:${x(d.a)}px"></div>
+    <div class="walk-line ahead" style="left:${x(d.a)}px;width:${walk.width - x(d.a)}px"></div>
+    ${ticks.join("")}
+    ${stages.map((s) => `<div class="walk-stage ${s.status}" style="left:${x(s.from)}px"><b>${s.name}</b><span class="num">${S.stRange(s.from, s.to)}</span></div>`).join("")}
+    <div class="walk-dot" style="left:${x(d.a)}px"></div>
+    <div class="walk-here num" style="left:${x(d.a)}px">${S.here(d.a)}</div>
+    <div class="walk-end num" style="left:${walk.width}px">${S.endMark(d.L)}</div>`;
+  const label = { past: S.stWalked, now: S.stNow, ahead: S.stAhead };
+  $("#walkStatic").innerHTML = stages
+    .map((s) => `<li class="${s.status}"><div><b>${s.name}</b> <span class="num">${S.stRange(s.from, s.to)}</span></div><em>${label[s.status]}</em></li>`)
+    .join("");
+  moveWalk();
+}
+
+function moveWalk() {
+  walk.ticking = false;
+  if (!data || reduced()) return;
+  const rect = $("#s5").getBoundingClientRect();
+  const span = rect.height - window.innerHeight;
+  if (span <= 0 || rect.bottom < 0 || rect.top > window.innerHeight) return;
+  const p = clamp(-rect.top / span, 0, 1);
+  $("#walkTrack").style.transform = `translate3d(${window.innerWidth / 2 - p * walk.width}px,0,0)`;
+  $("#walkAge").textContent = `${Math.round(p * data.L)}${lang === "zh" ? " 歲" : ""}`;
+}
+
+/* ---------- scene 6: card ---------- */
+let cardJob = 0;
+function cardModel() {
+  const d = data;
+  const first = state.dreams[0];
+  const dream = first ? (typeof first === "string" ? dreamName(DREAMS.find((x) => x.id === first)) : first.custom) : "";
+  const people = d.parents.length
+    ? { label: S.cParents, value: d.parents.length === 2 ? d.parents.map((p) => `${S[p.who]} ${fmt(p.visits)}`).join(" · ") : fmt(d.parents[0].visits) }
+    : { label: S.cFriends, value: fmt(d.meetups) };
+  return {
+    lang,
+    S,
+    progress: d.progress,
+    days: fmt(d.days),
+    trips: fmt(d.trips),
+    people,
+    dream,
+    move: state.move.trim(),
+  };
+}
+
+async function refreshCard() {
+  if (!data) return;
+  const job = ++cardJob;
+  const model = cardModel();
+  await cardFonts(model);
+  if (job === cardJob) drawCard($("#card"), model);
+}
+
+const cardBlob = async () => {
+  await refreshCard();
+  return new Promise((resolve) => $("#card").toBlob(resolve, "image/png"));
+};
+
+function download(blob) {
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement("a"), { href: url, download: "life-points.png" });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/* ---------- render ---------- */
+function render() {
+  if (!state.started) return;
+  data = compute(inputForCalc(), tables);
+  const d = data;
+  const sexWord = S[{ f: "sexWordF", m: "sexWordM", b: "sexWordB" }[state.sex]];
+  const cName = countryName(d.country);
+  $("#s1Copy").textContent = S.s1Copy(d);
+  $("#s1Left").textContent = S.s1Left(d);
+  $("#s1Note").textContent = lang === "zh" ? S.s1Note(d, cName, sexWord ? `${sexWord}` : "") : S.s1Note(d, cName === "World" ? "the world" : THE.has(d.country.code) ? `the ${cName}` : cName, sexWord);
+  $("#gridWrap").setAttribute("aria-label", S.s1Alt(d));
+  drawGrid(false);
+  renderStats();
+  renderTail();
+  renderDreams();
+  renderWalk();
+  phr($("#climax1"), S.climax1(d));
+  ["trips", "books", "meetups"].forEach((k) => {
+    $(`#${k}`).value = state[k];
+    $(`#${k}Out`).textContent = (k === "books" ? S.perYearBooks : S.perYearTimes)(state[k]);
+  });
+  $("#meetups2").value = state.meetups;
+  $("#visits").value = VISIT_STEPS.indexOf(state.visits);
+  if (seen.card) refreshCard();
+}
+
+/* ---------- events ---------- */
+function start(e) {
+  e.preventDefault();
+  const ageEl = $("#age");
+  if (ageEl.value.trim() === "" || !Number.isFinite(Number(ageEl.value))) {
+    ageEl.setAttribute("aria-invalid", "true");
+    ageEl.focus();
+    return;
+  }
+  ageEl.removeAttribute("aria-invalid");
+  state.age = clampAge(ageEl.value);
+  ageEl.value = state.age;
+  if (state.motherAge === "") state.motherAge = clampAge(state.age + 28, 18, 110);
+  if (state.fatherAge === "") state.fatherAge = clampAge(state.age + 30, 18, 110);
+  $("#motherAge").value = state.motherAge;
+  $("#fatherAge").value = state.fatherAge;
+  state.started = true;
+  $("#journey").hidden = false;
+  render();
+  seen.grid = false;
+  $("#s1").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" });
+}
+
+function bind() {
+  $("#startForm").addEventListener("submit", start);
+  $("#age").addEventListener("input", (e) => {
+    if (!state.started || e.target.value === "") return;
+    state.age = clampAge(e.target.value);
+    render();
+  });
+  $("#age").addEventListener("blur", (e) => { if (e.target.value !== "") e.target.value = clampAge(e.target.value); });
+  $("#country").addEventListener("input", (e) => {
+    const r = resolveCountry(e.target.value);
+    state.country = r.code;
+    state.countryKnown = r.known;
+    $("#countryNote").hidden = r.known;
+    render();
+  });
+  $("#sexSeg").addEventListener("change", (e) => { state.sex = e.target.value; render(); });
+  $("#langBtn").addEventListener("click", () => {
+    lang = lang === "zh" ? "en" : "zh";
+    applyStrings();
+    render();
+  });
+
+  $("#stats").addEventListener("click", (e) => {
+    const btn = e.target.closest(".how");
+    if (!btn) return;
+    const open = btn.getAttribute("aria-expanded") !== "true";
+    btn.setAttribute("aria-expanded", open);
+    $(`#${btn.getAttribute("aria-controls")}`).hidden = !open;
+  });
+  const sheet = $("#tune");
+  $("#tuneBtn").addEventListener("click", () => sheet.showModal());
+  sheet.addEventListener("click", (e) => { if (e.target === sheet) sheet.close(); });
+  ["trips", "books", "meetups"].forEach((k) => {
+    $(`#${k}`).addEventListener("input", (e) => {
+      state[k] = Number(e.target.value);
+      state.touched[k] = true;
+      render();
+    });
+  });
+  $("#meetups2").addEventListener("input", (e) => {
+    state.meetups = Number(e.target.value);
+    state.touched.meetups = true;
+    render();
+  });
+  $("#visits").addEventListener("input", (e) => {
+    state.visits = VISIT_STEPS[Number(e.target.value)];
+    state.touched.visits = true;
+    render();
+  });
+  $("#parentsSeg").addEventListener("change", (e) => { state.parentsMode = e.target.value; render(); });
+  $("#whichSeg").addEventListener("change", (e) => { state.which = e.target.value; render(); });
+  ["mother", "father"].forEach((w) => {
+    const el = $(`#${w}Age`);
+    el.addEventListener("input", () => {
+      if (el.value === "") return;
+      state[`${w}Age`] = clampAge(el.value, 18, 110);
+      render();
+    });
+    el.addEventListener("blur", () => { el.value = state[`${w}Age`]; });
+  });
+
+  $("#chips").addEventListener("click", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    const { id } = chip.dataset;
+    if (state.dreams.includes(id)) state.dreams = state.dreams.filter((x) => x !== id);
+    else if (state.dreams.length < 3) state.dreams = [...state.dreams, id];
+    render();
+  });
+  $("#customForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = $("#customDream").value.trim();
+    if (!text || state.dreams.length >= 3) return;
+    state.dreams = [...state.dreams, { custom: text }];
+    $("#customDream").value = "";
+    render();
+  });
+  $("#dreamCards").addEventListener("click", (e) => {
+    const x = e.target.closest(".dream-x");
+    if (!x) return;
+    state.dreams = state.dreams.filter((_, i) => i !== Number(x.dataset.i));
+    render();
+  });
+
+  $("#move").addEventListener("input", (e) => {
+    state.move = e.target.value;
+    if (seen.card) refreshCard();
+  });
+  $("#saveBtn").addEventListener("click", async () => download(await cardBlob()));
+  $("#shareBtn").addEventListener("click", async () => {
+    const blob = await cardBlob();
+    const file = new File([blob], "life-points.png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: "Life Points", text: S.shareText });
+        return;
+      } catch (err) {
+        if (err.name === "AbortError") return;
+      }
+    }
+    download(blob);
+    $("#shareNote").hidden = false;
+  });
+  $("#restartBtn").addEventListener("click", () => {
+    state = fresh();
+    data = null;
+    Object.keys(seen).forEach((k) => { seen[k] = false; });
+    $("#startForm").reset();
+    $("#move").value = "";
+    $("#countryNote").hidden = true;
+    $("#shareNote").hidden = true;
+    $("#parentsSeg input[value=both]").checked = true;
+    $("#whichSeg input[value=mother]").checked = true;
+    $$(".cl").forEach((el) => el.classList.remove("on"));
+    $$("#journey .reveal").forEach((el) => el.classList.remove("in"));
+    $$(".boxes").forEach((cv) => delete cv.dataset.n);
+    $("#journey").hidden = true;
+    prefillCountry();
+    window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" });
+    observe();
+  });
+
+  window.addEventListener("scroll", () => {
+    if (walk.ticking) return;
+    walk.ticking = true;
+    requestAnimationFrame(moveWalk);
+  }, { passive: true });
+  let lastW = window.innerWidth;
+  window.addEventListener("resize", () => {
+    if (window.innerWidth === lastW) return; // ignore mobile URL-bar height changes
+    lastW = window.innerWidth;
+    render();
+  });
+  reduceQuery.addEventListener("change", render);
+}
+
+/* ---------- reveal on scroll ---------- */
+let io;
+let io2;
+function observe() {
+  io?.disconnect();
+  io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      const el = en.target;
+      el.classList.add("in");
+      if (el.id === "gridWrap" && !seen.grid) { seen.grid = true; drawGrid(true); }
+      if (el.id === "stats" && !seen.stats) { seen.stats = true; countUp(); }
+      if (el.id === "s6" && !seen.card) { seen.card = true; refreshCard(); }
+      if (el.classList.contains("reveal")) io.unobserve(el);
+    });
+  }, { threshold: 0.25 });
+  $$(".reveal, #s6").forEach((el) => io.observe(el));
+  io2?.disconnect();
+  io2 = new IntersectionObserver(([en]) => {
+    if (!en.isIntersecting || seen.climax) return;
+    seen.climax = true;
+    const [a, b, c] = $$(".cl");
+    a.classList.add("on");
+    setTimeout(() => b.classList.add("on"), 2200);
+    setTimeout(() => c.classList.add("on"), 3600);
+  }, { threshold: 0.6 });
+  io2.observe($("#climax"));
+}
+
+function prefillCountry() {
+  const region = (navigator.language || "").split("-")[1]?.toUpperCase();
+  const hit = region && byCode(region);
+  if (hit) {
+    state.country = hit.code;
+    $("#country").value = countryName(hit);
+  }
+}
+
+prefillCountry();
+applyStrings();
+bind();
+observe();
