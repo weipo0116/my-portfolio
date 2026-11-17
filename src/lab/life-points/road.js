@@ -47,11 +47,11 @@ function hills(ctx, w, gy, shift, amp, freq, color) {
   ctx.fill();
 }
 
-function glow(ctx, x, y, r, alpha) {
+function glow(ctx, x, y, r, alpha, rgb = "246,185,91") {
   if (alpha <= 0.005 || r <= 0) return;
   const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-  g.addColorStop(0, `rgba(246,185,91,${alpha})`);
-  g.addColorStop(1, "rgba(246,185,91,0)");
+  g.addColorStop(0, `rgba(${rgb},${alpha})`);
+  g.addColorStop(1, `rgba(${rgb},0)`);
   ctx.fillStyle = g;
   ctx.fillRect(x - r, y - r, r * 2, r * 2);
 }
@@ -152,6 +152,87 @@ export function drawRoad(ctx, w, h, s) {
     ctx.lineTo(hx - dir * 90, hy - 46);
     ctx.stroke();
   });
+
+  // the cave: every lived year is inside it, memories glow on its wall, and "now" is its mouth
+  const mouth = sx(s.a);
+  if (mouth > -140 * k) {
+    const lip = (y) => mouth + 76 * k * (1 - y / gy) ** 2 + Math.sin(y * 0.07) * 7 * k + Math.sin(y * 0.19 + 2) * 4 * k;
+    const edge = () => {
+      ctx.beginPath();
+      ctx.moveTo(-10, -10);
+      ctx.lineTo(lip(0), -10);
+      for (let y = 0; y <= gy; y += 8) ctx.lineTo(lip(y), y);
+      ctx.lineTo(mouth, gy);
+      ctx.lineTo(-10, gy);
+      ctx.closePath();
+    };
+    edge();
+    const wall = ctx.createLinearGradient(mouth - w * 0.9, 0, mouth + 60, 0);
+    wall.addColorStop(0, "#0b0d17");
+    wall.addColorStop(1, "#1c2034");
+    ctx.fillStyle = wall;
+    ctx.fill();
+    ctx.save();
+    ctx.clip();
+    ctx.strokeStyle = "rgba(255,255,255,0.075)"; // rock strata
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 6; i += 1) {
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 24) {
+        const yy = (gy * i) / 6 + Math.sin((x + world) * 0.011 + i * 1.7) * 10;
+        if (x) ctx.lineTo(x, yy);
+        else ctx.moveTo(x, yy);
+      }
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#05060b"; // stalactites and stalagmites
+    const sp = 74;
+    for (let n = Math.floor(world / sp) - 1; n * sp - world < w + 40; n += 1) {
+      const r = Math.abs(Math.sin(n * 91.17) * 43758.5453) % 1;
+      const x = n * sp - world + wx + r * 44;
+      const len = (22 + r * 96) * k;
+      ctx.beginPath();
+      ctx.moveTo(x - (7 + r * 7) * k, 0);
+      ctx.lineTo(x + (7 + r * 7) * k, 0);
+      ctx.lineTo(x + 2 * k, len);
+      ctx.closePath();
+      ctx.fill();
+      if (r > 0.45) {
+        ctx.beginPath();
+        ctx.moveTo(x + 30 * k, gy);
+        ctx.lineTo(x + 46 * k, gy);
+        ctx.lineTo(x + 37 * k, gy - (10 + r * 30) * k);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+    glow(ctx, mouth + 30 * k, gy * 0.62, 340 * k, 0.26, "255,222,176"); // daylight spilling in
+    (s.memories ?? []).forEach((age) => {
+      const x = sx(age);
+      if (x < -80 || x > w + 80) return;
+      const near = 1 - clamp01(Math.abs(x - wx) / (w * 0.5));
+      glow(ctx, x, gy - 66 * k, (44 + 46 * near) * k, 0.16 + 0.34 * near, "143,211,255");
+      ctx.fillStyle = `rgba(190,232,255,${0.5 + 0.5 * near})`;
+      [[0, -70, 10], [-13, -57, 6.5], [12, -55, 5.5]].forEach(([dx, dy, r]) => {
+        ctx.beginPath();
+        ctx.moveTo(x + dx * k, gy + (dy - r * 1.5) * k);
+        ctx.lineTo(x + (dx + r * 0.7) * k, gy + dy * k);
+        ctx.lineTo(x + dx * k, gy + (dy + r * 1.5) * k);
+        ctx.lineTo(x + (dx - r * 0.7) * k, gy + dy * k);
+        ctx.closePath();
+        ctx.fill();
+      });
+    });
+    ctx.restore();
+    ctx.strokeStyle = "rgba(255,222,176,0.4)"; // light catching the edge of the mouth
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let y = 0; y <= gy; y += 8) {
+      if (y) ctx.lineTo(lip(y), y);
+      else ctx.moveTo(lip(y), y);
+    }
+    ctx.stroke();
+  }
 
   // ground
   const gg = ctx.createLinearGradient(0, gy, 0, h);
@@ -254,7 +335,7 @@ export function drawRoad(ctx, w, h, s) {
   const phase = world / (15 * g);
   const bob = Math.abs(Math.sin(phase)) * 1.8 * g;
   const hipY = gy - 30 * g - bob;
-  const rim = `rgba(246,185,91,${0.22 + 0.55 * s.lit})`;
+  const rim = lamp > 0.5 ? `rgba(246,185,91,${0.22 + 0.55 * s.lit})` : "rgba(176,220,255,0.5)";
   if (lamp > 0) {
     glow(ctx, wx + 22 * g, gy - 40 * g - bob, (34 + 96 * s.lit) * k, (0.14 + 0.5 * s.lit) * lamp);
     ctx.save();

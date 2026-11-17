@@ -16,6 +16,13 @@
 <link rel="stylesheet" href="/src/lab/life-points/life-points.css" />
 </head>
 <body>
+<div class="cave" aria-hidden="true">
+  <div class="cave-sky" id="caveSky"></div>
+  <div class="cave-light" id="caveLight"></div>
+  <svg class="cave-rock" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#0d0f1b" fill-rule="evenodd" /></svg>
+  <svg class="cave-rock" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#080a12" fill-rule="evenodd" /></svg>
+  <svg class="cave-rock" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#040509" fill-rule="evenodd" /></svg>
+</div>
 <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
 <header class="bar">
   <a class="pill back" href="../../work/#lab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg><span data-i18n="back">Lab</span></a>
@@ -50,6 +57,7 @@
         </fieldset>
         <button class="btn primary" type="submit" data-i18n="start">開始</button>
         <p class="privacy" data-i18n="privacy"></p>
+        <p class="cave-hint" data-i18n="caveHint"></p>
       </form>
     </div>
   </section>
@@ -201,7 +209,7 @@
         <div class="road-head">
           <p class="eyebrow" data-i18n="s5Eyebrow"></p>
           <h2 id="s5Title" data-i18n="s5Title"></h2>
-          <p class="road-hud" id="roadHud" aria-hidden="true"><b id="roadStage"></b><span class="num" id="roadAge"></span></p>
+          <p class="road-hud" id="roadHud" aria-hidden="true"><b id="roadStage"></b><span class="num" id="roadAge"></span><em id="roadLine"></em></p>
         </div>
         <div class="road-now" id="roadNow">
           <p class="road-here num" id="roadHere"></p>

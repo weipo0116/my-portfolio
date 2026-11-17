@@ -402,7 +402,7 @@ function renderDreams() {
 }
 
 /* ---------- scene 5: the road ahead ---------- */
-const road = { ticking: false, lanterns: [], w: 0, h: 0, ctx: null };
+const road = { ticking: false, lanterns: [], memories: [], tags: [], line: "", w: 0, h: 0, ctx: null };
 const LEVELS = { plenty: "lvPlenty", soon: "lvSoon", now: "lvNow", care: "lvCare" };
 
 function stagesFor(d) {
@@ -439,9 +439,23 @@ function renderRoad() {
     : `<p class="gentle" id="roadEmpty"></p>`;
   if (!road.lanterns.length) phr($("#roadEmpty"), S.roadEmpty);
   $("#roadNote").hidden = !road.lanterns.some((l) => l.dream);
-  $("#roadTags").innerHTML = road.lanterns
-    .map(({ dream, name }) => `<p class="road-tag"><b>${esc(name)}</b>${dream ? `<span class="num">${S.lanternTag(dream.latestAge)}</span>` : ""}</p>`)
-    .join("");
+  road.memories = STAGES.filter((st) => st.from < d.a && Math.min(st.to, d.a) - st.from >= 1).map((st) => ({
+    age: (st.from + Math.min(st.to, d.a)) / 2,
+    text: S.mem[st.key],
+  }));
+  road.tags = [
+    ...road.lanterns.map((l) => ({ age: l.age, kind: "lantern" })),
+    ...road.memories.map((m) => ({ age: m.age, kind: "memory" })),
+  ];
+  $("#roadTags").innerHTML =
+    road.lanterns
+      .map(({ dream, name }) => {
+        const step = dream && (lang === "zh" ? dream.stepZh : dream.stepEn);
+        return `<p class="road-tag"><b>${esc(name)}</b>${dream ? `<span class="num">${S.lanternTag(dream.latestAge)}</span>` : ""}${step ? `<em>${S.firstStep(step)}</em>` : ""}</p>`;
+      })
+      .join("") + road.memories.map(() => `<p class="road-tag memory"><b></b></p>`).join("");
+  $$(".road-tag.memory b").forEach((el, i) => phr(el, road.memories[i].text));
+  road.line = "";
   const label = { past: S.stWalked, now: S.stNow, ahead: S.stAhead };
   $("#walkStatic").innerHTML = stagesFor(d)
     .map((s) => `<li class="${s.status}"><div><b>${s.name}</b> <span class="num">${S.stRange(s.from, s.to)}</span></div><em>${label[s.status]}</em></li>`)
@@ -475,7 +489,7 @@ function moveRoad(force) {
   const hold = clamp((p - A) / (B - A), 0, 1);
   const lit = p < A ? 0 : smooth(clamp(hold * 4, 0, 1));
   const lamp = p < A ? 0 : smooth(clamp(hold * 6, 0, 1));
-  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lamp, lanterns: road.lanterns.map((l) => l.age), gates: STAGES.map((st) => st.from).filter((v) => v < d.L) });
+  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lamp, lanterns: road.lanterns.map((l) => l.age), memories: road.memories.map((m) => m.age), gates: STAGES.map((st) => st.from).filter((v) => v < d.L) });
 
   const panel = clamp((p - A) / 0.03, 0, 1) * clamp((B + 0.02 - p) / 0.04, 0, 1);
   $("#s5Title").style.opacity = clamp(1 - p / 0.06, 0, 1);
@@ -484,6 +498,11 @@ function moveRoad(force) {
   const stage = STAGES.find((s) => age < s.to) ?? STAGES[STAGES.length - 1];
   $("#roadStage").textContent = S[stage.key];
   $("#roadAge").textContent = S.roadAge(Math.round(age));
+  const line = p > B ? S.ahead[stage.key] : "";
+  if (line !== road.line) {
+    road.line = line;
+    phr($("#roadLine"), line);
+  }
   const now = $("#roadNow");
   now.style.opacity = panel;
   now.style.visibility = panel > 0.01 ? "visible" : "hidden";
@@ -497,11 +516,16 @@ function moveRoad(force) {
   const ppy = pxPerYear(road.w);
   const wx = walkerX(road.w);
   const gy = groundY(road.h, road.w);
+  const kk = clamp(road.h / 844, 0.85, 1.2);
   $$(".road-tag").forEach((el, i) => {
-    const x = wx + (road.lanterns[i].age - age) * ppy;
-    const edge = Math.min(x, road.w - x);
-    el.style.transform = `translate3d(${x}px,${gy - 82 * clamp(road.h / 844, 0.85, 1.2)}px,0) translate(-50%,-100%)`;
-    el.style.opacity = clamp(edge / 90, 0, 1) * (1 - panel) * (p > B ? 1 : 0);
+    const tag = road.tags[i];
+    const memory = tag.kind === "memory";
+    const x = wx + (tag.age - age) * ppy;
+    const half = el.offsetWidth / 2 + 12;
+    const cx = clamp(x, half, road.w - half);
+    const near = 1 - clamp(Math.abs(x - wx) / (road.w * 0.55), 0, 1);
+    el.style.transform = `translate3d(${cx}px,${gy - (memory ? 112 : 84) * kk}px,0) translate(-50%,-100%)`;
+    el.style.opacity = (memory ? smooth(near) * (p < A ? 1 : 0) : clamp(Math.min(x, road.w - x) / 90, 0, 1) * (p > B ? 1 : 0)) * (1 - panel);
   });
 }
 
@@ -723,8 +747,7 @@ function bind() {
     requestAnimationFrame(() => {
       moveRoad(false);
       moveWeeks(false);
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      $("#progressBar").style.transform = `scaleX(${state.started && max > 0 ? clamp(window.scrollY / max, 0, 1) : 0})`;
+      moveCave();
     });
   }, { passive: true });
   let lastW = window.innerWidth;
@@ -732,8 +755,39 @@ function bind() {
     if (window.innerWidth === lastW) return; // ignore mobile URL-bar height changes
     lastW = window.innerWidth;
     render();
+    moveCave();
   });
   reduceQuery.addEventListener("change", render);
+}
+
+/* ---------- the cave: the whole page walks out of it ---------- */
+const CAVE = [[13, 15, 1.02, 11], [27, 30, 1.25, 23], [43, 46, 1.6, 37]]; // [rx, ry, speed, seed], far → near
+
+function buildCave() {
+  $$(".cave-rock path").forEach((el, i) => {
+    const [rx, ry, , seed0] = CAVE[i];
+    let seed = seed0;
+    const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
+    const pts = Array.from({ length: 30 }, (_, n) => {
+      const ang = (n / 30) * Math.PI * 2;
+      const r = 0.82 + rnd() * 0.36;
+      return `${(50 + Math.cos(ang) * rx * r).toFixed(2)} ${(50 + Math.sin(ang) * ry * r).toFixed(2)}`;
+    });
+    el.setAttribute("d", `M-900-900H1000V1000H-900Z M${pts.join("L")}Z`);
+  });
+}
+
+function moveCave() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const g = state.started && max > 0 ? clamp(window.scrollY / max, 0, 1) : 0;
+  $("#progressBar").style.transform = `scaleX(${g})`;
+  $$(".cave-rock").forEach((el, i) => {
+    const scale = Math.min(24, 1 / Math.max(0.04, 1 - g * CAVE[i][2]));
+    el.style.transform = reduced() ? "none" : `scale(${scale})`;
+    el.style.opacity = reduced() ? clamp(1 - g * CAVE[i][2], 0, 1) : clamp((10 - scale) / 5, 0, 1);
+  });
+  $("#caveSky").style.opacity = clamp(g * g * 0.8, 0, 0.8);
+  $("#caveLight").style.opacity = 1 - g * 0.5;
 }
 
 /* ---------- reveal on scroll ---------- */
@@ -774,6 +828,7 @@ function prefillCountry() {
 }
 
 prefillCountry();
+buildCave();
 applyStrings();
 bind();
 observe();

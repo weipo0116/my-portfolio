@@ -37,7 +37,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -3;
   background:
     radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.55), transparent 60%),
     radial-gradient(1px 1px at 78% 12%, rgba(255, 255, 255, 0.45), transparent 60%),
@@ -222,6 +222,13 @@ input[aria-invalid="true"] { border-color: #e89a7a; }
 .scroll-hint svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; animation: nudge 1.8s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(5px); } }
 
+/* the cave: rock rings that open up as you scroll out toward the sky */
+.cave { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.cave-sky { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, #0c1734 0%, #232748 52%, #4d3a44 82%, #6b4a3c 100%); }
+.cave-light { position: absolute; inset: 0; background: radial-gradient(ellipse 34% 30% at 50% 50%, rgba(255, 226, 184, 0.26), rgba(150, 170, 255, 0.1) 45%, transparent 75%); }
+.cave-rock { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 50%; will-change: transform, opacity; }
+.cave-hint { margin-top: -6px; font-size: 13px; color: var(--ink3); text-align: center; }
+
 /* scroll progress + twinkle */
 .progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 30; pointer-events: none; }
 .progress i { display: block; height: 100%; background: linear-gradient(90deg, rgba(246, 185, 91, 0.3), var(--warm)); box-shadow: 0 0 10px rgba(246, 185, 91, 0.7); transform: scaleX(0); transform-origin: left; }
@@ -229,7 +236,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   pointer-events: none;
   background:
     radial-gradient(1.5px 1.5px at 22% 30%, rgba(255, 255, 255, 0.7), transparent 60%),
@@ -393,9 +400,13 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
 .road-now .gentle { font-size: clamp(1.05rem, 4.4vw, 1.3rem); }
 .road-now .note { margin-top: 10px; font-size: 12px; }
 .road-tags { position: absolute; inset: 0; pointer-events: none; }
-.road-tag { position: absolute; left: 0; top: 0; display: grid; gap: 2px; text-align: center; white-space: nowrap; opacity: 0; will-change: transform; }
+.road-tag { position: absolute; left: 0; top: 0; display: grid; gap: 3px; justify-items: center; width: max-content; max-width: min(260px, 70vw); text-align: center; opacity: 0; will-change: transform; }
 .road-tag b { font: 700 1.05rem/1.3 var(--serif); }
 .road-tag span { font-size: 12.5px; color: var(--warm); }
+.road-tag em { font-style: normal; font-size: 12.5px; line-height: 1.5; color: var(--ink2); text-wrap: balance; }
+.road-tag.memory b { font: 500 1rem/1.5 var(--serif); color: #d4ecff; text-shadow: 0 0 18px rgba(143, 211, 255, 0.55); }
+.road-tag.memory b span { font: inherit; color: inherit; }
+.road-hud em { display: block; margin-top: 10px; max-width: 320px; font: 500 1.02rem/1.55 var(--serif); color: var(--warm); }
 .walk-static { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 
 /* climax */
@@ -412,7 +423,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
 @media (min-width: 900px) { #card { width: min(340px, 40vh); } .card-scene .card-wrap { order: -1; } }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
 
-.foot { padding: 40px var(--pad) calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); text-align: center; font-size: 12.5px; line-height: 1.7; color: var(--ink3); }
+.foot { background: var(--bg); padding: 40px var(--pad) calc(40px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); text-align: center; font-size: 12.5px; line-height: 1.7; color: var(--ink3); }
 .foot p { max-width: 640px; margin: 0 auto; text-wrap: pretty; }
 
 @media (prefers-reduced-motion: reduce) {
