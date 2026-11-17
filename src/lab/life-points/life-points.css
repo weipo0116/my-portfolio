@@ -236,12 +236,6 @@ input[aria-invalid="true"] { border-color: #e89a7a; }
 .cave { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
 .cave-sky { position: absolute; inset: 0; opacity: 0; background: linear-gradient(180deg, #0c1734 0%, #232748 52%, #4d3a44 82%, #6b4a3c 100%); }
 .cave-light { position: absolute; inset: 0; background: radial-gradient(ellipse 34% 30% at 50% 50%, rgba(255, 226, 184, 0.26), rgba(150, 170, 255, 0.1) 45%, transparent 75%); }
-/* a single soft museum-style light that drifts to whatever the scene is about */
-.spot { position: absolute; left: 0; top: 0; width: 0; height: 0; opacity: 0; transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.2s ease; will-change: transform, opacity; }
-.spot i { position: absolute; display: block; pointer-events: none; }
-.spot-pool { left: -50vmin; top: -32vmin; width: 100vmin; height: 64vmin; background: radial-gradient(closest-side, rgba(255, 222, 176, 0.16), rgba(255, 210, 150, 0.06) 55%, transparent); animation: spot-breathe 7s ease-in-out infinite; }
-.spot-beam { left: -32vmin; bottom: 0; width: 64vmin; height: 140vh; transform-origin: 50% 100%; background: linear-gradient(180deg, transparent 0%, rgba(255, 226, 186, 0.025) 40%, rgba(255, 222, 176, 0.075) 100%); clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%); -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
-@keyframes spot-breathe { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
 .motes { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cave-rock { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform-origin: 50% 50%; will-change: transform, opacity; }
 .cave-hint { margin-top: -6px; font-size: 13px; color: var(--ink3); text-align: center; }
@@ -455,8 +449,7 @@ input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(
   .wk-step { position: static; opacity: 1; }
   .wk-legend li { opacity: 1; }
   .scroll-hint { display: none; }
-  .scroll-hint svg, body::after, .spot-pool, .reveal.in > * { animation: none; }
-  .spot { transition: opacity 0.6s linear; }
+  .scroll-hint svg, body::after, .reveal.in > * { animation: none; }
   .motes { display: none; }
   .used i { transition: none; }
   .road { height: auto; }

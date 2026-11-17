@@ -839,13 +839,12 @@ function buildCave() {
   });
 }
 
-/* ---------- the guiding light: drifts to the focal point of the scene ---------- */
-let spotKey = "";
+/* ---------- the guide: a few hair-thin threads of starlight lead to each scene's focal point ---------- */
 function moveSpot() {
-  const spot = $("#spot");
   const vh = window.innerHeight;
   const road5 = $("#s5").getBoundingClientRect();
   let best = null;
+  let bestEl = null;
   let bestD = Infinity;
   if (!(road5.top < vh * 0.3 && road5.bottom > vh * 0.7)) {
     $$("[data-focus]").forEach((el) => {
@@ -853,21 +852,13 @@ function moveSpot() {
       const r = el.getBoundingClientRect();
       if (!r.height || r.bottom < vh * 0.1 || r.top > vh * 0.9) return;
       const d = Math.abs(r.top + r.height / 2 - vh * 0.5);
-      if (d < bestD) { bestD = d; best = r; }
+      if (d < bestD) { bestD = d; best = r; bestEl = el; }
     });
   }
-  if (!best) {
-    if (spotKey !== "off") { spotKey = "off"; spot.style.opacity = 0; }
-    return;
-  }
+  if (!best) return motes.guide(null);
   const x = best.left + best.width / 2;
-  const y = clamp(best.top + Math.min(best.height, vh * 0.7) / 2, vh * 0.15, vh * 0.85);
-  const k = clamp(Math.max(best.width / (Math.min(window.innerWidth, vh) * 0.9), best.height / (vh * 0.6)), 0.7, 1.5);
-  const key = `${Math.round(x)},${Math.round(y)},${k.toFixed(2)}`;
-  if (key === spotKey) return;
-  spotKey = key;
-  spot.style.opacity = 1;
-  spot.style.transform = `translate3d(${x}px,${y}px,0) scale(${k})`;
+  const y = clamp(best.top - 14, vh * 0.08, vh * 0.8);
+  motes.guide({ x, y, w: Math.min(best.width, 520), end: bestEl.id === "card" });
 }
 
 let caveKey = "";
