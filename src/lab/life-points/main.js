@@ -413,6 +413,17 @@ function stagesFor(d) {
   });
 }
 
+/* Spread lantern positions so late "latest ages" don't pile up on one spot. */
+function spreadLanterns(list, lo, hi) {
+  const order = [...list].sort((x, y) => x.age - y.age);
+  const gap = Math.min(4, order.length > 1 ? (hi - lo) / (order.length - 1) : 0);
+  order.forEach((l, i) => { if (i) l.age = Math.max(l.age, order[i - 1].age + gap); });
+  for (let i = order.length - 1; i >= 0; i--) {
+    const cap = i === order.length - 1 ? hi : order[i + 1].age - gap;
+    order[i].age = Math.min(order[i].age, cap);
+  }
+}
+
 function renderRoad() {
   const d = data;
   road.lanterns = state.dreams.map((entry) => {
@@ -437,6 +448,7 @@ function renderRoad() {
         })
         .join("")
     : `<p class="gentle" id="roadEmpty"></p>`;
+  spreadLanterns(road.lanterns, d.a + 1, Math.max(d.a + 1, d.L - 1));
   if (!road.lanterns.length) phr($("#roadEmpty"), S.roadEmpty);
   $("#roadNote").hidden = !road.lanterns.some((l) => l.dream);
   road.memories = STAGES.filter((st) => st.from < d.a && Math.min(st.to, d.a) - st.from >= 1).map((st) => ({
@@ -517,14 +529,30 @@ function moveRoad(force) {
   const wx = walkerX(road.w);
   const gy = groundY(road.h, road.w);
   const kk = clamp(road.h / 844, 0.85, 1.2);
-  $$(".road-tag").forEach((el, i) => {
-    const tag = road.tags[i];
-    const memory = tag.kind === "memory";
+  const els = $$(".road-tag");
+  const pos = road.tags.map((tag, i) => {
+    const el = els[i];
     const x = wx + (tag.age - age) * ppy;
     const half = el.offsetWidth / 2 + 12;
-    const cx = clamp(x, half, road.w - half);
+    return { el, tag, x, half, cx: clamp(x, half, road.w - half), memory: tag.kind === "memory", lift: 0 };
+  });
+  /* stack overlapping lantern tags onto separate rows (uses the clamped on-screen x) */
+  const rowEnds = [];
+  const rowH = [];
+  pos.filter((q) => !q.memory).sort((u, v) => u.cx - v.cx).forEach((q) => {
+    let k = rowEnds.findIndex((end) => end <= q.cx - q.half);
+    if (k < 0) { k = rowEnds.length; rowEnds.push(-Infinity); rowH.push(0); }
+    rowEnds[k] = q.cx + q.half;
+    rowH[k] = Math.max(rowH[k], q.el.offsetHeight + 8);
+    q.row = k;
+  });
+  pos.forEach((q) => {
+    if (q.memory) return;
+    q.lift = rowH.slice(0, q.row).reduce((sum, v) => sum + v, 0);
+  });
+  pos.forEach(({ el, x, cx, memory, lift }) => {
     const near = 1 - clamp(Math.abs(x - wx) / (road.w * 0.55), 0, 1);
-    el.style.transform = `translate3d(${cx}px,${gy - (memory ? 112 : 84) * kk}px,0) translate(-50%,-100%)`;
+    el.style.transform = `translate3d(${cx}px,${gy - (memory ? 112 : 84) * kk - lift}px,0) translate(-50%,-100%)`;
     el.style.opacity = (memory ? smooth(near) * (p < A ? 1 : 0) : clamp(Math.min(x, road.w - x) / 90, 0, 1) * (p > B ? 1 : 0)) * (1 - panel);
   });
 }
