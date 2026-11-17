@@ -455,6 +455,8 @@ function renderRoad() {
     age: (st.from + Math.min(st.to, d.a)) / 2,
     text: S.mem[st.key],
   }));
+  road.tagEls = null;
+  road.measureKey = "";
   road.tags = [
     ...road.lanterns.map((l) => ({ age: l.age, kind: "lantern" })),
     ...road.memories.map((m) => ({ age: m.age, kind: "memory" })),
@@ -529,11 +531,15 @@ function moveRoad(force) {
   const wx = walkerX(road.w);
   const gy = groundY(road.h, road.w);
   const kk = clamp(road.h / 844, 0.85, 1.2);
-  const els = $$(".road-tag");
+  const els = road.tagEls || (road.tagEls = $$(".road-tag"));
+  if (road.measureKey !== `${road.w}${lang}`) {
+    road.measureKey = `${road.w}${lang}`;
+    road.tags.forEach((tag, i) => { tag.bw = els[i].offsetWidth; tag.bh = els[i].offsetHeight; });
+  }
   const pos = road.tags.map((tag, i) => {
     const el = els[i];
     const x = wx + (tag.age - age) * ppy;
-    const half = el.offsetWidth / 2 + 12;
+    const half = tag.bw / 2 + 12;
     return { el, tag, x, half, cx: clamp(x, half, road.w - half), memory: tag.kind === "memory", lift: 0 };
   });
   /* stack overlapping lantern tags onto separate rows (uses the clamped on-screen x) */
@@ -543,7 +549,7 @@ function moveRoad(force) {
     let k = rowEnds.findIndex((end) => end <= q.cx - q.half);
     if (k < 0) { k = rowEnds.length; rowEnds.push(-Infinity); rowH.push(0); }
     rowEnds[k] = q.cx + q.half;
-    rowH[k] = Math.max(rowH[k], q.el.offsetHeight + 8);
+    rowH[k] = Math.max(rowH[k], q.tag.bh + 8);
     q.row = k;
   });
   pos.forEach((q) => {
@@ -805,14 +811,22 @@ function buildCave() {
   });
 }
 
+let caveKey = "";
 function moveCave() {
   const max = document.documentElement.scrollHeight - window.innerHeight;
   const g = state.started && max > 0 ? clamp(window.scrollY / max, 0, 1) : 0;
+  const key = `${g.toFixed(4)}${reduced()}`;
+  if (key === caveKey) return;
+  caveKey = key;
   $("#progressBar").style.transform = `scaleX(${g})`;
+  const still = reduced();
   $$(".cave-rock").forEach((el, i) => {
-    const scale = Math.min(24, 1 / Math.max(0.04, 1 - g * CAVE[i][2]));
-    el.style.transform = reduced() ? "none" : `scale(${scale})`;
-    el.style.opacity = reduced() ? clamp(1 - g * CAVE[i][2], 0, 1) : clamp((10 - scale) / 5, 0, 1);
+    const scale = Math.min(10, 1 / Math.max(0.04, 1 - g * CAVE[i][2]));
+    const op = still ? clamp(1 - g * CAVE[i][2], 0, 1) : clamp((10 - scale) / 5, 0, 1);
+    el.style.visibility = op < 0.01 ? "hidden" : "visible";
+    if (op < 0.01) return;
+    el.style.transform = still ? "none" : `translate3d(0,0,0) scale(${scale})`;
+    el.style.opacity = op;
   });
   $("#caveSky").style.opacity = clamp(g * g * 0.8, 0, 0.8);
   $("#caveLight").style.opacity = 1 - g * 0.5;
@@ -821,6 +835,7 @@ function moveCave() {
 /* ---------- reveal on scroll ---------- */
 let io;
 let io2;
+let io3;
 function observe() {
   io?.disconnect();
   io = new IntersectionObserver((entries) => {
@@ -829,11 +844,17 @@ function observe() {
       const el = en.target;
       el.classList.add("in");
       if (el.id === "stats" && !seen.stats) { seen.stats = true; countUp(); }
-      if (el.id === "s6" && !seen.card) { seen.card = true; refreshCard(); }
       if (el.classList.contains("reveal")) io.unobserve(el);
     });
   }, { threshold: 0.25 });
-  $$(".reveal, #s6").forEach((el) => io.observe(el));
+  $$(".reveal").forEach((el) => io.observe(el));
+  io3?.disconnect();
+  io3 = new IntersectionObserver(([en]) => {
+    if (!en.isIntersecting || seen.card) return;
+    seen.card = true;
+    (window.requestIdleCallback || ((f) => setTimeout(f, 200)))(() => refreshCard());
+  }, { rootMargin: "0px 0px 1800px 0px" });
+  io3.observe($("#s6"));
   io2?.disconnect();
   io2 = new IntersectionObserver(([en]) => {
     if (!en.isIntersecting || seen.climax) return;
