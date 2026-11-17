@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta name="theme-color" content="#06070c" />
+<link rel="icon" type="image/svg+xml" href="/my-portfolio/favicon.svg" />
+<title>Life Points · 人生行動點數</title>
+<meta name="description" content="Life Points：如果人生是一場遊戲，你還剩多少行動點數？一段約五分鐘的互動體驗。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/my-portfolio/assets/labLifePoints-bdsl56da.js"></script>
+  <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labLifePoints-CPruDORO.css">
+</head>
+<body>
+<div class="cave" aria-hidden="true">
+  <div class="cave-sky" id="caveSky"></div>
+  <div class="cave-light" id="caveLight"></div>
+  <svg class="cave-rock" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#0d0f1b" fill-rule="evenodd" /></svg>
+  <svg class="cave-rock" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#080a12" fill-rule="evenodd" /></svg>
+  <svg class="cave-rock" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#040509" fill-rule="evenodd" /></svg>
+</div>
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+<header class="bar">
+  <a class="pill back" href="../../work/#lab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg><span data-i18n="back">Lab</span></a>
+  <button class="pill" id="langBtn" type="button" data-i18n="langToggle" data-i18n-aria="langLabel">EN</button>
+</header>
+
+<main id="top">
+  <!-- Scene 0 — Start -->
+  <section class="scene start" id="s0" aria-labelledby="title">
+    <div class="inner narrow">
+      <p class="eyebrow">Lab · Experiment</p>
+      <h1 id="title" data-i18n="title">Life Points</h1>
+      <p class="lede" data-i18n="subtitle">如果人生是一場遊戲，你還剩多少行動點數？</p>
+      <form id="startForm" class="form" novalidate>
+        <div class="field">
+          <label for="age" data-i18n="age">現在幾歲</label>
+          <input id="age" name="age" type="number" inputmode="numeric" min="1" max="110" step="1" required autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="country" data-i18n="country">居住的國家</label>
+          <input id="country" name="country" type="text" list="countryList" autocomplete="off" data-i18n-ph="countryPlaceholder" aria-describedby="countryNote" />
+          <datalist id="countryList"></datalist>
+          <p class="note" id="countryNote" role="status" hidden data-i18n="countryFallback"></p>
+        </div>
+        <fieldset class="field">
+          <legend><span data-i18n="sex">生命表性別</span> <small data-i18n="sexHint"></small></legend>
+          <div class="seg" id="sexSeg">
+            <label><input type="radio" name="sex" value="f" /><span data-i18n="sexF">女性</span></label>
+            <label><input type="radio" name="sex" value="m" /><span data-i18n="sexM">男性</span></label>
+            <label><input type="radio" name="sex" value="b" checked /><span data-i18n="sexB">不透露</span></label>
+          </div>
+        </fieldset>
+        <button class="btn primary" type="submit" data-i18n="start">開始</button>
+        <p class="privacy" data-i18n="privacy"></p>
+        <p class="cave-hint" data-i18n="caveHint"></p>
+      </form>
+    </div>
+  </section>
+
+  <div id="journey" hidden>
+    <!-- Scene 1 — Life in weeks (pinned, scroll-scrubbed) -->
+    <section class="weeks" id="s1" aria-labelledby="s1Title">
+      <div class="weeks-sticky">
+        <div class="inner split">
+          <div class="copy">
+            <p class="eyebrow" data-i18n="s1Eyebrow"></p>
+            <div class="wk-steps">
+              <div class="wk-step"><h2 id="s1Title" data-i18n="s1Title"></h2><p class="big" id="wk0"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk1"></p><p class="warm" id="wk1Sub"></p></div>
+              <div class="wk-step"><p class="wk-line warm-text" id="s1Left"></p><p class="note" id="s1Note"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk3"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk4"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk5"></p></div>
+              <div class="wk-step"><p class="wk-line warm-text" id="wk6"></p><p class="note" data-i18n="wkNote"></p></div>
+            </div>
+            <ul class="wk-legend" id="wkLegend"></ul>
+          </div>
+          <div class="grid-wrap" id="gridWrap" role="img" aria-label="">
+            <canvas id="gridBase"></canvas>
+          </div>
+        </div>
+        <p class="scroll-hint" id="wkHint" aria-hidden="true"><span data-i18n="scroll"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg></p>
+      </div>
+    </section>
+
+    <!-- Scene 2 — Action points -->
+    <section class="scene" id="s2" aria-labelledby="s2Title">
+      <div class="inner">
+        <div class="reveal">
+          <p class="eyebrow" data-i18n="s2Eyebrow"></p>
+          <h2 id="s2Title" data-i18n="s2Title"></h2>
+          <div class="ap" aria-hidden="true">
+            <div class="ap-bar" id="apBar"></div>
+            <p class="ap-text"><span data-i18n="apLabel"></span> <b class="num" id="apPct"></b></p>
+          </div>
+          <p class="sr-only" id="apSr"></p>
+        </div>
+        <div class="stats reveal" id="stats"></div>
+        <div class="reveal center">
+          <button class="btn ghost" id="tuneBtn" type="button" data-i18n="tune"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scene 3 — The Tail End -->
+    <section class="scene" id="s3" aria-labelledby="s3Title">
+      <div class="inner narrow-wide">
+        <div class="reveal">
+          <p class="eyebrow" data-i18n="s3Eyebrow"></p>
+          <h2 id="s3Title" data-i18n="s3Title"></h2>
+        </div>
+        <div class="tail-form reveal">
+          <fieldset class="field">
+            <legend data-i18n="parentsQ"></legend>
+            <div class="seg" id="parentsSeg">
+              <label><input type="radio" name="parents" value="both" checked /><span data-i18n="pBoth"></span></label>
+              <label><input type="radio" name="parents" value="one" /><span data-i18n="pOne"></span></label>
+              <label><input type="radio" name="parents" value="none" /><span data-i18n="pNone"></span></label>
+            </div>
+          </fieldset>
+          <fieldset class="field" id="whichField" hidden>
+            <legend data-i18n="whichQ"></legend>
+            <div class="seg" id="whichSeg">
+              <label><input type="radio" name="which" value="mother" checked /><span data-i18n="mother"></span></label>
+              <label><input type="radio" name="which" value="father" /><span data-i18n="father"></span></label>
+            </div>
+          </fieldset>
+          <div class="ages" id="agesRow">
+            <div class="field" id="motherField">
+              <label for="motherAge" data-i18n="motherAge"></label>
+              <input id="motherAge" type="number" inputmode="numeric" min="18" max="110" step="1" autocomplete="off" />
+            </div>
+            <div class="field" id="fatherField">
+              <label for="fatherAge" data-i18n="fatherAge"></label>
+              <input id="fatherAge" type="number" inputmode="numeric" min="18" max="110" step="1" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+        <div class="tail-none reveal" id="noneBlock" hidden>
+          <p class="gentle" data-i18n="noneLine"></p>
+          <p class="note" data-i18n="noneNext"></p>
+        </div>
+        <div class="slider-block reveal">
+          <div class="slider" id="visitsSlider">
+            <div class="slider-head"><label for="visits" data-i18n="visitsLabel"></label><output class="num" id="visitsOut" for="visits"></output><span class="tag" id="visitsTag" data-i18n="defaultTag"></span></div>
+            <input id="visits" type="range" min="0" max="14" step="1" />
+          </div>
+          <div class="slider" id="friendsSlider" hidden>
+            <div class="slider-head"><label for="meetups2" data-i18n="friendsLabel"></label><output class="num" id="meetups2Out" for="meetups2"></output><span class="tag" id="meetups2Tag" data-i18n="defaultTag"></span></div>
+            <input id="meetups2" type="range" min="0" max="104" step="1" />
+          </div>
+          <p class="note" data-i18n="s3Hint"></p>
+        </div>
+        <div class="tail-rows reveal">
+          <div class="tail-row" id="rowMother">
+            <p class="tail-line" id="lineMother"></p>
+            <canvas class="boxes" id="boxMother" role="img"></canvas>
+            <p class="formula" id="fMother"></p>
+            <div class="used" aria-hidden="true"><i id="usedMother"></i></div>
+            <p class="used-line" id="usedLineMother"></p>
+            <p class="formula" data-i18n="fUsed"></p>
+          </div>
+          <div class="tail-row" id="rowFather">
+            <p class="tail-line" id="lineFather"></p>
+            <canvas class="boxes" id="boxFather" role="img"></canvas>
+            <p class="formula" id="fFather"></p>
+            <div class="used" aria-hidden="true"><i id="usedFather"></i></div>
+            <p class="used-line" id="usedLineFather"></p>
+            <p class="formula" data-i18n="fUsed"></p>
+          </div>
+          <div class="tail-row" id="rowFriends" hidden>
+            <p class="tail-line" id="lineFriends"></p>
+            <canvas class="boxes" id="boxFriends" role="img"></canvas>
+            <p class="formula" id="fFriends"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scene 4 — Dreams -->
+    <section class="scene" id="s4" aria-labelledby="s4Title">
+      <div class="inner">
+        <div class="reveal">
+          <p class="eyebrow" data-i18n="s4Eyebrow"></p>
+          <h2 id="s4Title" data-i18n="s4Title"></h2>
+          <p class="lede small" data-i18n="s4Sub"></p>
+        </div>
+        <div class="chips reveal" id="chips"></div>
+        <form class="custom reveal" id="customForm">
+          <label class="sr-only" for="customDream" data-i18n="customPlaceholder"></label>
+          <input id="customDream" type="text" maxlength="40" autocomplete="off" data-i18n-ph="customPlaceholder" />
+          <button class="btn ghost" type="submit" data-i18n="add"></button>
+        </form>
+        <div class="chip-list" id="customChips"></div>
+        <p class="note" id="maxNote" role="status" hidden data-i18n="maxed"></p>
+        <p class="note" data-i18n="s4Hint"></p>
+      </div>
+    </section>
+
+    <!-- Scene 5 — The walk -->
+    <section class="road" id="s5" aria-labelledby="s5Title">
+      <div class="road-sticky">
+        <canvas id="roadCanvas" aria-hidden="true"></canvas>
+        <div class="road-head">
+          <p class="eyebrow" data-i18n="s5Eyebrow"></p>
+          <h2 id="s5Title" data-i18n="s5Title"></h2>
+          <p class="road-hud" id="roadHud" aria-hidden="true"><b id="roadStage"></b><span class="num" id="roadAge"></span><em id="roadLine"></em></p>
+        </div>
+        <div class="road-now" id="roadNow">
+          <p class="road-here num" id="roadHere"></p>
+          <div class="beam-rows" id="roadRows"></div>
+          <p class="note" id="roadNote" data-i18n="editorial"></p>
+        </div>
+        <div class="road-tags" id="roadTags" aria-hidden="true"></div>
+        <ol class="walk-static" id="walkStatic"></ol>
+      </div>
+    </section>
+
+    <section class="scene climax" id="climax" aria-live="polite">
+      <div class="inner narrow center">
+        <p class="cl cl1" id="climax1"></p>
+        <p class="cl cl2" data-i18n="climax2"></p>
+        <div class="cl cl3 field">
+          <label for="move" data-i18n="firstMove"></label>
+          <input id="move" type="text" maxlength="40" autocomplete="off" data-i18n-ph="firstMovePlaceholder" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Scene 6 — Life Card -->
+    <section class="scene" id="s6" aria-labelledby="s6Title">
+      <div class="inner split card-scene">
+        <div class="copy reveal">
+          <p class="eyebrow" data-i18n="s6Eyebrow"></p>
+          <h2 id="s6Title" data-i18n="s6Title"></h2>
+          <p class="lede small" data-i18n="s6Sub"></p>
+          <div class="actions">
+            <button class="btn primary" id="saveBtn" type="button" data-i18n="save"></button>
+            <button class="btn ghost" id="shareBtn" type="button" data-i18n="share"></button>
+            <button class="btn text" id="restartBtn" type="button" data-i18n="restart"></button>
+          </div>
+          <p class="note" id="shareNote" role="status" hidden data-i18n="shared"></p>
+        </div>
+        <div class="card-wrap reveal">
+          <canvas id="card" width="1080" height="1920" role="img" data-i18n-aria="cardAlt"></canvas>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="foot">
+  <p id="footSource"></p>
+  <p data-i18n="footPrivacy"></p>
+</footer>
+
+<dialog class="sheet" id="tune" aria-labelledby="tuneTitle">
+  <form method="dialog">
+    <h3 id="tuneTitle" data-i18n="tuneTitle"></h3>
+    <div class="slider">
+      <div class="slider-head"><label for="trips" data-i18n="tuneTrips"></label><output class="num" id="tripsOut" for="trips"></output></div>
+      <input id="trips" type="range" min="0" max="12" step="1" />
+    </div>
+    <div class="slider">
+      <div class="slider-head"><label for="books" data-i18n="tuneBooks"></label><output class="num" id="booksOut" for="books"></output></div>
+      <input id="books" type="range" min="0" max="60" step="1" />
+    </div>
+    <div class="slider">
+      <div class="slider-head"><label for="meetups" data-i18n="tuneMeetups"></label><output class="num" id="meetupsOut" for="meetups"></output></div>
+      <input id="meetups" type="range" min="0" max="104" step="1" />
+    </div>
+    <button class="btn primary" type="submit" data-i18n="done"></button>
+  </form>
+</dialog>
+
+</body>
+</html>
