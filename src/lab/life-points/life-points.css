@@ -64,6 +64,11 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2px solid var(--warm); outline-offset: 3px; border-radius: 8px; }
 
 /* top bar */
+.bar-r { display: flex; gap: 8px; }
+.pill.icon { padding: 0; width: 44px; }
+.pill.icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#musicBtn[aria-pressed="true"] .i-off, #musicBtn[aria-pressed="false"] .i-on { display: none; }
+.pill.icon[aria-pressed="true"] { color: var(--warm); border-color: rgba(246, 185, 91, 0.45); }
 .bar {
   position: fixed;
   top: 0;

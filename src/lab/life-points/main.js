@@ -5,6 +5,21 @@ import { STRINGS, fmt } from "./strings.js";
 import { compute, dividend, dreamDividend, dreamWindow, clampAge, clamp, DEFAULTS } from "./calc.js";
 import { drawRoad, pxPerYear, walkerX, groundY } from "./road.js";
 import { drawCard, cardFonts } from "./card.js";
+import { createMusic } from "./music.js";
+
+const music = createMusic();
+const musicPref = () => { try { return localStorage.getItem("lp-music") !== "off"; } catch { return true; } };
+function setMusic(next, remember) {
+  music.set(next);
+  if (remember) try { localStorage.setItem("lp-music", next ? "on" : "off"); } catch { /* storage unavailable */ }
+  syncMusicBtn();
+}
+function syncMusicBtn() {
+  const b = document.getElementById("musicBtn");
+  b.setAttribute("aria-pressed", String(music.on));
+  b.setAttribute("aria-label", S[music.on ? "musicOn" : "musicOff"]);
+  b.title = b.getAttribute("aria-label");
+}
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -105,6 +120,7 @@ function applyStrings() {
   $$("[data-i18n]").forEach((el) => phr(el, S[el.dataset.i18n]));
   $$("[data-i18n-ph]").forEach((el) => { el.placeholder = S[el.dataset.i18nPh]; });
   $$("[data-i18n-aria]").forEach((el) => el.setAttribute("aria-label", S[el.dataset.i18nAria]));
+  syncMusicBtn();
   $("#countryList").innerHTML = tables.countries
     .filter((c) => c.code !== "WORLD")
     .map((c) => `<option value="${countryName(c)}"></option>`)
@@ -497,9 +513,12 @@ function moveRoad(force) {
   if (!force && (rect.bottom < -50 || rect.top > window.innerHeight + 50)) return;
   const p = clamp(-rect.top / Math.max(1, span), 0, 1);
   const d = data;
-  const A = 0.2;
-  const B = 0.46;
-  const age = p < A ? d.a * smooth(p / A) : p < B ? d.a : d.a + (d.L - d.a) * ((p - B) / (1 - B));
+  /* walk at one steady pace: scroll share per year is the same before and after "now" */
+  const HOLD = 0.22;
+  const walk = 1 - HOLD - 0.04;
+  const A = 0.02 + clamp(walk * (d.a / d.L), 0.12, walk - 0.12);
+  const B = A + HOLD;
+  const age = p < 0.02 ? 0 : p < A ? d.a * ((p - 0.02) / (A - 0.02)) : p < B ? d.a : d.a + (d.L - d.a) * clamp((p - B) / (1 - 0.02 - B), 0, 1);
   const hold = clamp((p - A) / (B - A), 0, 1);
   const lit = p < A ? 0 : smooth(clamp(hold * 4, 0, 1));
   const lamp = p < A ? 0 : smooth(clamp(hold * 6, 0, 1));
@@ -640,6 +659,7 @@ function start(e) {
     ageEl.focus();
     return;
   }
+  if (musicPref() && !music.on) setMusic(true, false);
   ageEl.removeAttribute("aria-invalid");
   state.age = clampAge(ageEl.value);
   ageEl.value = state.age;
@@ -669,6 +689,8 @@ function bind() {
     render();
   });
   $("#sexSeg").addEventListener("change", (e) => { state.sex = e.target.value; render(); });
+  $("#musicBtn").addEventListener("click", () => setMusic(!music.on, true));
+  document.addEventListener("visibilitychange", () => music.pause(document.hidden));
   $("#langBtn").addEventListener("click", () => {
     lang = lang === "zh" ? "en" : "zh";
     applyStrings();
@@ -829,6 +851,7 @@ function moveCave() {
     el.style.opacity = op;
   });
   $("#caveSky").style.opacity = clamp(g * g * 0.8, 0, 0.8);
+  music.light(g);
   $("#caveLight").style.opacity = 1 - g * 0.5;
 }
 
