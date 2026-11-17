@@ -808,6 +808,7 @@ function bind() {
       moveRoad(false);
       moveWeeks(false);
       moveCave();
+      moveSpot();
     });
   }, { passive: true });
   let lastW = window.innerWidth;
@@ -816,6 +817,7 @@ function bind() {
     lastW = window.innerWidth;
     render();
     moveCave();
+    moveSpot();
   });
   reduceQuery.addEventListener("change", () => { render(); if (reduced()) motes.still(); else motes.start(); });
 }
@@ -835,6 +837,37 @@ function buildCave() {
     });
     el.setAttribute("d", `M-900-900H1000V1000H-900Z M${pts.join("L")}Z`);
   });
+}
+
+/* ---------- the guiding light: drifts to the focal point of the scene ---------- */
+let spotKey = "";
+function moveSpot() {
+  const spot = $("#spot");
+  const vh = window.innerHeight;
+  const road5 = $("#s5").getBoundingClientRect();
+  let best = null;
+  let bestD = Infinity;
+  if (!(road5.top < vh * 0.3 && road5.bottom > vh * 0.7)) {
+    $$("[data-focus]").forEach((el) => {
+      if (el.offsetParent === null && el.id !== "title") return;
+      const r = el.getBoundingClientRect();
+      if (!r.height || r.bottom < vh * 0.1 || r.top > vh * 0.9) return;
+      const d = Math.abs(r.top + r.height / 2 - vh * 0.5);
+      if (d < bestD) { bestD = d; best = r; }
+    });
+  }
+  if (!best) {
+    if (spotKey !== "off") { spotKey = "off"; spot.style.opacity = 0; }
+    return;
+  }
+  const x = best.left + best.width / 2;
+  const y = clamp(best.top + Math.min(best.height, vh * 0.7) / 2, vh * 0.15, vh * 0.85);
+  const k = clamp(Math.max(best.width / (Math.min(window.innerWidth, vh) * 0.9), best.height / (vh * 0.6)), 0.7, 1.5);
+  const key = `${Math.round(x)},${Math.round(y)},${k.toFixed(2)}`;
+  if (key === spotKey) return;
+  spotKey = key;
+  spot.style.opacity = 1;
+  spot.style.transform = `translate3d(${x}px,${y}px,0) scale(${k})`;
 }
 
 let caveKey = "";
@@ -857,7 +890,6 @@ function moveCave() {
   $("#caveSky").style.opacity = clamp(g * g * 0.8, 0, 0.8);
   music.light(g);
   motes.light(g);
-  $("#caveRays").style.opacity = 0.55 + g * 0.35;
   $("#caveLight").style.opacity = 1 - g * 0.5;
 }
 
@@ -907,6 +939,7 @@ function prefillCountry() {
 
 prefillCountry();
 buildCave();
+requestAnimationFrame(moveSpot);
 applyStrings();
 bind();
 observe();
