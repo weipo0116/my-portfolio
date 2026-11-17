@@ -27,7 +27,7 @@ const CATS = [
   ["personal", "catPersonal"],
 ];
 const THE = new Set(["US", "GB", "NL", "PH", "AE"]);
-const STAT_KEYS = ["eves", "birthdays", "mornings", "trips", "books", "meetups"];
+const STAT_KEYS = ["eves", "birthdays", "mornings", "weekends", "moons", "trips", "books", "meetups"];
 
 const fresh = () => ({
   started: false,
@@ -55,6 +55,7 @@ const seen = { grid: false, stats: false, card: false, climax: false };
 const countryName = (c) => (lang === "zh" ? c.zh : c.en);
 const byCode = (code) => tables.countries.find((c) => c.code === code);
 const norm = (v) => v.trim().toLowerCase();
+const smooth = (t) => t * t * (3 - 2 * t);
 // "|" in a string marks phrase boundaries: each phrase stays on one line where it fits.
 function phr(el, text) {
   if (!text.includes("|")) { el.textContent = text; return; }
@@ -114,57 +115,121 @@ function applyStrings() {
   buildChips();
 }
 
-/* ---------- scene 1: week grid ---------- */
-const grid = { cell: 0, rows: 0, raf: 0 };
+/* ---------- scene 1: week grid (pinned, scrubbed by scroll) ---------- */
+const grid = { cell: 0, rows: 0, ctx: null, w: 0, h: 0, cats: null, key: "", ticking: false };
+const WK_STARTS = [0, 0.14, 0.34, 0.5, 0.64, 0.78, 0.9];
+const C_FAINT = [38, 40, 52];
+const C_LIVED = [84, 90, 120];
+const C_WARM = [246, 185, 91];
+const C_SLEEP = [44, 52, 104];
+const C_WORK = [104, 84, 70];
+const C_CHORE = [70, 62, 58];
+const C_FREE = [255, 214, 140];
+const mixc = (a, b, t) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`;
+
+// Spread sleep / work / chores evenly across the remaining weeks (exact counts, fixed seed).
+function buildCats(d) {
+  const key = `${d.weeksLived}-${d.weeksTotal}-${d.sleepW}-${d.workW}-${d.choreW}`;
+  if (grid.key === key) return;
+  grid.key = key;
+  const idx = [];
+  for (let i = d.weeksLived; i < d.weeksTotal; i += 1) idx.push(i);
+  let seed = 4200;
+  for (let i = idx.length - 1; i > 0; i -= 1) {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    const j = Math.floor((seed / 4294967296) * (i + 1));
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  const sleep = idx.slice(0, d.sleepW);
+  const rest = idx.slice(d.sleepW);
+  const workEnd = Math.round(65 * 52.18);
+  const work = [];
+  const others = [];
+  rest.forEach((i) => (work.length < d.workW && i < workEnd ? work : others).push(i));
+  grid.cats = { sleep, work, chore: others.slice(0, d.choreW), free: others.slice(d.choreW) };
+}
 
 function layoutGrid() {
   const wrap = $("#gridWrap");
-  const avail = Math.min(wrap.parentElement.clientWidth, 520);
+  const desktop = window.innerWidth >= 900;
+  const availW = Math.min(wrap.parentElement.clientWidth, desktop ? 520 : 460);
+  const availH = reduced() ? window.innerHeight * 0.6 : desktop ? window.innerHeight - 220 : window.innerHeight - $("#s1 .copy").offsetHeight - 170;
   grid.rows = Math.ceil(data.weeksTotal / 52);
-  const maxH = clamp(window.innerHeight * (window.innerWidth < 900 ? 0.45 : 0.62), 280, 640);
-  grid.cell = Math.max(2, Math.min(avail / 52, maxH / grid.rows));
-  const w = Math.floor(grid.cell * 52);
-  const h = Math.ceil(grid.cell * grid.rows);
-  return [setCanvas($("#gridBase"), w, h), setCanvas($("#gridGlow"), w, h), w, h];
+  grid.cell = Math.max(2, Math.min(availW / 52, Math.max(200, availH) / grid.rows));
+  grid.w = Math.floor(grid.cell * 52);
+  grid.h = Math.ceil(grid.cell * grid.rows);
+  grid.ctx = setCanvas($("#gridBase"), grid.w, grid.h);
 }
 
-function paintCells(ctx, from, to, color) {
+function paintCells(ctx, list, color) {
   const { cell } = grid;
   const size = Math.max(1, cell * 0.72);
   const off = (cell - size) / 2;
   ctx.fillStyle = color;
-  for (let i = from; i < to; i += 1) {
+  for (let k = 0; k < list.length; k += 1) {
+    const i = list[k];
     ctx.fillRect((i % 52) * cell + off, Math.floor(i / 52) * cell + off, size, size);
   }
 }
 
-function drawGrid(animate) {
-  cancelAnimationFrame(grid.raf);
-  const [base, glow, w, h] = layoutGrid();
-  const { weeksLived: lived, weeksTotal: total } = data;
-  const glowEl = $("#gridGlow");
-  glow.clearRect(0, 0, w, h);
-  paintCells(glow, lived, total, "#f6b95b");
-  const frame = (shown) => {
-    base.clearRect(0, 0, w, h);
-    paintCells(base, 0, shown, "#4d526d");
-    paintCells(base, shown, total, "rgba(255,255,255,0.07)");
-  };
-  if (!animate || reduced()) {
-    frame(lived);
-    glowEl.classList.add("on");
-    return;
-  }
-  glowEl.classList.remove("on");
-  const t0 = performance.now();
-  const dur = 1500;
-  const step = (now) => {
-    const t = clamp((now - t0) / dur, 0, 1);
-    frame(Math.round(lived * (1 - (1 - t) ** 3)));
-    if (t < 1) grid.raf = requestAnimationFrame(step);
-    else glowEl.classList.add("on");
-  };
-  grid.raf = requestAnimationFrame(step);
+function paintRange(ctx, from, to, color) {
+  const { cell } = grid;
+  const size = Math.max(1, cell * 0.72);
+  const off = (cell - size) / 2;
+  ctx.fillStyle = color;
+  for (let i = from; i < to; i += 1) ctx.fillRect((i % 52) * cell + off, Math.floor(i / 52) * cell + off, size, size);
+}
+
+function moveWeeks(force) {
+  if (!data || !grid.ctx) return;
+  const still = reduced();
+  const rect = $("#s1").getBoundingClientRect();
+  if (!force && !still && (rect.bottom < -50 || rect.top > window.innerHeight + 50)) return;
+  const p = still ? 1 : clamp(-rect.top / Math.max(1, rect.height - window.innerHeight), 0, 1);
+  const seg = (a, len) => smooth(clamp((p - a) / len, 0, 1));
+  const livedT = seg(0.14, 0.17);
+  const glowT = seg(0.34, 0.1);
+  const d = data;
+  const { ctx, cats } = grid;
+  const shown = Math.round(d.weeksLived * livedT);
+  ctx.clearRect(0, 0, grid.w, grid.h);
+  ctx.globalAlpha = still ? 1 : 0.35 + 0.65 * seg(0, 0.08);
+  paintRange(ctx, 0, shown, mixc(C_FAINT, C_LIVED, 1));
+  paintRange(ctx, shown, d.weeksLived, mixc(C_FAINT, C_LIVED, 0));
+  const warm = (to, t) => mixc(C_FAINT, [0, 1, 2].map((i) => C_WARM[i] + (to[i] - C_WARM[i]) * t), glowT);
+  paintCells(ctx, cats.sleep, warm(C_SLEEP, seg(0.5, 0.1)));
+  paintCells(ctx, cats.work, warm(C_WORK, seg(0.64, 0.1)));
+  paintCells(ctx, cats.chore, warm(C_CHORE, seg(0.78, 0.08)));
+  paintCells(ctx, cats.free, warm(C_FREE, seg(0.9, 0.08)));
+  ctx.globalAlpha = 1;
+  if (still) return;
+  $("#wk1").textContent = S.wk1(shown);
+  $$(".wk-step").forEach((el, i) => {
+    const from = WK_STARTS[i];
+    const to = WK_STARTS[i + 1] ?? 2;
+    const o = clamp((p - from + 0.012) / 0.03, 0, 1) * clamp((to - 0.012 - p) / 0.03, 0, 1);
+    el.style.opacity = i === 0 ? clamp((to - 0.012 - p) / 0.03, 0, 1) : o;
+    el.style.transform = `translateY(${(1 - o) * (p < from + 0.02 ? 14 : -14)}px)`;
+  });
+  $$("#wkLegend li").forEach((el, i) => { el.style.opacity = seg(WK_STARTS[i + 3] + 0.02, 0.05); });
+  $("#wkHint").style.opacity = clamp(1 - p / 0.05, 0, 1);
+}
+
+function renderWeeks() {
+  const d = data;
+  buildCats(d);
+  layoutGrid();
+  $("#wk0").textContent = S.wk0Sub(d);
+  $("#wk1").textContent = S.wk1(d.weeksLived);
+  $("#wk1Sub").textContent = S.wk1Sub(d);
+  phr($("#wk3"), S.wk3(d));
+  phr($("#wk4"), S.wk4(d));
+  phr($("#wk5"), S.wk5(d));
+  phr($("#wk6"), S.wk6(d));
+  $("#wkLegend").innerHTML = [["sleep", S.lgSleep, d.sleepW], ["work", S.lgWork, d.workW], ["chore", S.lgChores, d.choreW], ["free", S.lgFree, d.freeW]]
+    .map(([k, label, v]) => `<li class="lg-${k}"><i></i>${label} <span class="num">${S.lgWeeks(v)}</span></li>`)
+    .join("");
+  moveWeeks(true);
 }
 
 /* ---------- scene 2: stats ---------- */
@@ -187,6 +252,8 @@ function statModel() {
     eves: [S.cardEves, d.eves, S.unitTimes, S.fEves(d)],
     birthdays: [S.cardBirthdays, d.birthdays, S.unitTimes, S.fBirthdays(d)],
     mornings: [S.cardMornings, d.days, S.unitCount, S.fMornings(d)],
+    weekends: [S.cardWeekends, d.weekends, S.unitCount, S.fWeekends(d)],
+    moons: [S.cardMoons, d.moons, S.unitTimes, S.fMoons(d)],
     trips: [S.cardTrips, d.trips, S.unitTimes, S.fTrips(d, state.trips), "trips"],
     books: [S.cardBooks, d.books, S.unitBooks, S.fBooks(d, state.books), "books"],
     meetups: [S.cardMeetups, d.meetups, S.unitTimes, S.fMeetups(d, state.meetups), "meetups"],
@@ -288,6 +355,8 @@ function renderTail() {
     const name = S[who];
     phr($(`#line${id}`), S.visitsLine(name, p.visits));
     $(`#f${id}`).textContent = S.fVisits(state.visits, p);
+    $(`#used${id}`).style.width = `${p.usedPct}%`;
+    phr($(`#usedLine${id}`), S.usedLine(p.usedPct));
     const cv = $(`#box${id}`);
     cv.setAttribute("aria-label", S.visitsAlt(name, p.visits));
     drawBoxes(cv, p.visits);
@@ -335,7 +404,6 @@ function renderDreams() {
 /* ---------- scene 5: the road ahead ---------- */
 const road = { ticking: false, lanterns: [], w: 0, h: 0, ctx: null };
 const LEVELS = { plenty: "lvPlenty", soon: "lvSoon", now: "lvNow", care: "lvCare" };
-const smooth = (t) => t * t * (3 - 2 * t);
 
 function stagesFor(d) {
   return STAGES.filter((s) => s.from < d.L).map((s) => {
@@ -406,7 +474,8 @@ function moveRoad(force) {
   const age = p < A ? d.a * smooth(p / A) : p < B ? d.a : d.a + (d.L - d.a) * ((p - B) / (1 - B));
   const hold = clamp((p - A) / (B - A), 0, 1);
   const lit = p < A ? 0 : smooth(clamp(hold * 4, 0, 1));
-  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lanterns: road.lanterns.map((l) => l.age) });
+  const lamp = p < A ? 0 : smooth(clamp(hold * 6, 0, 1));
+  drawRoad(road.ctx, road.w, road.h, { age, a: d.a, L: d.L, lit, lamp, lanterns: road.lanterns.map((l) => l.age), gates: STAGES.map((st) => st.from).filter((v) => v < d.L) });
 
   const panel = clamp((p - A) / 0.03, 0, 1) * clamp((B + 0.02 - p) / 0.04, 0, 1);
   $("#s5Title").style.opacity = clamp(1 - p / 0.06, 0, 1);
@@ -486,11 +555,10 @@ function render() {
   const d = data;
   const sexWord = S[{ f: "sexWordF", m: "sexWordM", b: "sexWordB" }[state.sex]];
   const cName = countryName(d.country);
-  $("#s1Copy").textContent = S.s1Copy(d);
   $("#s1Left").textContent = S.s1Left(d);
   $("#s1Note").textContent = lang === "zh" ? S.s1Note(d, cName, sexWord ? `${sexWord}` : "") : S.s1Note(d, cName === "World" ? "the world" : THE.has(d.country.code) ? `the ${cName}` : cName, sexWord);
   $("#gridWrap").setAttribute("aria-label", S.s1Alt(d));
-  drawGrid(false);
+  renderWeeks();
   renderStats();
   renderTail();
   renderDreams();
@@ -524,7 +592,6 @@ function start(e) {
   state.started = true;
   $("#journey").hidden = false;
   render();
-  seen.grid = false;
   $("#s1").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" });
 }
 
@@ -653,7 +720,12 @@ function bind() {
   window.addEventListener("scroll", () => {
     if (road.ticking) return;
     road.ticking = true;
-    requestAnimationFrame(() => moveRoad(false));
+    requestAnimationFrame(() => {
+      moveRoad(false);
+      moveWeeks(false);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      $("#progressBar").style.transform = `scaleX(${state.started && max > 0 ? clamp(window.scrollY / max, 0, 1) : 0})`;
+    });
   }, { passive: true });
   let lastW = window.innerWidth;
   window.addEventListener("resize", () => {
@@ -674,7 +746,6 @@ function observe() {
       if (!en.isIntersecting) return;
       const el = en.target;
       el.classList.add("in");
-      if (el.id === "gridWrap" && !seen.grid) { seen.grid = true; drawGrid(true); }
       if (el.id === "stats" && !seen.stats) { seen.stats = true; countUp(); }
       if (el.id === "s6" && !seen.card) { seen.card = true; refreshCard(); }
       if (el.classList.contains("reveal")) io.unobserve(el);

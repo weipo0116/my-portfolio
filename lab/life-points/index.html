@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="/src/lab/life-points/life-points.css" />
 </head>
 <body>
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
 <header class="bar">
   <a class="pill back" href="../../work/#lab"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg><span data-i18n="back">Lab</span></a>
   <button class="pill" id="langBtn" type="button" data-i18n="langToggle" data-i18n-aria="langLabel">EN</button>
@@ -54,20 +55,28 @@
   </section>
 
   <div id="journey" hidden>
-    <!-- Scene 1 — Life in weeks -->
-    <section class="scene" id="s1" aria-labelledby="s1Title">
-      <div class="inner split">
-        <div class="copy reveal">
-          <p class="eyebrow" data-i18n="s1Eyebrow"></p>
-          <h2 id="s1Title" data-i18n="s1Title"></h2>
-          <p class="big" id="s1Copy"></p>
-          <p class="warm" id="s1Left"></p>
-          <p class="note" id="s1Note"></p>
+    <!-- Scene 1 — Life in weeks (pinned, scroll-scrubbed) -->
+    <section class="weeks" id="s1" aria-labelledby="s1Title">
+      <div class="weeks-sticky">
+        <div class="inner split">
+          <div class="copy">
+            <p class="eyebrow" data-i18n="s1Eyebrow"></p>
+            <div class="wk-steps">
+              <div class="wk-step"><h2 id="s1Title" data-i18n="s1Title"></h2><p class="big" id="wk0"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk1"></p><p class="warm" id="wk1Sub"></p></div>
+              <div class="wk-step"><p class="wk-line warm-text" id="s1Left"></p><p class="note" id="s1Note"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk3"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk4"></p></div>
+              <div class="wk-step"><p class="wk-line" id="wk5"></p></div>
+              <div class="wk-step"><p class="wk-line warm-text" id="wk6"></p><p class="note" data-i18n="wkNote"></p></div>
+            </div>
+            <ul class="wk-legend" id="wkLegend"></ul>
+          </div>
+          <div class="grid-wrap" id="gridWrap" role="img" aria-label="">
+            <canvas id="gridBase"></canvas>
+          </div>
         </div>
-        <div class="grid-wrap reveal" id="gridWrap" role="img" aria-label="">
-          <canvas id="gridBase"></canvas>
-          <canvas id="gridGlow"></canvas>
-        </div>
+        <p class="scroll-hint" id="wkHint" aria-hidden="true"><span data-i18n="scroll"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg></p>
       </div>
     </section>
 
@@ -144,11 +153,17 @@
             <p class="tail-line" id="lineMother"></p>
             <canvas class="boxes" id="boxMother" role="img"></canvas>
             <p class="formula" id="fMother"></p>
+            <div class="used" aria-hidden="true"><i id="usedMother"></i></div>
+            <p class="used-line" id="usedLineMother"></p>
+            <p class="formula" data-i18n="fUsed"></p>
           </div>
           <div class="tail-row" id="rowFather">
             <p class="tail-line" id="lineFather"></p>
             <canvas class="boxes" id="boxFather" role="img"></canvas>
             <p class="formula" id="fFather"></p>
+            <div class="used" aria-hidden="true"><i id="usedFather"></i></div>
+            <p class="used-line" id="usedLineFather"></p>
+            <p class="formula" data-i18n="fUsed"></p>
           </div>
           <div class="tail-row" id="rowFriends" hidden>
             <p class="tail-line" id="lineFriends"></p>

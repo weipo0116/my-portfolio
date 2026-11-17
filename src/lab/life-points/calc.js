@@ -4,6 +4,11 @@
 export const WEEKS_PER_YEAR = 52.18;
 export const DAYS_PER_YEAR = 365.25;
 export const TRAVEL_UNTIL = 80;
+export const WORK_UNTIL = 65;
+export const SLEEP_SHARE = 8 / 24; // 8 hours a day
+export const WORK_SHARE = (40 * 48) / (24 * DAYS_PER_YEAR); // 40 h × 48 weeks a year
+export const CHORE_SHARE = 3 / 24; // meals, commute, chores: 3 hours a day
+export const MOONS_PER_YEAR = 12.37;
 export const DEFAULTS = { trips: 1, books: 5, meetups: 12, visits: 4 };
 
 export const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -48,10 +53,28 @@ export function compute(input, tables) {
     const age = clampAge(p.age, 18, 110);
     const Rp = Math.max(0.1, ex(country[p.who === "mother" ? "f" : "m"], ages, age));
     const years = Math.min(R, Rp);
-    return { who: p.who, age, Rp, years, visits: Math.floor(input.visits * years) };
+    const visits = Math.floor(input.visits * years);
+    // Tail End: days together so far (living together until 18, then one day per visit) vs days ahead.
+    const past = Math.min(a, 18) * DAYS_PER_YEAR + Math.max(0, a - 18) * input.visits;
+    const ahead = Math.max(0, 18 - a) * DAYS_PER_YEAR + visits;
+    const usedPct = clamp(Math.round((past / Math.max(1, past + ahead)) * 100), 0, 99);
+    return { who: p.who, age, Rp, years, visits, usedPct };
   });
 
+  // How the remaining weeks get spent (rough shares; see strings "wkNote").
+  const weeksLeft = weeksTotal - weeksLived;
+  const sleepW = Math.round(weeksLeft * SLEEP_SHARE);
+  const workYears = Math.min(R, Math.max(0, WORK_UNTIL - a));
+  const workW = Math.min(weeksLeft - sleepW, Math.round(workYears * WEEKS_PER_YEAR * WORK_SHARE));
+  const choreW = Math.min(weeksLeft - sleepW - workW, Math.round(weeksLeft * CHORE_SHARE));
+
   return {
+    sleepW,
+    workW,
+    choreW,
+    freeW: weeksLeft - sleepW - workW - choreW,
+    weekends: Math.round(R * WEEKS_PER_YEAR),
+    moons: Math.round(R * MOONS_PER_YEAR),
     country,
     a,
     R,
