@@ -172,16 +172,19 @@ export function createMotes(cv) {
     },
 
     weave(r, a) {
-      // two threads, one cool and one warm, braiding across under the title
+      // two threads, one cool and one warm, braiding slowly across under the title
       const y0 = r.bottom + 18;
+      const amp = 10 + Math.sin(time * 0.3) * 2;
       [0, Math.PI].forEach((ph, i) => {
-        const pts = sample((t) => ({
+        const f = (t) => ({
           x: -20 + t * (w + 40),
-          y: y0 + Math.sin(t * TAU * 1.5 + ph + time * 0.35) * 10 * Math.sin(t * Math.PI),
-        }), 80);
-        stroke(pts, (i ? 0.32 : 0.22) * a, i);
-        const t = (time * 0.04 + i * 0.5) % 1;
-        dot(pts[Math.round(t * 80)].x, pts[Math.round(t * 80)].y, 4, a * Math.sin(t * Math.PI));
+          y: y0 + Math.sin(t * TAU * 1.25 - time * 0.45 + ph) * amp * Math.sin(t * Math.PI),
+        });
+        stroke(sample(f, 160), (i ? 0.32 : 0.22) * a, i);
+        // a light gliding along each thread, continuous (no snapping to samples)
+        const t = (time * 0.035 + i * 0.5) % 1;
+        const p = f(t);
+        dot(p.x, p.y, 4, a * Math.sin(t * Math.PI));
       });
     },
 
