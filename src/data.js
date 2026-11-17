@@ -280,6 +280,16 @@ export const siteData = {
         stack: ["Isometric SVG", "GSAP", "UX research"],
         link: `${import.meta.env.BASE_URL}lab/room/`,
       },
+      {
+        name: "Life Points",
+        status: "Brewing",
+        problem: "Placeholder — the real problem statement comes with the build.",
+        approach: "Placeholder — an interactive remaining-life experience, coming soon.",
+        art: "spark",
+        glyph: "✦",
+        stack: ["Placeholder"],
+        link: `${import.meta.env.BASE_URL}lab/life-points/`,
+      },
     ],
   },
   projects: [

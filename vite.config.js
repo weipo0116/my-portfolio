@@ -17,6 +17,7 @@ export default defineConfig({
         labWeekend: resolve(__dirname, "lab/weekend/index.html"), // → /my-portfolio/lab/weekend/
         labCities: resolve(__dirname, "lab/cities/index.html"), // → /my-portfolio/lab/cities/
         labRoom: resolve(__dirname, "lab/room/index.html"), // → /my-portfolio/lab/room/
+        labLifePoints: resolve(__dirname, "lab/life-points/index.html"), // → /my-portfolio/lab/life-points/
       },
     },
   },
