@@ -808,7 +808,6 @@ function bind() {
       moveRoad(false);
       moveWeeks(false);
       moveCave();
-      moveSpot();
     });
   }, { passive: true });
   let lastW = window.innerWidth;
@@ -817,7 +816,6 @@ function bind() {
     lastW = window.innerWidth;
     render();
     moveCave();
-    moveSpot();
   });
   reduceQuery.addEventListener("change", () => { render(); if (reduced()) motes.still(); else motes.start(); });
 }
@@ -837,28 +835,6 @@ function buildCave() {
     });
     el.setAttribute("d", `M-900-900H1000V1000H-900Z M${pts.join("L")}Z`);
   });
-}
-
-/* ---------- the guide: a few hair-thin threads of starlight lead to each scene's focal point ---------- */
-function moveSpot() {
-  const vh = window.innerHeight;
-  const road5 = $("#s5").getBoundingClientRect();
-  let best = null;
-  let bestEl = null;
-  let bestD = Infinity;
-  if (!(road5.top < vh * 0.3 && road5.bottom > vh * 0.7)) {
-    $$("[data-focus]").forEach((el) => {
-      if (el.offsetParent === null && el.id !== "title") return;
-      const r = el.getBoundingClientRect();
-      if (!r.height || r.bottom < vh * 0.1 || r.top > vh * 0.9) return;
-      const d = Math.abs(r.top + r.height / 2 - vh * 0.5);
-      if (d < bestD) { bestD = d; best = r; bestEl = el; }
-    });
-  }
-  if (!best) return motes.guide(null);
-  const x = best.left + best.width / 2;
-  const y = clamp(best.top - 14, vh * 0.08, vh * 0.8);
-  motes.guide({ x, y, w: Math.min(best.width, 520), end: bestEl.id === "card" });
 }
 
 let caveKey = "";
@@ -930,7 +906,15 @@ function prefillCountry() {
 
 prefillCountry();
 buildCave();
-requestAnimationFrame(moveSpot);
+motes.scenes([
+  { section: $("#s0"), anchor: $("#title"), art: "start" },
+  { section: $("#s1"), anchor: $("#s1"), art: "weeks" },
+  { section: $("#s2"), anchor: $(".ap"), art: "orbits" },
+  { section: $("#s3"), anchor: $("#s3Title"), art: "weave" },
+  { section: $("#s4"), anchor: $("#s4"), art: "wishes" },
+  { section: $("#climax"), anchor: $("#climax1"), art: "drop" },
+  { section: $("#s6"), anchor: $("#card"), art: "card" },
+]);
 applyStrings();
 bind();
 observe();
