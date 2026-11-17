@@ -1771,7 +1771,79 @@ sanjose:{
   T('波阿斯火山與咖啡莊園一日','想看火山與咖啡','1 天',[['波阿斯火山國家公園','2 小時'],['咖啡莊園導覽','1.5 小時'],['附近小鎮午餐','1 小時']],'旅行團巴士或包車，單程約 1.5 小時','普通','請先查官網','12–4 月較舒服；火山請先查官網','Poas Volcano coffee tour')],
  hiddenTrips:[
   T('埃斯卡蘭特區美食夜','愛美食與咖啡館','半天',[['埃斯卡蘭特街區','1.5 小時'],['在地精釀與餐廳','1.5 小時']],'計程車＋步行','輕鬆','不需要','全年','Barrio Escalante San Jose'),
-  T('卡爾塔戈與伊拉蘇火山','想看舊首都與火山','1 天',[['卡爾塔戈天使聖母大教堂','1 小時'],['伊拉蘇火山','2 小時']],'包車，單程約 1–1.5 小時','普通','請先查官網','12–4 月較舒服','Cartago Irazu Volcano tour')]}
+  T('卡爾塔戈與伊拉蘇火山','想看舊首都與火山','1 天',[['卡爾塔戈天使聖母大教堂','1 小時'],['伊拉蘇火山','2 小時']],'包車，單程約 1–1.5 小時','普通','請先查官網','12–4 月較舒服','Cartago Irazu Volcano tour')]},
+accra:{
+ mustSee:[
+  S('夸梅·恩克魯瑪紀念公園','Kwame Nkrumah Memorial Park Accra','迦納首任總統的陵寢與紀念公園，紀念迦納於 1957 年獨立的歷程。','了解迦納與泛非運動的起點，園區附設小型展覽，建築也相當有特色。','1–1.5 小時','上午較涼爽','地標',true),
+  S('傑姆斯鎮','Jamestown Accra lighthouse','阿克拉最古老的街區之一，有燈塔、殖民時期老屋與漁港。','能看到漁民與拳擊館的日常，彩繪牆與海景也很值得拍。','1.5–2 小時','午後到傍晚','街區'),
+  S('馬可拉市場','Makola Market Accra','阿克拉最大的露天市集，布料、香料、日用品與食材一字排開。','最能感受城市生活節奏，逛時請保管好隨身物品。','1–1.5 小時','上午','市場'),
+  S('杜波依斯泛非文化中心','W.E.B. Du Bois Centre Accra','紀念非裔美籍學者杜波依斯的故居，陳列他晚年的生活與著作。','能認識泛非運動與迦納獨立的關聯，屬於安靜的人文行程。','1 小時','白天','博物館')],
+ popularTrips:[
+  T('阿克拉歷史經典半日','第一次來阿克拉','半天',[['恩克魯瑪紀念公園','1.5 小時'],['獨立廣場（黑星廣場）','30 分鐘'],['傑姆斯鎮','1.5 小時']],'計程車或叫車＋步行','輕鬆','不需要','全年；11–3 月乾季較舒服','Accra city tour'),
+  T('海岸角城堡歷史一日','想了解奴隸貿易史','1 天',[['海岸角城堡導覽','2 小時'],['埃爾米納城堡','1.5 小時'],['沿途海岸','1 小時']],'包車或團體行程，單程約 3 小時','普通','建議預約','全年；乾季較佳','Cape Coast Castle day trip Accra')],
+ hiddenTrips:[
+  T('拉巴迪與特謝海岸散步','想看在地日常','半天',[['拉巴迪海灘','1.5 小時'],['特謝海岸小攤','1 小時']],'計程車＋步行','輕鬆','不需要','全年','Labadi Beach Accra'),
+  T('阿布里植物園與山丘小鎮','想暫離市區','半天',[['阿布里植物園','1.5 小時'],['山丘小鎮與木雕市集','1.5 小時']],'包車，單程約 1 小時','輕鬆','請先查官網','全年','Aburi Botanical Gardens Accra')]},
+dakar:{
+ mustSee:[
+  S('戈雷島','Gorée Island Dakar','大西洋奴隸貿易時期的據點，島上保留奴隸之家與殖民老屋。','列入世界遺產，建議以莊重的心情參觀，並聽導覽了解背景。','半天','上午出發，下午返航','地標',true),
+  S('非洲復興紀念碑','African Renaissance Monument Dakar','建在山丘上的巨型銅像，高度超過自由女神像。','可以俯瞰達卡的海岸線，也是理解當代塞內加爾的切入點。','1 小時','傍晚前後','地標'),
+  S('黑人文明博物館','Museum of Black Civilisations Dakar','近年落成的大型博物館，以非洲與非裔文明為主軸。','展覽涵蓋歷史、藝術與當代文化，可以好好看一個下午。','1.5–2 小時','白天','博物館'),
+  S('蘇姆貝迪奧納漁港','Soumbedioune fishing village Dakar','達卡傳統漁港，傍晚漁船靠岸，岸邊有魚貨與手工藝市場。','色彩鮮豔的獨木舟與魚販，是達卡最有生活感的畫面。','1 小時','傍晚','市場')],
+ popularTrips:[
+  T('達卡市區與海岸半日','第一次來達卡','半天',[['非洲復興紀念碑','1 小時'],['黑人文明博物館','1.5 小時'],['蘇姆貝迪奧納漁港','1 小時']],'計程車','輕鬆','不需要','11–5 月乾季','Dakar city tour'),
+  T('戈雷島歷史半日','想了解奴隸貿易史','半天',[['渡輪往返','約 20 分鐘'],['奴隸之家','1 小時'],['島上老街與海岸','1.5 小時']],'渡輪＋步行','輕鬆','請先查官網','全年；乾季較舒服','Goree Island ferry Dakar')],
+ hiddenTrips:[
+  T('恩戈爾島與海灘','想暫別市區','半天',[['恩戈爾島','2 小時'],['島上小餐廳','1 小時']],'小船接駁＋步行','輕鬆','不需要','11–5 月','Ngor Island Dakar'),
+  T('玫瑰湖與沙丘','喜歡奇特景觀','1 天',[['雷特巴湖（玫瑰湖）','1.5 小時'],['鹽工與沙丘','1 小時']],'包車，單程約 1–1.5 小時','普通','請先查官網','全年；乾季較佳','Lake Retba Pink Lake Dakar')]},
+windhoek:{
+ mustSee:[
+  S('基督教堂','Christuskirche Windhoek','德式新哥德風格的路德宗教堂，是溫荷克最具代表性的建築。','尖塔與彩繪玻璃很有特色，周邊也有獨立紀念碑與老建築。','30–45 分鐘','上午或傍晚','建築',true),
+  S('獨立紀念博物館','Independence Memorial Museum Windhoek','紀念納米比亞獨立歷程的現代建築，外型像一個巨大的箱子。','展覽講述殖民與抵抗歷史，頂樓可以俯瞰整座城市。','1–1.5 小時','白天','博物館'),
+  S('英雄公墓','Heroes Acre Windhoek','位於市郊山丘上的國家紀念園區，紀念獨立鬥爭的犧牲者。','雕塑與石階氣勢莊嚴，也能遠眺溫荷克的高原景色。','45 分鐘','上午','地標'),
+  S('索韋托市場','Soweto Market Katutura Windhoek','卡圖圖拉居民的日常市場，烤肉攤與手工藝攤位密集。','能看到當地人生活的另一面，建議跟當地嚮導同行。','1–1.5 小時','白天','市場')],
+ popularTrips:[
+  T('溫荷克市區一日','第一次來溫荷克','1 天',[['基督教堂','45 分鐘'],['獨立紀念博物館','1.5 小時'],['英雄公墓','45 分鐘'],['納米比亞工藝中心','1 小時']],'計程車＋步行','輕鬆','不需要','5–10 月','Windhoek city tour'),
+  T('索蘇斯維來沙丘行程','想看沙漠景觀','2–3 天',[['沙海沙丘','半天'],['死亡谷','1.5 小時'],['塞斯里姆峽谷','1.5 小時']],'包車或自駕，單程約 5 小時','較高','建議預約','4–10 月較舒服','Sossusvlei tour from Windhoek')],
+ hiddenTrips:[
+  T('卡圖圖拉在地導覽','想了解城市另一面','半天',[['索韋托市場','1.5 小時'],['社區文化導覽','1.5 小時']],'隨團接送','輕鬆','建議預約','全年','Katutura township tour Windhoek'),
+  T('丹維約恩保護區半日','想輕鬆看野生動物','半天',[['保護區步道','2 小時'],['水塘觀察點','1 小時']],'自駕或包車，約 30 分鐘','輕鬆','請先查官網','5–10 月','Daan Viljoen Game Reserve Windhoek')]},
+maun:{
+ mustSee:[
+  S('奧卡萬戈三角洲','Okavango Delta Maun','世界上最大的內陸三角洲之一，水道、島嶼與野生動物交織。','搭獨木舟或步行探索，是波札那最具代表性的自然體驗。','1–3 天','全天；5–10 月水位與動物較佳','自然景觀',true),
+  S('莫雷米禁獵區','Moremi Game Reserve Maun','位於三角洲東部的保護區，兼有草原、森林與水域。','適合乘車看大象、獅子與多種水鳥，是熱門的野生動物行程。','1–2 天','清晨與傍晚','自然景觀'),
+  S('塔馬拉卡內河','Thamalakane River Maun','流經馬翁的河，河邊有營地與餐廳，傍晚氣氛很寧靜。','適合在入住與出發之間放鬆，運氣好還能聽見河馬叫聲。','1 小時','傍晚','自然景觀'),
+  S('恩哈貝博物館','Nhabe Museum Maun','展示當地文化與工藝的小型博物館，也販售手工藝品。','能補上對波札那傳統與當代生活的認識，適合行前暖身。','45 分鐘','白天','博物館')],
+ popularTrips:[
+  T('三角洲獨木舟一夜營地','想體驗三角洲','2 天',[['馬翁出發','1 小時'],['獨木舟與步行','半天'],['營地夜晚','1 晚']],'四輪驅動車＋獨木舟','普通','建議預約','5–10 月','Okavango Delta mokoro overnight Maun'),
+  T('莫雷米生態旅遊','想看大型動物','2–3 天',[['進入禁獵區','半天'],['駕車觀察','2 小時'],['營地過夜','1 晚']],'四輪驅動車，單程約 2–3 小時','普通','建議預約','5–10 月','Moremi Game Reserve safari Maun')],
+ hiddenTrips:[
+  T('小飛機空拍三角洲','想從空中看水道','1–2 小時',[['機場報到','30 分鐘'],['三角洲空中巡遊','45 分鐘']],'小飛機','輕鬆','建議預約','全年；5–10 月較清楚','Okavango Delta scenic flight Maun'),
+  T('河邊黃昏與手作市集','想放慢步調','半天',[['塔馬拉卡內河','1 小時'],['恩哈貝博物館','1 小時']],'計程車＋步行','輕鬆','不需要','全年','Maun Thamalakane River sunset')]},
+portlouis:{
+ mustSee:[
+  S('阿普拉瓦西移民紀念地','Aapravasi Ghat Port Louis','19 世紀英國殖民時期契約勞工入境的移民站，現為世界遺產。','見證契約勞工移民至模里西斯的歷史，也是理解島上多元社會的起點。','1 小時','上午','地標',true),
+  S('中央市場','Central Market Port Louis','路易港最熱鬧的老市場，蔬果、香料與手工藝攤位並列。','邊走邊吃小吃最方便，也能感受島上多族群的日常。','1–1.5 小時','上午到中午','市場'),
+  S('考德恩水岸','Caudan Waterfront Port Louis','港邊的步行街區，有餐廳、商店與博物館，傍晚特別舒服。','適合安排在行程尾聲，邊吹海風邊吃晚餐。','1–1.5 小時','傍晚','街區'),
+  S('阿德萊德堡','Fort Adelaide Citadel Port Louis','建於英國殖民初期的石造碉堡，位在市區的小山丘上。','能俯瞰整個港灣與山脈，是拍攝城市全景的好地方。','45 分鐘','傍晚','建築')],
+ popularTrips:[
+  T('路易港老城一日','第一次來路易港','1 天',[['阿普拉瓦西移民紀念地','1 小時'],['中央市場','1.5 小時'],['考德恩水岸','1.5 小時']],'步行＋計程車','輕鬆','不需要','5–12 月較乾爽','Port Louis city tour'),
+  T('查馬雷與黑河峽谷一日','想看島上自然景觀','1 天',[['七色土','1 小時'],['查馬雷瀑布','1 小時'],['黑河峽谷國家公園','2 小時']],'包車，單程約 1.5 小時','普通','請先查官網','5–12 月','Chamarel Black River Gorges day tour Mauritius')],
+ hiddenTrips:[
+  T('清真寺與唐人街散步','喜歡宗教與建築','半天',[['賈瑪清真寺','30 分鐘'],['唐人街','1 小時'],['周邊小店','1 小時']],'步行','輕鬆','請先查官網','全年','Jummah Mosque Port Louis'),
+  T('龐普勒穆斯植物園','喜歡花園與慢步調','半天',[['西沃薩古爾·蘭古蘭植物園','2 小時']],'計程車或巴士，約 30 分鐘','輕鬆','請先查官網','全年','Pamplemousses Botanical Garden Mauritius')]},
+antananarivo:{
+ mustSee:[
+  S('馬達加斯加王宮','Rova of Antananarivo Madagascar','位於山丘頂的梅里納王國王宮遺址，經火災後已重建並開放。','可以俯瞰整個首都，並了解馬達加斯加王國的歷史。','1.5–2 小時','上午','地標',true),
+  S('阿納拉凱利市場','Analakely Market Antananarivo','首都最熱鬧的露天市場，沿著階梯與街巷延伸。','食物、布料與日用品一應俱全，是看當地生活的好地方。','1–1.5 小時','上午','市場'),
+  S('阿諾西湖','Lake Anosy Antananarivo','市區內的人工湖，湖畔有紀念碑與散步道，傍晚常有居民來散步。','適合在市區行程中間稍作休息，換個開闊視野。','45 分鐘','傍晚','自然景觀'),
+  S('安多哈利廣場','Andohalo Cathedral Antananarivo','舊城區的歷史廣場，附近有大教堂與殖民時期的老建築。','與王宮同屬舊城區，適合順路一起走，感受舊城氛圍。','45 分鐘','上午','街區')],
+ popularTrips:[
+  T('塔那那利佛舊城一日','第一次來首都','1 天',[['馬達加斯加王宮','2 小時'],['安多哈利廣場','45 分鐘'],['阿納拉凱利市場','1.5 小時'],['阿諾西湖','45 分鐘']],'步行＋計程車','普通','請先查官網','5–10 月','Antananarivo city tour'),
+  T('安巴希曼加王家山丘','想看世界遺產','半天',[['王家山丘遺址','2 小時'],['周邊村莊','1 小時']],'包車，單程約 1 小時','普通','請先查官網','5–10 月','Ambohimanga Royal Hill tour Antananarivo')],
+ hiddenTrips:[
+  T('近郊手工藝村','喜歡手作與工藝','1 天',[['手工紙與刺繡工坊','2 小時'],['沿途村落','2 小時']],'包車，單程約 1 小時','輕鬆','請先查官網','5–10 月','Antananarivo handicraft village tour'),
+  T('狐猴公園半日','想近距離看狐猴','半天',[['狐猴公園導覽','2 小時'],['周邊小餐廳','1 小時']],'包車，單程約 30–45 分鐘','輕鬆','請先查官網','5–10 月','Lemurs Park Antananarivo')]}
 };
 
 /* ===== 圖片（Pexels，Pexels License 可免費使用；仍標示攝影師與原始頁面）=====
@@ -2021,6 +2093,23 @@ const PEXELS=[
 ['brussels',0,37640937,'roma-dik-2157146262','golden-hour-at-grand-place-in-brussels','黃金時刻的布魯塞爾大廣場'],
 ['brussels',1,13650146,'eduardo-torres-179321986','atomium-in-brussels-belgium','布魯塞爾的原子球塔'],
 ['brussels',2,20595720,'wolfart','interior-of-royal-gallery-of-st-hubert-in-brussels','聖于貝爾皇家拱廊的室內'],
+['zurich',0,18415763,'adrien-olichon-1257089','panorama-of-limmat-river-in-zurich-switzerland','利馬特河畔的蘇黎世老城全景'],
+['zurich',1,28838129,'triemli','majestic-towers-of-grossmunster-zurich-skyline','晴空下大教堂雙塔矗立於蘇黎世天際線'],
+['zurich',2,29139222,'belyak-production-2027800734','fraumunster-church-and-limmat-river-in-zurich','利馬特河畔的聖母大教堂與尖塔'],
+['zurich',3,32266887,'nadialovessingle','scenic-view-of-lake-zurich-and-swiss-alps','蘇黎世湖與遠方阿爾卑斯山的湖光山色'],
+['prague',0,29733771,'ilia-bronskiy-1137858493','panoramic-view-of-prague-castle-in-czechia','布拉格城堡與城區的全景'],
+['prague',1,18255192,'ram-abraham-707744468','charles-bridge-in-prague','布拉格查理大橋與橋上人潮'],
+['prague',2,820735,'olly','astronomical-clock-in-prague','布拉格老城的天文鐘特寫'],
+['prague',3,6443000,'ramon-crivelli-192228','wenceslas-square-in-prague-czech-republic','布拉格瓦茨拉夫廣場的街景'],
+['krakow',0,11789838,'mateusz-feliksik-1896604','people-at-main-market-square-in-krakow-poland','克拉科夫中央廣場上悠閒的人群'],
+['krakow',1,6011559,'kate-graur-3626318','the-courtyard-of-the-wawel-castle-krakow-poland','瓦維爾城堡的文藝復興式中庭'],
+['warsaw',0,26594517,'melvin-silva-682283785','square-in-warsaw-old-town','華沙舊城廣場上色彩繽紛的老屋'],
+['warsaw',1,18982070,'aliaksei-lepik-557018408','tower-of-warsaw-uprising-museum','華沙起義博物館高塔與飄揚國旗'],
+['warsaw',2,38487658,'fotodruk','palace-of-culture-and-science-in-warsaw','藍天下高聳的華沙文化科學宮'],
+['warsaw',3,9159443,'karol-zielinski-92378908','water-canal-on-lazienki-park-in-warsaw-poland','瓦津基公園內靜謐的水道與綠意'],
+['bratislava',0,15818913,'willbillurban','bratislava-castle-in-slovakia','矗立山丘上的布拉提斯拉瓦城堡'],
+['bratislava',1,16438456,'lukas-kosc-525097851','main-square-in-bratislava-slovakia','布拉提斯拉瓦老城中心的主廣場'],
+['bratislava',3,22601885,'jana-259137194','ufo-observation-deck-on-snp-bridge-in-bratislava','新橋頂端的 UFO 觀景台'],
 ];
 for(const [city,i,id,user,slug,alt] of PEXELS){const m=CITY_EXTRA[city]&&CITY_EXTRA[city].mustSee[i];if(!m)continue;
   m.image={src:`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=480`,alt,source:'Pexels',author:user.replace(/(-\d+)+$/,'').replace(/-/g,' '),url:`https://www.pexels.com/photo/${slug}-${id}/`};}
