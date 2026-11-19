@@ -124,11 +124,16 @@ function findAspects(pos) {
 /* ---------- text ---------- */
 const fmtDeg = (d) => `${Math.floor(d)}°${String(Math.floor((d % 1) * 60)).padStart(2, "0")}′`;
 
+// Intl formatters are costly to build; make each once and reuse it.
+const TP_FMT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit",
+  weekday: "long", hour: "2-digit", minute: "2-digit", hour12: false,
+});
+const HM_FMT = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false });
+const HM_ZH_FMT = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit" });
+
 function taipeiParts(date) {
-  const f = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit",
-    weekday: "long", hour: "2-digit", minute: "2-digit", hour12: false,
-  }).formatToParts(date);
+  const f = TP_FMT.formatToParts(date);
   const o = Object.fromEntries(f.map((p) => [p.type, p.value]));
   return { y: +o.year, m: +o.month, d: +o.day, wk: o.weekday, hh: o.hour, mm: o.minute };
 }
@@ -182,7 +187,7 @@ const PL_G = { Sun: "☉", Mercury: "☿", Venus: "♀", Mars: "♂", Jupiter: "
 const ASP_ANGS = [[0, 0], [60, 1], [90, 2], [120, 3], [180, 4], [240, 3], [270, 2], [300, 1]]; // [angle, ASPECTS index]
 const aspKind = (ang) => (ang === 0 ? "conj" : ang === 60 || ang === 120 || ang === 240 || ang === 300 ? "soft" : "hard");
 const wrap180 = (d) => { d = norm(d); return d > 180 ? d - 360 : d; };
-const fmtT = (t) => new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false }).format(t);
+const fmtT = (t) => HM_FMT.format(t);
 const SIGN_RULER = ["Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"];
 const RULER_ZH = { Sun: "太陽", Moon: "月亮", Mercury: "水星", Venus: "金星", Mars: "火星", Jupiter: "木星", Saturn: "土星" };
 
@@ -990,7 +995,7 @@ function render({ dur = 1700 } = {}) {
   const dateText = `${tp.y}.${String(tp.m).padStart(2, "0")}.${String(tp.d).padStart(2, "0")} ${tp.wk}`;
   $("dateLine").textContent = `${dateText} · 台北 ${tp.hh}:${tp.mm}`;
   $("dlgDate").textContent = dateText;
-  const nt = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit" }).format(now);
+  const nt = HM_ZH_FMT.format(now);
   $("updated").textContent = `更新 ${nt} · 台北`;
 
   const pos = compute(date);
@@ -2749,19 +2754,39 @@ function stars_() {
       p: Math.random() * Math.PI * 2, s: 0.4 + Math.random() * 1.2,
     }));
   };
+  // ~30 fps is plenty for a slow twinkle; alpha snapped to 8 steps so stars share one fill per step
+  const STEPS = 8;
+  const buckets = Array.from({ length: STEPS }, () => []);
+  let raf = 0;
+  let last = 0;
   const frame = (t) => {
+    raf = 0;
+    if (!reduce && t - last < 33) { schedule(); return; }
+    last = t;
     ctx.clearRect(0, 0, w, h);
+    buckets.forEach((b) => (b.length = 0));
     for (const s of list) {
       const a = reduce ? 0.6 : 0.35 + 0.45 * Math.sin(t / 1000 * s.s + s.p);
-      ctx.fillStyle = `rgba(${starRgb},${a})`;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
+      if (a <= 0) continue;
+      buckets[Math.min(STEPS - 1, Math.floor((a / 0.8) * STEPS))].push(s);
     }
-    if (!reduce) requestAnimationFrame(frame);
+    buckets.forEach((b, i) => {
+      if (!b.length) return;
+      ctx.fillStyle = `rgba(${starRgb},${(((i + 0.5) / STEPS) * 0.8).toFixed(2)})`;
+      ctx.beginPath();
+      for (const s of b) { ctx.moveTo(s.x + s.r, s.y); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); }
+      ctx.fill();
+    });
+    schedule();
   };
+  // pause while the tab is hidden or the chart dialog covers the sky
+  const paused = () => document.hidden || document.getElementById("chartDialog")?.open;
+  function schedule() { if (!reduce && !raf && !paused()) raf = requestAnimationFrame(frame); }
   resize();
-  addEventListener("resize", resize);
+  let rt = 0;
+  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { resize(); if (reduce) requestAnimationFrame(frame); }, 150); });
+  document.addEventListener("visibilitychange", schedule);
+  document.getElementById("chartDialog")?.addEventListener("close", schedule);
   requestAnimationFrame(frame);
 }
 

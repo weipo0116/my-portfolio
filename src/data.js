@@ -240,6 +240,7 @@ export const siteData = {
       {
         name: "Desk Intelligence — AI Project Workspace",
         status: "Lit",
+        pinLast: true, // always the last Lit card
         problem:
           "Ideas pile up faster than I can act on them, and switching between AI tools loses context.",
         approach:

@@ -382,9 +382,9 @@ function App({ page = "profile" }) {
   const shouldReduceMotion = useReducedMotion();
   const { lang, theme, toggleLang, toggleTheme } = usePrefs();
   const siteData = getSiteData(lang);
-  // Lit (live) first, then Casting (built, not live), then Decoding (ideas)
+  // Lit (live) first, then Casting (built, not live), then Decoding (ideas); pinLast closes its group
   const labItems = (siteData.lab?.items ?? []).filter((item) => !item.unlisted).sort(
-    (a, b) => LAB_ORDER.indexOf(a.status) - LAB_ORDER.indexOf(b.status),
+    (a, b) => LAB_ORDER.indexOf(a.status) - LAB_ORDER.indexOf(b.status) || Number(Boolean(a.pinLast)) - Number(Boolean(b.pinLast)),
   );
   const t = ui[lang];
   const isWork = page === "work";
