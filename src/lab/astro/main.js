@@ -1298,41 +1298,59 @@ const MODE_KEYS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn
 
 function natalModes(el) {
   const zhOf = Object.fromEntries(NATAL_KEYS);
+  const BODY_G = Object.fromEntries(BODIES.map((b) => [b.key, b.g]));
   const pts = MODE_KEYS.filter((k) => NATAL.sign[k] != null).map((k) => ({ k, zh: zhOf[k] || k, si: NATAL.sign[k] }));
-  if (!pts.length) return [];
-  const out = [el("p", "hr-sub", "三分法與四元素")];
   const sun = pts.find((p) => p.k === "Sun");
-  if (sun) {
-    const m = MODES[sun.si % 3];
-    const lead = el("p", "mode-lead");
-    lead.append(el("b", "", `太陽${SIGNS[sun.si].zh}，${m.zh}星座。`), document.createTextNode(m.what));
-    out.push(lead);
-  }
-  const bars = (groups, cls) => {
-    const ul = el("ul", `mode-bars ${cls}`);
-    groups.forEach(([name, list, on]) => {
-      const li = el("li", on ? "on" : "");
-      const bar = el("span", "mb-bar");
-      bar.setAttribute("aria-hidden", "true");
-      bar.style.setProperty("--n", list.length / pts.length);
-      li.append(el("span", "mb-name", name), bar, el("span", "mb-n", String(list.length)), el("span", "mb-who", list.map((p) => p.zh).join("、")));
-      ul.append(li);
+  if (!sun) return [];
+  const m = MODES[sun.si % 3];
+  const out = [el("p", "hr-sub", "開創、固定、變動")];
+  const lead = el("p", "mode-lead");
+  lead.append(el("b", "", `太陽${SIGNS[sun.si].zh}，${m.zh}星座。`), document.createTextNode(m.what));
+  out.push(lead);
+
+  // 3 qualities × 4 elements = the 12 signs. Your Sun's cell is lit; other points sit in their cells.
+  const grid = el("div", "mode-grid");
+  grid.setAttribute("role", "table");
+  grid.setAttribute("aria-label", "十二星座：開創、固定、變動 × 火土風水");
+  const head = el("div", "mg-row mg-head");
+  head.setAttribute("role", "row");
+  head.append(el("span", "mg-corner"), ...ELEMENTS.map(([e]) => { const c = el("span", "", e); c.setAttribute("role", "columnheader"); return c; }));
+  grid.append(head);
+  MODES.forEach((mode, mi) => {
+    const row = el("div", "mg-row" + (mi === sun.si % 3 ? " on" : ""));
+    row.setAttribute("role", "row");
+    const rh = el("span", "mg-mode", mode.zh);
+    rh.setAttribute("role", "rowheader");
+    row.append(rh);
+    ELEMENTS.forEach((_, ei) => {
+      const si = SIGNS.findIndex((_, i) => i % 3 === mi && i % 4 === ei);
+      const here = pts.filter((p) => p.si === si);
+      const cell = el("span", "mg-cell" + (si === sun.si ? " sun" : ""));
+      cell.setAttribute("role", "cell");
+      cell.append(el("b", "", `${TXT(SIGNS[si].g)} ${SIGNS[si].zh.replace("座", "")}`));
+      if (here.length) {
+        const who = el("small", "", here.map((p) => (p.k === "Asc" ? "上升" : TXT(BODY_G[p.k]))).join(" "));
+        who.setAttribute("aria-label", here.map((p) => p.zh).join("、"));
+        cell.append(who);
+      }
+      row.append(cell);
     });
-    return ul;
-  };
-  const byMode = MODES.map((m, i) => [m.zh, pts.filter((p) => p.si % 3 === i), sun && sun.si % 3 === i]);
-  const byEl = ELEMENTS.map(([e, w], i) => [`${e} · ${w}`, pts.filter((p) => p.si % 4 === i), sun && sun.si % 4 === i]);
-  if (pts.length < 4) return out; // a lone Sun sign: the lead line is the whole story
-  out.push(bars(byMode, "modes"), bars(byEl, "elems"));
-  const notes = [];
-  byMode.forEach(([, list], i) => {
-    if (list.length >= Math.ceil(pts.length / 2)) notes.push(MODES[i].many);
-    else if (!list.length && pts.length >= 6) notes.push(MODES[i].none);
+    grid.append(row);
   });
-  if (notes.length) {
-    const ul = el("ul", "hr-emph");
-    ul.append(...notes.map((t) => el("li", "", t)));
-    out.push(ul);
+  out.push(grid);
+
+  if (pts.length >= 6) {
+    const notes = [];
+    MODES.forEach((mode, i) => {
+      const n = pts.filter((p) => p.si % 3 === i).length;
+      if (n >= Math.ceil(pts.length / 2)) notes.push(mode.many);
+      else if (!n) notes.push(mode.none);
+    });
+    if (notes.length) {
+      const ul = el("ul", "hr-emph");
+      ul.append(...notes.map((t) => el("li", "", t)));
+      out.push(ul);
+    }
   }
   return out;
 }
@@ -1442,14 +1460,16 @@ function renderHouseRead(base) {
     const tr = document.createElement("tr");
     tr.dataset.k = r[4];
     tr.tabIndex = 0;
-    r.slice(0, 4).forEach((c, i) => tr.append(el(i === 1 ? "th" : "td", i === 0 ? "g" : "", c)));
+    r.slice(0, 3).forEach((c, i) => tr.append(el(i === 1 ? "th" : "td", i === 0 ? "g" : "", c)));
+    const td = el("td", "");
+    td.append(houseBtn(signDist(NATAL.sign[r[4]], base.sign)));
+    tr.append(td);
     tr.children[1].setAttribute("scope", "row");
     return tr;
   }));
   const fold = document.createElement("details");
   fold.className = "hr-tablefold";
-  fold.open = true;
-  fold.innerHTML = "<summary><span>星體位置與星盤圖</span><small>點一顆星，表和圖會一起標出</small></summary>";
+  fold.innerHTML = "<summary><span>星體位置與星盤圖</span></summary>";
   const wheel = natalWheel(base);
   const pair = el("div", "hr-pair");
   pair.append(tbl, wheel);
@@ -1488,17 +1508,16 @@ function renderHouseRead(base) {
     const t = i === j
       ? `宮主${RULER_ZH[r]}就在本宮。這件事你很能自己作主，力量集中。`
       : `宮主${RULER_ZH[r]}在第 ${j + 1} 宮，這件事常常要透過「${HOUSES[j][0]}：${HOUSES[j][1]}」來展開。`;
-    rulers.push([`第 ${i + 1} 宮`, `${HOUSES[i][0]}（${HOUSES[i][1]}）`, t]);
+    rulers.push([i, t]);
   }
   let rulerFold = null;
   if (rulers.length) {
     const d = document.createElement("details");
     d.className = "hr-rulers";
-    d.open = matchMedia("(min-width: 900px)").matches; // side column on wide screens: open for side-by-side reading
     d.innerHTML = "<summary><span>進階：宮主星飛到哪裡</span></summary>";
-    d.append(el("p", "hr-tip", "每一宮所在的星座都有一顆守護星（宮主星）。宮主星落在哪一宮，就表示這一宮的事情會往哪裡發展、要從哪裡著手。這是看盤時把十二宮串成故事的方法。"));
+    d.append(el("p", "hr-tip", "每一宮都有一顆守護星（宮主星）。它落在哪一宮，這一宮的事就往哪裡發展。"));
     const ul = el("ul", "hr-rl");
-    ul.append(...rulers.map(([a, b, t]) => { const li = document.createElement("li"); li.append(el("b", "", a), el("span", "", `${b}：${t}`)); return li; }));
+    ul.append(...rulers.map(([i, t]) => { const li = document.createElement("li"); li.append(houseBtn(i), el("span", "", t)); return li; }));
     d.append(ul);
     rulerFold = d;
   }
@@ -1506,18 +1525,13 @@ function renderHouseRead(base) {
   const tip = el("p", "hr-tip", base.by === "asc"
     ? "宮位從上升排起，一個星座就是一宮（整宮制，最古老也最好上手的分法）。"
     : "還沒有上升，宮位暫用太陽星座排，只能看大方向。填上出生時間算出上升，或在「你的今日」直接選上升星座，宮位才會準。");
-  // top: table | wheel. below: reading and advice on the left, house rulers on the right as reference
-  const left = el("div", "hr-left"), right = el("div", "hr-right");
-  left.append(...parts, tip);
-  if (rulerFold) right.append(rulerFold);
-  const cols = el("div", "hr-cols" + (rulerFold ? "" : " single"));
-  cols.append(left, right);
   const readFold = document.createElement("details");
   readFold.className = "hr-readfold";
   readFold.open = true;
-  readFold.innerHTML = "<summary><span>逐顆解讀</span><small>每顆星的意思與宮主星</small></summary>";
-  readFold.append(cols);
-  box.replaceChildren(fold, readFold);
+  readFold.innerHTML = "<summary><span>逐顆解讀</span></summary>";
+  readFold.append(...parts, tip);
+  if (rulerFold) readFold.append(rulerFold);
+  box.replaceChildren(readFold, fold);
 }
 
 // the natal reading only depends on the birth data, so day steps and the 5-minute refresh keep
@@ -2828,6 +2842,34 @@ document.getElementById("themeBtn").addEventListener("click", () => {
 });
 
 
+/* ---------- house explanations: tap a house, read what it means, stay on the page ---------- */
+function houseBtn(i) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "house-btn";
+  b.dataset.house = String(i);
+  b.textContent = `第 ${i + 1} 宮 · ${HOUSES[i][0]}`;
+  b.setAttribute("aria-haspopup", "true");
+  return b;
+}
+{
+  const tip = $("houseTip");
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-house]");
+    if (!b || !tip.showPopover) return;
+    const i = Number(b.dataset.house);
+    const h = document.createElement("b");
+    h.textContent = `第 ${i + 1} 宮 · ${HOUSES[i][0]}`;
+    const p = document.createElement("p");
+    p.textContent = HOUSES[i][3];
+    const k = document.createElement("small");
+    k.textContent = HOUSES[i][1];
+    tip.replaceChildren(h, p, k);
+    if (tip.matches(":popover-open")) tip.hidePopover();
+    try { tip.showPopover({ source: b }); } catch { tip.showPopover(); }
+  });
+}
+
 /* ---------- view switch: fortune (general) / chart (astrology fans) ---------- */
 function applyView(v) {
   document.documentElement.dataset.view = v;
@@ -2848,6 +2890,24 @@ function setView(v) {
   observeReveals();
 }
 $("toFortune").addEventListener("click", () => setView("fortune"));
+
+// First visit in a session: ask what the visitor came for instead of guessing.
+{
+  const dlg = $("entryDlg");
+  let asked = false;
+  try { asked = sessionStorage.getItem("astra-entry") === "1"; } catch { /* storage unavailable */ }
+  if (!('closedBy' in HTMLDialogElement.prototype)) {
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  }
+  dlg.addEventListener("close", () => {
+    const v = dlg.returnValue;
+    dlg.returnValue = "";
+    try { sessionStorage.setItem("astra-entry", "1"); } catch { /* storage unavailable */ }
+    if (v === "fortune") backToFortune();
+    else if (v === "chart") (hasNatal() ? showPersonal() : openBirth());
+  });
+  if (!asked && !location.hash) dlg.showModal();
+}
 $("viewSeg").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (b) setView(b.dataset.view);
