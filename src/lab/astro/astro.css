@@ -59,7 +59,7 @@ html[data-theme="light"] {
 }
 #stars { transition: opacity 0.5s var(--ease); }
 html[data-theme="light"] #stars { opacity: 0.22; }
-html[data-theme="light"] .wheel-bg { opacity: 0.2; }
+html[data-theme="light"] .wheel-bg { opacity: 0.09; }
 body { transition: background-color 0.5s var(--ease), color 0.5s var(--ease); }
 
 /* theme toggle */
@@ -233,7 +233,7 @@ body {
 }
 
 /* ---- v2: fixed translucent wheel, summary, detail dialog ---- */
-.wheel-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: grid; place-items: center; opacity: 0.3; }
+.wheel-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; display: grid; place-items: center; opacity: 0.13; }
 .wheel-bg svg { width: min(130vw, 150vh, 1100px); height: auto; aspect-ratio: 1; overflow: visible; filter: saturate(0.9); }
 .wheel-bg .sign-latin { display: none; }
 .wheel-bg .aspect-lines { opacity: 0.7; }
@@ -813,7 +813,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
 .mode-lead { margin: 0 0 14px; color: var(--body); font-size: 0.95rem; line-height: 1.8; }
 .mode-lead b { color: var(--gold); font-weight: 600; }
 .mode-grid { display: grid; gap: 6px; margin: 0 0 16px; font-size: 0.85rem; }
-.mg-row { display: grid; grid-template-columns: 3.2em repeat(4, minmax(0, 1fr)); gap: 6px; align-items: stretch; }
+.mg-row { display: grid; grid-template-columns: 3.2em repeat(var(--cols, 4), minmax(0, 1fr)); gap: 6px; align-items: stretch; }
 .mg-head span { text-align: center; color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; padding-bottom: 2px; }
 .mg-mode { display: flex; align-items: center; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.08em; }
 .mg-row.on .mg-mode { color: var(--gold); }
@@ -1151,3 +1151,33 @@ html[data-theme="light"] .path.is-main .path-t { color: var(--gold-soft); }
 .entry-opt:hover, .entry-opt:focus-visible { border-color: var(--gold); background: rgba(var(--gold-rgb), 0.14); outline: none; }
 .personal { grid-template-columns: minmax(0, 1fr); }
 dialog.entry-dlg { width: min(420px, calc(100vw - 32px)); height: fit-content; max-height: 90svh; border: 1px solid var(--gold); border-radius: 16px; }
+.mg-row .mg-cell.empty { border-color: transparent; background: none; }
+
+/* chapter tabs: a sticky bar on phones and tablets */
+.secnav { position: sticky; top: 68px; z-index: 30; display: flex; gap: 4px; margin: 0 -20px; padding: 8px 20px; overflow-x: auto; scrollbar-width: none; scroll-target-group: auto; background: rgba(var(--night-rgb), 0.86); backdrop-filter: blur(10px); border-block: 1px solid var(--line); }
+.secnav::-webkit-scrollbar { display: none; }
+.secnav a { flex: none; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; color: var(--muted); text-decoration: none; font-size: 0.9rem; letter-spacing: 0.08em; white-space: nowrap; transition: color 0.2s var(--ease), background 0.2s var(--ease); }
+.secnav a:hover { color: var(--gold-soft); }
+.secnav a:target-current, .secnav a[aria-current="true"] { color: var(--night); background: var(--gold); font-weight: 600; }
+.secnav a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.block { scroll-margin-top: 130px; }
+.glance { display: none; }
+
+/* desktop, chart view: chapter rail | reading column | today at a glance */
+@media (min-width: 1180px) {
+  html[data-view="chart"] #app { max-width: 1360px; display: grid; grid-template-columns: 180px minmax(0, 1fr) 290px; column-gap: 56px; }
+  html[data-view="chart"] #app > * { grid-column: 2; min-width: 0; }
+  html[data-view="chart"] #app > .hero { grid-column: 1 / -1; }
+  html[data-view="chart"] #app > .secnav { grid-column: 1; grid-row: 2 / span 12; align-self: start; position: sticky; top: 96px; flex-direction: column; gap: 2px; margin: 72px 0 0; padding: 0; overflow: visible; background: none; backdrop-filter: none; border: 0; border-left: 1px solid var(--line); }
+  html[data-view="chart"] .secnav a { border-radius: 0 999px 999px 0; padding: 0 16px; margin-left: -1px; border-left: 2px solid transparent; }
+  html[data-view="chart"] .secnav a:target-current, html[data-view="chart"] .secnav a[aria-current="true"] { background: rgba(var(--gold-rgb), 0.14); color: var(--gold); border-left-color: var(--gold); }
+  html[data-view="chart"] #app > .glance { grid-column: 3; grid-row: 2 / span 12; align-self: start; position: sticky; top: 96px; display: grid; gap: 12px; margin-top: 72px; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: rgba(var(--panel-rgb), 0.6); }
+  .block { scroll-margin-top: 40px; }
+}
+.gl-k { margin: 0; font-size: 0.78rem; letter-spacing: 0.14em; color: var(--muted); }
+.gl-head { margin: 0; font-family: var(--serif-body); font-size: 1.15rem; line-height: 1.7; color: var(--marble); }
+.gl-stars { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-block: 1px solid var(--line); }
+.gl-stars a { display: flex; justify-content: space-between; align-items: center; min-height: 44px; color: var(--body); text-decoration: none; }
+.gl-stars a:hover { color: var(--gold); }
+.gl-st { color: var(--gold); letter-spacing: 0.1em; }
+.gl-adv { margin: 0; font-size: 0.9rem; line-height: 1.7; color: var(--body); }

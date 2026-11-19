@@ -1312,21 +1312,28 @@ function natalModes(el) {
   const grid = el("div", "mode-grid");
   grid.setAttribute("role", "table");
   grid.setAttribute("aria-label", "十二星座：開創、固定、變動 × 火土風水");
+  // only rows and columns that hold at least one point; an empty cell inside them stays blank
+  const rowsOn = MODES.map((_, mi) => pts.some((p) => p.si % 3 === mi));
+  const colsOn = ELEMENTS.map((_, ei) => pts.some((p) => p.si % 4 === ei));
+  const cols = ELEMENTS.map((e, ei) => [e, ei]).filter(([, ei]) => colsOn[ei]);
+  grid.style.setProperty("--cols", cols.length);
   const head = el("div", "mg-row mg-head");
   head.setAttribute("role", "row");
-  head.append(el("span", "mg-corner"), ...ELEMENTS.map(([e]) => { const c = el("span", "", e); c.setAttribute("role", "columnheader"); return c; }));
+  head.append(el("span", "mg-corner"), ...cols.map(([[e]]) => { const c = el("span", "", e); c.setAttribute("role", "columnheader"); return c; }));
   grid.append(head);
   MODES.forEach((mode, mi) => {
+    if (!rowsOn[mi]) return;
     const row = el("div", "mg-row" + (mi === sun.si % 3 ? " on" : ""));
     row.setAttribute("role", "row");
     const rh = el("span", "mg-mode", mode.zh);
     rh.setAttribute("role", "rowheader");
     row.append(rh);
-    ELEMENTS.forEach((_, ei) => {
+    cols.forEach(([, ei]) => {
       const si = SIGNS.findIndex((_, i) => i % 3 === mi && i % 4 === ei);
       const here = pts.filter((p) => p.si === si);
-      const cell = el("span", "mg-cell" + (si === sun.si ? " sun" : ""));
+      const cell = el("span", "mg-cell" + (si === sun.si ? " sun" : "") + (here.length ? "" : " empty"));
       cell.setAttribute("role", "cell");
+      if (!here.length) { row.append(cell); return; }
       cell.append(el("b", "", `${TXT(SIGNS[si].g)} ${SIGNS[si].zh.replace("座", "")}`));
       if (here.length) {
         const who = el("small", "", here.map((p) => (p.k === "Asc" ? "上升" : TXT(BODY_G[p.k]))).join(" "));
@@ -2890,6 +2897,64 @@ function setView(v) {
   observeReveals();
 }
 $("toFortune").addEventListener("click", () => setView("fortune"));
+
+/* ---------- chapter tabs (phones) / side rail (desktop), with scrollspy ---------- */
+{
+  const nav = $("secNav");
+  const links = [...nav.querySelectorAll("a")];
+  let current = null;
+  const mark = (a) => {
+    if (!a || a === current) return;
+    current = a;
+    links.forEach((l) => l.setAttribute("aria-current", l === a ? "true" : "false"));
+    if (getComputedStyle(nav).overflowX !== "visible") a.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  };
+  if (CSS.supports("scroll-target-group: auto")) {
+    const sync = () => mark(nav.querySelector("a:target-current"));
+    document.addEventListener("scrollend", sync);
+    setTimeout(sync, 300);
+  } else {
+    const byId = new Map(links.map((l) => [l.getAttribute("href").slice(1), l]));
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) mark(byId.get(e.target.id)); }), { rootMargin: "-30% 0px -60% 0px" });
+    byId.forEach((_, id) => io.observe($(id)));
+  }
+}
+
+/* ---------- today at a glance: the headline and your three stars, always in view on desktop ---------- */
+function renderGlance() {
+  const g = $("glance");
+  const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
+  const parts = [el("p", "gl-k", "今日一覽"), el("p", "gl-head", $("headline").textContent)];
+  const rows = [...document.querySelectorAll("#personal .tcats li")];
+  if (rows.length) {
+    const ul = el("ul", "gl-stars");
+    rows.forEach((li) => {
+      const a = el("a", "", "");
+      a.href = "#personal";
+      a.append(el("span", "", li.querySelector(".cl")?.textContent), el("span", "gl-st", li.querySelector(".fs")?.textContent));
+      a.querySelector(".gl-st").setAttribute("aria-label", li.querySelector(".fs")?.getAttribute("aria-label") || "");
+      const item = document.createElement("li");
+      item.append(a);
+      ul.append(item);
+    });
+    parts.push(ul);
+  } else {
+    const b = el("button", "pillbtn", "輸入生日，看專屬運勢");
+    b.type = "button";
+    b.addEventListener("click", openBirth);
+    parts.push(b);
+  }
+  const adv = $("advice").textContent;
+  if (adv) parts.push(el("p", "gl-adv", adv));
+  g.replaceChildren(...parts);
+}
+{
+  let t = 0;
+  const later = () => { cancelAnimationFrame(t); t = requestAnimationFrame(renderGlance); };
+  const mo = new MutationObserver(later);
+  ["personal", "headline", "advice"].forEach((id) => mo.observe($(id), { childList: true, subtree: true, characterData: true }));
+  later();
+}
 
 // First visit in a session: ask what the visitor came for instead of guessing.
 {

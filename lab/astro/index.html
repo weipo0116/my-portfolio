@@ -60,15 +60,16 @@
         <button id="openChart" class="cta v-chart" type="button" aria-haspopup="dialog">查看星盤詳情 <span aria-hidden="true">✦</span></button>
         <p class="hint v-chart" id="motionHint"></p>
         <p class="updated" id="updated"></p>
-        <nav class="jump" aria-label="快速導覽">
-          <a href="#sec-today" class="v-fortune">我的運勢</a>
-          <a href="#sec-houses" class="v-chart">你的今日</a>
-          <a href="#sec-energy" class="v-chart">今日能量</a>
-          <a href="#sec-natal" class="v-chart">你的星盤</a>
-          <a href="#sec-syn" class="v-chart">合盤</a>
-          <a href="#sec-moon" class="v-chart">月相</a>
-        </nav>
       </header>
+
+      <nav class="secnav v-chart" id="secNav" aria-label="章節">
+        <a href="#sec-houses">你的今日</a>
+        <a href="#sec-energy">今日能量</a>
+        <a href="#sec-natal">你的星盤</a>
+        <a href="#sec-syn">合盤</a>
+        <a href="#sec-moon">月相</a>
+      </nav>
+      <aside class="glance v-chart" id="glance" aria-label="今日一覽"></aside>
 
       <section class="block reveal v-fortune" id="sec-today" aria-labelledby="h-today">
         <h2 id="h-today"><span class="num">✦</span> 我的運勢</h2>
@@ -82,7 +83,7 @@
         <div id="todayCard"></div>
       </section>
 
-      <section class="block reveal v-chart" id="sec-houses" aria-labelledby="h-houses">
+      <section class="block reveal v-chart" id="sec-houses" tabindex="-1" aria-labelledby="h-houses">
         <button type="button" class="backbar" data-back-fortune><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>回到星座運勢（今日／本週）</button>
         <h2 id="h-houses"><span class="num">I</span> 你的今日</h2>
         <div class="natal" id="natal">
@@ -126,7 +127,7 @@
         </details>
       </section>
 
-      <section class="block reveal v-chart" id="sec-energy" aria-labelledby="h-energy">
+      <section class="block reveal v-chart" id="sec-energy" tabindex="-1" aria-labelledby="h-energy">
         <h2 id="h-energy"><span class="num">II</span> 今日能量</h2>
         <div id="vocAlert" class="voc-alert" role="status" hidden></div>
         <p id="headline" class="headline"></p>
@@ -173,18 +174,18 @@
         </div>
       </section>
 
-      <section class="block reveal v-chart" id="sec-natal" aria-labelledby="h-natal">
+      <section class="block reveal v-chart" id="sec-natal" tabindex="-1" aria-labelledby="h-natal">
         <h2 id="h-natal"><span class="num">III</span> 你的星盤</h2>
         <div class="house-read" id="houseRead"></div>
       </section>
 
 
-      <section class="block reveal v-chart" id="sec-syn" aria-labelledby="h-syn">
+      <section class="block reveal v-chart" id="sec-syn" tabindex="-1" aria-labelledby="h-syn">
         <h2 id="h-syn"><span class="num">IV</span> 合盤</h2>
         <div id="synBox"></div>
       </section>
 
-      <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
+      <section class="block reveal moon-block v-chart" id="sec-moon" tabindex="-1" aria-labelledby="h-moon">
         <h2 id="h-moon"><span class="num">V</span> 月相</h2>
         <div class="moon-row">
           <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相" aria-describedby="moonText"></svg>
