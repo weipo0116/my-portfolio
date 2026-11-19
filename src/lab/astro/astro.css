@@ -824,6 +824,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 72px; z-
 .bdate-row small { color: var(--muted); font-size: 0.85rem; }
 /* teacher notes */
 .hr-sub { margin: 16px 0 6px; font-size: 0.82rem; letter-spacing: 0.1em; color: var(--muted); }
+.mode-lead { margin: 0 0 14px; color: var(--body); font-size: 0.95rem; line-height: 1.8; }
+.mode-lead b { color: var(--gold); font-weight: 600; }
+.mode-bars { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.mode-bars li { display: grid; grid-template-columns: 5.5em 1fr 1.5em; grid-template-areas: "name bar n" ". who who"; align-items: center; column-gap: 12px; font-size: 0.9rem; color: var(--muted); }
+.mode-bars .mb-name { grid-area: name; }
+.mode-bars .mb-n { grid-area: n; text-align: end; font-variant-numeric: tabular-nums; }
+.mode-bars .mb-who { grid-area: who; font-size: 0.8rem; line-height: 1.5; min-height: 1.2em; }
+.mode-bars .mb-bar { grid-area: bar; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.mode-bars .mb-bar::before { content: ""; display: block; height: 100%; width: calc(var(--n) * 100%); background: var(--gold); opacity: 0.55; border-radius: inherit; }
+.mode-bars li.on { color: var(--body); }
+.mode-bars li.on .mb-bar::before { opacity: 1; }
+.mode-bars.elems { margin-top: 18px; }
 .hr-emph { list-style: none; margin: 0; padding: 0; }
 .hr-emph li { padding: 10px 14px; margin-bottom: 6px; border-left: 2px solid var(--gold); background: rgba(var(--gold-rgb), 0.08); color: var(--body); font-size: 0.93rem; line-height: 1.75; border-radius: 0 6px 6px 0; }
 .hr-rulers { margin-top: 18px; border-top: 1px solid var(--line); }

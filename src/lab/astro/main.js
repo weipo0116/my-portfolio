@@ -1279,6 +1279,64 @@ function natalEmphasis(base) {
   return out;
 }
 
+// Three qualities. Signs cycle cardinal → fixed → mutable from Aries, the way each season
+// starts, settles and turns. Counted over the personal points (Sun–Saturn and the Ascendant);
+// the outer planets stay in one sign for years, so they say more about a generation than a person.
+const MODES = [
+  { zh: "開創", what: "季節的第一個月，負責「開始」。點子一來就想動手，擅長起頭、帶風向；比較難的是把熱度撐到收尾。",
+    many: "開創佔多數：你的節奏是一再開新局。替每件事先定好終點，或找一個擅長收尾的夥伴。",
+    none: "沒有開創：起頭常需要外力推一把。與其等靈感，不如先訂一個截止日。" },
+  { zh: "固定", what: "季節最穩定的時候，負責「守住」。認定了就很難動搖，耐力和忠誠是強項；卡關時容易硬撐，不肯換路。",
+    many: "固定佔多數：你靠累積取勝。想放棄或想換環境前，先分清楚是真的不適合，還是只是不想改變。",
+    none: "沒有固定：長期堅持不是你的天性。用習慣和系統代替意志力，會輕鬆很多。" },
+  { zh: "變動", what: "換季的時候，負責「調整」。反應快、適應力強，能同時處理很多事；但也容易分心，被別人的意見帶著走。",
+    many: "變動佔多數：你在變化裡最自在。給自己一兩件長期不變的事，當作船錨。",
+    none: "沒有變動：計畫被打亂時會特別難受。排行程時刻意留一點空白，給意外用。" },
+];
+const ELEMENTS = [["火", "行動"], ["土", "務實"], ["風", "思考"], ["水", "感受"]];
+const MODE_KEYS = ["Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Asc"];
+
+function natalModes(el) {
+  const zhOf = Object.fromEntries(NATAL_KEYS);
+  const pts = MODE_KEYS.filter((k) => NATAL.sign[k] != null).map((k) => ({ k, zh: zhOf[k] || k, si: NATAL.sign[k] }));
+  if (!pts.length) return [];
+  const out = [el("p", "hr-sub", "三分法與四元素")];
+  const sun = pts.find((p) => p.k === "Sun");
+  if (sun) {
+    const m = MODES[sun.si % 3];
+    const lead = el("p", "mode-lead");
+    lead.append(el("b", "", `太陽${SIGNS[sun.si].zh}，${m.zh}星座。`), document.createTextNode(m.what));
+    out.push(lead);
+  }
+  const bars = (groups, cls) => {
+    const ul = el("ul", `mode-bars ${cls}`);
+    groups.forEach(([name, list, on]) => {
+      const li = el("li", on ? "on" : "");
+      const bar = el("span", "mb-bar");
+      bar.setAttribute("aria-hidden", "true");
+      bar.style.setProperty("--n", list.length / pts.length);
+      li.append(el("span", "mb-name", name), bar, el("span", "mb-n", String(list.length)), el("span", "mb-who", list.map((p) => p.zh).join("、")));
+      ul.append(li);
+    });
+    return ul;
+  };
+  const byMode = MODES.map((m, i) => [m.zh, pts.filter((p) => p.si % 3 === i), sun && sun.si % 3 === i]);
+  const byEl = ELEMENTS.map(([e, w], i) => [`${e} · ${w}`, pts.filter((p) => p.si % 4 === i), sun && sun.si % 4 === i]);
+  if (pts.length < 4) return out; // a lone Sun sign: the lead line is the whole story
+  out.push(bars(byMode, "modes"), bars(byEl, "elems"));
+  const notes = [];
+  byMode.forEach(([, list], i) => {
+    if (list.length >= Math.ceil(pts.length / 2)) notes.push(MODES[i].many);
+    else if (!list.length && pts.length >= 6) notes.push(MODES[i].none);
+  });
+  if (notes.length) {
+    const ul = el("ul", "hr-emph");
+    ul.append(...notes.map((t) => el("li", "", t)));
+    out.push(ul);
+  }
+  return out;
+}
+
 // Section IV reading: one card per point. Title = the plain question the point answers,
 // then a sentence for its sign and, when the Ascendant is known, one for its house plus a tip.
 const NATAL_CARD_KEYS = ["Asc", "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn"];
@@ -1414,6 +1472,9 @@ function renderHouseRead(base) {
     ul.append(...emph.map((t) => el("li", "", t)));
     parts.push(el("p", "hr-sub", "先看重點"), ul);
   }
+
+  // 1b. qualities (cardinal / fixed / mutable) and elements across the personal points
+  parts.push(...natalModes(el));
 
   // 2. one card per point: the question it answers, then its sign, its house and a tip
   parts.push(...natalCards(base, hot));

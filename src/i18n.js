@@ -131,7 +131,7 @@ export const ui = {
     techStack: "網站使用技術",
     rights: "版權所有。",
     links: {
-      bio: "白天保守做開發，晚上偷偷練魔法",
+      bio: "白天默默做開發，晚上偷偷練魔法",
       portfolio: "個人介紹",
       portfolioSub: "背景與經歷",
       work: "LAB",
