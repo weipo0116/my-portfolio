@@ -13,9 +13,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="/my-portfolio/assets/labLifePoints-92hGFn0r.js"></script>
+  <script type="module" crossorigin src="/my-portfolio/assets/labLifePoints-upP8OucR.js"></script>
   <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labLifePoints-ojL4UjAl.css">
+  <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labLifePoints-DWseTjIe.css">
 </head>
 <body>
 <div class="cave" aria-hidden="true">
@@ -35,17 +35,18 @@
   </span>
 </header>
 
+<p class="sr-only" id="announcer" aria-live="polite"></p>
 <main id="top">
   <!-- Scene 0 — Start -->
   <section class="scene start" id="s0" aria-labelledby="title">
     <div class="inner narrow">
-      <p class="eyebrow">Lab · Experiment</p>
       <h1 id="title" data-i18n="title">Life Points</h1>
       <p class="lede" data-i18n="subtitle">如果人生是一場遊戲，你還剩多少行動點數？</p>
       <form id="startForm" class="form" novalidate>
         <div class="field">
           <label for="age" data-i18n="age">現在幾歲</label>
-          <input id="age" name="age" type="number" inputmode="numeric" min="1" max="110" step="1" required autocomplete="off" />
+          <input id="age" name="age" type="number" inputmode="numeric" min="1" max="110" step="1" required autocomplete="off" aria-invalid="false" data-error="ageError" />
+          <p class="error" id="ageError" hidden data-i18n="ageError"></p>
         </div>
         <div class="field">
           <label for="country" data-i18n="country">居住的國家</label>
@@ -54,7 +55,7 @@
           <p class="note" id="countryNote" role="status" hidden data-i18n="countryFallback"></p>
         </div>
         <fieldset class="field">
-          <legend><span data-i18n="sex">生命表性別</span> <small data-i18n="sexHint"></small></legend>
+          <legend><span data-i18n="sex">生命表性別</span></legend>
           <div class="seg" id="sexSeg">
             <label><input type="radio" name="sex" value="f" /><span data-i18n="sexF">女性</span></label>
             <label><input type="radio" name="sex" value="m" /><span data-i18n="sexM">男性</span></label>
@@ -62,8 +63,6 @@
           </div>
         </fieldset>
         <button class="btn primary" type="submit" data-i18n="start">開始</button>
-        <p class="privacy" data-i18n="privacy"></p>
-        <p class="cave-hint" data-i18n="caveHint"></p>
       </form>
     </div>
   </section>
@@ -74,7 +73,6 @@
       <div class="weeks-sticky">
         <div class="inner split">
           <div class="copy">
-            <p class="eyebrow" data-i18n="s1Eyebrow"></p>
             <div class="wk-steps">
               <div class="wk-step"><h2 id="s1Title" data-i18n="s1Title"></h2><p class="big" id="wk0"></p></div>
               <div class="wk-step"><p class="wk-line" id="wk1"></p><p class="warm" id="wk1Sub"></p></div>
@@ -90,7 +88,7 @@
             <canvas id="gridBase"></canvas>
           </div>
         </div>
-        <p class="scroll-hint" id="wkHint" aria-hidden="true"><span data-i18n="scroll"></span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg></p>
+        <p class="scroll-hint" id="wkHint" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg></p>
       </div>
     </section>
 
@@ -98,11 +96,9 @@
     <section class="scene" id="s2" aria-labelledby="s2Title">
       <div class="inner">
         <div class="reveal">
-          <p class="eyebrow" data-i18n="s2Eyebrow"></p>
           <h2 id="s2Title" data-i18n="s2Title"></h2>
           <div class="ap" aria-hidden="true">
             <div class="ap-bar" id="apBar"></div>
-            <p class="ap-text"><span data-i18n="apLabel"></span> <b class="num" id="apPct"></b></p>
           </div>
           <p class="sr-only" id="apSr"></p>
         </div>
@@ -117,7 +113,6 @@
     <section class="scene" id="s3" aria-labelledby="s3Title">
       <div class="inner narrow-wide">
         <div class="reveal">
-          <p class="eyebrow" data-i18n="s3Eyebrow"></p>
           <h2 id="s3Title" data-i18n="s3Title"></h2>
         </div>
         <div class="tail-form reveal">
@@ -153,36 +148,30 @@
         </div>
         <div class="slider-block reveal">
           <div class="slider" id="visitsSlider">
-            <div class="slider-head"><label for="visits" data-i18n="visitsLabel"></label><output class="num" id="visitsOut" for="visits"></output><span class="tag" id="visitsTag" data-i18n="defaultTag"></span></div>
+            <div class="slider-head"><label for="visits" data-i18n="visitsLabel"></label><output class="num" id="visitsOut" for="visits"></output></div>
             <input id="visits" type="range" min="0" max="14" step="1" />
           </div>
           <div class="slider" id="friendsSlider" hidden>
-            <div class="slider-head"><label for="meetups2" data-i18n="friendsLabel"></label><output class="num" id="meetups2Out" for="meetups2"></output><span class="tag" id="meetups2Tag" data-i18n="defaultTag"></span></div>
+            <div class="slider-head"><label for="meetups2" data-i18n="friendsLabel"></label><output class="num" id="meetups2Out" for="meetups2"></output></div>
             <input id="meetups2" type="range" min="0" max="104" step="1" />
           </div>
-          <p class="note" data-i18n="s3Hint"></p>
         </div>
         <div class="tail-rows reveal">
           <div class="tail-row" id="rowMother">
             <p class="tail-line" id="lineMother"></p>
             <canvas class="boxes" id="boxMother" role="img"></canvas>
-            <p class="formula" id="fMother"></p>
             <div class="used" aria-hidden="true"><i id="usedMother"></i></div>
             <p class="used-line" id="usedLineMother"></p>
-            <p class="formula" data-i18n="fUsed"></p>
           </div>
           <div class="tail-row" id="rowFather">
             <p class="tail-line" id="lineFather"></p>
             <canvas class="boxes" id="boxFather" role="img"></canvas>
-            <p class="formula" id="fFather"></p>
             <div class="used" aria-hidden="true"><i id="usedFather"></i></div>
             <p class="used-line" id="usedLineFather"></p>
-            <p class="formula" data-i18n="fUsed"></p>
           </div>
           <div class="tail-row" id="rowFriends" hidden>
             <p class="tail-line" id="lineFriends"></p>
             <canvas class="boxes" id="boxFriends" role="img"></canvas>
-            <p class="formula" id="fFriends"></p>
           </div>
         </div>
         <div class="kids reveal" id="kidsBlock">
@@ -208,8 +197,6 @@
             <p class="kids-sub" id="kidsSummers"></p>
             <canvas class="boxes" id="boxKids" role="img"></canvas>
             <ol class="milestones" id="milestones"></ol>
-            <p class="formula" id="fKids"></p>
-            <p class="formula" data-i18n="kidsNote"></p>
           </div>
           <p class="gentle" id="kidsNo" data-i18n="kidsNoLine" hidden></p>
         </div>
@@ -220,9 +207,7 @@
     <section class="scene" id="s4" aria-labelledby="s4Title">
       <div class="inner">
         <div class="reveal">
-          <p class="eyebrow" data-i18n="s4Eyebrow"></p>
           <h2 id="s4Title" data-i18n="s4Title"></h2>
-          <p class="lede small" data-i18n="s4Sub"></p>
         </div>
         <div class="chips reveal" id="chips"></div>
         <form class="custom reveal" id="customForm">
@@ -231,8 +216,6 @@
           <button class="btn ghost" type="submit" data-i18n="add"></button>
         </form>
         <div class="chip-list" id="customChips"></div>
-        <p class="note" id="maxNote" role="status" hidden data-i18n="maxed"></p>
-        <p class="note" data-i18n="s4Hint"></p>
       </div>
     </section>
 
@@ -242,14 +225,12 @@
         <canvas id="roadCanvas" aria-hidden="true"></canvas>
         <canvas class="star-cv" id="starCanvas" aria-hidden="true"></canvas>
         <div class="road-head">
-          <p class="eyebrow" data-i18n="s5Eyebrow"></p>
           <h2 id="s5Title" data-i18n="s5Title"></h2>
           <p class="road-hud" id="roadHud" aria-hidden="true"><b id="roadStage"></b><span class="num" id="roadAge"></span><em id="roadLine"></em></p>
         </div>
         <div class="road-now" id="roadNow">
           <p class="road-here num" id="roadHere"></p>
           <div class="beam-rows" id="roadRows"></div>
-          <p class="note" id="roadNote" data-i18n="editorial"></p>
         </div>
         <div class="road-tags" id="roadTags" aria-hidden="true"></div>
         <ol class="walk-static" id="walkStatic"></ol>
@@ -271,9 +252,7 @@
     <section class="scene" id="s6" aria-labelledby="s6Title">
       <div class="inner split card-scene">
         <div class="copy reveal">
-          <p class="eyebrow" data-i18n="s6Eyebrow"></p>
           <h2 id="s6Title" data-i18n="s6Title"></h2>
-          <p class="lede small" data-i18n="s6Sub"></p>
           <div class="actions">
             <button class="btn primary" id="saveBtn" type="button" data-i18n="save"></button>
             <button class="btn ghost" id="shareBtn" type="button" data-i18n="share"></button>
@@ -294,7 +273,7 @@
   <p data-i18n="footPrivacy"></p>
 </footer>
 
-<dialog class="sheet" id="tune" aria-labelledby="tuneTitle">
+<dialog class="sheet" id="tune" aria-labelledby="tuneTitle" closedby="any">
   <form method="dialog">
     <h3 id="tuneTitle" data-i18n="tuneTitle"></h3>
     <div class="slider">

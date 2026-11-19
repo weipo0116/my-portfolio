@@ -18,10 +18,10 @@
     />
     <title>Five Elements · 五行穿搭</title>
     <meta name="description" content="依當日五行與台北天氣，生成大膽配色的每日穿搭。五行屬文化娛樂參考。" />
-    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-CYcroSa9.js"></script>
+    <script type="module" crossorigin src="/my-portfolio/assets/labOutfit-DLg09W1l.js"></script>
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/modulepreload-polyfill-B5Qt9EMX.js">
     <link rel="modulepreload" crossorigin href="/my-portfolio/assets/_commonjsHelpers-Cpj98o6Y.js">
-    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-Cz21vSwW.css">
+    <link rel="stylesheet" crossorigin href="/my-portfolio/assets/labOutfit-BYra0_NR.css">
   </head>
   <body>
     <div id="wipe" aria-hidden="true"></div>
@@ -29,16 +29,14 @@
       <header class="hero">
         <div class="topbar">
           <a class="back" href="../../work/#lab" aria-label="回到 Lab"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Lab</span></a>
-          <span>FIVE ELEMENTS</span>
           <span id="dateLine">—</span>
         </div>
-        <p class="kicker" id="kicker">TODAY'S LOOK · 今日主色</p>
         <div class="daybar collapsed" id="daybar">
           <button type="button" class="pickbtn daytoggle" id="dayToggle" aria-expanded="false" aria-controls="dayTabs"><span>日期</span><b id="dayToggleVal">今天</b><i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i></button>
           <div class="tabs days" id="dayTabs" role="group" aria-label="選擇日期"></div>
           <div class="datepick" id="datepick">
-            <button type="button" class="pickbtn" id="dayPickBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal"><span>任選日期</span><b id="dayPickVal">—</b><i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i></button>
-            <div class="cal" id="cal" role="dialog" aria-label="選擇日期" hidden>
+            <button type="button" class="pickbtn" id="dayPickBtn" popovertarget="cal" aria-haspopup="dialog" aria-expanded="false"><span>任選日期</span><b id="dayPickVal">—</b><i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></i></button>
+            <div class="cal" id="cal" popover="auto" role="dialog" aria-label="選擇日期">
               <div class="cal-head">
                 <button type="button" id="calPrevY" aria-label="上一年">«</button>
                 <button type="button" id="calPrev" aria-label="上個月">‹</button>
@@ -62,9 +60,9 @@
         <p class="sub" id="sub"></p>
         <div class="chips" id="chips"></div>
         <nav class="jump" aria-label="快速導覽">
-          <a href="#sec-weather"><b>天氣</b><small>WEATHER</small></a>
-          <a href="#sec-looks"><b>穿搭</b><small>LOOKS</small></a>
-          <a href="#sec-colors"><b>色運</b><small>LUCKY COLORS</small></a>
+          <a href="#sec-weather"><b>天氣</b></a>
+          <a href="#sec-looks"><b>穿搭</b></a>
+          <a href="#sec-colors"><b>色運</b></a>
         </nav>
       </header>
 
@@ -72,11 +70,11 @@
 
       <section class="weather reveal" id="sec-weather" aria-labelledby="h-w">
         <div class="looks-head">
-          <h2 id="h-w">WEATHER <span id="wCity">現在與未來 12 小時</span></h2>
+          <h2 id="h-w">WEATHER</h2>
           <div class="tabs" id="cityTabs" role="group" aria-label="選擇城市"></div>
         </div>
         <div class="wgrid" id="wgrid"></div>
-        <div class="hourly-wrap" aria-label="未來 12 小時氣溫與降雨機率">
+        <div class="hourly-wrap" role="group" aria-label="未來 12 小時氣溫與降雨機率">
           <div class="hshift">
             <b id="hsLabel" aria-live="polite">現在出門</b>
           </div>
@@ -85,13 +83,12 @@
             <div class="hourly" id="hourly" role="list" tabindex="0" aria-label="逐時氣溫與降雨，可左右滑動"></div>
             <button type="button" class="hs-side" data-sh="3" id="hsNext" aria-label="往後看 3 小時"><span aria-hidden="true">›</span><small>後</small></button>
           </div>
-          <p class="hourly-key"><span class="k1"></span>氣溫　<span class="k2"></span>降雨機率　· 左右滑動看更多小時</p>
-        </div>
+          </div>
       </section>
 
       <section class="looks" id="sec-looks" aria-labelledby="h-l">
         <div class="looks-head reveal">
-          <h2 id="h-l">THE LOOKS <span>選擇場合</span></h2>
+          <h2 id="h-l">THE LOOKS</h2>
           <div class="tabs" id="tabs" role="group" aria-label="選擇場合"></div>
         </div>
         <div class="prefs reveal" id="prefs"></div>
@@ -100,14 +97,12 @@
       </section>
 
       <section class="rules reveal" id="sec-colors" aria-labelledby="h-r">
-        <h2 id="h-r">LUCKY COLORS <span>今日色運排序</span></h2>
+        <h2 id="h-r">LUCKY COLORS</h2>
         <div class="rule-grid" id="rules"></div>
-        <p class="rule-note">排序依「與當日五行的關係」：剋我＝旺色、我剋＝助色、同我＝穩色；生我與我生兩類暫不排序，只當中性底色參考。墨黑與米白屬「中性色」，不在今日排序內，只用來打底。</p>
       </section>
 
       <footer class="foot">
-        <p>五行依當日日柱天干計算（lunar-javascript, MIT），天氣來自 Open-Meteo；城市可選台北、新竹、東京、首爾、紐約。</p>
-        <p>五行穿搭屬傳統文化與時尚遊戲，僅供娛樂與搭配靈感，不是科學預測。</p>
+        <p>五行依當日日柱天干計算，天氣來自 Open-Meteo；僅供娛樂與搭配靈感，不是科學預測。</p>
       </footer>
     </main>
     <nav class="dock" id="dock" aria-label="頁面導覽">

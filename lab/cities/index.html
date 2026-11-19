@@ -46,9 +46,7 @@
 .ms-map:hover{text-decoration:underline}
 .tabs{display:flex;gap:6px;margin:0 0 14px}
 .tabs button{flex:1;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:14px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.tabs button small{font-size:11px;font-weight:400;color:var(--ink-3)}
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.tabs button[aria-selected="true"] small{color:inherit;opacity:.75}
 .trips{display:grid;gap:12px}
 .trips[hidden]{display:none}
 .trip-card{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
@@ -109,7 +107,7 @@
 
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:calc(var(--bar-h) + env(safe-area-inset-top,0px) + 12px)}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size-adjust:from-font;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
@@ -169,7 +167,6 @@ button{cursor:pointer;background:none;border:0;padding:0}
 .keys button:hover,.keys button[aria-pressed="true"]{color:var(--ink)}
 .keys.has-active button[aria-pressed="false"]{opacity:.45}
 .keys i{width:10px;height:10px;border-radius:3px;flex:none}
-.legend p{margin:10px 0 0;font-size:12px;line-height:1.55;color:var(--ink-3)}
 .gctl{display:flex;flex-direction:column;gap:6px}
 .gctl button{width:38px;height:38px;border-radius:12px;background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:color .2s,border-color .2s}
 .gctl button:hover{color:var(--ink);border-color:var(--line-2)}
@@ -328,7 +325,6 @@ button{cursor:pointer;background:none;border:0;padding:0}
   .coord{display:none}
   .g-bot{left:12px;right:12px;bottom:12px}
   .legend{max-width:none;flex:1 1 auto;padding:10px 12px}
-  .legend p{display:none}
   .keys{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:4px 12px}
   .keys::-webkit-scrollbar{display:none}
   .keys button{white-space:nowrap}
@@ -342,7 +338,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
   .sheet-handle i{width:40px;height:5px;border-radius:3px;background:var(--line-2)}
   .dscroll{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   .dz{padding-block:4px calc(48px + env(safe-area-inset-bottom,0px))}
-  .dz .eyebrow,.dz .title{touch-action:none}
+  .dz .eyebrow,.dz .title{touch-action:pan-x}
   .title{margin-top:8px}
   .title h2{font-size:40px}
   .vibe{font-size:16px;margin-top:12px}
@@ -379,7 +375,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
   <div class="search" role="search">
     <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.2 3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     <label class="sr" for="q">搜尋城市、國家或體驗</label>
-    <input id="q" type="search" placeholder="搜尋城市、國家、體驗，例如：汗蒸幕、Lisbon" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list">
+    <input id="q" type="search" placeholder="搜尋城市或體驗" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list">
     <ul class="results" id="results" role="listbox" hidden></ul>
   </div>
   <a class="listbtn" id="favBtn" href="#shortlist" aria-label="我的清單，0 座城市"><svg class="ic" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg><span class="lbl">清單</span><span class="n" id="favN" aria-hidden="true">0</span></a>
@@ -388,7 +384,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 <main id="top">
 <section class="atlas" aria-label="地球儀與城市說明書">
   <div class="globe-pane" id="pane">
-    <canvas id="globe" role="img" aria-label="可拖曳旋轉的地球儀。點城市圓點或國家查看說明書；也可以用上方搜尋或下方目錄。"></canvas>
+    <canvas id="globe" role="img" aria-label="城市地球儀。請改用搜尋或城市目錄選擇城市。"></canvas>
     <div class="gtip" id="gtip"></div>
     <div class="g-top">
       <div class="lens" role="group" aria-label="地圖視角" id="lens">
@@ -404,7 +400,6 @@ button{cursor:pointer;background:none;border:0;padding:0}
       <div class="legend" id="legend" data-empty="true">
         <h3 id="legT"></h3>
         <ul class="keys" id="keys"></ul>
-        <p id="legNote"></p>
       </div>
       <div class="gctl">
         <button type="button" id="zin" aria-label="放大"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
@@ -422,7 +417,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 
 <section class="sec gut" id="index" aria-labelledby="idxT">
   <div class="sec-head">
-    <div><div class="mono" id="idxMono">Index</div><h2 id="idxT">城市目錄</h2><p>依地區排列。每一本說明書都從「去了一定要做的事」開始，再讀吃、人、信仰與禮儀。</p></div>
+    <div><h2 id="idxT">城市目錄</h2></div>
     <div class="filters" role="group" aria-label="地區篩選" id="regionF"></div>
   </div>
   <details class="sty-fold" id="styD"><summary>依旅行類型篩選<span class="mono" id="styCount"></span></summary>
@@ -432,7 +427,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 
 <section class="sec gut" id="compare" aria-labelledby="cmpT">
   <div class="sec-head">
-    <div><div class="mono">Compare</div><h2 id="cmpT">兩城對照</h2><p>還在兩個目的地之間猶豫？把它們放在一起看。</p></div>
+    <div><h2 id="cmpT">兩城對照</h2></div>
     <div class="cmp-pick"><label class="sr" for="ca">第一個城市</label><select id="ca"></select><span class="vs">VS</span><label class="sr" for="cb">第二個城市</label><select id="cb"></select></div>
   </div>
   <div class="cmp" id="cmp"></div>
@@ -440,7 +435,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 
 <section class="sec gut" id="shortlist" aria-labelledby="slT">
   <div class="sec-head">
-    <div><div class="mono">Shortlist</div><h2 id="slT">我的清單</h2><p>收藏的城市會整理成一份行前清單：必做的事、禮儀提醒、適合的季節。清單只存在這台裝置的瀏覽器裡。</p></div>
+    <div><h2 id="slT">我的清單</h2></div>
   </div>
   <div class="short">
     <div id="slist"></div>
@@ -453,8 +448,7 @@ button{cursor:pointer;background:none;border:0;padding:0}
 </section>
 
 <footer class="foot gut">
-  <p><b style="color:var(--ink-2)">關於資料</b>　目前收錄 <span id="nC"></span> 座城市、<span id="nK"></span> 個國家或地區。菜系、民族、宗教的地圖分色都是大方向的簡化：幾乎每個國家內部都有多種族群、語言與信仰，顏色只代表主流或最大宗，不代表全體，也不代表國籍等於族群。人口與宗教比例取自各國近年普查或常見統計，年份各不相同；禮儀、價格與交通規定會變，出發前請再查官方資訊。</p>
-  <p><b style="color:var(--ink-2)">擴充到 100 城</b>　城市資料集中在 <code>cities-data.js</code> 的 <code>CITIES</code> 陣列，一座城市一筆，欄位相同即可加入。地圖資料來自 Natural Earth（world-atlas 110m）。時差以標準時間計算，不含夏令時間。</p>
+  <p>收錄 <span id="nC"></span> 座城市、<span id="nK"></span> 個國家或地區。地圖資料：Natural Earth。顏色代表主流或最大宗，不代表全體。</p>
 </footer>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -630,7 +624,7 @@ function setLens(l){lens=l;hiGroup=null;colorsTarget=computeTargets();const from
   document.querySelectorAll('#lens button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lens===l));moveThumb();renderLegend();}
 function moveThumb(){const b=document.querySelector('#lens button[aria-pressed="true"]'),th=$('#lensThumb');if(!b)return;th.style.width=b.offsetWidth+'px';th.style.transform=`translateX(${b.offsetLeft}px)`;}
 function renderLegend(){const lg=$('#legend');if(lens==='none'){lg.dataset.empty='true';return;}lg.dataset.empty='false';const d=DIMS[lens];
-  $('#legT').textContent=d.title;$('#legNote').textContent=d.note;
+  $('#legT').textContent=d.title;
   $('#keys').innerHTML=Object.entries(d.groups).map(([g,v],i)=>`<li><button type="button" data-g="${g}" aria-pressed="false"><i style="background:var(--c${i%14})"></i>${esc(v[0])}</button></li>`).join('');
   $('#keys').classList.remove('has-active');}
 $('#keys').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const on=b.getAttribute('aria-pressed')!=='true';
@@ -700,7 +694,7 @@ function spotImg(m,c){const im=m.image;
   if(im&&im.src)return `<figure class="ms-img"><img src="${esc(im.src)}" alt="${esc(im.alt||m.name+'，'+c.zh)}" loading="lazy" decoding="async" onerror="const l=this.closest('li');l.classList.add('noimg');this.closest('figure').remove()"><figcaption>${esc(im.source||'')}${im.author?' · '+esc(im.author):''}${im.url?` · <a href="${esc(im.url)}" target="_blank" rel="noopener noreferrer">來源</a>`:''}</figcaption></figure>`;
   return '';}
 function mustSeeHTML(c){if(!c.mustSee)return'';
-  return `<h4 class="sub-h">到了這裡一定要看 <span class="mono">Must see</span></h4><ul class="ms">${c.mustSee.map(m=>`<li class="ms-card${m.topPick?' top':''}${m.image&&m.image.src?'':' noimg'}">${spotImg(m,c)}<div class="ms-body"><div class="ms-tags"><span class="tag">${esc(m.category)}</span>${m.topPick?'<span class="tag now">只看一個就選這裡</span>':''}</div><b>${esc(m.name)}</b><p>${esc(m.description)}</p><p class="why">${esc(m.reason)}</p><p class="mono ms-meta">停留 ${esc(m.duration)} · ${esc(m.bestTime)}</p><a class="ms-map" href="${esc(m.mapUrl)}" ${EXT}>${MAPI}在 Google Maps 查看</a></div></li>`).join('')}</ul>`;}
+  return `<h4 class="sub-h">到了這裡一定要看</h4><ul class="ms">${c.mustSee.map(m=>`<li class="ms-card${m.topPick?' top':''}${m.image&&m.image.src?'':' noimg'}">${spotImg(m,c)}<div class="ms-body"><div class="ms-tags"><span class="tag">${esc(m.category)}</span>${m.topPick?'<span class="tag now">只看一個就選這裡</span>':''}</div><b>${esc(m.name)}</b><p>${esc(m.description)}</p><p class="why">${esc(m.reason)}</p><p class="mono ms-meta">停留 ${esc(m.duration)} · ${esc(m.bestTime)}</p><a class="ms-map" href="${esc(m.mapUrl)}" ${EXT}>${MAPI}在 Google Maps 查看</a></div></li>`).join('')}</ul>`;}
 const klook=q=>'https://www.klook.com/zh-TW/search/result/?query='+encodeURIComponent(q);
 const kkday=q=>'https://www.kkday.com/zh-tw/product/productlist?keyword='+encodeURIComponent(q);
 function tripHTML(t){return `<article class="trip-card"><h5>${esc(t.name)}</h5><p class="who">適合：${esc(t.who)}</p>
@@ -710,10 +704,10 @@ function tripHTML(t){return `<article class="trip-card"><h5>${esc(t.name)}</h5><
  <p class="tk">查看票券與價格：<a href="${klook(t.kw)}" ${EXT}>Klook</a> · <a href="${kkday(t.kw)}" ${EXT}>KKday</a></p></article>`;}
 function tripsHTML(c){if(!c.popularTrips)return'';
   return `<section class="pillar reveal" id="p-trip"><header><h3>行程</h3><span class="mono">Trips</span></header>
- <div class="tabs" role="tablist" aria-label="行程類型"><button type="button" role="tab" id="tb-pop" aria-selected="true" aria-controls="tp-pop" data-tab="pop">熱門行程<small>第一次去</small></button><button type="button" role="tab" id="tb-hid" aria-selected="false" aria-controls="tp-hid" data-tab="hid" tabindex="-1">小眾行程<small>去過一次</small></button></div>
+ <div class="tabs" role="tablist" aria-label="行程類型"><button type="button" role="tab" id="tb-pop" aria-selected="true" aria-controls="tp-pop" data-tab="pop">熱門行程</button><button type="button" role="tab" id="tb-hid" aria-selected="false" aria-controls="tp-hid" data-tab="hid" tabindex="-1">小眾行程</button></div>
  <div id="tp-pop" role="tabpanel" aria-labelledby="tb-pop" class="trips">${c.popularTrips.map(tripHTML).join('')}</div>
  <div id="tp-hid" role="tabpanel" aria-labelledby="tb-hid" class="trips" hidden>${c.hiddenTrips.map(tripHTML).join('')}</div>
- <p class="note-sm">價格、空位及取消規則以平台頁面為準；這裡只提供搜尋連結，不代表推薦或比價。行程內容是依一般情況整理的參考，出發前請再確認開放與交通資訊。</p></section>`;}
+ <p class="note-sm">連結僅為站外搜尋，價格與規則以平台為準。</p></section>`;}
 function dossierHTML(c){const fav=favs.includes(c.id);const near=CITIES.filter(k=>k.id!==c.id&&(k.c===c.c||k.region===c.region)).sort((a,b)=>(b.c===c.c)-(a.c===c.c)||d3.geoDistance([c.lon,c.lat],[a.lon,a.lat])-d3.geoDistance([c.lon,c.lat],[b.lon,b.lat])).slice(0,5);
 return `<div class="head">
  <div class="eyebrow reveal"><span class="mono">${REG[c.region][1]}</span><span class="dot"></span><span class="mono" style="text-transform:none;letter-spacing:.04em">${esc(c.cz)}</span><span class="dot"></span><span class="mono">${fmtLat(c.lat)} ${fmtLon(c.lon)}</span></div>
@@ -745,7 +739,7 @@ ${tripsHTML(c)}
 <section class="pillar reveal" id="p-hist"><header><h3>歷史一句話</h3><span class="mono">History</span></header><p class="hist">${esc(c.hist)}</p></section>
 <section class="pillar reveal" id="p-season"><header><h3>季節與節慶</h3><span class="mono">When</span></header>
  <div class="season"><div><span class="mono">適合去</span><p>${esc(c.season)}</p></div><div><span class="mono">節慶</span><p>${esc(c.fest)}</p></div></div>
- <div class="tix"><span class="mono">票券與活動</span><p>想找${esc(c.zh)}的門票、一日遊或交通票：<a href="${klook(c.zh)}" ${EXT}>Klook</a> · <a href="${kkday(c.zh)}" ${EXT}>KKday</a></p><p class="note-sm">只是站外搜尋連結，不代表推薦或比價；價格、空位及取消規則以平台頁面為準。</p></div>
+ <div class="tix"><span class="mono">票券與活動</span><p>想找${esc(c.zh)}的門票、一日遊或交通票：<a href="${klook(c.zh)}" ${EXT}>Klook</a> · <a href="${kkday(c.zh)}" ${EXT}>KKday</a></p></div>
  <div style="margin-top:34px"><span class="mono">附近的說明書</span><div class="near">${near.map(k=>`<button class="chip" type="button" data-go="${k.id}">${esc(k.zh)}<span class="mono">${esc(k.cz)}</span></button>`).join('')}</div></div></section>`;}
 
 function introHTML(){const hot=['tokyo','bangkok','seoul'].filter(id=>byId[id]);
@@ -763,9 +757,14 @@ function renderDossier(c,animate){dz.innerHTML=dossierHTML(c);
       .from(dz.querySelectorAll('.head .reveal'),{y:14,opacity:0,duration:.7,stagger:.06},'-=.7')
       .from(dz.querySelectorAll('.pnav, .pillar'),{y:22,opacity:0,duration:.8,stagger:.07},'-=.55');}
   setupSpy();}
+function activateTab(tab,focus){const box=tab.closest('.pillar');box.querySelectorAll('[data-tab]').forEach(b=>{const on=b===tab;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;box.querySelector('#tp-'+b.dataset.tab).hidden=!on;});if(focus)tab.focus();}
+dz.addEventListener('keydown',e=>{const tab=e.target.closest('[role="tab"]');if(!tab)return;
+  const tabs=[...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')],i=tabs.indexOf(tab);let n=-1;
+  if(e.key==='ArrowRight')n=(i+1)%tabs.length;else if(e.key==='ArrowLeft')n=(i-1+tabs.length)%tabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;
+  if(n<0)return;e.preventDefault();activateTab(tabs[n],true);});
 dz.addEventListener('click',e=>{const a=e.target.closest('[data-act]');const go=e.target.closest('[data-go]');
   if(go){select(go.dataset.go,{fly:true,open:true,scrollTop:true});return;}
-  const tab=e.target.closest('[data-tab]');if(tab){const box=tab.closest('.pillar');box.querySelectorAll('[data-tab]').forEach(b=>{const on=b===tab;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;box.querySelector('#tp-'+b.dataset.tab).hidden=!on;});return;}
+  const tab=e.target.closest('[data-tab]');if(tab){activateTab(tab);return;}
   const nav=e.target.closest('.pnav a');if(nav){e.preventDefault();const t=document.getElementById(nav.dataset.p);if(t)t.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});return;}
   if(!a||!selected)return;
   if(a.dataset.act==='fav'){toggleFav(selected.id);}
@@ -818,7 +817,8 @@ function setSheet(state,anim=true){if(!isMobile()){sheet.style.transform='';retu
     else target=Object.entries(pos).sort((a,b)=>Math.abs(a[1]-cur)-Math.abs(b[1]-cur))[0][0];setSheet(target);};
   sheet.addEventListener('pointerdown',start);sheet.addEventListener('pointermove',move);sheet.addEventListener('pointerup',end);sheet.addEventListener('pointercancel',end);
   handle.addEventListener('click',()=>{if(!handle._skip)setSheet(sheetState==='peek'?'half':sheetState==='half'?'full':'peek');handle._skip=false;});
-  handle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSheet(sheetState==='peek'?'half':sheetState==='half'?'full':'peek');}});})();
+  handle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSheet(sheetState==='peek'?'half':sheetState==='half'?'full':'peek');}});
+  sheet.addEventListener('keydown',e=>{if(e.key==='Escape'&&isMobile()&&sheetState!=='peek'&&!e.defaultPrevented){e.preventDefault();setSheet('peek');handle.focus();}});})();
 
 /* ---------- search ---------- */
 const q=$('#q'),res=$('#results');let hits=[],hi=0;
@@ -836,13 +836,10 @@ q.addEventListener('input',()=>{hits=searchFor(q.value);hi=0;renderRes();});
 q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();hi=Math.min(hits.length-1,hi+1);renderRes();}else if(e.key==='ArrowUp'){e.preventDefault();hi=Math.max(0,hi-1);renderRes();}
   else if(e.key==='Enter'&&hits[hi]){e.preventDefault();pick(hits[hi][0].id);}else if(e.key==='Escape'){res.hidden=true;q.blur();}});
 // 在 pointerdown 就選取：此時輸入框還沒失焦，不必靠計時器等 click。
-const pickFrom=e=>{e.preventDefault();const li=e.target.closest('li[data-id]');if(!li)return;
-  // 清單消失後，觸控會補送一個 click 到底下的元素（例如地球儀上的視角按鈕），把它吞掉。
-  const eat=ev=>{ev.stopPropagation();ev.preventDefault();};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),500);
-  pick(li.dataset.id);};
-res.addEventListener('pointerdown',pickFrom);res.addEventListener('mousedown',e=>e.preventDefault());
+// pointerdown 的預設動作會讓輸入框失焦；取消它，焦點留在輸入框，選取交給 click（click 由清單項目自己消化，不會漏到下層元素）。
+res.addEventListener('pointerdown',e=>e.preventDefault());
 res.addEventListener('click',e=>{const li=e.target.closest('li[data-id]');if(li)pick(li.dataset.id);});
-q.addEventListener('blur',()=>{res.hidden=true;q.setAttribute('aria-expanded','false');});
+q.addEventListener('focusout',e=>{if(res.contains(e.relatedTarget))return;res.hidden=true;q.setAttribute('aria-expanded','false');});
 q.addEventListener('focus',()=>{if(q.value.trim()){hits=searchFor(q.value);hi=0;renderRes();}});
 function pick(id){q.value='';hits=[];res.hidden=true;q.blur();select(id,{fly:true,open:true,scrollTop:true});
   if(!isMobile()){const a=document.querySelector('.atlas');if(window.scrollY>a.offsetTop+40)window.scrollTo({top:a.offsetTop,behavior:RM?'auto':'smooth'});}else window.scrollTo({top:0,behavior:RM?'auto':'smooth'});}
@@ -915,7 +912,7 @@ $('#clear').addEventListener('click',()=>{if(!favs.length)return;favs=[];store.s
 
 /* ---------- boot ---------- */
 $('#styD').open=!isMobile();$('#nC').textContent=CITIES.length;$('#nK').textContent=new Set(CITIES.map(c=>c.cz)).size;
-$('#countMono').textContent=`Field Guide to Cities · ${CITIES.length}`;$('#idxMono').textContent=`Index · ${CITIES.length} cities`;
+$('#countMono').textContent=`Field Guide to Cities · ${CITIES.length}`;
 readTokens();resize();renderIndex();renderCompare();renderShort();
 const start=byId[location.hash.slice(1)]?location.hash.slice(1):null;
 const sc=start?byId[start]:null;

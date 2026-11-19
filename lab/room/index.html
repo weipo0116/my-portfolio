@@ -18,31 +18,31 @@
 <style>
 /* Layout: glass top bar · hero copy beside a large "light box" room stage · three numbered steps (訪談 → 結果 → 提案) in one reading column. */
 :root{
-  --bg:#F3F3F1; --surface:#FFFFFF; --surface2:#EAE9E5; --ink:#141416; --ink2:#5E5E65; --ink3:#8D8D94;
+  --bg:#F3F3F1; --surface:#FFFFFF; --surface2:#EAE9E5; --ink:#141416; --ink2:#5E5E65; --ink3:#686870;
   --line:rgba(20,20,22,.09); --line2:rgba(20,20,22,.16); --stage:#E6E5E1; --btn:#141416; --btn-ink:#FFFFFF;
   --good:#2D7A57; --warn:#A9701A; --risk:#B2462F; --tint:#8E9C84; --veil:rgba(10,10,12,.42);
-  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
-  --latin:"Geist","Noto Sans TC",system-ui,sans-serif;
-  --mono:"Geist Mono",ui-monospace,Menlo,monospace;
-  --serif:"Instrument Serif","Times New Roman",serif;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --latin:"Geist","Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
   --ease:cubic-bezier(.2,.8,.2,1);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0C0C0E; --surface:#161618; --surface2:#1F1F23; --ink:#F2F2F4; --ink2:#A3A3AA; --ink3:#6F6F77;
+    --bg:#0C0C0E; --surface:#161618; --surface2:#1F1F23; --ink:#F2F2F4; --ink2:#A3A3AA; --ink3:#8A8A92;
     --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.18); --stage:#18181B; --btn:#F2F2F4; --btn-ink:#0C0C0E;
     --good:#5DBE8E; --warn:#E2A94C; --risk:#E57C63; --veil:rgba(0,0,0,.6); color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0C0C0E; --surface:#161618; --surface2:#1F1F23; --ink:#F2F2F4; --ink2:#A3A3AA; --ink3:#6F6F77;
+  --bg:#0C0C0E; --surface:#161618; --surface2:#1F1F23; --ink:#F2F2F4; --ink2:#A3A3AA; --ink3:#8A8A92;
   --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.18); --stage:#18181B; --btn:#F2F2F4; --btn-ink:#0C0C0E;
   --good:#5DBE8E; --warn:#E2A94C; --risk:#E57C63; --veil:rgba(0,0,0,.6); color-scheme:dark;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-size-adjust:from-font}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 .g{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .wrap{max-width:1180px;margin:0 auto}
@@ -64,12 +64,11 @@ p{margin:0}
 .back svg{width:18px;height:18px;flex:none}
 .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .logo{display:flex;align-items:baseline;gap:8px;text-decoration:none;font-weight:700;letter-spacing:.02em;font-size:1rem;white-space:nowrap}
-.logo .it{font-size:1.05rem;color:var(--ink3)}
 .steps{display:flex;gap:2px;background:var(--surface2);border-radius:999px;padding:3px}
 .steps a{display:flex;align-items:center;gap:6px;text-decoration:none;font-size:.82rem;color:var(--ink2);padding:6px 12px;border-radius:999px;min-height:32px;white-space:nowrap;transition:background .3s var(--ease),color .3s}
 .steps a b{font-family:var(--mono);font-weight:500;font-size:.68rem;color:var(--ink3)}
 .steps a.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-@media (max-width:560px){.steps a{padding:6px 10px;gap:5px}.steps a b{font-size:.72rem}.logo .it{display:none}}
+@media (max-width:560px){.steps a{padding:6px 10px;gap:5px}.steps a b{font-size:.72rem}}
 @media (max-width:480px){.logo{display:none}.steps a{padding:6px 9px}}
 
 /* hero + stage */
@@ -78,7 +77,6 @@ p{margin:0}
 .hero h1{font-size:clamp(2.05rem,5.2vw,3.5rem);line-height:1.12;letter-spacing:-.015em;font-weight:700;margin-top:14px}
 .hero h1 .ln{display:block;overflow:hidden;padding-bottom:.06em}
 .hero h1 .ln>span{display:inline-block}
-.hero .sub{color:var(--ink2);margin-top:18px;max-width:30em;font-size:1.02rem}
 .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:0 22px;min-height:46px;font-size:.95rem;font-weight:500;text-decoration:none;transition:transform .25s var(--ease),background .25s,opacity .25s}
 .btn:active{transform:scale(.97)}
@@ -87,10 +85,6 @@ p{margin:0}
 .btn.sec:hover{background:var(--surface2)}
 .btn.sm{min-height:38px;padding:0 16px;font-size:.86rem}
 .btn[disabled]{opacity:.35;cursor:default}
-.facts{display:flex;gap:28px;margin-top:34px;padding-top:20px;border-top:1px solid var(--line)}
-.facts div{display:grid;gap:2px}
-.facts b{font-family:var(--latin);font-weight:600;font-size:1.5rem;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.facts span{font-size:.8rem;color:var(--ink2)}
 
 .stagewrap{min-width:0}
 .stage{position:relative;border-radius:28px;background:radial-gradient(120% 90% at 50% 38%,color-mix(in srgb,var(--tint) 16%,var(--stage)) 0%,var(--stage) 62%);overflow:hidden;transition:background 1s var(--ease)}
@@ -168,14 +162,12 @@ section.step{padding-block:72px 8px}
 @media (min-width:860px){.qbox{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:40px;padding:32px 32px 28px}}
 .qn{font-family:var(--mono);font-size:.74rem;color:var(--ink3);letter-spacing:.08em}
 .qt{font-size:clamp(1.3rem,2.6vw,1.75rem);line-height:1.3;font-weight:700;margin-top:8px}
-.why{margin-top:16px;padding:14px 16px;border-radius:14px;background:var(--surface2);font-size:.88rem;color:var(--ink2)}
-.why b{display:block;font-size:.72rem;font-family:var(--mono);letter-spacing:.1em;color:var(--ink3);font-weight:500;margin-bottom:4px}
 .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:10px;align-content:start}
 .opt{display:grid;gap:2px;text-align:left;border:0;border-radius:16px;padding:14px 16px;min-height:64px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .25s,background .25s,transform .2s var(--ease)}
 .opt:hover{box-shadow:inset 0 0 0 1px var(--line2)}
 .opt:active{transform:scale(.98)}
 .opt b{font-weight:500;font-size:.95rem;display:flex;justify-content:space-between;gap:8px}
-.opt b::after{content:"";flex:0 0 18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line2);transition:all .25s var(--ease)}
+.opt b::after{content:"";flex:0 0 18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line2);transition:box-shadow .25s var(--ease),border-radius .25s var(--ease)}
 .opt.multi b::after{border-radius:5px}
 .opt[aria-pressed="true"]{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink)}
 .opt[aria-pressed="true"] b::after{box-shadow:inset 0 0 0 5px var(--ink)}
@@ -224,7 +216,6 @@ section.step{padding-block:72px 8px}
 .rk .sc{font-family:var(--latin);font-weight:600;font-size:1.25rem;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .rk .nm{font-weight:500;font-size:.93rem;display:grid;gap:1px;justify-items:start;min-width:0;border:0;background:none;padding:0;text-align:left;min-height:32px;align-content:center}
 .rk .nm small{font-weight:400;color:var(--ink3);font-size:.76rem}
-.runner .note{font-size:.8rem;color:var(--ink3);margin:-4px 0 10px}
 .rk .fit{display:flex;align-items:center;gap:10px;font-family:var(--latin);font-size:.84rem;font-variant-numeric:tabular-nums;color:var(--ink2)}
 .meter{width:64px;height:5px;border-radius:3px;background:var(--surface2);overflow:hidden}
 .meter i{display:block;height:100%;background:var(--ink);border-radius:3px;transform-origin:left}
@@ -301,8 +292,7 @@ section.step{padding-block:72px 8px}
 @media (max-width:640px){.items thead{display:none}.items tr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 0;border-bottom:1px solid var(--line)}.items td{border:0;padding:0}.items td:first-child{grid-column:1/-1;padding:0}.items td.c{grid-column:1;color:var(--ink3);font-size:.8rem}.items td.p{grid-row:2/4;grid-column:2;align-self:start}.items tr.tot{border:0}.items tr.tot td:first-child{display:none}}
 .tips{margin:0;padding-left:1.1em;display:grid;gap:8px;font-size:.9rem;color:var(--ink2)}
 .tips b{color:var(--ink);font-weight:500}
-.doc-f{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:20px 28px 24px}
-.doc-f p{font-size:.8rem;color:var(--ink3);max-width:36em}
+.doc-f{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;padding:20px 28px 24px}
 .doc-f .cta{margin:0}
 
 footer{padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));color:var(--ink3);font-size:.8rem}
@@ -312,14 +302,26 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
   .steps a,.seg button,.accs button,.btn.sm,.rk .nm,.smpbar a{min-height:44px}
   .card .x{width:44px;height:44px;right:6px;top:6px}
 }
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+/* Reduced motion: drop spatial movement only; colour, shadow and opacity transitions stay. */
+@media (prefers-reduced-motion:reduce){
+  .btn,.sty,.opt{transition-property:background-color,box-shadow,opacity}
+  .seg .pill,.prog i::after{transition:none}
+  .ratio div{transition-property:background-color}
+}
+/* Native scroll reveal (replaces the GSAP ScrollTrigger one where supported) */
+@media (prefers-reduced-motion:no-preference){
+  @supports ((animation-timeline: view()) and (animation-range: entry)){
+    @keyframes rise{from{translate:0 40px}}
+    .sh,.intake,.res,.score,.doc{animation:rise linear backwards;animation-timeline:view();animation-range:entry 0% entry 45%}
+  }
+}
 </style>
 
 <header class="bar">
   <div class="wrap g">
     <div class="hl">
       <a class="back" href="../../work/#lab" aria-label="回到 Lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Lab</a>
-      <a class="logo" href="#top">房間理想型 <span class="it">Room Brief</span></a>
+      <a class="logo" href="#top">房間理想型</a>
     </div>
     <nav class="steps" aria-label="步驟">
       <a href="#intake" data-step="intake"><b>01</b><span>訪談</span></a>
@@ -335,15 +337,9 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
       <div class="herocopy">
         <p class="eyebrow">臥室設計提案工具</p>
         <h1><span class="ln"><span>先聊你怎麼住，</span></span><span class="ln"><span>再決定房間</span></span><span class="ln"><span>長什麼樣子。</span></span></h1>
-        <p class="sub">8 題設計師會問的問題，換來一份能照著買的臥室提案：風格、配色、燈光、8 件關鍵單品與預算。每種風格也標出住得久不久。</p>
         <div class="cta">
           <a class="btn pri" href="#intake">開始 8 題訪談</a>
           <a class="btn sec" href="#result">看範例結果</a>
-        </div>
-        <div class="facts">
-          <div><b class="num">9</b><span>種風格</span></div>
-          <div><b class="num">8</b><span>題需求訪談</span></div>
-          <div><b class="num">60·30·10</b><span>配色比例</span></div>
         </div>
       </div>
       <div class="stagewrap">
@@ -368,7 +364,7 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
       <div class="sh">
         <p class="eyebrow"><b>01</b> · 需求訪談</p>
         <h2>設計師第一次見面會問的 8 件事</h2>
-        <p>沒有標準答案。每題都附上設計師為什麼要問，答完立刻算出你的風格與提案。</p>
+        <p>沒有標準答案，答完立刻算出你的風格與提案。</p>
       </div>
       <div class="intake" id="intakeBox"></div>
       <div class="sr" id="qLive" aria-live="polite" aria-atomic="true"></div>
@@ -397,8 +393,7 @@ footer .wrap{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:2
 </main>
 
 <footer class="g"><div class="wrap">
-  <p>價格為規劃用概估區間（新台幣），不是報價；通路連結只到官網首頁，請以單品名稱搜尋。價格概估於 2026/10。房間為示意圖，不代表實際尺寸。</p>
-  <p>MUJI 台灣有免費的<a href="https://www.muji.com/tw/interior_advisor/" target="_blank" rel="noopener">家具配置諮詢服務</a>，拿著這份提案去問會很有效率。</p>
+  <p>價格為 2026/10 概估，非報價；房間為示意圖。</p>
 </div></footer>
 
 <div class="toast" id="toast" role="status" hidden></div>
@@ -905,7 +900,7 @@ function pieceInfo(id){const S=ST[state.style];let[name,tip]=S.pieces[id];const 
   if(id==='storage'&&a.store==='beauty')tip+='加一組淺抽屜分格收保養品。';
   return{name,tip}}
 function openCard(id){const S=ST[state.style],t=TIER[state.ans.budget||'t2'],p=t.p[id],info=pieceInfo(id);state.sel=id;bindPieces();
-  const card=$('#card');card.innerHTML=`<button type="button" class="x" data-close aria-label="關閉">×</button><p class="eyebrow">${ROLE_ZH[id]} · ${S.n}</p><h3 id="cardTitle">${info.name}</h3><p>${info.tip}</p><div class="mats">${S.mats.slice(0,4).map(m=>`<span>${m}</span>`).join('')}</div>`+
+  const card=$('#card');card.innerHTML=`<button type="button" class="x" data-close aria-label="關閉">×</button><h3 id="cardTitle">${info.name}</h3><p>${info.tip}</p><div class="mats">${S.mats.slice(0,4).map(m=>`<span>${m}</span>`).join('')}</div>`+
     tierChans().map(c=>`<div class="chan">${c.u?`<a href="${c.u}" target="_blank" rel="noopener">${c.n}</a>`:`<b style="font-weight:500;font-size:.9rem">${c.n}</b>`}<span>${band(r100(p[0]*CHMUL[c.c]),r100(p[1]*CHMUL[c.c]))}</span></div>`).join('')+
     `<div class="chan"><small>預算級距「${t.n}」的概估價，搜尋關鍵字：${info.name}</small></div>`;
   const was=card.hidden;card.hidden=false;const g=G();if(g&&was)g.fromTo(card,{y:16,opacity:0,scale:.98},{y:0,opacity:1,scale:1,duration:.45,ease:'power3.out',clearProps:'transform,opacity'});
@@ -921,7 +916,7 @@ function renderIntake(dir=0,focus=false){const box=$('#intakeBox'),q=Q[state.qi]
   const sel=v=>q.multi?(cur||[]).includes(v):cur===v;
   const ok=q.multi?(cur||[]).length>0:!!cur;
   box.innerHTML=`<div class="prog" aria-hidden="true">${progHTML()}</div>
-   <div class="qbox"><div><p class="qn">QUESTION ${String(state.qi+1).padStart(2,'0')} / 08${q.multi?' · 可複選':''}</p><h3 class="qt" id="qt" tabindex="-1">${q.t}</h3><p class="why"><b>設計師為什麼問</b>${q.why}</p></div>
+   <div class="qbox"><div>${q.multi?'<p class="qn">可複選</p>':''}<h3 class="qt" id="qt" tabindex="-1">${q.t}</h3></div>
    <div class="opts" role="group" aria-labelledby="qt">${q.o.map(([v,l,s])=>`<button type="button" class="opt${q.multi?' multi':''}${sel(v)&&!state.touched[q.id]?' ghost':''}" data-v="${v}" aria-pressed="${sel(v)}"><b>${l}</b>${s?`<small>${s}</small>`:''}<i class="smp">範例</i></button>`).join('')}</div></div>
    <div class="qnav"><button type="button" class="btn sec sm" id="qBack" ${state.qi===0?'disabled':''}>上一題</button><span class="note">${noteText()}</span><button type="button" class="btn pri sm" id="qNext" ${ok?'':'disabled'}>${state.qi===Q.length-1?'看結果':'下一題'}</button></div>`;
   const g=G();if(g&&dir)g.from(box.querySelector('.qbox'),{x:dir*28,opacity:0,duration:.45,ease:'power3.out',clearProps:'transform,opacity'});
@@ -957,7 +952,7 @@ function finish(){cancelAdvance();state.ans=JSON.parse(JSON.stringify(state.draf
 
 /* ================= 結果 ================= */
 function renderBanner(){const n=sampleCount(),b=$('#smpBar');b.hidden=n===0;if(!n)return;
-  b.innerHTML=`<span>目前結果含 ${n} 題範例答案 · ${state.done?'改答這些題後會更新':'完成訪談後會更新'}</span><a href="#intake">${state.done?'回到訪談':'開始訪談'}</a>`}
+  b.innerHTML=`<span>含 ${n} 題範例答案</span><a href="#intake">${state.done?'回到訪談':'開始訪談'}</a>`}
 function renderResult(anim){const r=compute(state.ans),k=r.primary.k,S=ST[k];renderBanner();
   $('#resBox').innerHTML=`<div class="panel match"><div class="tag"><span class="kind ${KIND[S.kind][1]}"><i></i><span>${KIND[S.kind][0]}</span></span>${state.done?'':'<span class="sample">範例：租屋、4–6 坪、朝北、想要安靜療癒</span>'}</div>
    <h3>${S.n}<span class="it">${S.en}</span></h3>
@@ -965,7 +960,7 @@ function renderResult(anim){const r=compute(state.ans),k=r.primary.k,S=ST[k];ren
    <ul class="reasons">${reasons(k,state.ans).map(t=>`<li><span>${t}</span></li>`).join('')}</ul>
    <div class="layer">${r.accent?`<b>點綴層：${ST[r.accent.k].n}</b><span>${ST[r.accent.k].keep}</span>`:`<b>不需要點綴層</b><span>用一張單椅或一盞燈當焦點就夠，房間會更耐看。</span>`}</div>
    <div class="cta"><button type="button" class="btn pri" data-apply="${k}">在房間裡看</button><a class="btn sec" href="#proposal">看設計提案</a></div></div>
-   <div class="panel runner"><h4>風格排行 · 前 6 名</h4><p class="note">排序依綜合分數 = 配對 70% + 留得住 30%。配對只比較這 9 種風格誰更接近你的答案；點風格名稱可以在房間裡看。</p><ol class="rk">${r.rank.slice(0,6).map((x,i)=>`<li><span class="n">${String(i+1).padStart(2,'0')}</span><span class="sc"><span class="sr">綜合分數 </span>${Math.round(x.final)}</span><button type="button" class="nm" data-apply="${x.k}">${ST[x.k].n}<small>配對 ${x.fit} · 留得住 ${x.ret}</small></button><span class="meter" aria-hidden="true"><i style="width:${Math.round(x.final)}%"></i></span></li>`).join('')}</ol></div>`;
+   <div class="panel runner"><h4>風格排行 · 前 6 名</h4><ol class="rk">${r.rank.slice(0,6).map((x,i)=>`<li><span class="n">${String(i+1).padStart(2,'0')}</span><span class="sc"><span class="sr">綜合分數 </span>${Math.round(x.final)}</span><button type="button" class="nm" data-apply="${x.k}">${ST[x.k].n}<small>配對 ${x.fit} · 留得住 ${x.ret}</small></button><span class="meter" aria-hidden="true"><i style="width:${Math.round(x.final)}%"></i></span></li>`).join('')}</ol></div>`;
   const g=G();if(g&&anim){$$('#resBox [data-count]').forEach(el=>{const o={v:0};g.to(o,{v:+el.dataset.count,duration:1.2,ease:'power2.out',onUpdate:()=>el.textContent=Math.round(o.v)})});
     g.from('#resBox .meter i',{scaleX:0,duration:1,ease:'power3.out',stagger:.06,clearProps:'transform'});g.from('#resBox .reasons li',{y:12,opacity:0,duration:.5,stagger:.08,delay:.2,clearProps:'transform,opacity'})}}
 function dots(n,bad){return `<span class="dots${bad?' bad':''}">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`}
@@ -1008,7 +1003,7 @@ function proposal(){const S=ST[state.style],a=state.ans,t=TIER[a.budget||'t2'],c
   return{S,t,items,lo,hi,plan,light,extra,rent,life}}
 function renderDoc(anim){const P_=proposal(),S=P_.S,a=state.ans,acc=S.acc[state.acc];
   const today=new Date();const d=`${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
-  $('#docBox').innerHTML=`<div class="doc-h"><div><p class="eyebrow">設計提案 · ${state.done?'依你的訪談':'範例訪談'}</p><h3 style="margin-top:8px">${S.n}<span class="it">${S.en}</span></h3>
+  $('#docBox').innerHTML=`<div class="doc-h"><div><h3>${S.n}<span class="it">${S.en}</span></h3>
    <div class="doc-meta"><span>${SIZE[sizeKey()].full}</span><span>預算 ${P_.t.n}</span><span>${a.home==='own'?'自有・可施工':'租屋・免施工'}</span><span>${d}</span></div></div>
    <span class="kind ${KIND[S.kind][1]}"><i></i><span>${KIND[S.kind][0]}${S.kind==='accent'?'：建議只用在一兩件':''}</span></span></div>
    <div class="doc-g">
@@ -1025,7 +1020,7 @@ function renderDoc(anim){const P_=proposal(),S=P_.S,a=state.ans,acc=S.acc[state.
     <div class="blk"><h4>生活條件</h4><ul class="tips">${P_.life.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <div class="blk bl"><h4>避雷</h4><ul class="tips">${S.bad.map(x=>`<li>${x}</li>`).join('')}</ul></div>
    </div>
-   <div class="doc-f"><p>提案已存在這台裝置，下次打開會回到這裡。價格為規劃用概估，不是報價；概估於 ${PRICE_AS_OF}。</p><div class="cta"><button type="button" class="btn sec sm" id="redo">重新訪談</button><button type="button" class="btn pri sm" id="copyDoc">複製提案文字</button></div></div>`;
+   <div class="doc-f"><div class="cta"><button type="button" class="btn sec sm" id="redo">重新訪談</button><button type="button" class="btn pri sm" id="copyDoc">複製提案文字</button></div></div>`;
   const g=G();if(g&&anim)g.from('#docBox .blk',{y:14,opacity:0,duration:.5,stagger:.04,ease:'power2.out',clearProps:'transform,opacity'})}
 function docText(){const P_=proposal(),S=P_.S,a=state.ans,acc=S.acc[state.acc];
   return [`房間理想型｜設計提案`,`風格：${S.n} ${S.en}（${KIND[S.kind][0]}，留得住指數 ${retention(state.style)}）`,`房間：${SIZE[sizeKey()].full}｜預算：${P_.t.n}｜${a.home==='own'?'自有可施工':'租屋免施工'}`,'',
@@ -1069,10 +1064,10 @@ if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.for
   const g=G();if(g){
     const mob=matchMedia('(max-width:700px)').matches; /* 手機：縮短揭示，CTA 約 0.6 秒內就位 */
     g.from('.hero h1 .ln>span',{yPercent:110,duration:mob?.6:1.1,ease:'expo.out',stagger:mob?.05:.09});
-    g.from('.hero .sub,.hero .cta,.hero .facts',{y:mob?12:18,opacity:0,duration:mob?.45:.8,ease:'power3.out',stagger:mob?.04:.08,delay:mob?.05:.35,clearProps:'transform,opacity'});
+    g.from('.hero .cta',{y:mob?12:18,opacity:0,duration:mob?.45:.8,ease:'power3.out',stagger:mob?.04:.08,delay:mob?.05:.35,clearProps:'transform,opacity'});
     g.from('.stage',{scale:.97,duration:1.2,ease:'expo.out',clearProps:'transform'});
     g.from('.sty',{x:24,opacity:0,duration:.6,ease:'power3.out',stagger:.04,delay:.6,clearProps:'transform,opacity'});
-    if(window.ScrollTrigger){g.registerPlugin(ScrollTrigger);$$('.sh,.intake,.res,.score,.doc').forEach(el=>g.from(el,{y:40,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 92%',once:true}}))}
+    if(window.ScrollTrigger&&!CSS.supports('(animation-timeline: view()) and (animation-range: entry)')){g.registerPlugin(ScrollTrigger);$$('.sh,.intake,.res,.score,.doc').forEach(el=>g.from(el,{y:40,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 92%',once:true}}))}
   }
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{placePill($('#timeSeg'));placePill($('#sizeSeg'))});
 })();
