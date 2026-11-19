@@ -992,7 +992,6 @@ function render({ dur = 1700 } = {}) {
   $("dlgDate").textContent = dateText;
   const nt = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit" }).format(now);
   $("updated").textContent = `更新 ${nt} · 台北`;
-  $("updatedNote").textContent = `資料更新於 ${nt}（台北 UTC+8）。看「今日」時，畫面每 5 分鐘自動重算一次，跨過台北午夜會換成新的一天。`;
 
   const pos = compute(date);
   const aspects = findAspects(pos);
@@ -1367,9 +1366,6 @@ function natalCards(base, hot) {
 
 function renderHouseRead(base) {
   const box = $("houseRead");
-  $("natalIntro").textContent = base.sign == null
-    ? "在「你的今日」填上出生資料（或選好星座），這裡會排出你的出生星盤：每顆星在哪個星座、哪一宮，以及怎麼讀。"
-    : "星體位置表和星盤圖可以互相對照，點任何一顆星，兩邊會一起標出來。往下每張卡回答一個問題：星座說你是什麼樣子，宮位說這股力量用在人生哪裡。最後附上進階的宮主星參考。";
   if (base.sign == null) { box.replaceChildren(); return; }
   const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
   const parts = [];
@@ -2208,11 +2204,8 @@ function showPersonal() {
 }
 // Hero: two clear paths, so first-time visitors see that a personal reading exists.
 function syncPaths() {
-  const desc = $("pathPersonalDesc");
-  if (!desc) return;
-  desc.textContent = hasNatal()
-    ? "已依你的星盤算好，直接看今天的愛情、事業、財運"
-    : "輸入生日，依你出生那天的星盤，算今天的愛情、事業、財運";
+  const k = $("pathPersonal").querySelector(".path-k");
+  if (k) k.textContent = hasNatal() ? "已設定星盤" : "推薦 · 更準";
 }
 $("pathPersonal").addEventListener("click", () => (hasNatal() ? showPersonal() : openBirth()));
 function backToFortune() {
@@ -2646,25 +2639,6 @@ function renderRhythm(info, prev, pos, prevPos) {
 
 function stars(n) { return "★".repeat(n) + "☆".repeat(5 - n); }
 
-function renderLegend() {
-  const rows = [
-    ["℞", "逆行：從地球看，這顆星暫時「倒退」，通常提醒回頭檢查、重做舊事。"],
-    ...ASPECTS.map((a) => [TXT(a.g), `${a.name}（${a.ang}°，容許誤差 ${a.orb}°）：${a.mean}`]),
-    ["線條顏色", "金＝合相、藍＝六分、紅＝四分、綠＝三分、橘＝對分。"],
-    ["虛線空心圈", "切換到別的日子時，今天的位置會以外圈的空心圓標示，弧線是這段期間走過的路；月亮繞太快，只在文字顯示累計角度。"],
-    ["輪盤方向", "牡羊 0° 在左側，星座逆時針排列；星體由內圈往外圈錯開，避免重疊。"],
-  ];
-  $("legend").replaceChildren(
-    ...rows.map(([k, v]) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<b></b><span></span>`;
-      li.querySelector("b").textContent = k;
-      li.querySelector("span").textContent = v;
-      return li;
-    }),
-  );
-}
-
 /* ---------- reveal on scroll ---------- */
 let io;
 function observeReveals() {
@@ -2726,7 +2700,6 @@ $("dayBar").addEventListener("click", (e) => {
   mq.addEventListener("change", place);
   place();
 }
-if (matchMedia("(hover: none)").matches) $("tbHint").textContent = "按鈕可以連續按，最多前後各看半年。點行星或相位，星盤會標出位置。";
 $("tbBtns").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
@@ -2766,11 +2739,10 @@ dlg.addEventListener("click", (e) => {
   if (k.length && matchMedia("(hover: none)").matches) setFocus(k, p);
 });
 
-$("openChart").addEventListener("click", () => { dlg.showModal(); document.body.classList.add("lock"); });
+$("openChart").addEventListener("click", () => dlg.showModal());
 const closeDlg = () => dlg.close();
 $("closeChart").addEventListener("click", closeDlg);
-dlg.addEventListener("click", (e) => { if (e.target === dlg) closeDlg(); }); // click on backdrop
-dlg.addEventListener("close", () => { document.body.classList.remove("lock"); setFocus([], null); });
+dlg.addEventListener("close", () => setFocus([], null));
 
 // keep "today" current: recompute every 5 minutes and when the Taipei date rolls over
 setInterval(() => {
@@ -2779,7 +2751,6 @@ setInterval(() => {
   if (`${tp.y}-${tp.m}-${tp.d}` !== shownDate || Date.now() - lastRender >= 5 * 60000) render({ dur: 1200 });
 }, 30000);
 
-renderLegend();
 stars_();
 buildNatalForm();
 render();
@@ -3190,11 +3161,9 @@ async function openShare(si) {
   $("shareDl").setAttribute("download", name);
   const nativeBtn = $("shareNative");
   const dl = $("shareDl");
-  const hint = $("shareHint");
   nativeBtn.hidden = true;
   dl.textContent = "下載圖片";
   dl.onclick = null;
-  hint.textContent = "手機上也可以長按圖片，選「加入照片」或「儲存影像」。";
   cv.toBlob((blob) => {
     if (!blob || !navigator.canShare) return;
     const file = new File([blob], name, { type: "image/png" });
@@ -3207,7 +3176,6 @@ async function openShare(si) {
         e.preventDefault();
         navigator.share({ files: [file] }).catch(() => {});
       };
-      hint.textContent = "按「儲存到相簿」後，在選單裡選「儲存影像」就會存進照片；也可以直接長按圖片儲存。";
       return;
     }
     nativeBtn.hidden = false;
@@ -3216,7 +3184,17 @@ async function openShare(si) {
   if (!dlg.open) dlg.showModal();
 }
 $("closeShare").addEventListener("click", () => $("shareDialog").close());
-$("shareDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+// Light dismiss: <dialog closedby="any"> does it natively; this covers browsers without it (Safari).
+if (!("closedBy" in HTMLDialogElement.prototype)) {
+  for (const d of [$("chartDialog"), $("shareDialog")]) {
+    d.addEventListener("click", (e) => {
+      if (e.target !== d) return;
+      const r = d.getBoundingClientRect();
+      const inside = r.top <= e.clientY && e.clientY <= r.bottom && r.left <= e.clientX && e.clientX <= r.right;
+      if (!inside) d.close();
+    });
+  }
+}
 
 // In-page links: scroll with JS so tapping the same link twice (hash already set) still works on mobile Safari.
 document.addEventListener("click", (e) => {

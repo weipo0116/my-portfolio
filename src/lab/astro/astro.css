@@ -270,7 +270,8 @@ html:not([data-theme="light"]) .summary { color: #f3ead6; }
 .how .prose b { color: var(--gold-soft); }
 
 /* dialog */
-body.lock { overflow: hidden; }
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
 dialog {
   width: min(960px, 94vw); max-height: 92vh; padding: 0; border: 1px solid var(--line); border-radius: 10px;
   background: linear-gradient(180deg, rgba(var(--panel-rgb), 0.97), rgba(var(--night-rgb), 0.98)); color: var(--marble);

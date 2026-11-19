@@ -33,7 +33,6 @@ a { color: inherit; }
 .back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; min-width: 44px; padding-right: 8px; margin-left: -4px; }
 .back svg { flex: none; }
 .back:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
-.kicker { margin: clamp(20px, 5vh, 56px) 0 0; font-weight: 800; letter-spacing: 0.3em; font-size: clamp(0.75rem, 1.8vw, 0.9rem); }
 /* the hero word stays inside the gutter: capped sizes + a little right padding for italic overhang */
 .mega { margin: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 2vw; flex: 1; min-width: 0; padding-right: 0.04em; line-height: 0.9; }
 .mega-zh { font-family: var(--zh); font-weight: 900; font-size: clamp(8rem, min(32vw, 52svh), 26rem); line-height: 1; letter-spacing: -0.04em; animation: zh-in 1.4s var(--ease) both; margin-left: -0.04em; }
@@ -122,7 +121,6 @@ h2 span { font-family: var(--sans); font-weight: 800; font-size: clamp(0.75rem, 
 .rule strong { display: block; font-family: var(--display); font-weight: 900; font-size: 1.7rem; line-height: 1.1; margin: 4px 0 8px; }
 .rule .rc { display: block; font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; color: var(--muted); }
 .rule p { margin: 0; font-size: 0.92rem; color: #333; max-width: 36ch; }
-.rule-note { margin: 14px 0 0; font-size: 0.85rem; color: var(--muted); max-width: 60ch; }
 
 .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
 .reveal.in { opacity: 1; transform: none; }
@@ -150,10 +148,6 @@ h2 span { font-family: var(--sans); font-weight: 800; font-size: clamp(0.75rem, 
 .rainbar { position: relative; width: 18px; height: 56px; border: 2px solid var(--black); background: transparent; display: flex; align-items: flex-end; }
 .rainbar i { display: block; width: 100%; height: var(--p); background: #1020d8; transition: height 0.6s var(--ease); }
 .hour em { font-style: normal; font-weight: 800; font-size: 0.78rem; }
-.hourly-key { margin: 10px 0 0; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.hourly-key span { display: inline-block; width: 12px; height: 12px; }
-.hourly-key .k1 { background: var(--black); border-radius: 50%; }
-.hourly-key .k2 { background: #1020d8; margin-left: 10px; }
 
 .score { position: absolute; left: 12px; top: 12px; z-index: 3; background: var(--black); color: var(--paper); padding: 6px 10px 5px; font-family: var(--display); font-weight: 900; font-size: 1.1rem; line-height: 1; display: flex; align-items: baseline; gap: 2px; }
 .score b { font-size: 1.8rem; }
@@ -199,8 +193,11 @@ section[id] { scroll-margin-top: 24px; }
 .pickbtn[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
 .pickbtn[aria-expanded="true"] i { transform: rotate(180deg); }
 .pickbtn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
-.cal { position: absolute; z-index: 30; top: calc(100% + 10px); left: 0; width: 320px; max-width: calc(100vw - 32px); background: var(--paper); color: var(--black); border: 3px solid var(--black); box-shadow: 8px 8px 0 var(--black); padding: 12px; animation: up 0.35s var(--ease) both; }
-.cal[hidden] { display: none; }
+.cal { width: min(320px, calc(100vw - 32px)); background: var(--paper); color: var(--black); border: 3px solid var(--black); box-shadow: 8px 8px 0 var(--black); padding: 12px; animation: up 0.35s var(--ease) both; }
+/* popover: top layer, tethered to the trigger; without anchor positioning it keeps the default centred placement */
+@supports (position-area: block-end) {
+  .cal { inset: auto; margin: 10px 0 0; position-area: block-end span-inline-end; position-try-fallbacks: flip-block, flip-inline; }
+}
 .cal-head { display: grid; grid-template-columns: 44px 44px 1fr 44px 44px; align-items: center; margin-bottom: 8px; }
 .cal-head b { text-align: center; font-size: 1.05rem; font-weight: 800; letter-spacing: 0.12em; }
 .cal-head button, .cal-today { font: inherit; font-weight: 800; background: transparent; color: var(--black); border: 2px solid transparent; min-height: 44px; cursor: pointer; transition: background 0.2s var(--ease), color 0.2s var(--ease); }
@@ -224,7 +221,6 @@ section[id] { scroll-margin-top: 24px; }
 /* The giant glyph may overlap the controls on some screens: it never takes clicks, and controls sit above it */
 .mega, .mega * { pointer-events: none; }
 .daybar, .answer, .jump, .chips, .topbar { position: relative; z-index: 3; }
-.cal { z-index: 40; }
 
 @media (max-width: 640px) {
   /* answer first: looks and colours come right after the hero, the detailed weather block moves below them (visual order only) */
@@ -247,7 +243,7 @@ section[id] { scroll-margin-top: 24px; }
   .days .tab { min-width: 0; }
   .datepick { width: 100%; }
   .pickbtn { width: 100%; justify-content: space-between; }
-  .cal { width: 100%; max-width: none; }
+  @supports (width: anchor-size(width)) { .cal { width: anchor-size(width); } }
   .dock a { padding: 0 12px; }
   .jump a { min-width: 0; flex: 1 1 30%; padding: 10px 12px 9px; }
   .answer-jump { width: 100%; justify-content: center; }
@@ -264,7 +260,7 @@ section[id] { scroll-margin-top: 24px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
-  .marquee-track { animation: none; }
+  .marquee-track, .cal { animation: none; }
   #wipe { display: none; }
   .reveal, .look, .rule, .wcell, .hour { opacity: 1; transform: none; }
 }
@@ -450,7 +446,6 @@ body { background: var(--paper); transition: background-color 0.6s var(--ease); 
 .lk-dots { gap: 4px; }
 .lk-dots button { width: 48px; height: 44px; }
 .lk-dots button::before { left: 8px; right: 8px; }
-.rule .rwhy { margin-top: 8px; font-size: 0.78rem; color: var(--muted); }
 @media (max-width: 720px) {
   /* phones: swipe the strip; no side arrows */
   .hourly-frame { grid-template-columns: minmax(0, 1fr); }

@@ -309,7 +309,11 @@ export function createMotes(cv) {
 
   size();
   window.addEventListener("resize", size);
-  document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else if (!reduceMotion.matches) start();
+  });
   return {
     start,
     stop,

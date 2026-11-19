@@ -492,7 +492,6 @@ function renderHero() {
   document.documentElement.style.setProperty("--paper", tint("#f4f1ea", state.pal.g1.wear || state.pal.g1.hex, 0.14));
   document.querySelector('meta[name="theme-color"]').setAttribute("content", E.bg);
   $("dateLine").textContent = `${t.y}.${String(t.m).padStart(2, "0")}.${String(t.d).padStart(2, "0")} ${t.wk} · ${gz}日 · ${city.en}`;
-  $("kicker").textContent = state.off === 0 ? "TODAY'S LOOK · 今日主色" : `${dayName(state.off).en} · ${dayName(state.off).zh}主色`;
   $("elZh").textContent = E.zh;
   splitChars($("elEn"), E.en);
   $("heroStatus").textContent = `${dayName(state.off).zh}主色：${E.zh}（${E.en}）`;
@@ -544,7 +543,6 @@ function renderCityTabs() {
       }),
     ),
   );
-  $("wCity").textContent = `${CITIES[state.city].zh} · ${state.off === 0 ? "現在天氣" : `${dayName(state.off).md} 當天天氣`}`;
 }
 
 function renderWeather() {
@@ -695,8 +693,8 @@ function switchDay(off) {
 /* ---------- calendar popover ---------- */
 const cal = { y: 0, m: 0 };
 function closeCal() {
-  $("cal").hidden = true;
-  $("dayPickBtn").setAttribute("aria-expanded", "false");
+  const c = $("cal");
+  if (c.matches(":popover-open")) c.hidePopover();
 }
 function renderCal() {
   const t = todayIn(CITIES[state.city].tz);
@@ -721,27 +719,29 @@ function renderCal() {
   }
   $("calGrid").replaceChildren(...cells);
 }
-function openCal() {
+// Popover API (popover="auto") handles toggling, outside-click and Escape (focus returns to the trigger).
+$("cal").addEventListener("beforetoggle", (e) => {
+  if (e.newState !== "open") return;
   cal.y = state.day.t.y;
   cal.m = state.day.t.m;
   renderCal();
-  $("cal").hidden = false;
-  $("dayPickBtn").setAttribute("aria-expanded", "true");
-}
+});
+$("cal").addEventListener("toggle", (e) => {
+  const open = e.newState === "open";
+  $("dayPickBtn").setAttribute("aria-expanded", String(open));
+  if (open) ($("calGrid").querySelector(".cd.sel") || $("calGrid").querySelector(".cd.today") || $("calGrid").querySelector(".cd:not(.out)"))?.focus();
+});
 const moveMonth = (dm) => {
   const u = new Date(Date.UTC(cal.y, cal.m - 1 + dm, 1));
   cal.y = u.getUTCFullYear();
   cal.m = u.getUTCMonth() + 1;
   renderCal();
 };
-$("dayPickBtn").addEventListener("click", () => ($("cal").hidden ? openCal() : closeCal()));
 $("calPrev").addEventListener("click", () => moveMonth(-1));
 $("calNext").addEventListener("click", () => moveMonth(1));
 $("calPrevY").addEventListener("click", () => moveMonth(-12));
 $("calNextY").addEventListener("click", () => moveMonth(12));
 $("calToday").addEventListener("click", () => { if (state.off !== 0) switchDay(0); else closeCal(); });
-document.addEventListener("click", (e) => { if (!$("cal").hidden && !$("datepick").contains(e.target)) closeCal(); });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("cal").hidden) { closeCal(); $("dayPickBtn").focus(); } });
 
 async function switchCity(id) {
   state.city = id;
@@ -845,19 +845,15 @@ function renderAnswer(look) {
   $("answerText").textContent = `${dayName(state.off).zh}${when}${occ.verb}：${wear} · 體感 ${Math.round(w.feel)}° ${WCODE(w.code)} · 降雨 ${Math.round(w.rain)}%，${umbrella}${tail}`;
 }
 
-// One "why" sentence per source, tagged so computed weather and interpretive five-elements advice stay distinguishable.
+// One short weather line; the colour logic is shown in the lucky-colour cards.
 function renderWhy(b) {
   const w = state.weather;
-  const pal = state.pal;
-  const E = EL[state.day.el];
   const rainTxt = w.rain >= RAIN_AT ? `降雨機率 ${Math.round(w.rain)}%，帶傘並穿防水鞋` : `降雨機率 ${Math.round(w.rain)}%，不用帶傘`;
   const uvTxt = w.uv >= 8 ? "；紫外線偏高，加帽子或墨鏡" : "";
   const est = w.ok ? "" : `<span class="tag tag-est">估計</span>`;
   const estNote = w.ok ? "" : "（季節平均估算，僅供參考）";
   $("why").innerHTML =
-    `<p><span class="tag tag-calc">天氣 · 計算</span>${est}體感 ${Math.round(w.feel)}°（${BAND_NAME[b]}），${BAND_WHY[b]}；${rainTxt}${uvTxt}。${estNote}</p>` +
-    `<p><span class="tag tag-interp">五行 · 詮釋</span>${dayName(state.off).zh}是${E.zh}日：旺色 ${pal.g1.n} 放大面積，助色 ${pal.g2.n} 放下身或配件，穩色 ${pal.g3.n} 收尾；墨黑、米白為中性色，只用來打底。</p>` +
-    `<p><span class="tag tag-calc">單品</span>${FITS.find(([v]) => v === state.prefs.fit)[1]}版型 · ${state.prefs.style === "any" ? "不限風格" : STYLES.find(([v]) => v === state.prefs.style)[1] + "風"}；每天會換組合，不喜歡就按卡片下方「換一套」。</p>`;
+    `<p>${est}體感 ${Math.round(w.feel)}°（${BAND_NAME[b]}），${BAND_WHY[b]}；${rainTxt}${uvTxt}。${estNote}</p>`;
 }
 
 function renderLooks(animate, only = null) {
@@ -891,10 +887,10 @@ function renderLooks(animate, only = null) {
     const rows = l.pieces
       .map((p) => {
         const c = slotColor(p.slot, state.pal);
-        return `<li><span class="dot" style="background:${c.wear || c.hex}"></span><em>${p.part}</em><b>${p.item}</b><small>${TIER[p.slot] ? `${TIER[p.slot]} · ${c.n}` : p.slot === "accent" ? "點綴" : `中性色 · ${c.n}`}</small></li>`;
+        return `<li><span class="dot" style="background:${c.wear || c.hex}"></span><em>${p.part}</em><b>${p.item}</b></li>`;
       })
       .join("");
-    card.innerHTML = `<div class="story"><div class="score" title="依旺／助／穩色的佔比估算"><b>${l.score}</b>/10<small>ENERGY</small></div><div class="bands">${bands}</div></div><div class="look-body"><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul><button type="button" class="reroll" data-v="${i}"><span aria-hidden="true">↻</span> 換一套</button></div>`;
+    card.innerHTML = `<div class="story"><div class="score"><b>${l.score}</b>/10<small>ENERGY</small></div><div class="bands">${bands}</div></div><div class="look-body"><h3>${l.name}</h3><p>${l.note}</p><ul>${rows}</ul><button type="button" class="reroll" data-v="${i}"><span aria-hidden="true">↻</span> 換一套</button></div>`;
     return card;
   });
   const track = h("div", "look-track");
@@ -953,14 +949,14 @@ document.addEventListener("keydown", (e) => {
 function renderRules() {
   const el = state.day.el;
   const rows = [
-    ["g1", ctrlBy(el), "今天最有助力的顏色，優先放在上身、外套這些大面積的地方。", `五行：${EL[ctrlBy(el)].zh}剋${EL[el].zh}（剋我者）`],
-    ["g2", CTRL[el], "第二順位，放在下身、鞋子或配件，補上第二層能量。", `五行：${EL[el].zh}剋${EL[CTRL[el]].zh}（我剋者）`],
-    ["g3", el, "和今天同屬性，不加分也不扣分，當底色或小點綴就好。", `五行：同為${EL[el].zh}（同我者）`],
+    ["g1", ctrlBy(el), "今天最有助力的顏色，優先放在上身、外套這些大面積的地方。"],
+    ["g2", CTRL[el], "第二順位，放在下身、鞋子或配件，補上第二層能量。"],
+    ["g3", el, "和今天同屬性，不加分也不扣分，當底色或小點綴就好。"],
   ];
   $("rules").replaceChildren(
-    ...rows.map(([slot, e, t, why], i) => {
+    ...rows.map(([slot, e, t], i) => {
       const E = EL[e];
-      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${TIER[slot]} · ${TIER_EN[slot]}</small><strong>${E.colors[0].n.split(" ")[1]}</strong><b class="rc">${E.zh}（${E.en}）· ${E.colors[0].n.split(" ")[0]}</b><p>${t}</p><p class="rwhy">${why}</p>`);
+      const d = h("div", "rule", `<i style="background:${E.colors[0].hex}"></i><small>${TIER[slot]} · ${TIER_EN[slot]}</small><strong>${E.colors[0].n.split(" ")[1]}</strong><b class="rc">${E.zh}（${E.en}）· ${E.colors[0].n.split(" ")[0]}</b><p>${t}</p>`);
       d.style.setProperty("--i", i);
       return d;
     }),

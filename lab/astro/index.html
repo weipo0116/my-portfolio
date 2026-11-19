@@ -46,17 +46,14 @@
           <button id="today" type="button">今日</button>
           <button id="next" type="button" aria-label="後一天">明日 ›</button>
         </div>
-        <p class="tz-note">日期與時間以台北時間為準</p>
         <div class="paths v-fortune" role="group" aria-label="選擇你想看的運勢">
           <button type="button" class="path is-main" id="pathPersonal">
             <span class="path-k">推薦 · 更準</span>
             <span class="path-t">看我的專屬運勢 <span aria-hidden="true">✦</span></span>
-            <span class="path-d" id="pathPersonalDesc">輸入生日，依你出生那天的星盤，算今天的愛情、事業、財運</span>
           </button>
           <button type="button" class="path" id="pathSign">
             <span class="path-k">快速看</span>
             <span class="path-t">只看星座運勢</span>
-            <span class="path-d">選你的太陽星座，看今天的大方向</span>
           </button>
         </div>
         <p class="mode-note v-chart">星盤模式 · <button type="button" class="linkbtn" id="toFortune">切換到運勢</button></p>
@@ -74,7 +71,7 @@
       </header>
 
       <section class="block reveal v-fortune" id="sec-today" aria-labelledby="h-today">
-        <h2 id="h-today"><span class="num">✦</span> 我的運勢 <em>Fortuna Mea</em></h2>
+        <h2 id="h-today"><span class="num">✦</span> 我的運勢</h2>
         <div class="signbar pick" id="todayPick" role="group" aria-label="選擇你的星座"></div>
         <div class="fortune-ctl">
           <div class="seg" id="modeSeg" role="group" aria-label="時間範圍">
@@ -86,7 +83,7 @@
       </section>
 
       <section class="block reveal v-chart" id="sec-energy" aria-labelledby="h-energy">
-        <h2 id="h-energy"><span class="num">I</span> 今日能量 <em>Vis Diei</em></h2>
+        <h2 id="h-energy"><span class="num">I</span> 今日能量</h2>
         <div id="vocAlert" class="voc-alert" role="status" hidden></div>
         <p id="headline" class="headline"></p>
         <div class="en-wrap">
@@ -112,11 +109,11 @@
           <ul id="ahead" class="difflist ahead"></ul>
         </details>
         <details class="fold">
-          <summary><span>背景天象</span><small>幾週才變一次</small></summary>
+          <summary><span>背景天象</span></summary>
           <ul id="energy" class="bglist"></ul>
         </details>
         <details class="how">
-          <summary>這段能量是怎麼算出來的？</summary>
+          <summary>怎麼算出來的</summary>
           <div class="prose">
             <p><b>1. 位置是即時算的。</b>每次開頁，瀏覽器會用天文曆算（astronomy-engine）算出此刻 10 顆星體在黃道上的位置，不是查表、也不用網路。這是以地球為中心的視位置（geocentric apparent positions），依畫面顯示的台北時間計算（本週運勢以各日台北 12:00 計算），誤差約一角分；但從位置推出的解讀文字是模板化的詮釋，不是測量結果。</p>
             <p><b>2. 每顆星有固定角色。</b>太陽＝今天的主題、月亮＝情緒底色、水星＝溝通（逆行要多確認）、金星＝關係與金錢、火星＝行動力；它們落在哪個星座，就決定語氣。</p>
@@ -134,8 +131,7 @@
 
       <section class="block reveal v-chart" id="sec-houses" aria-labelledby="h-houses">
         <button type="button" class="backbar" data-back-fortune><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>回到星座運勢（今日／本週）</button>
-        <h2 id="h-houses"><span class="num">II</span> 你的今日 <em>Domus</em></h2>
-        <p class="prose sub-note">選你的星座就能看月亮今天走到你的哪一宮；填上出生資料，最上面會依你的星盤算今天的愛情、事業、財運。資料只存在這台裝置。</p>
+        <h2 id="h-houses"><span class="num">II</span> 你的今日</h2>
         <div class="natal" id="natal">
           <div class="natal-row" id="natalMain"></div>
           <details class="natal-more">
@@ -165,32 +161,31 @@
               <label>城市<select id="bCity"></select></label>
               <label>時區<select id="bTz"></select></label>
               <div class="birth-act"><button type="button" id="bCalc" class="pillbtn">計算並填入</button><button type="button" id="bClear" class="linkbtn">清除我的資料</button></div>
-              <p class="birth-note" id="bNote">不知道準確時間也可以算：選白天、晚上或半夜，會用那段時間的中間估算；月亮如果在那段時間換了星座，會兩個都列出來。沒有準確時間就算不出上升。海外出生若當時是夏令時間，時區請選快一小時的那個。</p>
+              <p class="birth-note" id="bNote" role="status"></p>
             </div>
           </details>
         </div>
         <div id="personal" class="personal"></div>
         <details class="fold">
-          <summary><span>你的十二宮</span><small>每一宮代表什麼</small></summary>
+          <summary><span>你的十二宮</span></summary>
           <p class="prose sub-note" id="housesNote"></p>
           <ul id="houses" class="houses"></ul>
         </details>
       </section>
 
       <section class="block reveal v-chart" id="sec-natal" aria-labelledby="h-natal">
-        <h2 id="h-natal"><span class="num">III</span> 你的星盤 <em>Thema Natale</em></h2>
-        <p class="prose sub-note" id="natalIntro">在「你的今日」填上出生資料（或選好星座），這裡會排出你的出生星盤：每顆星在哪個星座、哪一宮，以及怎麼讀。</p>
+        <h2 id="h-natal"><span class="num">III</span> 你的星盤</h2>
         <div class="house-read" id="houseRead"></div>
       </section>
 
 
       <section class="block reveal v-chart" id="sec-syn" aria-labelledby="h-syn">
-        <h2 id="h-syn"><span class="num">IV</span> 合盤 <em>Synastria</em></h2>
+        <h2 id="h-syn"><span class="num">IV</span> 合盤</h2>
         <div id="synBox"></div>
       </section>
 
       <section class="block reveal moon-block v-chart" id="sec-moon" aria-labelledby="h-moon">
-        <h2 id="h-moon"><span class="num">V</span> 月相 <em>Luna</em></h2>
+        <h2 id="h-moon"><span class="num">V</span> 月相</h2>
         <div class="moon-row">
           <svg id="moon" viewBox="-60 -60 120 120" role="img" aria-label="今日月相" aria-describedby="moonText"></svg>
           <div id="moonText" class="prose"></div>
@@ -198,10 +193,7 @@
       </section>
 
       <footer class="foot" id="sec-notes">
-        <p class="foot-title">關於這個頁面</p>
-        <p id="updatedNote"></p>
-        <p>行星位置以天文曆算（astronomy-engine, MIT）於瀏覽器內即時計算；以台北時間為準。</p>
-        <p>星座解讀為占星娛樂與自我反思的參考，不是科學預測，也不構成醫療、財務或法律建議。</p>
+        <p>行星位置於瀏覽器內以天文曆算即時計算，以台北時間為準；內容為占星娛樂與自我反思參考，不構成醫療、財務或法律建議。</p>
         <p><a href="../../work/">← 回到 Lab</a></p>
       </footer>
     </main>
@@ -214,7 +206,7 @@
       <a class="db-top" href="#top" aria-label="回到頂端">↑</a>
     </div>
 
-    <dialog id="shareDialog" class="share-dlg" aria-labelledby="shareTitle">
+    <dialog id="shareDialog" class="share-dlg" closedby="any" aria-labelledby="shareTitle">
       <div class="dlg-bar">
         <h2 id="shareTitle">分享圖卡</h2>
         <button id="closeShare" type="button" aria-label="關閉">✕</button>
@@ -225,11 +217,10 @@
           <button id="shareNative" type="button" class="cta" hidden>分享</button>
           <a id="shareDl" class="cta ghost" download="astra-dies.png">下載圖片</a>
         </div>
-        <p id="shareHint" class="share-hint">手機上也可以長按圖片儲存。</p>
       </div>
     </dialog>
 
-    <dialog id="chartDialog" aria-labelledby="dlgTitle">
+    <dialog id="chartDialog" closedby="any" aria-labelledby="dlgTitle">
       <div class="dlg-bar">
         <h2 id="dlgTitle">星盤詳情 <em id="dlgDate"></em></h2>
         <button id="closeChart" type="button" aria-label="關閉">✕</button>
@@ -257,25 +248,20 @@
                   <button type="button" data-step="30">後一月 »</button>
                 </div>
               </div>
-              <p class="tb-hint" id="tbHint">按鈕可以連續按，最多前後各看半年。滑鼠移到右側的行星或相位，左邊星盤會聚焦。</p>
             </div>
           </aside>
           <div class="dlg-right">
             <section class="dlg-sec first" id="periodSec" aria-labelledby="h-period" hidden>
-              <h3 id="h-period"><span class="num">I</span> 期間變化 <em>Mutationes</em></h3>
+              <h3 id="h-period"><span class="num">I</span> 期間變化</h3>
               <ul id="period" class="events"></ul>
             </section>
             <section class="dlg-sec" aria-labelledby="h-planets">
-              <h3 id="h-planets"><span class="num">II</span> 行星位置 <em>Loci Planetarum</em></h3>
+              <h3 id="h-planets"><span class="num">II</span> 行星位置</h3>
               <ul id="planets" class="planets"></ul>
             </section>
             <section class="dlg-sec" aria-labelledby="h-aspects">
-              <h3 id="h-aspects"><span class="num">III</span> 重要相位 <em>Aspectus</em></h3>
+              <h3 id="h-aspects"><span class="num">III</span> 重要相位</h3>
               <div id="aspects" class="aspects"></div>
-            </section>
-            <section class="dlg-sec" aria-labelledby="h-legend">
-              <h3 id="h-legend"><span class="num">IV</span> 標記說明 <em>Notae</em></h3>
-              <ul class="legend" id="legend"></ul>
             </section>
           </div>
         </div>

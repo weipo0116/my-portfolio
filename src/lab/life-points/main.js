@@ -56,7 +56,6 @@ const fresh = () => ({
   countryKnown: true,
   sex: "b",
   ...DEFAULTS,
-  touched: {},
   parentsMode: "both",
   which: "mother",
   motherAge: "",
@@ -262,9 +261,6 @@ function buildStats() {
     (k) => `<article class="stat" data-k="${k}">
       <h3 class="stat-label"></h3>
       <p class="stat-val"><span class="about"></span><span class="stat-num num"></span><span class="unit"></span></p>
-      <span class="tag" hidden></span>
-      <button class="how" type="button" aria-expanded="false" aria-controls="f-${k}"><span aria-hidden="true">?</span></button>
-      <p class="formula" id="f-${k}" hidden></p>
     </article>`,
   ).join("");
   $("#apBar").innerHTML = "<i></i>".repeat(20);
@@ -273,14 +269,14 @@ function buildStats() {
 function statModel() {
   const d = data;
   return {
-    eves: [S.cardEves, d.eves, S.unitTimes, S.fEves(d)],
-    birthdays: [S.cardBirthdays, d.birthdays, S.unitTimes, S.fBirthdays(d)],
-    mornings: [S.cardMornings, d.days, S.unitCount, S.fMornings(d)],
-    weekends: [S.cardWeekends, d.weekends, S.unitCount, S.fWeekends(d)],
-    moons: [S.cardMoons, d.moons, S.unitTimes, S.fMoons(d)],
-    trips: [S.cardTrips, d.trips, S.unitTimes, S.fTrips(d, state.trips), "trips"],
-    books: [S.cardBooks, d.books, S.unitBooks, S.fBooks(d, state.books), "books"],
-    meetups: [S.cardMeetups, d.meetups, S.unitTimes, S.fMeetups(d, state.meetups), "meetups"],
+    eves: [S.cardEves, d.eves, S.unitTimes],
+    birthdays: [S.cardBirthdays, d.birthdays, S.unitTimes],
+    mornings: [S.cardMornings, d.days, S.unitCount],
+    weekends: [S.cardWeekends, d.weekends, S.unitCount],
+    moons: [S.cardMoons, d.moons, S.unitTimes],
+    trips: [S.cardTrips, d.trips, S.unitTimes],
+    books: [S.cardBooks, d.books, S.unitBooks],
+    meetups: [S.cardMeetups, d.meetups, S.unitTimes],
   };
 }
 
@@ -288,21 +284,15 @@ const counters = new Map();
 function renderStats() {
   const model = statModel();
   $$(".stat").forEach((el) => {
-    const [label, value, unit, formula, tuneKey] = model[el.dataset.k];
+    const [label, value, unit] = model[el.dataset.k];
     $(".stat-label", el).textContent = label;
     $(".about", el).textContent = S.about;
     $(".unit", el).textContent = unit;
-    $(".formula", el).textContent = formula;
-    $(".how", el).setAttribute("aria-label", `${label}: ${S.how}`);
-    const tag = $(".tag", el);
-    tag.textContent = S.defaultTag;
-    tag.hidden = !tuneKey || Boolean(state.touched[tuneKey]);
     cancelAnimationFrame(counters.get(el));
     $(".stat-num", el).textContent = fmt(value);
     el.dataset.value = value;
   });
   const left = 100 - data.progress;
-  $("#apPct").textContent = `${left}%`;
   $("#apSr").textContent = `${S.apLabel} ${left}%`;
   $$("#apBar i").forEach((seg, i) => seg.classList.toggle("on", i < Math.round(left / 5)));
 }
@@ -378,7 +368,6 @@ function renderTail() {
     if (!p) return;
     const name = S[who];
     phr($(`#line${id}`), S.visitsLine(name, p.visits));
-    $(`#f${id}`).textContent = S.fVisits(state.visits, p);
     $(`#used${id}`).style.width = `${p.usedPct}%`;
     phr($(`#usedLine${id}`), S.usedLine(p.usedPct));
     const cv = $(`#box${id}`);
@@ -387,15 +376,12 @@ function renderTail() {
   });
   if (none) {
     phr($("#lineFriends"), S.friendsLine(data.meetups));
-    $("#fFriends").textContent = S.fMeetups(data, state.meetups);
     const cv = $("#boxFriends");
     cv.setAttribute("aria-label", S.friendsAlt(data.meetups));
     drawBoxes(cv, data.meetups);
   }
   $("#visitsOut").textContent = S.perYearTimes(state.visits);
-  $("#visitsTag").hidden = Boolean(state.touched.visits);
   $("#meetups2Out").textContent = S.perYearTimes(state.meetups);
-  $("#meetups2Tag").hidden = Boolean(state.touched.meetups);
   renderKids();
 }
 
@@ -431,7 +417,6 @@ function renderKids() {
     const cls = k.childNow >= m ? "past" : at > data.L ? "beyond" : "";
     return `<li class="${cls}"><b>${cls === "past" ? `<i>${esc(S.msPast)}</i>` : ""}${esc(label)}</b><span>${esc(S.msRow(Math.round(at)))}</span></li>`;
   }).join("");
-  $("#fKids").textContent = S.fKids(k.L, Math.round(k.birthAge));
 }
 
 /* ---------- scene 4: dreams ---------- */
@@ -455,7 +440,6 @@ function renderDreams() {
     el.setAttribute("aria-pressed", on);
     el.setAttribute("aria-disabled", full && !on);
   });
-  $("#maxNote").hidden = !full;
   $("#customChips").innerHTML = state.dreams
     .map((entry, i) => (typeof entry === "string" ? "" : `<button class="chip" type="button" data-i="${i}" aria-pressed="true" aria-label="${S.remove}: ${esc(entry.custom)}">${icon(STAR)}<span>${esc(entry.custom)}</span><span aria-hidden="true">×</span></button>`))
     .join("");
@@ -510,7 +494,6 @@ function renderRoad() {
     : `<p class="gentle" id="roadEmpty"></p>`;
   spreadLanterns(road.lanterns, d.a + 1, Math.max(d.a + 1, d.L - 1));
   if (!road.lanterns.length) phr($("#roadEmpty"), S.roadEmpty);
-  $("#roadNote").hidden = !road.lanterns.some((l) => l.dream);
   road.memories = STAGES.filter((st) => st.from < d.a && Math.min(st.to, d.a) - st.from >= 1).map((st) => ({
     age: (st.from + Math.min(st.to, d.a)) / 2,
     text: S.mem[st.key],
@@ -720,16 +703,35 @@ function render() {
 }
 
 /* ---------- events ---------- */
+// Age error: shown only after interaction (blur after typing, or a failed submit).
+// aria-describedby lists the message only while it is visible.
+let ageDirty = false;
+let announceTimer = 0;
+function setAgeError(show, announce = false) {
+  const el = $("#age");
+  const msg = $("#ageError");
+  msg.hidden = !show;
+  el.setAttribute("aria-invalid", String(show));
+  if (show) el.setAttribute("aria-describedby", "ageError");
+  else el.removeAttribute("aria-describedby");
+  clearTimeout(announceTimer);
+  $("#announcer").textContent = "";
+  if (show && announce) {
+    // a moment later, so it doesn't talk over the field that receives focus next
+    announceTimer = setTimeout(() => { $("#announcer").textContent = `${$("label[for=age]").textContent}: ${msg.textContent}`; }, 500);
+  }
+}
+
 function start(e) {
   e.preventDefault();
   const ageEl = $("#age");
   if (ageEl.value.trim() === "" || !Number.isFinite(Number(ageEl.value))) {
-    ageEl.setAttribute("aria-invalid", "true");
-    ageEl.focus();
+    setAgeError(true);
+    ageEl.focus(); // focus makes screen readers read the linked error
     return;
   }
   if (musicPref() && !music.on) setMusic(true, false);
-  ageEl.removeAttribute("aria-invalid");
+  setAgeError(false);
   state.age = clampAge(ageEl.value);
   ageEl.value = state.age;
   if (state.motherAge === "") state.motherAge = clampAge(state.age + 28, 18, 110);
@@ -753,11 +755,16 @@ function start(e) {
 function bind() {
   $("#startForm").addEventListener("submit", start);
   $("#age").addEventListener("input", (e) => {
+    ageDirty = true;
+    if (e.target.value !== "" && !$("#ageError").hidden) setAgeError(false);
     if (!state.started || e.target.value === "") return;
     state.age = clampAge(e.target.value);
     render();
   });
-  $("#age").addEventListener("blur", (e) => { if (e.target.value !== "") e.target.value = clampAge(e.target.value); });
+  $("#age").addEventListener("blur", (e) => {
+    if (e.target.value !== "") e.target.value = clampAge(e.target.value);
+    else if (ageDirty) setAgeError(true, true);
+  });
   $("#country").addEventListener("input", (e) => {
     const r = resolveCountry(e.target.value);
     state.country = r.code;
@@ -774,31 +781,29 @@ function bind() {
     render();
   });
 
-  $("#stats").addEventListener("click", (e) => {
-    const btn = e.target.closest(".how");
-    if (!btn) return;
-    const open = btn.getAttribute("aria-expanded") !== "true";
-    btn.setAttribute("aria-expanded", open);
-    $(`#${btn.getAttribute("aria-controls")}`).hidden = !open;
-  });
   const sheet = $("#tune");
   $("#tuneBtn").addEventListener("click", () => sheet.showModal());
-  sheet.addEventListener("click", (e) => { if (e.target === sheet) sheet.close(); });
+  // Light dismiss: native via closedby="any"; this is only the fallback (Safari).
+  if (!("closedBy" in HTMLDialogElement.prototype)) {
+    sheet.addEventListener("click", (e) => {
+      if (e.target !== sheet) return;
+      const r = sheet.getBoundingClientRect();
+      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (!inside) sheet.close();
+    });
+  }
   ["trips", "books", "meetups"].forEach((k) => {
     $(`#${k}`).addEventListener("input", (e) => {
       state[k] = Number(e.target.value);
-      state.touched[k] = true;
       render();
     });
   });
   $("#meetups2").addEventListener("input", (e) => {
     state.meetups = Number(e.target.value);
-    state.touched.meetups = true;
     render();
   });
   $("#visits").addEventListener("input", (e) => {
     state.visits = VISIT_STEPS[Number(e.target.value)];
-    state.touched.visits = true;
     render();
   });
   $("#parentsSeg").addEventListener("change", (e) => { state.parentsMode = e.target.value; render(); });
@@ -870,6 +875,8 @@ function bind() {
     data = null;
     Object.keys(seen).forEach((k) => { seen[k] = false; });
     $("#startForm").reset();
+    ageDirty = false;
+    setAgeError(false);
     $("#move").value = "";
     $("#countryNote").hidden = true;
     $("#shareNote").hidden = true;
@@ -921,6 +928,7 @@ function buildCave() {
   });
 }
 
+const NATIVE_PROGRESS = CSS.supports("animation-timeline", "scroll(root)");
 let caveKey = "";
 function moveCave() {
   const max = document.documentElement.scrollHeight - window.innerHeight;
@@ -928,8 +936,9 @@ function moveCave() {
   const key = `${g.toFixed(4)}${reduced()}`;
   if (key === caveKey) return;
   caveKey = key;
-  $("#progressBar").style.transform = `scaleX(${g})`;
   const still = reduced();
+  // Native scroll-driven animation (see CSS) moves the bar; JS only when it is unavailable or motion is reduced.
+  if (!(NATIVE_PROGRESS && !still)) $("#progressBar").style.transform = `scaleX(${g})`;
   $$(".cave-rock").forEach((el, i) => {
     const scale = Math.min(10, 1 / Math.max(0.04, 1 - g * CAVE[i][2]));
     const op = still ? clamp(1 - g * CAVE[i][2], 0, 1) : clamp((10 - scale) / 5, 0, 1);
