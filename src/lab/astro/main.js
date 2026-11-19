@@ -2920,13 +2920,25 @@ $("toFortune").addEventListener("click", () => setView("fortune"));
   }
 }
 
+// Phones: while scrolling down, the top buttons slide away and the chapter tabs take their place.
+if (!CSS.supports("container-type: scroll-state")) {
+  let lastY = scrollY;
+  addEventListener("scroll", () => {
+    const y = scrollY;
+    if (Math.abs(y - lastY) < 6) return;
+    document.documentElement.classList.toggle("scroll-down", y > lastY && y > 120);
+    lastY = y;
+  }, { passive: true });
+}
+
 /* ---------- today at a glance: the headline and your three stars, always in view on desktop ---------- */
 function renderGlance() {
   const g = $("glance");
   const el = (tag, cls, text) => Object.assign(document.createElement(tag), { className: cls || "", textContent: text || "" });
-  const parts = [el("p", "gl-k", "今日一覽"), el("p", "gl-head", $("headline").textContent)];
+  const parts = [el("p", "gl-k", "今日天象"), el("p", "gl-head", $("headline").textContent)];
   const rows = [...document.querySelectorAll("#personal .tcats li")];
   if (rows.length) {
+    parts.push(el("p", "gl-k", "你的今日"));
     const ul = el("ul", "gl-stars");
     rows.forEach((li) => {
       const a = el("a", "", "");

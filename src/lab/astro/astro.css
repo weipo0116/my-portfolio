@@ -1181,3 +1181,26 @@ dialog.entry-dlg { width: min(420px, calc(100vw - 32px)); height: fit-content; m
 .gl-stars a:hover { color: var(--gold); }
 .gl-st { color: var(--gold); letter-spacing: 0.1em; }
 .gl-adv { margin: 0; font-size: 0.9rem; line-height: 1.7; color: var(--body); }
+
+.sec-sub { margin: -6px 0 18px; font-size: 0.9rem; color: var(--muted); }
+.gl-k + .gl-stars { margin-top: -4px; }
+
+/* phones: compact tabs; scrolling down hides the top buttons and lifts the tabs to the top edge */
+@media (max-width: 1179px) {
+  html { container-type: scroll-state; }
+  .secnav { top: 68px; padding-block: 6px; transition: top 0.3s var(--ease); }
+  .secnav a { min-height: 34px; padding: 0 12px; font-size: 0.85rem; }
+  .back-lab, .view-seg, .theme-btn { transition: transform 0.3s var(--ease), opacity 0.3s var(--ease); }
+  html.scroll-down .back-lab, html.scroll-down .view-seg, html.scroll-down .theme-btn { transform: translateY(-80px); opacity: 0; }
+  html.scroll-down .secnav { top: 0; z-index: 58; }
+  html.scroll-down body::before { opacity: 0; }
+  @container scroll-state((scrolled: bottom) and (scrollable: top)) {
+    .back-lab, .view-seg, .theme-btn { transform: translateY(-80px); opacity: 0; }
+    .secnav { top: 0; z-index: 58; }
+    body::before { opacity: 0; }
+  }
+  .back-lab:focus-within, .view-seg:focus-within, .theme-btn:focus-visible { transform: none; opacity: 1; }
+}
+@media (max-width: 1179px) and (prefers-reduced-motion: reduce) {
+  .secnav, .back-lab, .view-seg, .theme-btn { transition: none; }
+}
